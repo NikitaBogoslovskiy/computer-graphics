@@ -1,5 +1,4 @@
 from math import floor
-from matplotlib import pyplot  
 import numpy as np
 from PIL import Image
 
@@ -24,17 +23,10 @@ def get_hsv_pixel(pixel : np.array):
     else:
         S = 1 - min/max
 
-    V = max
+    return np.array([H, S, max])
 
-    return np.array([H, S, V])
-
-def rgb_to_hsv(_arr):
-    ret = np.empty((_arr.shape[0], _arr.shape[1], _arr.shape[2]))
-
-    for j in range(0, _arr.shape[0]):
-        for i in range(0, _arr.shape[1]):
-            ret[j][i] = get_hsv_pixel(_arr[j][i])
-    return ret
+def rgb_to_hsv(_arr : np.array):
+    return np.apply_along_axis(get_hsv_pixel, 2, _arr)
     
 def get_rgb_pixel(pixel : np.array):
     H, S, V = pixel
@@ -58,26 +50,16 @@ def get_rgb_pixel(pixel : np.array):
         case 5:
             return np.array([V, p, q])
 
-    return np.empty
-
 def hsv_to_rgb(_arr):
-    ret = np.empty((_arr.shape[0], _arr.shape[1], _arr.shape[2]))
+    return np.apply_along_axis(get_rgb_pixel, 2, _arr)
 
-    for j in range(0, _arr.shape[0]):
-        for i in range(0, _arr.shape[1]):
-            ret[j][i] = get_rgb_pixel(_arr[j][i])
-    return ret
-
-img = Image.open("1556708032_1.jpg")
+#img = Image.open("1556708032_1.jpg")
+img = Image.open("mono.jpg")
 
 hsv = rgb_to_hsv(np.asarray(img))
 rgb = hsv_to_rgb(hsv)
-#print((rgb * 255).astype(np.uint8))
 
 newimage = Image.fromarray((rgb * 255).astype(np.uint8))
-
 newimage.show()
 
-#pyplot.imshow(Image.fromarray(img))
-#pyplot.show()
 
