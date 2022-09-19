@@ -1,5 +1,3 @@
-from pickletools import uint8
-from re import S
 import tkinter as tk
 from math import floor
 from tkinter import filedialog as fd
@@ -70,22 +68,22 @@ class Window(tk.Tk):
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image)
 
     def change_hue(self, hue):
-        self.H = hue
+        self.H = int(hue)
         self.data = hsv_to_rgb(self.hsv_data, self.data, self.H, self.S, self.V)
         self.update_image()
 
     def change_saturation(self, saturation):
-        self.S = saturation
+        self.S = int(saturation)
         self.data = hsv_to_rgb(self.hsv_data, self.data, self.H, self.S, self.V)
         self.update_image()
 
     def change_value(self, value):
-        self.V = value
+        self.V = int(value)
         self.data = hsv_to_rgb(self.hsv_data, self.data, self.H, self.S, self.V)
         self.update_image()
 
 @njit(cache=True)
-def get_hsv_pixel(pixel : np.array):
+def get_hsv_pixel(pixel : np.array) -> np.array:
     r, g, b = pixel / 255.
 
     mx = max(r, g, b)
@@ -113,7 +111,7 @@ def get_hsv_pixel(pixel : np.array):
 
     return np.array([H, S, V])
 
-#@njit(parallel=True, cache=True)
+@njit(parallel=True, cache=True)
 def rgb_to_hsv(_in : np.array, _out : np.array) -> np.array:
     for j in prange(0, _in.shape[0]):
         for i in prange(0, _in.shape[1]):
@@ -121,7 +119,7 @@ def rgb_to_hsv(_in : np.array, _out : np.array) -> np.array:
     return _out
 
 @njit(cache=True)    
-def get_rgb_pixel(pixel : np.array):
+def get_rgb_pixel(pixel : np.array) -> np.array:
     H, S, V = pixel
     Hi = floor(H/60) % 6
     f = H/60-floor(H/60)
@@ -146,21 +144,21 @@ def get_rgb_pixel(pixel : np.array):
     return np.empty((3))
 
 @njit(cache=True, inline='always')  
-def save_in_bound(el, minv, maxv):
+def save_in_bound(el, minv, maxv) -> float:
     if(el > maxv):
         return maxv
     if(el < minv):
         return minv
     return el
 
-#@njit(parallel=True, cache=True)
+@njit(parallel=True, cache=True)
 def hsv_to_rgb(_in : np.array, _out : np.array, h : str, s : str, v : str) -> np.array:
     for j in prange(0, _in.shape[0]):
         for i in prange(0, _in.shape[1]):
-            #H = save_in_bound(_in[j][i][0] + int(h), 0., 360.)
-            #S = save_in_bound(_in[j][i][1] + int(s)/100., 0., 1.)
-            #V = save_in_bound(_in[j][i][2] + int(v)/100., 0., 1.)
-            _out[j][i] = get_rgb_pixel(np.array([save_in_bound(_in[j][i][0] + int(h), 0., 360.), save_in_bound(_in[j][i][1] + int(s)/100., 0., 1.), save_in_bound(_in[j][i][2] + int(v)/100., 0., 1.)])) * 255
+            H = save_in_bound(_in[j][i][0] + h, 0., 360.)
+            S = save_in_bound(_in[j][i][1] + s/100., 0., 1.)
+            V = save_in_bound(_in[j][i][2] + v/100., 0., 1.)
+            _out[j][i] = get_rgb_pixel(np.array([H, S, V])) * 255
     return _out
 
 
