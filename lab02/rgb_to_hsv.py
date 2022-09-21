@@ -156,9 +156,9 @@ def hsv_to_rgb(_in : np.array, _out : np.array, h, s, v) -> np.array:
     for j in prange(0, _in.shape[0]):
         for i in prange(0, _in.shape[1]):
             
-            H = _in[j][i][0] + h % 360.
-            S = _in[j][i][1] + s/100. % 1.
-            V = _in[j][i][2] + v/100. % 1.
+            H = (_in[j][i][0] + h) % 360.
+            S = (_in[j][i][1] + s/100.) % 1.
+            V = (_in[j][i][2] + v/100.) % 1.
             
             # H = save_in_bound(_in[j][i][0] + h, 0., 360.)
             # S = save_in_bound(_in[j][i][1] + s/100., 0., 1.)
