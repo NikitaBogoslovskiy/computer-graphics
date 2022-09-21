@@ -1,17 +1,12 @@
 # #2) Выделить из полноцветного изображения каждый из каналов R, G, B  и вывести результат.
 # # #Построить гистограмму по цветам (3 штуки).
 import os
-import cv2
 import sys
 import numpy as np
 import threading
 from draw_hist import draw_hist
 from PIL import Image
-channels = {
-    "r": 0,
-    "g": 1,
-    "b": 2
-}
+
 pixel_funcs = {
     "r": lambda pixel: pixel[0],
     "g": lambda pixel: pixel[1],
@@ -59,10 +54,15 @@ def main():
     print("In progress...")
 
     #fname = "./kotyk.jpg"
+
+    if len(sys.argv) < 2:
+        print('No file to process specified. Exit...')
+        return
+
     fname = sys.argv[1]
 
     if not os.path.isfile(fname):
-        print('No file {} found in current directory.'.format(fname))
+        print('No file {} found in current directory. Exit...'.format(fname))
         return
     try:
         img = Image.open(fname)
