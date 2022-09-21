@@ -1,11 +1,17 @@
 # #2) Выделить из полноцветного изображения каждый из каналов R, G, B  и вывести результат.
 # # #Построить гистограмму по цветам (3 штуки).
 import os
+import cv2
 import sys
+import numpy as np
 import threading
 from draw_hist import draw_hist
 from PIL import Image
-
+channels = {
+    "r": 0,
+    "g": 1,
+    "b": 2
+}
 pixel_funcs = {
     "r": lambda pixel: pixel[0],
     "g": lambda pixel: pixel[1],
@@ -13,24 +19,26 @@ pixel_funcs = {
 }
 
 conversion_matrix = {
-    "r": (1, 0, 0, 0,
-          0, 0, 0, 0,
-          0, 0, 0, 0),
+    "r": [[1, 0, 0],
+          [0, 0, 0],
+          [0, 0, 0]],
 
-    "g": (0, 0, 0, 0,
-          0, 1, 0, 0,
-          0, 0, 0, 0),
+    "g": [[0, 0, 0],
+          [0, 1, 0],
+          [0, 0, 0]],
 
-    "b": (0, 0, 0, 0,
-          0, 0, 0, 0,
-          0, 0, 1, 0)
+    "b": [[0, 0, 0],
+          [0, 0, 0],
+          [0, 0, 1]],
 }
 
 
 def async_extracting(img: Image, color: str, dirname: str, ):
     # extracting channel and saving it to file
-    converted_img = img.convert("RGB", conversion_matrix[color])
-    converted_img.save(dirname + "/" + color + '_extracted.png')
+    converted_img = np.asarray(img)
+    result = converted_img @ np.array(conversion_matrix[color])
+    img = Image.fromarray(result.astype(np.uint8))
+    img.save(dirname + "/" + color + '_extracted.png')
 
     # drawing histogram and saving it to file
     W, H = 256, img.size[1]  # width and height of histogram respectively
@@ -50,8 +58,9 @@ def async_extracting(img: Image, color: str, dirname: str, ):
 def main():
     print("In progress...")
 
-    # fname = "./kotyk.jpg"
+    #fname = "./kotyk.jpg"
     fname = sys.argv[1]
+
     if not os.path.isfile(fname):
         print('No file {} found in current directory.'.format(fname))
         return
