@@ -12,7 +12,7 @@ class Window(tk.Tk):
     image_filename: str
     data: np.ndarray
     image: 'tk._CanvasItemId'
-    hsv_data: np.ndarray
+    hsv_data: np.array
     H: int = 0
     S: int = 0
     V: int = 0
@@ -29,9 +29,9 @@ class Window(tk.Tk):
         self.b_open_file = tk.Button(self.f_buttons, text='Open an image', command=self.open_file)
         self.b_save = tk.Button(self.f_buttons, text='Save', command=self.save_file)
         self.canvas = tk.Canvas(self, width=800, height=450, bg='white')
-        self.sc_h = tk.Scale(self.f_scales, from_=0, to=360, orient=tk.HORIZONTAL, command=self.change_hue, label='Hue')
-        self.sc_s = tk.Scale(self.f_scales, from_=-50, to=50, orient=tk.HORIZONTAL, command=self.change_saturation, label='Saturation')
-        self.sc_v = tk.Scale(self.f_scales, from_=-50, to=50, orient=tk.HORIZONTAL, command=self.change_value, label='Value')
+        self.sc_h = tk.Scale(self.f_scales, from_=0, to=359, orient=tk.HORIZONTAL, command=self.change_hue, label='Hue')
+        self.sc_s = tk.Scale(self.f_scales, from_=0, to=200, orient=tk.HORIZONTAL, command=self.change_saturation, label='Saturation')
+        self.sc_v = tk.Scale(self.f_scales, from_=0, to=200, orient=tk.HORIZONTAL, command=self.change_value, label='Value')
         
         self.canvas.create_text(75, 20, text='No image', anchor=tk.NW)
         self.canvas.pack(side=tk.LEFT)
@@ -45,8 +45,8 @@ class Window(tk.Tk):
         self.b_open_file.pack(padx=5, pady=5)
         self.b_save.pack(padx=5, pady=5)
 
-        self.sc_s.set(0)
-        self.sc_v.set(0)
+        self.sc_s.set(100)
+        self.sc_v.set(100)
 
     def open_file(self):
         self.image_filename = fd.askopenfilename()
@@ -152,12 +152,18 @@ def save_in_bound(el, minv, maxv) -> float:
     return el
 
 @njit(parallel=True, cache=True)
-def hsv_to_rgb(_in : np.array, _out : np.array, h : str, s : str, v : str) -> np.array:
+def hsv_to_rgb(_in : np.array, _out : np.array, h, s, v) -> np.array:
     for j in prange(0, _in.shape[0]):
         for i in prange(0, _in.shape[1]):
-            H = save_in_bound(_in[j][i][0] + h, 0., 360.)
-            S = save_in_bound(_in[j][i][1] + s/100., 0., 1.)
-            V = save_in_bound(_in[j][i][2] + v/100., 0., 1.)
+            
+            H = (_in[j][i][0] + h) % 360.
+            S = save_in_bound(_in[j][i][1] * (s/100.), 0., 1.)
+            V = save_in_bound(_in[j][i][2] * (v/100.), 0., 1.)
+            
+            # H = save_in_bound(_in[j][i][0] + h, 0., 360.)
+            # S = save_in_bound(_in[j][i][1] + s/100., 0., 1.)
+            # V = save_in_bound(_in[j][i][2] + v/100., 0., 1.)
+            
             _out[j][i] = get_rgb_pixel(np.array([H, S, V])) * 255
     return _out
 
