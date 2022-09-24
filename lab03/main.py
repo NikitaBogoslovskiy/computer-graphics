@@ -10,11 +10,12 @@ import constants
 import styles
 
 import enum
-class PainterStatus(enum.Enum):
+class PainterStatus(enum.IntEnum):
     draw = 0
     fill = 1
     bresenham_line = 2
     wu_line = 3
+    magic_wand = 4
 
 class Window(tk.Tk):
     filename: str
@@ -39,12 +40,26 @@ class Window(tk.Tk):
 
         self.f_current_color = ttk.Frame(self.f_toolbar, width=100,  height=50, style="ColorPickerSample.TFrame")
         self.b_chscolor = ttk.Button(self.f_toolbar, text="Pick color", command=self.pick_color, style="WTF.TButton", cursor="hand2")
-        self.b_chsmod1 = ttk.Button(self.f_toolbar, text="Draw", command=self.mod_draw, style="WTF.TButton", cursor="hand2")
-        self.b_chsmod2 = ttk.Button(self.f_toolbar, text="Fill", command=self.mod_fill, style="WTF.TButton", cursor="hand2")
+        self.b_chsmod1 = ttk.Button(self.f_toolbar, text="Pen", command=self.mod_draw, style="WTF.TButton", cursor="hand2")
+        self.b_chsmod2 = ttk.Button(self.f_toolbar, text="Bucket", command=self.mod_fill, style="WTF.TButton", cursor="hand2")
+
+        self.b_bresenham_line = ttk.Button(self.f_toolbar, text="Bresenham", command=self.mode_bresenham_line, style="WTF.TButton",
+                                    cursor="hand2")
+        self.b_wu_line = ttk.Button(self.f_toolbar, text="Wu", command=self.mode_wu_line, style="WTF.TButton",
+                                       cursor="hand2")
+        self.b_magic_wand = ttk.Button(self.f_toolbar, text="Magic wand", command=self.mode_magic_wand, style="WTF.TButton",
+                                           cursor="hand2")
 
         self.canvas.grid(row=0, column=0, padx=constants.WINDOW_BORDER, pady=constants.WINDOW_BORDER, sticky="w")
         self.f_toolbar.grid(row=0, column=1, padx=0, pady=0, sticky="ne")
-        for i, node in enumerate([self.f_current_color, self.f_current_color, self.b_chscolor, self.b_chsmod1, self.b_chsmod2]):
+        for i, node in enumerate([self.f_current_color,
+                                  self.f_current_color,
+                                  self.b_chscolor,
+                                  self.b_chsmod1,
+                                  self.b_chsmod2,
+                                  self.b_bresenham_line,
+                                  self.b_wu_line,
+                                  self.b_magic_wand]):
             node.grid(row=i, column=0, padx=0, pady=constants.WINDOW_BORDER, sticky="e")
 
         # self.canvas.bind('<ButtonRelease-1>', self.mouse_release)
@@ -54,8 +69,8 @@ class Window(tk.Tk):
     def define_styles(self):
         self.style.theme_settings("clam", {
             "WTF.TButton": {
-                "configure": { "cursor": "hand2",
-                               "relief": "flat"},
+                "configure": { "relief": "flat",
+                               "anchor": "w"},
             },
             "Toolbar.TFrame": {
                 "configure": {"background": styles.win["darky-darky"]},
@@ -67,7 +82,7 @@ class Window(tk.Tk):
 
     def pick_color(self):
         color = colorchooser.askcolor(title="Choose a color")
-        print(color)
+        #print(color)
         if (color == (None, None)):
             return
 
@@ -77,12 +92,24 @@ class Window(tk.Tk):
         self.colors[self.mod][0], self.colors[self.mod][1], self.colors[self.mod][2])
 
     def mod_draw(self):
-        self.mod = 0
+        self.mod = PainterStatus.draw
         #self.b_chsmod1.config(font=('Times', 14, 'bold'))
         #self.b_chsmod2.config(font=('Times', 14, 'normal'))
 
     def mod_fill(self):
-        self.mod = 1
+        self.mod = PainterStatus.fill
+        #self.b_chsmod2.config(font=('Times', 14, 'bold'))
+        #self.b_chsmod1.config(font=('Times', 14, 'normal'))
+    def mode_bresenham_line(self):
+        self.mod = PainterStatus.bresenham_line
+        #self.b_chsmod2.config(font=('Times', 14, 'bold'))
+        #self.b_chsmod1.config(font=('Times', 14, 'normal'))
+    def mode_wu_line(self):
+        self.mod = PainterStatus.wu_line
+        #self.b_chsmod2.config(font=('Times', 14, 'bold'))
+        #self.b_chsmod1.config(font=('Times', 14, 'normal'))
+    def mode_magic_wand(self):
+        self.mod = PainterStatus.magic_wand
         #self.b_chsmod2.config(font=('Times', 14, 'bold'))
         #self.b_chsmod1.config(font=('Times', 14, 'normal'))
 
