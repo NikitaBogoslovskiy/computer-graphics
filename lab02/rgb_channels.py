@@ -4,8 +4,10 @@ import os
 import sys
 import numpy as np
 import threading
-from draw_hist import draw_hist
-from PIL import Image
+from PIL import Image, ImageDraw
+
+task_dir = "files/rgb_channels"
+task_inputs_dir = task_dir + "/inputs"
 
 pixel_funcs = {
     "r": lambda pixel: pixel[0],
@@ -27,6 +29,25 @@ conversion_matrix = {
           [0, 0, 1]],
 }
 
+def draw_hist(hname, harr, H, Col_width = 1):
+    """ saves color diagram into file
+        hname - name of hist file
+        H - hist height
+        harr - array of color intensity frequency
+        Col_width - width of each column
+        (width of hist = Col_width * len(harr))
+    """
+    W = len(harr)
+    hist = Image.new("RGB", (W * Col_width, H), "white")
+    draw = ImageDraw.Draw(hist)  # "pen"
+    maxx = float(max(harr))  # max value of frequency
+    if maxx == 0:
+        draw.rectangle(((0, 0), (W * Col_width, H)), fill="black")
+    else:
+        for i in range(W):
+            draw.rectangle(((i * Col_width, H), ((i + 1) * Col_width, H * (1 - harr[i] / maxx))), fill="black")
+    del draw
+    hist.save(hname)
 
 def async_extracting(img: Image, color: str, dirname: str, ):
     # extracting channel and saving it to file
@@ -53,26 +74,20 @@ def async_extracting(img: Image, color: str, dirname: str, ):
 def main():
     print("In progress...")
 
-    #fname = "./kotyk.jpg"
-
     if len(sys.argv) < 2:
         print('No file to process specified. Exit...')
         return
 
-    fname = sys.argv[1]
-
+    fname = task_inputs_dir + "/" + sys.argv[1]
     if not os.path.isfile(fname):
         print('No file {} found in current directory. Exit...'.format(fname))
         return
+
     try:
         img = Image.open(fname)
 
-        dirname = "files"
-        if not os.path.isdir(dirname):
-            os.mkdir(dirname)
-
         for color in ["r", "g", "b"]:
-            thread = threading.Thread(target=async_extracting, args=(img.copy(), color, dirname,))
+            thread = threading.Thread(target=async_extracting, args=(img.copy(), color, task_dir,))
             thread.start()
 
         main_thread = threading.main_thread()
@@ -86,5 +101,4 @@ def main():
         print("An exception occurred")
 
 
-if __name__ == "__main__":
-    main()
+main()
