@@ -2,7 +2,7 @@ import tkinter as tk
 from tkinter import ttk, colorchooser, filedialog as fd
 import numpy as np
 from utils import constants, styles, util_funcs
-from PIL import Image, ImageTk as itk
+from PIL import Image, ImageGrab, ImageTk as itk
 import enum
 
 class PainterStatus(enum.IntEnum):
@@ -64,7 +64,7 @@ class Window(tk.Tk):
         # but current stylesheet highlights the button of picked mode as well
         # so this label has no use at all...
         self.b_open_file = ttk.Button(self.f_bottombar, text='Load image', style="WTF.TButton", command=self.open_file, cursor="hand2")
-        self.b_save_file = ttk.Button(self.f_bottombar, text='Save image', style="WTF.TButton", command=self.save_file, cursor="hand2")
+        self.b_save_file = ttk.Button(self.f_bottombar, text='Save image', style="WTF.TButton", command=self.get_img_from_canvas, cursor="hand2")
         #self.l_current_instrument = ttk.Label(self.f_bottombar, text="<no instrument>", style="Instr.TLabel")
 
         self.canvas.grid(row=0, column=0, padx=constants.WINDOW_BORDER, pady=constants.WINDOW_BORDER, sticky="w")
@@ -123,6 +123,15 @@ class Window(tk.Tk):
 
     def save_file(self):
         Image.fromarray(self.data).save(fd.asksaveasfilename())
+
+    # well another option to save processed image
+    # to set another func use callback for 'self.b_save_file' widget
+    def get_img_from_canvas(self):
+        x = self.winfo_rootx() + self.canvas.winfo_x()
+        y = self.winfo_rooty() + self.canvas.winfo_y()
+        x1 = x + self.canvas.winfo_width()
+        y1 = y + self.canvas.winfo_height()
+        ImageGrab.grab().crop((x, y, x1, y1)).save(fd.asksaveasfilename())
 
     def update_image(self):
         self.image = itk.PhotoImage(Image.fromarray(self.data))
