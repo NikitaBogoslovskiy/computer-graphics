@@ -2,12 +2,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import colorchooser
 
-from numba import njit, prange
 import numpy as np
-from PIL import Image
-from PIL import ImageTk as itk
-import constants
-import styles
+from utils import constants, styles, util_funcs
 
 import enum
 class PainterStatus(enum.IntEnum):
@@ -20,9 +16,10 @@ class PainterStatus(enum.IntEnum):
 class Window(tk.Tk):
     filename: str
     data: np.ndarray
-    colors: np.array = np.zeros((2, 3), dtype=np.uint8)
-    str_colors: np.array = np.array([constants.DEFAULT_COLOR, constants.DEFAULT_COLOR])
-    mod: PainterStatus = PainterStatus.draw  # 0 - draw, 1 - fill
+    colors: np.array = np.asarray([constants.DEFAULT_COLOR, constants.DEFAULT_COLOR2], dtype=np.uint8)#.astype(np.uint8) #np.zeros((2, 3), dtype=np.uint8)
+    str_colors: np.array = np.array([util_funcs.rgb_tuple_to_str(colors[0]),
+                                     util_funcs.rgb_tuple_to_str(colors[1])])
+    mod: PainterStatus = PainterStatus.draw
 
     def __init__(self):
         super().__init__()
@@ -38,8 +35,11 @@ class Window(tk.Tk):
         self.canvas = tk.Canvas(self, width=constants.CANV_WIDTH, height=constants.CANV_HEIGHT, bg='white')
         self.f_toolbar = ttk.Frame(self, width=100, style="Toolbar.TFrame")
 
-        self.f_current_color = ttk.Frame(self.f_toolbar, width=100,  height=50, style="ColorPickerSample.TFrame")
-        self.b_chscolor = ttk.Button(self.f_toolbar, text="Pick color", command=self.pick_color, style="WTF.TButton", cursor="hand2")
+        ## color pickers for colors[0] and colors[1]
+        self.f_draw_color = ttk.Frame(self.f_toolbar, width=100,  height=50, style="ColorPicker0.TFrame", cursor="hand2")
+        self.f_fill_color = ttk.Frame(self.f_toolbar, width=100, height=50, style="ColorPicker1.TFrame", cursor="hand2")
+
+        #self.b_chscolor = ttk.Button(self.f_toolbar, text="Pick color", command=self.pick_color, style="WTF.TButton", cursor="hand2")
         self.b_chsmod1 = ttk.Button(self.f_toolbar, text="Pen", command=self.mod_draw, style="WTF.TButton", cursor="hand2")
         self.b_chsmod2 = ttk.Button(self.f_toolbar, text="Bucket", command=self.mod_fill, style="WTF.TButton", cursor="hand2")
 
@@ -51,10 +51,9 @@ class Window(tk.Tk):
                                            cursor="hand2")
 
         self.canvas.grid(row=0, column=0, padx=constants.WINDOW_BORDER, pady=constants.WINDOW_BORDER, sticky="w")
-        self.f_toolbar.grid(row=0, column=1, padx=0, pady=0, sticky="ne")
-        for i, node in enumerate([self.f_current_color,
-                                  self.f_current_color,
-                                  self.b_chscolor,
+        self.f_toolbar.grid(row=0, column=1, padx=constants.WINDOW_BORDER, pady=0, sticky="ne")
+        for i, node in enumerate([self.f_draw_color,
+                                  self.f_fill_color,
                                   self.b_chsmod1,
                                   self.b_chsmod2,
                                   self.b_bresenham_line,
@@ -63,33 +62,43 @@ class Window(tk.Tk):
             node.grid(row=i, column=0, padx=0, pady=constants.WINDOW_BORDER, sticky="e")
 
         # self.canvas.bind('<ButtonRelease-1>', self.mouse_release)
-        self.canvas.bind('<Button-1>', self.mouse_fill_handler)
-        self.canvas.bind('<Motion>', self.mouse_draw_handler)
+
+        self.f_draw_color.bind("<Button-1>", lambda _: self.pick_color(PainterStatus.draw))
+        self.f_fill_color.bind("<Button-1>", lambda _: self.pick_color(PainterStatus.fill))
+        self.canvas.bind("<Button-1>", self.savePosition)
+        self.canvas.bind("<B1-Motion>", self.mouse_draw_handler)
+        #self.canvas.bind('<Button-1>', self.mouse_fill_handler)
+        #self.canvas.bind('<Motion>', self.mouse_draw_handler)
 
     def define_styles(self):
         self.style.theme_settings("clam", {
             "WTF.TButton": {
                 "configure": { "relief": "flat",
-                               "anchor": "w"},
+                               "anchor": "w",
+                               },
             },
             "Toolbar.TFrame": {
-                "configure": {"background": styles.win["darky-darky"]},
+                "configure": {"background": styles.win["darky-darky"],
+                              "borderwidth": 0},
+            },
+            "TFrame": {
+                "configure": {"relief": "sunken",
+                                "borderwidth": 1},
             }
         })
         self.style.theme_use("clam")
-        self.style.configure("ColorPickerSample.TFrame", background=constants.DEFAULT_COLOR)
+        for i in range(2):
+            self.style.configure("ColorPicker" + str(i) + ".TFrame", background=self.str_colors[i])
 
 
-    def pick_color(self):
+    def pick_color(self, instrument_type: PainterStatus):
         color = colorchooser.askcolor(title="Choose a color")
-        #print(color)
         if (color == (None, None)):
             return
-
-        self.style.configure("ColorPickerSample.TFrame", background=color[1])
-        self.colors[self.mod] = np.asarray(color[0])
-        self.str_colors[self.mod] = '#%02x%02x%02x' % (
-        self.colors[self.mod][0], self.colors[self.mod][1], self.colors[self.mod][2])
+        self.colors[instrument_type] = np.asarray(color[0])
+        self.str_colors[instrument_type] = util_funcs.rgb_tuple_to_str(self.colors[instrument_type])
+        self.style.configure("ColorPicker" + str(int(instrument_type)) + ".TFrame", background=color[1])
+        #print('new color = ', color, 'reset self colors = ', self.colors, 'reset self str_colors = ', self.str_colors)
 
     def mod_draw(self):
         self.mod = PainterStatus.draw
@@ -132,7 +141,11 @@ class Window(tk.Tk):
             if (y - 1 >= 0 and rgb_equal(filled_color, self.data[i][y - 1])):
                 self.fill(i, y - 1, filled_color)
 
+    #last position of cursor
     prev: (tuple[int, int] | None) = None
+
+    def savePosition(self, event):
+        self.prev = (event.x, event.y)
 
     def mouse_fill_handler(self, event):
         if (self.mod != 1):
@@ -141,23 +154,25 @@ class Window(tk.Tk):
         self.fill(event.x, event.y)
 
     def mouse_draw_handler(self, event):
-        if (event.x >= 800 or event.x < 0 or event.y >= 800 or event.y < 0):
+        #print('event = ', event, 'self.colors = ', self.colors[PainterStatus.draw],'event.state = ', event.state, 'self.prev = ', self.prev, 'self.mode = ',self.mod)
+        if (event.x >= constants.CANV_WIDTH or event.x < 0 or event.y >= constants.CANV_HEIGHT or event.y < 0):
             self.prev = None
             return
 
-        if (event.state != 264):  # 264: left button is down and moving
-            self.prev = None
-            return
+        #if (event.state != 264):  # 264: left button is down and moving ## sorry
+        #    self.prev = None
+        #    return
 
         if (self.prev == None):
             self.prev = (event.x, event.y)
 
-        if (self.mod != 0):
+        if (self.mod != PainterStatus.draw):
             return
 
         # self.canvas.create_line(event.x, event.y, self.prev[0], self.prev[1], fill=self.color[1], width=1)
-        self.line(event.x, event.y, self.prev[0], self.prev[1])
-        self.prev = (event.x, event.y)
+        #self.line(event.x, event.y, self.prev[0], self.prev[1])
+        self.canvas.create_line(self.prev[0], self.prev[1], event.x, event.y, fill=self.str_colors[PainterStatus.draw], width=1)
+        self.savePosition(event)
 
     def plot(self, x: int, y: int):
         self.data[x][y] = self.colors[self.mod].copy()
