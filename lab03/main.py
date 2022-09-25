@@ -1,4 +1,3 @@
-import tkinter
 import tkinter as tk
 from tkinter import ttk
 from tkinter import colorchooser
@@ -25,13 +24,13 @@ class Window(tk.Tk):
     str_colors: np.array = np.array([util_funcs.rgb_tuple_to_str(colors[0]),
                                      util_funcs.rgb_tuple_to_str(colors[1])])
     mod: PainterStatus = PainterStatus.pen
+    pen_width: int = 1
 
     def __init__(self):
         super().__init__()
         self.config(bg=styles.win["darky-darky"])
         self.resizable(False, False)
         self.create_widgets()
-        self.pen_width = 1
         self.data = np.full((constants.CANV_HEIGHT, constants.CANV_WIDTH, 3), 255, np.uint8)
         self.style = ttk.Style(self)
         self.define_styles()
@@ -45,7 +44,7 @@ class Window(tk.Tk):
         self.f_draw_color = ttk.Frame(self.f_toolbar, width=100, height=50, style="ColorPicker0.TFrame", cursor="hand2")
         self.f_fill_color = ttk.Frame(self.f_toolbar, width=100, height=50, style="ColorPicker1.TFrame", cursor="hand2")
 
-        self.l_pen_width = ttk.Label(self.f_toolbar, text="Pen width", style="Instr.TLabel")
+        self.l_pen_width = ttk.Label(self.f_toolbar, text= "Pen width: " + str(self.pen_width), style="Instr.TLabel")
         self.sc_pen_width = ttk.Scale(self.f_toolbar, from_=1, to=100, length=100,  orient=tk.HORIZONTAL, command=self.change_pen_width)
 
         self.b_chsmod1 = ttk.Button(self.f_toolbar, text="Pen", command=lambda: self.set_mode(PainterStatus.pen),
@@ -98,7 +97,8 @@ class Window(tk.Tk):
         # self.canvas.bind('<Motion>', self.mouse_draw_handler)
 
     def change_pen_width(self, new_width):
-        self.pen_width = new_width
+        self.pen_width = int(float(new_width))
+        self.l_pen_width['text'] = "Pen width: " + str(self.pen_width)
 
     def define_styles(self):
         self.style.theme_settings("clam", {
@@ -137,7 +137,7 @@ class Window(tk.Tk):
     def set_mode(self, ps: PainterStatus):
         self.mod = ps
         #print(self.l_current_instrument['text'])
-        self.l_current_instrument['text'] = str(ps.name)
+        self.l_current_instrument['text'] = ps.name
         #print(self.mod)
 
     def fill(self, x, y, filled_color=None):
