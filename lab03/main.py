@@ -1,3 +1,4 @@
+import math
 import tkinter as tk
 from tkinter import ttk, colorchooser, filedialog as fd
 import numpy as np
@@ -9,6 +10,7 @@ class PainterStatus(enum.IntEnum):
     pen = 0
     bucket = 1
     bresenham_line = 2
+    bresenham_line2 = 22
     wu_line = 3
     magic_wand = 4
 
@@ -28,13 +30,13 @@ class Window(tk.Tk):
         self.config(bg=styles.win["darky-darky"])
         self.resizable(False, False)
         self.create_widgets()
-        self.data = np.full((constants.CANV_HEIGHT, constants.CANV_WIDTH, 3), 255, np.uint8)
+        self.data = np.full((constants.CANV_WIDTH, constants.CANV_HEIGHT, 3), 255, np.uint8)
         self.style = ttk.Style(self)
         self.define_styles()
         self.mainloop()
 
     def create_widgets(self):
-        self.canvas = tk.Canvas(self, width=constants.CANV_WIDTH, height=constants.CANV_HEIGHT, bg='white', highlightthickness=0, borderwidth=0, relief='flat') #remove the attributes starting with highlightthickness to restore border
+        self.canvas = tk.Canvas(self, width=constants.CANV_WIDTH, height=constants.CANV_HEIGHT, bg='white', highlightthickness=0, borderwidth=0, relief='ridge') #remove the attributes starting with highlightthickness to restore border
         self.f_sidebar = ttk.Frame(self, width=100, style="Sidebar.TFrame")
 
         self.f_toolbar = ttk.Frame(self.f_sidebar, width=100, style="Toolbar.TFrame")
@@ -88,7 +90,7 @@ class Window(tk.Tk):
                          self.b_magic_wand,
                          ]
         for i, node in enumerate(toolbar_elems):
-            if i == 2: #self.l_pen_width
+            if i == 2: #self.l_pen_width # well maybe there is something like
                 node.grid(row=i, column=0, padx=0, pady=0, sticky="e")
                 continue
             node.grid(row=i, column=0, padx=0, pady=constants.WINDOW_BORDER, sticky="e")
@@ -105,10 +107,9 @@ class Window(tk.Tk):
         # self.canvas.bind('<ButtonRelease-1>', self.mouse_release)
         self.f_draw_color.bind("<Button-1>", lambda _: self.pick_color(PainterStatus.pen))
         self.f_fill_color.bind("<Button-1>", lambda _: self.pick_color(PainterStatus.bucket))
-        self.canvas.bind("<Button-1>", self.savePosition)
-        self.canvas.bind("<B1-Motion>", self.mouse_click_handler)
-        # self.canvas.bind('<Button-1>', self.mouse_fill_handler)
-        # self.canvas.bind('<Motion>', self.mouse_draw_handler)
+        self.canvas.bind("<Button-1>", self.mouse_click_handler)
+        #self.canvas.bind("<ButtonRelease-1>", self.mouse_b1_release_handler)
+        self.canvas.bind("<B1-Motion>", self.mouse_move_handler)
 
     def open_file(self):
         self.filename = fd.askopenfilename()
@@ -189,24 +190,6 @@ class Window(tk.Tk):
         #print(self.l_current_instrument['text'])
         #self.l_current_instrument['text'] = ps.name
 
-    def fill(self, x, y, filled_color=None):
-        if (np.array_equal(filled_color, None)):
-            filled_color = self.data[x][y].copy()
-
-        rdx = 0
-        while (x + rdx + 1 < 800 and rgb_equal(self.data[x + rdx + 1][y], filled_color)):
-            rdx += 1
-
-        ldx = 0
-        while (x - ldx - 1 >= 0 and rgb_equal(self.data[x - ldx - 1][y], filled_color)):
-            ldx += 1
-
-        self.line(x - ldx, y, x + rdx + 1, y)
-        for i in range(x - ldx, x + rdx + 1):
-            if (y + 1 < 800 and rgb_equal(filled_color, self.data[i][y + 1])):
-                self.fill(i, y + 1, filled_color)
-            if (y - 1 >= 0 and rgb_equal(filled_color, self.data[i][y - 1])):
-                self.fill(i, y - 1, filled_color)
 
     # last position of cursor
     prev: (tuple[int, int] | None) = None
@@ -214,102 +197,105 @@ class Window(tk.Tk):
     def savePosition(self, event):
         self.prev = (event.x, event.y)
 
-    def mouse_fill_handler(self, event):
-        if (self.mod != PainterStatus.bucket):
-            return
-
-        self.fill(event.x, event.y)
-
     def mouse_click_handler(self, event):
-        # print('event = ', event, 'self.colors = ', self.colors[PainterStatus.draw],'event.state = ', event.state, 'self.prev = ', self.prev, 'self.mode = ',self.mod)
-        if (event.x >= constants.CANV_WIDTH or event.x < 0 or event.y >= constants.CANV_HEIGHT or event.y < 0):
+        if event.x >= constants.CANV_WIDTH or event.x < 0 or event.y >= constants.CANV_HEIGHT or event.y < 0:
             self.prev = None
             return
+        print('hello from mouse_click_handler ', event, self.mod)
+        #self.savePosition(event)
+        #if self.prev == None:
+        #    self.savePosition(event)
 
-        # if (event.state != 264):  # 264: left button is down and moving ## sorry it does  not work
-        #    self.prev = None
-        #    return
+        match self.mod:
+            #case PainterStatus.pen:
+            #    self.plot(event.x, event.y, 0)
+            #case PainterStatus.bucket:
+            #    self.mouse_fill_handler(event)
+            case PainterStatus.bresenham_line:
+                print(event)
+                self.savePosition(event)
+                self.set_mode(PainterStatus.bresenham_line2)
+            case PainterStatus.bresenham_line2:
+                print(event)
+                self.bresenham_line(self.prev[0], self.prev[1], event.x, event.y)
+                self.set_mode(PainterStatus.bresenham_line)
+                self.prev = None
+            case _:
+                return
 
-        if (self.prev == None):
-            self.prev = (event.x, event.y)
+    def mouse_move_handler(self, event):
+        # print('event = ', event, 'self.colors = ', self.colors[PainterStatus.draw],'event.state = ', event.state, 'self.prev = ', self.prev, 'self.mode = ',self.mod)
+        if event.x >= constants.CANV_WIDTH or event.x < 0 or event.y >= constants.CANV_HEIGHT or event.y < 0:
+            #self.prev = None
+            return
 
+        if self.prev == None:
+            self.savePosition(event)
+
+        print('hello from mouse mode handler ', event, self.prev[0], self.mod)
         # dont know yet if it would be convenient to use match case instead of picking right fn from like fn_array
         match self.mod:
             case PainterStatus.pen:
-                # it is height then width in numpy
-                self.data[event.y][event.x] = self.colors[self.mod].copy()
+                self.data[event.x][event.y] = self.colors[self.mod].copy()
                 self.canvas.create_line(self.prev[0], self.prev[1], event.x, event.y,
                                         fill=self.str_colors[PainterStatus.pen], width=self.pen_width)
                 self.savePosition(event)
-            case PainterStatus.bucket:
-                self.mouse_fill_handler(event)
             case PainterStatus.bresenham_line:
                 pass
-            case PainterStatus.wu_line:
+            #    self.savePosition(event)
+            #    self.set_mode(PainterStatus.bresenham_line2)
+            case PainterStatus.bresenham_line2:
                 pass
-            case PainterStatus.magic_wand:
+            #    # restore matrix here
+            #    self.bresenham_line(self.prev[0], self.prev[1], event.x, event.y)
+            case PainterStatus.wu_line:
                 pass
             case _:
                 return
 
-        # self.canvas.create_line(event.x, event.y, self.prev[0], self.prev[1], fill=self.color[1], width=1)
-        # self.line(event.x, event.y, self.prev[0], self.prev[1])
-
-    def plot(self, x: int, y: int):
-        self.data[x][y] = self.colors[self.mod].copy()
-        self.canvas.create_line(x, y, x + 1, y + 1, fill=self.str_colors[self.mod])
-
-    def line(self, x0: int, y0: int, x1: int, y1: int):
-        dx: int = abs(x1 - x0)
-        dy: int = abs(y1 - y0)
-        err: int = 0
-
-        if (dx == 0 or dy / dx > 1):
-            derr: int = (dx + 1)
-            x: int = x0
-
-            dirx: int = x1 - x0
-            if (dirx > 0):
-                dirx = 1
-            if (dirx < 0):
-                dirx = -1
-
-            step = 1
-            if (y0 > y1):
-                step = -1
-
-            for y in range(y0, y1, step):
-                self.plot(x, y)
-                err = err + derr
-                if (err >= (dy + 1)):
-                    x = x + dirx
-                    err = err - (dy + 1)
+    def bresenham_line(self, x0: int, y0: int, x1: int, y1: int):
+        dx = x1 - x0
+        dy = y1 - y0
+        m = abs(dy / dx)  # gradient
+        sign_dx = 1 if dx > 0 else -1
+        sign_dy = 1 if dy > 0 else -1
+        xi, yi = x0, y0
+        self.plot(xi, yi, 0)
+        if m <= 1:
+            di = 2 * dy - dx
+            while True:
+                if xi == x1 and yi == y1:
+                    break
+                if di < 0:
+                    di += 2 * dy
+                else:
+                    yi, di = yi + sign_dy, di + 2 * (dy - dx)
+                xi += sign_dx
+                self.plot(xi, yi, 0)
         else:
-            derr: int = (dy + 1)
-            y: int = y0
+            di = 2 * dx - dy
+            while True:
+                if xi == x1 and yi == y1:
+                    break
+                if di < 0:
+                    di += 2 * dx
+                else:
+                    xi, di = xi + sign_dx, di + 2 * (dx - dy)
+                yi += sign_dy
+                self.plot(xi, yi, 0)
 
-            diry: int = y1 - y0
-            if (diry > 0):
-                diry = 1
-            if (diry < 0):
-                diry = -1
+        print('done!')
 
-            step = 1
-            if (x0 > x1):
-                step = -1
+    def plot(self, x: int, y: int, color_ind: int):
+        #print('hello from plot ',x,y)
+        self.data[x][y] = self.colors[color_ind].copy()
+        self.canvas.create_line(x, y, x + 1, y, fill=self.str_colors[color_ind], width=self.pen_width)
 
-            for x in range(x0, x1, step):
-                self.plot(x, y)
-                err = err + derr
-                if (err >= (dx + 1)):
-                    y = y + diry
-                    err = err - (dx + 1)
+    def mouse_fill_handler(self, event):
+        pass
 
-
-def rgb_equal(a, b):
-    if (a[0] == b[0] and a[1] == b[1] and a[2] == b[2]):
-        return True
-    return False
+    def fill(self, x, y, filled_color=None):
+        pass
 
 
 if (__name__ == '__main__'):
