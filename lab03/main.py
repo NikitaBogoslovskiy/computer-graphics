@@ -1,12 +1,9 @@
 import tkinter as tk
-from tkinter import ttk
-from tkinter import colorchooser
-
+from tkinter import ttk, colorchooser, filedialog as fd
 import numpy as np
 from utils import constants, styles, util_funcs
-
+from PIL import Image, ImageTk as itk
 import enum
-
 
 class PainterStatus(enum.IntEnum):
     pen = 0
@@ -38,8 +35,10 @@ class Window(tk.Tk):
 
     def create_widgets(self):
         self.canvas = tk.Canvas(self, width=constants.CANV_WIDTH, height=constants.CANV_HEIGHT, bg='white', highlightthickness=0, borderwidth=0, relief='flat') #remove the attributes starting with highlightthickness to restore border
+        self.f_sidebar = ttk.Frame(self, width=100, style="Sidebar.TFrame")
 
-        self.f_toolbar = ttk.Frame(self, width=100, style="Toolbar.TFrame")
+        self.f_toolbar = ttk.Frame(self.f_sidebar, width=100, style="Toolbar.TFrame")
+
         ## color pickers for colors[0] and colors[1]
         self.f_draw_color = ttk.Frame(self.f_toolbar, width=100, height=50, style="ColorPicker0.TFrame", cursor="hand2")
         self.f_fill_color = ttk.Frame(self.f_toolbar, width=100, height=50, style="ColorPicker1.TFrame", cursor="hand2")
@@ -60,41 +59,74 @@ class Window(tk.Tk):
                                        command=lambda: self.set_mode(PainterStatus.magic_wand),
                                        style="WTF.TButton", cursor="hand2")
 
+        self.f_bottombar = ttk.Frame(self.f_sidebar, width=100, style="Bottombar.TFrame")
         # well the name of current instrument will be inserted here
         # but current stylesheet highlights the button of picked mode as well
         # so this label has no use at all...
-        self.l_current_instrument = ttk.Label(self.f_toolbar, text="<no instrument>", style="Instr.TLabel")
+        self.b_open_file = ttk.Button(self.f_bottombar, text='Load image', style="WTF.TButton", command=self.open_file, cursor="hand2")
+        self.b_save_file = ttk.Button(self.f_bottombar, text='Save image', style="WTF.TButton", command=self.save_file, cursor="hand2")
+        #self.l_current_instrument = ttk.Label(self.f_bottombar, text="<no instrument>", style="Instr.TLabel")
 
         self.canvas.grid(row=0, column=0, padx=constants.WINDOW_BORDER, pady=constants.WINDOW_BORDER, sticky="w")
-        self.f_toolbar.grid(row=0, column=1, padx=constants.WINDOW_BORDER, pady=0, sticky="ns")
 
+        self.f_sidebar.grid(row=0, column=1, padx=constants.WINDOW_BORDER, pady=0, sticky="ns")
+        self.f_sidebar.rowconfigure(0, weight=3)
+        self.f_sidebar.rowconfigure(1, weight=0)
+
+        self.f_toolbar.grid(row=0, column=0, padx=0, pady=0, sticky="n")
+        self.f_bottombar.grid(row=1, column=0, padx=0, pady=0, sticky="s")
+
+        # think there is a way to just get the children list but whatever
         toolbar_elems = [self.f_draw_color,
                          self.f_fill_color,
-
                          self.l_pen_width,
                          self.sc_pen_width,
-
                          self.b_chsmod1,
                          self.b_chsmod2,
                          self.b_bresenham_line,
                          self.b_wu_line,
                          self.b_magic_wand,
-                         self.l_current_instrument]
+                         ]
         for i, node in enumerate(toolbar_elems):
             if i == 2: #self.l_pen_width
                 node.grid(row=i, column=0, padx=0, pady=0, sticky="e")
                 continue
             node.grid(row=i, column=0, padx=0, pady=constants.WINDOW_BORDER, sticky="e")
-        self.l_current_instrument.grid(row=len(toolbar_elems) - 1, column=0, padx=0, pady=constants.WINDOW_BORDER,
-                                       sticky="s")
-        # self.canvas.bind('<ButtonRelease-1>', self.mouse_release)
 
+        # think there is a way to just get the children list but whatever
+        bottombar_elems = [
+            self.b_open_file,
+            self.b_save_file,
+            #self.l_current_instrument,
+                         ]
+        for i, node in enumerate(bottombar_elems):
+            node.grid(row=i, column=0, padx=0, pady=constants.WINDOW_BORDER, sticky="e")
+
+        # self.canvas.bind('<ButtonRelease-1>', self.mouse_release)
         self.f_draw_color.bind("<Button-1>", lambda _: self.pick_color(PainterStatus.pen))
         self.f_fill_color.bind("<Button-1>", lambda _: self.pick_color(PainterStatus.bucket))
         self.canvas.bind("<Button-1>", self.savePosition)
         self.canvas.bind("<B1-Motion>", self.mouse_click_handler)
         # self.canvas.bind('<Button-1>', self.mouse_fill_handler)
         # self.canvas.bind('<Motion>', self.mouse_draw_handler)
+
+    def open_file(self):
+        self.filename = fd.askopenfilename()
+        if not self.filename:
+            return
+
+        img = Image.open(self.filename)
+        self.data = np.asarray(img).copy()
+        self.canvas.config(width=img.width, height=img.height)
+        self.title(self.filename)
+        self.update_image()
+
+    def save_file(self):
+        Image.fromarray(self.data).save(fd.asksaveasfilename())
+
+    def update_image(self):
+        self.image = itk.PhotoImage(Image.fromarray(self.data))
+        self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image)
 
     def change_pen_width(self, new_width):
         self.pen_width = int(float(new_width))
@@ -103,17 +135,26 @@ class Window(tk.Tk):
     def define_styles(self):
         self.style.theme_settings("clam", {
             "WTF.TButton": {
-                "configure": {"relief": "flat",
+                "configure": {"relief": "raised",
                               "anchor": "w",
                               },
             },
-            "Toolbar.TFrame": {
-                "configure": {"background": styles.win["darky-darky"],
-                              "borderwidth": 0},
+            "FileBtn.TButton": {
+                "configure": {"relief": "raised",
+                              "anchor": "we",
+                              },
+            },
+            "ColorPicker0.TFrame": {
+                "configure": {"borderwidth": 1},
+            },
+            "ColorPicker1.TFrame": {
+                "configure": {"borderwidth": 1},
             },
             "TFrame": {
-                "configure": {"relief": "sunken",
-                              "borderwidth": 1},
+                "configure": {
+                    "background": styles.win["darky-darky"],
+                    "relief": "sunken",
+                    "borderwidth": 0},
             },
             "Instr.TLabel": {
                 "configure": {
@@ -137,8 +178,7 @@ class Window(tk.Tk):
     def set_mode(self, ps: PainterStatus):
         self.mod = ps
         #print(self.l_current_instrument['text'])
-        self.l_current_instrument['text'] = ps.name
-        #print(self.mod)
+        #self.l_current_instrument['text'] = ps.name
 
     def fill(self, x, y, filled_color=None):
         if (np.array_equal(filled_color, None)):
@@ -187,7 +227,8 @@ class Window(tk.Tk):
         # dont know yet if it would be convenient to use match case instead of picking right fn from like fn_array
         match self.mod:
             case PainterStatus.pen:
-                self.data[event.x][event.y] = self.colors[self.mod].copy()
+                # it is height then width in numpy
+                self.data[event.y][event.x] = self.colors[self.mod].copy()
                 self.canvas.create_line(self.prev[0], self.prev[1], event.x, event.y,
                                         fill=self.str_colors[PainterStatus.pen], width=self.pen_width)
                 self.savePosition(event)
