@@ -4,6 +4,7 @@ from tkinter import ttk, colorchooser, filedialog as fd
 import numpy as np
 from utils import constants, styles, util_funcs
 from PIL import Image, ImageGrab, ImageTk as itk
+from numba import njit, prange
 import enum
 
 class PainterStatus(enum.IntEnum):
@@ -12,6 +13,7 @@ class PainterStatus(enum.IntEnum):
     bresenham_line = 2
     bresenham_line2 = 22
     wu_line = 3
+    wu_line2 = 33
     magic_wand = 4
 
 
@@ -220,6 +222,14 @@ class Window(tk.Tk):
                 self.bresenham_line(self.prev[0], self.prev[1], event.x, event.y)
                 self.set_mode(PainterStatus.bresenham_line)
                 self.prev = None
+            case PainterStatus.wu_line:
+                print(event)
+                self.savePosition(event)
+                self.set_mode(PainterStatus.wu_line2)
+            case PainterStatus.wu_line2:
+                self.wu_line(self.prev[0], self.prev[1], event.x, event.y)
+                self.set_mode(PainterStatus.wu_line)
+                self.prev = None
             case _:
                 return
 
@@ -281,16 +291,94 @@ class Window(tk.Tk):
                 # yi does not change
                 di += 2 * dy * sign_dy
 
+    def wu_line(self, x0 : int, y0 : int, x1 : int, y1 : int):
+        dx = abs(x1 - x0)
+        dy = abs(y1 - y0)
+        
+        if(dx == 0 or dy == 0):
+            self.canvas.create_line(x0, y0, x1, y1)
+            return
+        
+        err = 0.
+        
+        if(dx == 0 or dy/dx > 1):
+            derr = (dx + 1.)
+            x = x0
+            
+            dirx = x1 - x0
+            if(dirx > 0):
+                dirx = 1
+            if(dirx < 0):
+                dirx = -1
+
+            step = 1
+            if(y0 > y1):
+                step = -1
+
+            dy1 = dy + 1.
+            for y in range(y0, y1 + step, step):
+                div = err/dy1
+                self.plotA(x, y, 1. - div)    
+                self.plotA(x + dirx, y, div)
+                err = err + derr
+                if(err >= dy1):
+                    x = x + dirx
+                    err = err - dy1
+
+        else:
+            derr = (dy + 1.)
+            y = y0
+            
+            diry = y1 - y0
+            if(diry > 0):
+                diry = 1
+            if(diry < 0):
+                diry = -1
+
+            step = 1
+            if(x0 > x1):
+                step = -1
+
+            dx1 = dx + 1.
+            for x in range(x0, x1 + step, step):
+                div = err/dx1
+                self.plotA(x, y, 1. - div)
+                self.plotA(x, y + diry, div)
+                err = err + derr
+                if(err >= dx1):
+                    y = y + diry
+                    err = err - dx1
+
 
     def plot(self, x: int, y: int, color_ind: int):
         self.data[x][y] = self.colors[color_ind].copy()
         self.canvas.create_line(x, y, x + 1, y, fill=self.str_colors[color_ind], width=self.pen_width)
+
+    def plotA(self, x : int, y : int, alpha : float = 1.):
+        combine_rgbas(self.colors[0], alpha, self.data[x][y], 1., self.data[x][y])
+        self.canvas.create_line(x, y, x+1, y, fill=('#%02x%02x%02x' %  (self.data[x][y][0], self.data[x][y][1], self.data[x][y][2])))
 
     def mouse_fill_handler(self, event):
         pass
 
     def fill(self, x, y, filled_color=None):
         pass
+
+@njit(cache=True, inline='always')
+def rgb_equal(a, b):
+        if(a[0] == b[0] and a[1] == b[1] and a[2] == b[2]):
+            return True
+        return False
+
+@njit(parallel=True, cache='always')
+def combine_rgbas(S, Sa, D, Da, out):
+    Ra = Da + Sa*(1. - Da)
+    for i in prange(0, 3):
+        out[i] = (S[i] * Sa + D[i]*Da*(1. - Sa))
+
+@njit(cache=True, inline='always')
+def dist(p1, p2):
+    return math.sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2))
 
 
 if (__name__ == '__main__'):
