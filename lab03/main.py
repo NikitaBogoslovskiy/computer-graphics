@@ -211,8 +211,8 @@ class Window(tk.Tk):
         match self.mod:
             #case PainterStatus.pen:
             #    self.plot(event.x, event.y, 0)
-            #case PainterStatus.bucket:
-            #    self.mouse_fill_handler(event)
+            case PainterStatus.bucket:
+                self.fill(event.x, event.y)
             case PainterStatus.bresenham_line:
                 print(event)
                 self.savePosition(event)
@@ -248,7 +248,7 @@ class Window(tk.Tk):
             case PainterStatus.pen:
                 self.data[event.x][event.y] = self.colors[self.mod].copy()
                 self.canvas.create_line(self.prev[0], self.prev[1], event.x, event.y,
-                                        fill=self.str_colors[PainterStatus.pen], width=self.pen_width)
+                                        fill=self.str_colors[PainterStatus.pen], width=self.pen_width)                
                 self.savePosition(event)
             case PainterStatus.bresenham_line:
                 pass
@@ -356,13 +356,30 @@ class Window(tk.Tk):
 
     def plotA(self, x : int, y : int, alpha : float = 1.):
         combine_rgbas(self.colors[0], alpha, self.data[x][y], 1., self.data[x][y])
+        
         self.canvas.create_line(x, y, x+1, y, fill=('#%02x%02x%02x' %  (self.data[x][y][0], self.data[x][y][1], self.data[x][y][2])))
 
-    def mouse_fill_handler(self, event):
-        pass
-
     def fill(self, x, y, filled_color=None):
-        pass
+        if(np.array_equal(filled_color, None)):
+            filled_color = self.data[x][y].copy()
+
+        rdx = 0
+        while(x+rdx+1 < constants.CANV_WIDTH and rgb_equal(self.data[x+rdx+1][y], filled_color)):
+            rdx += 1
+        
+        ldx = 0
+        while(x-ldx-1 >= 0 and rgb_equal(self.data[x-ldx-1][y], filled_color)):
+            ldx += 1
+        
+        self.canvas.create_line(x - ldx, y, x + rdx + 1, y, fill=self.str_colors[1])
+        for i in np.arange(x - ldx, x + rdx + 1):
+            self.data[i][y] = self.colors[1]
+        # self.line(x - ldx, y, x + rdx + 1, y)
+        for i in np.arange(x-ldx, x+rdx+1):
+            if(y + 1 < constants.CANV_HEIGHT and rgb_equal(filled_color, self.data[i][y + 1])):
+                self.fill(i, y + 1, filled_color)
+            if(y - 1 >= 0 and rgb_equal(filled_color, self.data[i][y - 1])):    
+                self.fill(i, y - 1, filled_color)
 
 @njit(cache=True, inline='always')
 def rgb_equal(a, b):
