@@ -254,40 +254,35 @@ class Window(tk.Tk):
                 return
 
     def bresenham_line(self, x0: int, y0: int, x1: int, y1: int):
+        alpha = 666 # gradient
+        if x1 - x0 != 0:
+            alpha = abs((y1 - y0) / (x1 - x0))
+        if alpha > 1:  # if gradient is >1, we use the same algorithm, but axis Ox and Oy exchange roles
+            x0, y0, x1, y1 = y0, x0, y1, x1
         dx = x1 - x0
+        if dx < 0:  # if x1 < x0, we use the same algorithm, but for (x1, y1) -> (x0, y0) pair of points, so from now on we assume x0 < x1
+            x0, y0, x1, y1 = x1, y1, x0, y0
+            dx = abs(dx)
         dy = y1 - y0
-        m = abs(dy / dx)  # gradient
-        sign_dx = 1 if dx > 0 else -1
-        sign_dy = 1 if dy > 0 else -1
-        xi, yi = x0, y0
-        self.plot(xi, yi, 0)
-        if m <= 1:
-            di = 2 * dy - dx
-            while True:
-                if xi == x1 and yi == y1:
-                    break
-                if di < 0:
-                    di += 2 * dy
-                else:
-                    yi, di = yi + sign_dy, di + 2 * (dy - dx)
-                xi += sign_dx
-                self.plot(xi, yi, 0)
-        else:
-            di = 2 * dx - dy
-            while True:
-                if xi == x1 and yi == y1:
-                    break
-                if di < 0:
-                    di += 2 * dx
-                else:
-                    xi, di = xi + sign_dx, di + 2 * (dx - dy)
+        sign_dy = 1 if dy > 0 else - 1  # line direction: north or south
+        di = sign_dy * 2 * dy - dx
+        yi = 0  # assuming the first pixel is (0, 0)
+        for xi in range(dx + 1):
+            if alpha > 1:
+                self.plot(y0 + yi, x0 + xi,  0) # parallel translation by (y0, x0) vector
+                #print(y0 + yi, x0 + xi)
+            else:
+                self.plot(x0 + xi, y0 + yi, 0) # parallel translation by (x0, y0) vector
+                #print(x0 + xi, y0 + yi)
+            if di > 0:
                 yi += sign_dy
-                self.plot(xi, yi, 0)
+                di += 2 * dy * sign_dy - 2 * dx
+            else:
+                # yi does not change
+                di += 2 * dy * sign_dy
 
-        print('done!')
 
     def plot(self, x: int, y: int, color_ind: int):
-        #print('hello from plot ',x,y)
         self.data[x][y] = self.colors[color_ind].copy()
         self.canvas.create_line(x, y, x + 1, y, fill=self.str_colors[color_ind], width=self.pen_width)
 
