@@ -1,0 +1,4 @@
+numba==0.56.2
+numpy==1.23.3
+opencv_python==4.6.0.66
+Pillow==9.2.0

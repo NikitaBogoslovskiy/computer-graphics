@@ -1,4 +1,3 @@
-import math
 import tkinter as tk
 from tkinter import ttk, colorchooser, filedialog as fd
 import numpy as np
@@ -6,14 +5,9 @@ from utils import constants, styles, util_funcs
 from PIL import Image, ImageGrab, ImageTk as itk
 from numba import njit, prange
 import enum
-import queue
 from collections import deque
 from numba import njit
-from typing import List
-from threading import Thread
 import math
-from collections import defaultdict
-from ordered_set import OrderedSet
 
 
 class PainterStatus(enum.IntEnum):
