@@ -3,14 +3,13 @@ import tkinter as tk
 from tkinter import ttk, colorchooser, filedialog as fd
 import numpy as np
 from utils import constants, styles, util_funcs
+from utils.pixel_comparable_by_coords import Detour, PixelComparableByCoords as UberPix, ClockwiseTurn90
 from PIL import Image, ImageGrab, ImageTk as itk
 from numba import njit, prange
 import enum
-import queue
 from collections import deque
 from numba import njit
-from threading import Thread
-
+import heapq
 
 
 class PainterStatus(enum.IntEnum):
@@ -241,7 +240,7 @@ class Window(tk.Tk):
         match self.mod:
             case PainterStatus.pen:
                 self.prev = None
-                self.plot(event.x, event.y, 0)
+                self.plot(event.x, event.y, 0, True)
             case PainterStatus.stamp:
                 self.prev = None
                 self.plot_stamp((event.x, event.y))
@@ -263,6 +262,8 @@ class Window(tk.Tk):
                 self.wu_line(self.prev[0], self.prev[1], event.x, event.y)
                 self.set_mode(PainterStatus.wu_line)
                 self.prev = None
+            case PainterStatus.magic_wand:
+                self.magic_wand(event.x, event.y)
             case _:
                 return
 
@@ -333,6 +334,37 @@ class Window(tk.Tk):
             else:
                 # yi does not change
                 di += 2 * dy * sign_dy
+
+    def magic_wand(self, x: int, y: int):
+        pix_list = []
+        event_col = self.data[x][y].copy()
+
+        while rgb_equal(self.data[x][y], event_col):
+            x += 1
+            if x >= constants.CANV_WIDTH:
+                return
+        pix_list.append(UberPix(x, y))
+        first_pix_coords = (x, y)
+        outline_col = self.data[x][y].copy()
+
+        new_dir = 6
+        new_dir, x, y = self.get_new_pix(new_dir, x, y, outline_col)
+
+        while x != first_pix_coords[0] or y != first_pix_coords[1]:
+            pix_list.append(UberPix(x, y))
+            self.plot(x, y, 0, False)
+            new_dir, x, y = self.get_new_pix(new_dir, x, y, outline_col)
+
+        #pix_list.sort(key=lambda x: x)
+
+    def get_new_pix(self, new_dir, x, y, outline_col):
+        for i in [j for j in range(new_dir, 8)] + [j for j in range(new_dir)]:  # lol
+            direction = Detour[i]
+            new_x, new_y = x + direction.dx, y + direction.dy
+            if constants.CANV_WIDTH > new_x >= 0 and constants.CANV_HEIGHT > new_y >= 0 and rgb_equal(self.data[new_x][new_y], outline_col):
+                new_dir = ClockwiseTurn90[i]
+                x, y = new_x, new_y
+                return new_dir, x, y
 
     def plot(self, x: int, y: int, color_ind: int, save_to_data: bool):
         if save_to_data:
