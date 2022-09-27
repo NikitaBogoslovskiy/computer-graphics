@@ -336,36 +336,37 @@ class Window(tk.Tk):
                 di += 2 * dy * sign_dy
 
     def magic_wand(self, x: int, y: int):
-        #pix_list = []
         event_col = self.data[x][y].copy()
-
-        #max_x, max_y = x, y
-        #while x <= constants.CANV_WIDTH-1 and y <= constants.CANV_HEIGHT-1:
-        #    while rgb_equal(self.data[x][y], event_col):
-        #        x += 1
-        #        if x >= constants.CANV_WIDTH-1:
-        #            self.print_outline(pix_list)
-        #            return  # our right outline is canvas right side.
-        #    pix_list, x, y = self.get_outline(x, y)
-        #    if x >= constants.CANV_WIDTH - 1:
-        #        self.print_outline(pix_list)
-        #        return
-        #    if rgb_equal(self.data[x-1][y], event_col):
-        #        self.print_outline(pix_list)
-        #        return  # our right outline is canvas right side.
-        #pix_list.sort(key=lambda x: x)
         start_x, start_y = self.find_first_outline_point(x, y, event_col)
-        if start_x is None:
-            print('u menya lapki')
+        if start_x == constants.CANV_WIDTH:
             return
-        pix_list, max_x, max_y = self.get_outline(start_x, start_y)
+        pix_list, _, _ = self.get_outline(start_x, start_y)
+        self.plot_outline(pix_list, False)
+
+    def magic_wand2(self, x: int, y: int):
+        event_col = self.data[x][y].copy()
+        start_x, start_y = self.find_first_outline_point(x, y, event_col)
+        if start_x == constants.CANV_WIDTH:
+            return
+
+        pix_list = []
+        while start_x < constants.CANV_WIDTH:
+            pix_list, x, y = self.get_outline(start_x, start_y)  # x,  y - most right point of outline
+            outline_col = self.data[x][y].copy()
+            x666, y666 = self.find_first_outline_point(x, y, outline_col)
+            if x666 == constants.CANV_WIDTH:
+                break
+            outline_col2 = self.data[x666][y666].copy()
+            start_x, start_y = self.find_first_outline_point(x666, y666, outline_col2)
+            if x666 == constants.CANV_WIDTH:
+                break
         self.plot_outline(pix_list, False)
 
     def find_first_outline_point(self, x: int, y: int, event_col):
         for i in range(x, constants.CANV_WIDTH):
             if not rgb_equal(self.data[i][y], event_col):
                 return i, y
-        return None, None
+        return constants.CANV_WIDTH, constants.CANV_HEIGHT
 
     def get_outline(self, x: int, y: int):
         pix_list = []
