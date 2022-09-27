@@ -220,7 +220,7 @@ class Window(tk.Tk):
         if event.x >= constants.CANV_WIDTH or event.x < 0 or event.y >= constants.CANV_HEIGHT or event.y < 0:
             self.prev = None
             return
-        print('hello from mouse_click_handler ', event, self.mod)
+        # print('hello from mouse_click_handler ', event, self.mod)
         #self.savePosition(event)
         #if self.prev == None:
         #    self.savePosition(event)
