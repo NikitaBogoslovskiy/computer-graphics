@@ -69,6 +69,8 @@ class Window(tk.Tk):
         # well the name of current instrument will be inserted here
         # but current stylesheet highlights the button of picked mode as well
         # so this label has no use at all...
+        self.b_clear_canvas = ttk.Button(self.f_bottombar, text='Clear canvas', style="WTF.TButton", command=self.clear_canvas,
+                                      cursor="hand2")
         self.b_open_file = ttk.Button(self.f_bottombar, text='Load image', style="WTF.TButton", command=self.open_file,
                                       cursor="hand2")
         self.b_save_file = ttk.Button(self.f_bottombar, text='Save image', style="WTF.TButton",
@@ -103,6 +105,7 @@ class Window(tk.Tk):
 
         # think there is a way to just get the children list but whatever
         bottombar_elems = [
+            self.b_clear_canvas,
             self.b_open_file,
             self.b_save_file,
             # self.l_current_instrument,
@@ -116,6 +119,10 @@ class Window(tk.Tk):
         self.canvas.bind("<Button-1>", self.mouse_click_handler)
         self.canvas.bind("<ButtonRelease-1>", self.mouse_b1_release_handler)
         self.canvas.bind("<B1-Motion>", self.mouse_move_handler)
+
+    def clear_canvas(self):
+        self.data = np.full((constants.CANV_WIDTH, constants.CANV_HEIGHT, 3), 255, np.uint8)
+        self.update_image(itk.PhotoImage(Image.fromarray(self.data)))
 
     def open_file(self):
         self.filename = fd.askopenfilename()
