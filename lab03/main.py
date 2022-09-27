@@ -5,6 +5,11 @@ import numpy as np
 from utils import constants, styles, util_funcs
 from PIL import Image, ImageGrab, ImageTk as itk
 import enum
+import queue
+from collections import deque
+from numba import njit
+from threading import Thread
+
 
 class PainterStatus(enum.IntEnum):
     pen = 0
@@ -13,6 +18,7 @@ class PainterStatus(enum.IntEnum):
     bresenham_line2 = 22
     wu_line = 3
     magic_wand = 4
+    stamp = 5
 
 
 class Window(tk.Tk):
@@ -24,6 +30,10 @@ class Window(tk.Tk):
                                      util_funcs.rgb_tuple_to_str(colors[1])])
     mod: PainterStatus = PainterStatus.pen
     pen_width: int = 1
+    loaded_image: np.ndarray = None
+    new_image: np.ndarray
+    stamp: tk.PhotoImage
+    is_stamp: bool = False
 
     def __init__(self):
         super().__init__()
@@ -60,6 +70,9 @@ class Window(tk.Tk):
         self.b_magic_wand = ttk.Button(self.f_toolbar, text="Magic wand",
                                        command=lambda: self.set_mode(PainterStatus.magic_wand),
                                        style="WTF.TButton", cursor="hand2")
+        self.b_stamp = ttk.Button(self.f_toolbar, text="Stamp",
+                                       command=lambda: self.set_mode(PainterStatus.stamp),
+                                       style="WTF.TButton", cursor="hand2")
 
         self.f_bottombar = ttk.Frame(self.f_sidebar, width=100, style="Bottombar.TFrame")
         # well the name of current instrument will be inserted here
@@ -88,6 +101,7 @@ class Window(tk.Tk):
                          self.b_bresenham_line,
                          self.b_wu_line,
                          self.b_magic_wand,
+                         self.b_stamp,
                          ]
         for i, node in enumerate(toolbar_elems):
             if i == 2: #self.l_pen_width # well maybe there is something like
@@ -117,10 +131,11 @@ class Window(tk.Tk):
             return
 
         img = Image.open(self.filename)
-        self.data = np.asarray(img).copy()
-        self.canvas.config(width=img.width, height=img.height)
-        self.title(self.filename)
-        self.update_image()
+        # self.data = np.asarray(img).copy()
+        self.loaded_image = np.asarray(img).copy()
+        # self.canvas.config(width=img.width, height=img.height)
+        # self.title(self.filename)
+        # self.update_image()
 
     def save_file(self):
         Image.fromarray(self.data).save(fd.asksaveasfilename())
@@ -137,6 +152,10 @@ class Window(tk.Tk):
     def update_image(self):
         self.image = itk.PhotoImage(Image.fromarray(self.data))
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image)
+
+    def show_stamp(self, x, y):
+        self.stamp = itk.PhotoImage(Image.fromarray(self.new_image).convert("RGBA"))
+        self.canvas.create_image(x, y, anchor=tk.NW, image=self.stamp)
 
     def change_pen_width(self, new_width):
         self.pen_width = int(float(new_width))
@@ -207,10 +226,14 @@ class Window(tk.Tk):
         #    self.savePosition(event)
 
         match self.mod:
-            #case PainterStatus.pen:
-            #    self.plot(event.x, event.y, 0)
+            case PainterStatus.pen:
+                self.prev = None
+                self.plot(event.x, event.y, 0)
             #case PainterStatus.bucket:
             #    self.mouse_fill_handler(event)
+            case PainterStatus.stamp:
+                self.prev = None
+                self.plot_stamp((event.x, event.y))
             case PainterStatus.bresenham_line:
                 print(event)
                 self.savePosition(event)
@@ -232,7 +255,7 @@ class Window(tk.Tk):
         if self.prev == None:
             self.savePosition(event)
 
-        print('hello from mouse mode handler ', event, self.prev[0], self.mod)
+        # print('hello from mouse mode handler ', event, self.prev[0], self.mod)
         # dont know yet if it would be convenient to use match case instead of picking right fn from like fn_array
         match self.mod:
             case PainterStatus.pen:
@@ -250,10 +273,14 @@ class Window(tk.Tk):
             #    self.bresenham_line(self.prev[0], self.prev[1], event.x, event.y)
             case PainterStatus.wu_line:
                 pass
+            case PainterStatus.stamp:
+                self.data[event.x][event.y] = self.colors[0].copy()
+                self.bresenham_line(self.prev[0], self.prev[1], event.x, event.y)
+                self.savePosition(event)
             case _:
                 return
 
-    def bresenham_line(self, x0: int, y0: int, x1: int, y1: int):
+    def bresenham_line(self, x0: int, y0: int, x1: int, y1: int, c: int = 0):
         alpha = 666 # gradient
         if x1 - x0 != 0:
             alpha = abs((y1 - y0) / (x1 - x0))
@@ -269,10 +296,10 @@ class Window(tk.Tk):
         yi = 0  # assuming the first pixel is (0, 0)
         for xi in range(dx + 1):
             if alpha > 1:
-                self.plot(y0 + yi, x0 + xi,  0) # parallel translation by (y0, x0) vector
+                self.plot(y0 + yi, x0 + xi, c) # parallel translation by (y0, x0) vector
                 #print(y0 + yi, x0 + xi)
             else:
-                self.plot(x0 + xi, y0 + yi, 0) # parallel translation by (x0, y0) vector
+                self.plot(x0 + xi, y0 + yi, c) # parallel translation by (x0, y0) vector
                 #print(x0 + xi, y0 + yi)
             if di > 0:
                 yi += sign_dy
@@ -291,6 +318,62 @@ class Window(tk.Tk):
 
     def fill(self, x, y, filled_color=None):
         pass
+
+    def plot_stamp(self, start_point):
+        if self.loaded_image is None:
+            return
+        coordinates = np.column_stack(np.nonzero(np.sum(self.data, axis=2) != 765))
+        filled_pixels = set()
+        for p in coordinates.tolist():
+            filled_pixels.add((p[0], p[1]))
+        coordinates_set = filled_pixels.copy()
+        new_set = self.fill_within_area(coordinates, start_point, filled_pixels)
+        new_set = new_set.difference(coordinates_set)
+        indices = np.array(list(new_set))
+        min_x = np.min(indices[:, 0])
+        min_y = np.min(indices[:, 1])
+        max_x = np.max(indices[:, 0])
+        max_y = np.max(indices[:, 1])
+        indices -= np.array([min_x, min_y])
+        width = max_x - min_x + 1
+        height = max_y - min_y + 1
+        new_image = self.loaded_image.copy()
+        if new_image.shape[0] < height:
+            new_image = np.vstack([new_image] * (height // new_image.shape[0] + 1))
+        if new_image.shape[1] < width:
+            new_image = np.hstack([new_image] * (width // new_image.shape[1] + 1))
+        new_image = new_image[:height, :width, :]
+        new_channel = np.zeros((height, width, 1))
+        new_channel[indices[:, 1], indices[:, 0]] = 255
+        new_image = np.concatenate([new_image, new_channel], axis=2)
+        self.new_image = new_image.astype(np.uint8)
+        self.show_stamp(min_x, min_y)
+
+    def fill_within_area(self, coordinates, point, filled_pixels):
+        q = deque()
+        q.append(point)
+        while True:
+            if len(q) == 0:
+                break
+            start_point = q.popleft()
+            if start_point in filled_pixels or start_point[1] < 0 or start_point[1] >= constants.CANV_HEIGHT:
+                continue
+            points_in_line = coordinates[np.where(coordinates[:, 1] == start_point[1])]
+            all_left_points = points_in_line[points_in_line[:, 0] < start_point[0]]
+            if len(all_left_points) == 0:
+                left_x = -1
+            else:
+                left_x = np.max(all_left_points[:, 0])
+            all_right_points = points_in_line[points_in_line[:, 0] > start_point[0]]
+            if len(all_right_points) == 0:
+                right_x = constants.CANV_WIDTH
+            else:
+                right_x = np.min(all_right_points[:, 0])
+            for i in range(left_x + 1, right_x):
+                filled_pixels.add((i, start_point[1]))
+                q.append((i, start_point[1] + 1))
+                q.append((i, start_point[1] - 1))
+        return filled_pixels
 
 
 if (__name__ == '__main__'):
