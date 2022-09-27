@@ -11,6 +11,7 @@ from numba import njit
 from threading import Thread
 
 
+
 class PainterStatus(enum.IntEnum):
     pen = 0
     bucket = 1
@@ -46,7 +47,9 @@ class Window(tk.Tk):
         self.mainloop()
 
     def create_widgets(self):
-        self.canvas = tk.Canvas(self, width=constants.CANV_WIDTH, height=constants.CANV_HEIGHT, bg='white', highlightthickness=0, borderwidth=0, relief='ridge') #remove the attributes starting with highlightthickness to restore border
+        self.canvas = tk.Canvas(self, width=constants.CANV_WIDTH, height=constants.CANV_HEIGHT, bg='white',
+                                highlightthickness=0, borderwidth=0,
+                                relief='ridge')  # remove the attributes starting with highlightthickness to restore border
         self.f_sidebar = ttk.Frame(self, width=100, style="Sidebar.TFrame")
 
         self.f_toolbar = ttk.Frame(self.f_sidebar, width=100, style="Toolbar.TFrame")
@@ -55,8 +58,9 @@ class Window(tk.Tk):
         self.f_draw_color = ttk.Frame(self.f_toolbar, width=100, height=50, style="ColorPicker0.TFrame", cursor="hand2")
         self.f_fill_color = ttk.Frame(self.f_toolbar, width=100, height=50, style="ColorPicker1.TFrame", cursor="hand2")
 
-        self.l_pen_width = ttk.Label(self.f_toolbar, text= "Pen width: " + str(self.pen_width), style="Instr.TLabel")
-        self.sc_pen_width = ttk.Scale(self.f_toolbar, from_=1, to=100, length=100,  orient=tk.HORIZONTAL, command=self.change_pen_width)
+        self.l_pen_width = ttk.Label(self.f_toolbar, text="Pen width: " + str(self.pen_width), style="Instr.TLabel")
+        self.sc_pen_width = ttk.Scale(self.f_toolbar, from_=1, to=100, length=100, orient=tk.HORIZONTAL,
+                                      command=self.change_pen_width)
 
         self.b_chsmod1 = ttk.Button(self.f_toolbar, text="Pen", command=lambda: self.set_mode(PainterStatus.pen),
                                     style="WTF.TButton", cursor="hand2")
@@ -78,9 +82,13 @@ class Window(tk.Tk):
         # well the name of current instrument will be inserted here
         # but current stylesheet highlights the button of picked mode as well
         # so this label has no use at all...
-        self.b_open_file = ttk.Button(self.f_bottombar, text='Load image', style="WTF.TButton", command=self.open_file, cursor="hand2")
-        self.b_save_file = ttk.Button(self.f_bottombar, text='Save image', style="WTF.TButton", command=self.get_img_from_canvas, cursor="hand2")
-        #self.l_current_instrument = ttk.Label(self.f_bottombar, text="<no instrument>", style="Instr.TLabel")
+        self.b_clear_canvas = ttk.Button(self.f_bottombar, text='Clear canvas', style="WTF.TButton", command=self.clear_canvas,
+                                      cursor="hand2")
+        self.b_open_file = ttk.Button(self.f_bottombar, text='Load image', style="WTF.TButton", command=self.open_file,
+                                      cursor="hand2")
+        self.b_save_file = ttk.Button(self.f_bottombar, text='Save image', style="WTF.TButton",
+                                      command=self.save_img_from_canvas, cursor="hand2")
+        # self.l_current_instrument = ttk.Label(self.f_bottombar, text="<no instrument>", style="Instr.TLabel")
 
         self.canvas.grid(row=0, column=0, padx=constants.WINDOW_BORDER, pady=constants.WINDOW_BORDER, sticky="w")
 
@@ -104,17 +112,18 @@ class Window(tk.Tk):
                          self.b_stamp,
                          ]
         for i, node in enumerate(toolbar_elems):
-            if i == 2: #self.l_pen_width # well maybe there is something like
+            if i == 2:  # self.l_pen_width # well maybe there is something like
                 node.grid(row=i, column=0, padx=0, pady=0, sticky="e")
                 continue
             node.grid(row=i, column=0, padx=0, pady=constants.WINDOW_BORDER, sticky="e")
 
         # think there is a way to just get the children list but whatever
         bottombar_elems = [
+            self.b_clear_canvas,
             self.b_open_file,
             self.b_save_file,
-            #self.l_current_instrument,
-                         ]
+            # self.l_current_instrument,
+        ]
         for i, node in enumerate(bottombar_elems):
             node.grid(row=i, column=0, padx=0, pady=constants.WINDOW_BORDER, sticky="e")
 
@@ -122,8 +131,12 @@ class Window(tk.Tk):
         self.f_draw_color.bind("<Button-1>", lambda _: self.pick_color(PainterStatus.pen))
         self.f_fill_color.bind("<Button-1>", lambda _: self.pick_color(PainterStatus.bucket))
         self.canvas.bind("<Button-1>", self.mouse_click_handler)
-        #self.canvas.bind("<ButtonRelease-1>", self.mouse_b1_release_handler)
+        self.canvas.bind("<ButtonRelease-1>", self.mouse_b1_release_handler)
         self.canvas.bind("<B1-Motion>", self.mouse_move_handler)
+
+    def clear_canvas(self):
+        self.data = np.full((constants.CANV_WIDTH, constants.CANV_HEIGHT, 3), 255, np.uint8)
+        self.update_image(itk.PhotoImage(Image.fromarray(self.data)))
 
     def open_file(self):
         self.filename = fd.askopenfilename()
@@ -142,15 +155,15 @@ class Window(tk.Tk):
 
     # well another option to save processed image
     # to set another func use callback for 'self.b_save_file' widget
-    def get_img_from_canvas(self):
+    def save_img_from_canvas(self):
         x = self.winfo_rootx() + self.canvas.winfo_x()
         y = self.winfo_rooty() + self.canvas.winfo_y()
         x1 = x + self.canvas.winfo_width()
         y1 = y + self.canvas.winfo_height()
         ImageGrab.grab().crop((x, y, x1, y1)).save(fd.asksaveasfilename())
 
-    def update_image(self):
-        self.image = itk.PhotoImage(Image.fromarray(self.data))
+    def update_image(self, new_image: Image):
+        self.image = new_image
         self.canvas.create_image(0, 0, anchor=tk.NW, image=self.image)
 
     def show_stamp(self, x, y):
@@ -202,13 +215,11 @@ class Window(tk.Tk):
         self.colors[instrument_type] = np.asarray(color[0])
         self.str_colors[instrument_type] = util_funcs.rgb_tuple_to_str(self.colors[instrument_type])
         self.style.configure("ColorPicker" + str(int(instrument_type)) + ".TFrame", background=color[1])
-        # print('new color = ', color, 'reset self colors = ', self.colors, 'reset self str_colors = ', self.str_colors)
 
     def set_mode(self, ps: PainterStatus):
         self.mod = ps
-        #print(self.l_current_instrument['text'])
-        #self.l_current_instrument['text'] = ps.name
-
+        # print(self.l_current_instrument['text'])
+        # self.l_current_instrument['text'] = ps.name
 
     # last position of cursor
     prev: (tuple[int, int] | None) = None
@@ -235,53 +246,56 @@ class Window(tk.Tk):
                 self.prev = None
                 self.plot_stamp((event.x, event.y))
             case PainterStatus.bresenham_line:
-                print(event)
                 self.savePosition(event)
-                self.set_mode(PainterStatus.bresenham_line2)
-            case PainterStatus.bresenham_line2:
-                print(event)
-                self.bresenham_line(self.prev[0], self.prev[1], event.x, event.y)
-                self.set_mode(PainterStatus.bresenham_line)
-                self.prev = None
             case _:
                 return
 
     def mouse_move_handler(self, event):
-        # print('event = ', event, 'self.colors = ', self.colors[PainterStatus.draw],'event.state = ', event.state, 'self.prev = ', self.prev, 'self.mode = ',self.mod)
         if event.x >= constants.CANV_WIDTH or event.x < 0 or event.y >= constants.CANV_HEIGHT or event.y < 0:
-            #self.prev = None
+            # self.prev = None
             return
 
         if self.prev == None:
             self.savePosition(event)
 
-        # print('hello from mouse mode handler ', event, self.prev[0], self.mod)
         # dont know yet if it would be convenient to use match case instead of picking right fn from like fn_array
         match self.mod:
             case PainterStatus.pen:
                 self.data[event.x][event.y] = self.colors[self.mod].copy()
-                self.canvas.create_line(self.prev[0], self.prev[1], event.x, event.y,
-                                        fill=self.str_colors[PainterStatus.pen], width=self.pen_width)
+                self.bresenham_line(self.prev[0], self.prev[1], event.x, event.y, True)
                 self.savePosition(event)
             case PainterStatus.bresenham_line:
-                pass
-            #    self.savePosition(event)
-            #    self.set_mode(PainterStatus.bresenham_line2)
+                self.set_mode(PainterStatus.bresenham_line2)
             case PainterStatus.bresenham_line2:
-                pass
-            #    # restore matrix here
-            #    self.bresenham_line(self.prev[0], self.prev[1], event.x, event.y)
+                self.update_image(itk.PhotoImage(Image.fromarray(self.data.transpose((1, 0, 2)))))
+                self.bresenham_line(self.prev[0], self.prev[1], event.x, event.y, False)
             case PainterStatus.wu_line:
                 pass
-            case PainterStatus.stamp:
-                self.data[event.x][event.y] = self.colors[0].copy()
-                self.bresenham_line(self.prev[0], self.prev[1], event.x, event.y)
-                self.savePosition(event)
+            # case PainterStatus.stamp:
+            #     self.data[event.x][event.y] = self.colors[0].copy()
+            #     self.bresenham_line(self.prev[0], self.prev[1], event.x, event.y)
+            #     self.savePosition(event)
             case _:
                 return
 
-    def bresenham_line(self, x0: int, y0: int, x1: int, y1: int, c: int = 0):
-        alpha = 666 # gradient
+    def mouse_b1_release_handler(self, event):
+        if event.x >= constants.CANV_WIDTH or event.x < 0 or event.y >= constants.CANV_HEIGHT or event.y < 0:
+            self.prev = None
+            return
+
+        match self.mod:
+            case PainterStatus.pen:
+                self.prev = None
+            case PainterStatus.bresenham_line2:
+                self.update_image(itk.PhotoImage(Image.fromarray(self.data.transpose((1, 0, 2)))))
+                self.bresenham_line(self.prev[0], self.prev[1], event.x, event.y, True)
+                self.set_mode(PainterStatus.bresenham_line)
+                self.prev = None
+            case _:
+                return
+
+    def bresenham_line(self, x0: int, y0: int, x1: int, y1: int, save_to_data: bool):
+        alpha = 666  # gradient
         if x1 - x0 != 0:
             alpha = abs((y1 - y0) / (x1 - x0))
         if alpha > 1:  # if gradient is >1, we use the same algorithm, but axis Ox and Oy exchange roles
@@ -296,11 +310,11 @@ class Window(tk.Tk):
         yi = 0  # assuming the first pixel is (0, 0)
         for xi in range(dx + 1):
             if alpha > 1:
-                self.plot(y0 + yi, x0 + xi, c) # parallel translation by (y0, x0) vector
-                #print(y0 + yi, x0 + xi)
+                self.plot(y0 + yi, x0 + xi, 0, save_to_data)  # parallel translation by (y0, x0) vector
+                # print(y0 + yi, x0 + xi)
             else:
-                self.plot(x0 + xi, y0 + yi, c) # parallel translation by (x0, y0) vector
-                #print(x0 + xi, y0 + yi)
+                self.plot(x0 + xi, y0 + yi, 0, save_to_data)  # parallel translation by (x0, y0) vector
+                # print(x0 + xi, y0 + yi)
             if di > 0:
                 yi += sign_dy
                 di += 2 * dy * sign_dy - 2 * dx
@@ -308,16 +322,10 @@ class Window(tk.Tk):
                 # yi does not change
                 di += 2 * dy * sign_dy
 
-
-    def plot(self, x: int, y: int, color_ind: int):
-        self.data[x][y] = self.colors[color_ind].copy()
+    def plot(self, x: int, y: int, color_ind: int, save_to_data: bool):
+        if save_to_data:
+            self.data[x][y] = self.colors[color_ind].copy()
         self.canvas.create_line(x, y, x + 1, y, fill=self.str_colors[color_ind], width=self.pen_width)
-
-    def mouse_fill_handler(self, event):
-        pass
-
-    def fill(self, x, y, filled_color=None):
-        pass
 
     def plot_stamp(self, start_point):
         if self.loaded_image is None:
@@ -374,6 +382,12 @@ class Window(tk.Tk):
                 q.append((i, start_point[1] + 1))
                 q.append((i, start_point[1] - 1))
         return filled_pixels
+
+    def mouse_fill_handler(self, event):
+        pass
+
+    def fill(self, x, y, filled_color=None):
+        pass
 
 
 if (__name__ == '__main__'):
