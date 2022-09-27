@@ -336,35 +336,71 @@ class Window(tk.Tk):
                 di += 2 * dy * sign_dy
 
     def magic_wand(self, x: int, y: int):
-        pix_list = []
+        #pix_list = []
         event_col = self.data[x][y].copy()
 
-        while rgb_equal(self.data[x][y], event_col):
-            x += 1
-            if x >= constants.CANV_WIDTH:
-                return
+        #max_x, max_y = x, y
+        #while x <= constants.CANV_WIDTH-1 and y <= constants.CANV_HEIGHT-1:
+        #    while rgb_equal(self.data[x][y], event_col):
+        #        x += 1
+        #        if x >= constants.CANV_WIDTH-1:
+        #            self.print_outline(pix_list)
+        #            return  # our right outline is canvas right side.
+        #    pix_list, x, y = self.get_outline(x, y)
+        #    if x >= constants.CANV_WIDTH - 1:
+        #        self.print_outline(pix_list)
+        #        return
+        #    if rgb_equal(self.data[x-1][y], event_col):
+        #        self.print_outline(pix_list)
+        #        return  # our right outline is canvas right side.
+        #pix_list.sort(key=lambda x: x)
+        start_x, start_y = self.find_first_outline_point(x, y, event_col)
+        if start_x is None:
+            print('u menya lapki')
+            return
+        pix_list, max_x, max_y = self.get_outline(start_x, start_y)
+        self.plot_outline(pix_list, False)
+
+    def find_first_outline_point(self, x: int, y: int, event_col):
+        for i in range(x, constants.CANV_WIDTH):
+            if not rgb_equal(self.data[i][y], event_col):
+                return i, y
+        return None, None
+
+    def get_outline(self, x: int, y: int):
+        pix_list = []
         pix_list.append(UberPix(x, y))
         first_pix_coords = (x, y)
         outline_col = self.data[x][y].copy()
 
+        max_x, max_y = x, y
         new_dir = 6
         new_dir, x, y = self.get_new_pix(new_dir, x, y, outline_col)
-
+        if x > max_x:
+            max_x, max_y = x, y
         while x != first_pix_coords[0] or y != first_pix_coords[1]:
+            # self.plot(x, y, 0, False)
             pix_list.append(UberPix(x, y))
-            self.plot(x, y, 0, False)
             new_dir, x, y = self.get_new_pix(new_dir, x, y, outline_col)
+            if x > max_x:
+                max_x, max_y = x, y
+        return pix_list.copy(), max_x, max_y
 
-        #pix_list.sort(key=lambda x: x)
-
-    def get_new_pix(self, new_dir, x, y, outline_col):
+    def get_new_pix(self, new_dir, x, y, searched_col):
         for i in [j for j in range(new_dir, 8)] + [j for j in range(new_dir)]:  # lol
             direction = Detour[i]
             new_x, new_y = x + direction.dx, y + direction.dy
-            if constants.CANV_WIDTH > new_x >= 0 and constants.CANV_HEIGHT > new_y >= 0 and rgb_equal(self.data[new_x][new_y], outline_col):
+            if not(0 <= new_x <= constants.CANV_WIDTH-1 and 0 <= new_y <= constants.CANV_HEIGHT - 1):
+                continue
+            if rgb_equal(self.data[new_x][new_y], searched_col):
                 new_dir = ClockwiseTurn90[i]
                 x, y = new_x, new_y
                 return new_dir, x, y
+        return None, None, None  # no neighbour points of searched color
+
+    def plot_outline(self, pix_list, save_to_data: bool):
+        for pix in pix_list:
+            self.plot(pix.x, pix.y, 0, save_to_data)
 
     def plot(self, x: int, y: int, color_ind: int, save_to_data: bool):
         if save_to_data:
