@@ -94,6 +94,8 @@ class Window(tk.Tk):
         self.b_clear_canvas = ttk.Button(self.f_bottombar, text='Clear canvas', style="WTF.TButton",
                                          command=self.clear_canvas,
                                          cursor="hand2")
+        self.b_load_stamp = ttk.Button(self.f_bottombar, text='Load stamp', style="WTF.TButton", command=self.load_stamp,
+                                      cursor="hand2")
         self.b_open_file = ttk.Button(self.f_bottombar, text='Load image', style="WTF.TButton", command=self.open_file,
                                       cursor="hand2")
         self.b_save_file = ttk.Button(self.f_bottombar, text='Save image', style="WTF.TButton",
@@ -131,6 +133,7 @@ class Window(tk.Tk):
         # think there is a way to just get the children list but whatever
         bottombar_elems = [
             self.b_clear_canvas,
+            self.b_load_stamp,
             self.b_open_file,
             self.b_save_file,
             # self.l_current_instrument,
@@ -154,7 +157,7 @@ class Window(tk.Tk):
             self.edges[:, 0, 0] = constants.WINDOW_WIDTH + 1
             self.edges[:, 1, 0] = -1
 
-    def open_file(self):
+    def load_stamp(self):
         self.filename = fd.askopenfilename()
         if not self.filename:
             return
@@ -165,6 +168,17 @@ class Window(tk.Tk):
         # self.canvas.config(width=img.width, height=img.height)
         # self.title(self.filename)
         # self.update_image()
+    def open_file(self):
+        self.filename = fd.askopenfilename()
+        if not self.filename:
+            return
+
+        img = Image.open(self.filename)
+        self.data = np.asarray(img).transpose((1, 0, 2)).copy()
+        self.loaded_image = np.asarray(img).copy()
+        self.canvas.config(width=img.width, height=img.height)
+        self.title(self.filename)
+        self.update_image(itk.PhotoImage(Image.fromarray(self.loaded_image)))
 
     def save_file(self):
         Image.fromarray(self.data).save(fd.asksaveasfilename())
