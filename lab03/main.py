@@ -1,4 +1,3 @@
-import math
 import tkinter as tk
 from tkinter import ttk, colorchooser, filedialog as fd
 import numpy as np
@@ -10,6 +9,7 @@ import enum
 from collections import deque
 from numba import njit
 import heapq
+import math
 
 
 class PainterStatus(enum.IntEnum):
@@ -20,7 +20,8 @@ class PainterStatus(enum.IntEnum):
     wu_line = 3
     wu_line2 = 33
     magic_wand = 4
-    stamp = 5
+    stamp = 5,
+    triangle = 6
 
 
 class Window(tk.Tk):
@@ -35,10 +36,14 @@ class Window(tk.Tk):
     loaded_image: np.ndarray = None
     new_image: np.ndarray
     stamp: tk.PhotoImage
-    is_stamp: bool = False
+    vertices: dict = dict()
+    edges: np.array
 
     def __init__(self):
         super().__init__()
+        self.edges = np.zeros((constants.CANV_HEIGHT, 2, 5))
+        self.edges[:, 0, 0] = constants.WINDOW_WIDTH + 1
+        self.edges[:, 1, 0] = -1
         self.config(bg=styles.win["darky-darky"])
         self.resizable(False, False)
         self.create_widgets()
@@ -78,6 +83,9 @@ class Window(tk.Tk):
         self.b_stamp = ttk.Button(self.f_toolbar, text="Stamp",
                                   command=lambda: self.set_mode(PainterStatus.stamp),
                                   style="WTF.TButton", cursor="hand2")
+        self.b_triangle = ttk.Button(self.f_toolbar, text="Triangle",
+                                       command=lambda: self.set_mode(PainterStatus.triangle),
+                                       style="WTF.TButton", cursor="hand2")
 
         self.f_bottombar = ttk.Frame(self.f_sidebar, width=100, style="Bottombar.TFrame")
         # well the name of current instrument will be inserted here
@@ -112,6 +120,7 @@ class Window(tk.Tk):
                          self.b_wu_line,
                          self.b_magic_wand,
                          self.b_stamp,
+                         self.b_triangle,
                          ]
         for i, node in enumerate(toolbar_elems):
             if i == 2:  # self.l_pen_width # well maybe there is something like
@@ -139,6 +148,11 @@ class Window(tk.Tk):
     def clear_canvas(self):
         self.data = np.full((constants.CANV_WIDTH, constants.CANV_HEIGHT, 3), 255, np.uint8)
         self.update_image(itk.PhotoImage(Image.fromarray(self.data)))
+        if self.mod == PainterStatus.triangle:
+            self.vertices.clear()
+            self.edges.fill(0)
+            self.edges[:, 0, 0] = constants.WINDOW_WIDTH + 1
+            self.edges[:, 1, 0] = -1
 
     def open_file(self):
         self.filename = fd.askopenfilename()
@@ -265,6 +279,12 @@ class Window(tk.Tk):
                 self.prev = None
             case PainterStatus.magic_wand:
                 self.magic_wand(event.x, event.y)
+            case PainterStatus.triangle:
+                if len(self.vertices) < 3:
+                    self.vertices[(event.x, event.y)] = self.colors[0].copy()
+                    self.plot(event.x, event.y, 0, True)
+                elif len(self.vertices) == 3:
+                    self.draw_triangle()
             case _:
                 return
 
@@ -286,6 +306,8 @@ class Window(tk.Tk):
                 self.set_mode(PainterStatus.bresenham_line2)
             case PainterStatus.bresenham_line2:
                 self.update_image(itk.PhotoImage(Image.fromarray(self.data.transpose((1, 0, 2)))))
+                # t = Thread(target=self.bresenham_line, args=(self.prev[0], self.prev[1], event.x, event.y, False))
+                # t.start()
                 self.bresenham_line(self.prev[0], self.prev[1], event.x, event.y, False)
             case PainterStatus.wu_line:
                 pass
@@ -404,6 +426,66 @@ class Window(tk.Tk):
             self.data[x][y] = self.colors[color_ind].copy()
         self.canvas.create_line(x, y, x + 1, y, fill=self.str_colors[color_ind], width=self.pen_width)
 
+    def colored_bresenham_line(self,
+                               x0: int,
+                               y0: int,
+                               c0: np.array,
+                               x1: int,
+                               y1: int,
+                               c1: np.array,
+                               save_to_data: bool):
+        alpha = 666  # gradient
+        if x1 - x0 != 0:
+            alpha = abs((y1 - y0) / (x1 - x0))
+        if alpha > 1:
+            x0, y0, x1, y1 = y0, x0, y1, x1
+        dx = x1 - x0
+        if dx < 0:
+            x0, y0, c0, x1, y1, c1 = x1, y1, c1, x0, y0, c0
+            dx = abs(dx)
+        dy = y1 - y0
+        sign_dy = 1 if dy > 0 else - 1
+        di = sign_dy * 2 * dy - dx
+        yi = 0
+        line_length = dist_coords(x0, y0, x1, y1)
+        c0 = c0.astype(float)
+        c1 = c1.astype(float)
+        dc = c1 - c0
+        for xi in range(dx + 1):
+            coefficient = dist_coords(x0, y0, x0 + xi, y0 + yi) / line_length
+            new_color = (c0 + coefficient * dc).astype(np.uint8)
+            if alpha > 1:
+                new_x = y0 + yi
+                new_y = x0 + xi
+            else:
+                new_x = x0 + xi
+                new_y = y0 + yi
+            self.plot(new_x, new_y, 0, save_to_data, new_color)
+            if new_x < self.edges[new_y, 0, 0]:
+                self.edges[new_y, 0] = np.hstack([np.array([new_x], dtype=float),
+                                                  new_color.astype(float),
+                                                  np.array([255], dtype=float)])
+            if new_x > self.edges[new_y, 1, 0]:
+                self.edges[new_y, 1] = np.hstack([np.array([new_x], dtype=float),
+                                                  new_color.astype(float),
+                                                  np.array([255], dtype=float)])
+            if di > 0:
+                yi += sign_dy
+                di += 2 * dy * sign_dy - 2 * dx
+            else:
+                di += 2 * dy * sign_dy
+
+    def plot(self, x: int, y: int, color_ind: int, save_to_data: bool = True, color: np.array = None):
+        if color is None:
+            current_color = self.str_colors[color_ind]
+            if save_to_data:
+                self.data[x][y] = self.colors[color_ind].copy()
+        else:
+            current_color = util_funcs.rgb_tuple_to_str(color)
+            if save_to_data:
+                self.data[x][y] = color.copy()
+        self.canvas.create_line(x, y, x + 1, y, fill=current_color, width=self.pen_width)
+
     def plot_stamp(self, start_point):
         if self.loaded_image is None:
             return
@@ -466,9 +548,9 @@ class Window(tk.Tk):
     def wu_line(self, x0: int, y0: int, x1: int, y1: int):
         dx = abs(x1 - x0)
         dy = abs(y1 - y0)
-
-        if (dx == 0 or dy == 0):
-            self.canvas.create_line(x0, y0, x1, y1)
+        
+        if(dx == 0 or dy == 0):
+            self.canvas.create_line(x0, y0, x1, y1, fill=self.str_colors[0])
             return
 
         err = 0.
@@ -548,6 +630,35 @@ class Window(tk.Tk):
             if (y - 1 >= 0 and rgb_equal(filled_color, self.data[i][y - 1])):
                 self.fill(i, y - 1, filled_color)
 
+    def draw_triangle(self):
+        params = []
+        for k, v in self.vertices.items():
+            params.append([k[0], k[1], v])
+        self.colored_bresenham_line(params[0][0], params[0][1], params[0][2],
+                                    params[1][0], params[1][1], params[1][2], True)
+        self.colored_bresenham_line(params[0][0], params[0][1], params[0][2],
+                                    params[2][0], params[2][1], params[2][2], True)
+        self.colored_bresenham_line(params[1][0], params[1][1], params[1][2],
+                                    params[2][0], params[2][1], params[2][2], True)
+        result_image = np.zeros((constants.CANV_HEIGHT, constants.CANV_WIDTH, 4), dtype=float)
+        for i in range(0, constants.CANV_HEIGHT):
+            if self.edges[i, 0, 0] == constants.WINDOW_WIDTH + 1 \
+                    or self.edges[i, 1, 0] == -1 \
+                    or abs(self.edges[i, 0, 0] - self.edges[i, 1, 0]) <= 1:
+                continue
+            left_x = int(self.edges[i, 0, 0])
+            left_color = self.edges[i, 0, 1:]
+            right_x = int(self.edges[i, 1, 0])
+            right_color = self.edges[i, 1, 1:]
+            diff_x = right_x - left_x
+            diff_color = (right_color - left_color) / diff_x
+            sum_color = left_color + diff_color
+            for j in range(left_x + 1, right_x):
+                result_image[i, j] = sum_color
+                sum_color += diff_color
+        self.new_image = result_image.astype(np.uint8)
+        self.show_stamp(0, 0)
+
 
 @njit(cache=True, inline='always')
 def rgb_equal(a, b):
@@ -566,6 +677,10 @@ def combine_rgbas(S, Sa, D, Da, out):
 @njit(cache=True, inline='always')
 def dist(p1, p2):
     return math.sqrt(pow(p1[0] - p2[0], 2) + pow(p1[1] - p2[1], 2))
+
+
+def dist_coords(x0, y0, x1, y1):
+    return math.sqrt((x1 - x0) * (x1 - x0) + (y1 - y0) * (y1 - y0))
 
 
 if __name__ == '__main__':
