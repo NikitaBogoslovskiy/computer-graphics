@@ -477,7 +477,7 @@ class Window(tk.Tk):
         dy = abs(y1 - y0)
         
         if(dx == 0 or dy == 0):
-            self.canvas.create_line(x0, y0, x1, y1)
+            self.canvas.create_line(x0, y0, x1, y1, fill=self.str_colors[0])
             return
         
         err = 0.
