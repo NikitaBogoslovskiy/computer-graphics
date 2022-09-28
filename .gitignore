@@ -1,2 +1,9 @@
 .idea
 .git
+__pycache__
+*.jpg
+files
+*.pdf
+Debug
+Release
+.vs
