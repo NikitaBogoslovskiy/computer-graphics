@@ -1,2 +1,3 @@
 .idea
 .git
+/lab*/__pycache__
