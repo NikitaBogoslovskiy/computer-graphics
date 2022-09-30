@@ -1,10 +1,14 @@
 //библиотека для создания и открытия окон, создания OpenGL контекста и управления вводом
+#define _CRT_SECURE_NO_WARNINGS
 #include <GLFW/glfw3.h>
 #include "imgui/imgui.h"
 #include "imgui/imgui_impl_glfw.h"
 #include "imgui/imgui_impl_opengl3.h"
 #include <stdio.h>
 #include <string>
+#include "../headers/main.h"
+#include "../headers/funcs.h"
+#include <vector>
 
 static void HelpMarker(const char* desc)
 {
@@ -22,6 +26,8 @@ static void HelpMarker(const char* desc)
 int main(void)
 {
 	GLFWwindow* window;
+    CurrentState state;
+    std::vector<Primitive> primitives;
 
 	/* Initialize the library */
 	if (!glfwInit())
@@ -71,11 +77,30 @@ int main(void)
         /* */
         if (ImGui::Begin("Example: Fullscreen window", &p_open, flags))
         {
-            //if (ImGui::BeginChild("Tools")) {
+            //Toolbar for choosing the mode of program
+            int chosenMode;
+            ImGui::Combo("Modes", &chosenMode, modesList, modesSize);
+            state.mode = static_cast<Mode>(chosenMode);
+            switch (state.mode)
+            {
+                case Mode::EdgeAndPoint:
+                    ImGui::RadioButton("Nothing", &state.edgeAndPointOption, 0); ImGui::SameLine();
+                    ImGui::RadioButton("Edge", &state.edgeAndPointOption, 1); ImGui::SameLine();
+                    ImGui::RadioButton("Point", &state.edgeAndPointOption, 2); ImGui::SameLine();
+                    if (ImGui::Button("Solve"))
+                    {
+                        state.answer = "Answer";
+                    }
+                    if (!state.answer.empty())
+                    {
+                        ImGui::SameLine();
+                        ImGui::Text(state.answer.c_str());
+                    }
+                    ImGui::NewLine();
+                default:
+                    break;
+            }
 
-                //static int tool_idx = 0;
-                //static const char* const tool_names[4] = {"point", "line", "triangle", "rectangle"};
-                //ImGui::Combo("Tools", &tool_idx, tool_names, 4);
             if (ImGui::TreeNode("Primitives"))
             {
                 ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -139,7 +164,40 @@ int main(void)
                 const ImVec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y); // Lock scrolled origin
                 const ImVec2 mouse_pos_in_canvas(io.MousePos.x - origin.x, io.MousePos.y - origin.y);
 
+                switch (state.mode)
+                {
+                case Mode::EdgeAndPoint:
+                    if (state.edgeAndPointOption == 1)
+                    {
+                        if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                        {
+                            points.push_back(mouse_pos_in_canvas);
+                            points.push_back(mouse_pos_in_canvas);
+                            adding_line = true;
+                        }
+                        if (adding_line)
+                        {
+                            points.back() = mouse_pos_in_canvas;
+                            if (!ImGui::IsMouseDown(ImGuiMouseButton_Left))
+                            {
+                                colors.push_back(IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
+                                adding_line = false;
+                                primitives.push_back(Edge(points.front().x, points.front().y, points.back().x, points.back().y));
+                            }
+                        }
+                    }
+                    if (state.edgeAndPointOption == 2)
+                    {
+                        if (is_hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                            primitives.push_back(Point(origin.x + mouse_pos_in_canvas.x, origin.y + mouse_pos_in_canvas.y));
+                    }
+                    break;
+                default:
+                    break;
+                }
+
                 // Add first and second point
+                /*
                 if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
                 {
                     points.push_back(mouse_pos_in_canvas);
@@ -155,6 +213,7 @@ int main(void)
                         adding_line = false;
                     }
                 }
+                */
 
                 // Pan (we use a zero mouse threshold when there's no context menu)
                 // You may decide to make that threshold dynamic based on whether the mouse is hovering something etc.
@@ -189,6 +248,7 @@ int main(void)
                     for (float y = fmodf(scrolling.y, GRID_STEP); y < canvas_sz.y; y += GRID_STEP)
                         draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
                 }
+                /*
                 for (int n = 0; n < points.Size; n += 2) {
                     int temp = n / 2;
                     ImU32 clr = IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255));
@@ -196,6 +256,7 @@ int main(void)
                         clr = colors[temp];
                     draw_list->AddLine(ImVec2(origin.x + points[n].x, origin.y + points[n].y), ImVec2(origin.x + points[n + 1].x, origin.y + points[n + 1].y), clr, 2.0f);
                 }
+                */
                 draw_list->PopClipRect();
 
                 ImGui::EndChild();
