@@ -44,10 +44,6 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
-	char buf[100];
-	buf[0] = '\0';
-	float my_color[4] = {200, 200, 200, 1};
-
 	bool p_open = true;
 
 	/* Loop until the user closes the window */
@@ -75,6 +71,40 @@ int main(void)
         /* */
         if (ImGui::Begin("Example: Fullscreen window", &p_open, flags))
         {
+            //if (ImGui::BeginChild("Tools")) {
+
+                //static int tool_idx = 0;
+                //static const char* const tool_names[4] = {"point", "line", "triangle", "rectangle"};
+                //ImGui::Combo("Tools", &tool_idx, tool_names, 4);
+            if (ImGui::TreeNode("Primitives"))
+            {
+                ImDrawList* draw_list = ImGui::GetWindowDrawList();
+                const ImVec2 p = ImGui::GetCursorScreenPos();
+                float x = p.x + 4.0f;
+                float y = p.y + 4.0f;
+                float sz = 36.f;
+                const float spacing = 5.0f;
+                for (int i = 1; i < 5; i++)
+                {
+                    // Use SetNextItemOpen() so set the default state of a node to be open. We could
+                    // also use TreeNodeEx() with the ImGuiTreeNodeFlags_DefaultOpen flag to achieve the same thing!
+                    if (i == 0)
+                        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
+
+                    draw_list->AddNgon(ImVec2(x + sz * 0.5f, y + sz * 0.5f), sz * 0.5f, IM_COL32(255, 255, 0, 255), i + 2);
+                    x += sz + spacing;
+                    ImGui::PushID(i);
+                    if (ImGui::InvisibleButton(i + "-side polygon", ImVec2(sz, sz), ImGuiButtonFlags_MouseButtonLeft)) {
+                        printf("%d button has been clicked", i);
+                    }
+                    ImGui::PopID();
+                }
+                ImGui::TreePop();
+            };
+
+                //ImGui::EndChild();
+            //}
+
             if (ImGui::BeginChild("Canvas"))
             {
                 static ImVector<ImVec2> points;
@@ -83,11 +113,10 @@ int main(void)
                 static bool opt_enable_grid = true;
                 static bool opt_enable_context_menu = true;
                 static bool adding_line = false;
-                static float curr_color[4] = { 255.f, 255.f, 0.f, 255.f };
+                static float curr_color[4] = { 1.f, 1.f, 0.f, 1.f };
 
                 ImGui::Checkbox("Enable grid", &opt_enable_grid);
-                ImGui::Checkbox("Enable context menu", &opt_enable_context_menu);
-                ImGui::ColorEdit4("Line color", curr_color, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_Uint8);
+                ImGui::ColorEdit4("Line color", curr_color, ImGuiColorEditFlags_DisplayRGB); //ImGuiColorEditFlags_NoInputs
                 ImGui::Text("Mouse Left: drag to add lines,\nMouse Right: drag to scroll, click for context menu.");
 
                 // Using InvisibleButton() as a convenience 1) it will advance the layout cursor and 2) allows us to use IsItemHovered()/IsItemActive()
@@ -122,7 +151,7 @@ int main(void)
                     points.back() = mouse_pos_in_canvas;
                     if (!ImGui::IsMouseDown(ImGuiMouseButton_Left))
                     {
-                        colors.push_back(IM_COL32((int)curr_color[0], (int)curr_color[1], (int)curr_color[2], (int)curr_color[3]));
+                        colors.push_back(IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
                         adding_line = false;
                     }
                 }
@@ -162,7 +191,7 @@ int main(void)
                 }
                 for (int n = 0; n < points.Size; n += 2) {
                     int temp = n / 2;
-                    ImU32 clr = IM_COL32((int)curr_color[0], (int)curr_color[1], (int)curr_color[2], (int)curr_color[3]);
+                    ImU32 clr = IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255));
                     if (colors.Size > temp)
                         clr = colors[temp];
                     draw_list->AddLine(ImVec2(origin.x + points[n].x, origin.y + points[n].y), ImVec2(origin.x + points[n + 1].x, origin.y + points[n + 1].y), clr, 2.0f);
@@ -172,8 +201,8 @@ int main(void)
                 ImGui::EndChild();
             }
 
-            //if (p_open && ImGui::Button("Close this window"))
-            //    p_open = false;
+            //ImGui::SameLine();
+
         }
         ImGui::End();
        
