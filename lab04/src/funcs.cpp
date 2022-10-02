@@ -15,7 +15,6 @@ Point::Point(const ImVec2& p, const ImU32& color, const float& thickness) : Prim
 void Point::draw(ImDrawList* draw_list, const ImVec2& offset)
 {
 	draw_list->AddCircleFilled(this->operator[](0) + offset, thickness(), color(), 10);
-	//draw_list->AddLine(this->operator[](0), this->operator[](0) +ImVec2(0.5f, 0.5f), color(), thickness());
 }
 
 void Primitive::draw(ImDrawList* draw_list, const ImVec2& offset)

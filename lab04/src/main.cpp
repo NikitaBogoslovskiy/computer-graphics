@@ -47,7 +47,12 @@ void ShowPrimitiveTableRow(Primitive* prim, size_t idx)
     }
 
     if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-        current_prim = current_prim = prim;
+        if (current_prim != prim) {
+            current_prim = current_prim = prim;
+        }
+        else {
+            current_prim = NULL;
+        }
     }
     
     if (node_open)
@@ -118,8 +123,6 @@ int main(void)
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		//ImGui::ShowDemoWindow((bool*)0);
-
 
         static bool use_work_area = true;
         static ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
@@ -131,20 +134,32 @@ int main(void)
             FinalClick
         } adding_line;
 
-        // We demonstrate using the full viewport area or the work area (without menu-bars, task-bars etc.)
-        // Based on your use case you may want one of the other.
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
         ImGui::SetNextWindowPos(use_work_area ? viewport->WorkPos : viewport->Pos);
         ImGui::SetNextWindowSize(use_work_area ? viewport->WorkSize : viewport->Size);
         /* */
+        
+        static int chosenMode = 0;
+        static float thickness = 1.0f;
+        
         if (ImGui::Begin("Example: Fullscreen window", &p_open, flags))
         {
-            //Toolbar for choosing the mode of program
-            static int chosenMode = 0;
-            if (ImGui::Combo("Modes", &chosenMode, modesList, modesSize)) {
-                //state.mode = (Mode)(chosenMode + 1);            
-            }
+            if (ImGui::BeginTable("mode & thickness", 2)) {
+                ImGui::TableNextRow();
+                ImGui::TableNextColumn();
 
+                //Toolbar for choosing the mode of program
+                if (ImGui::Combo("Modes", &chosenMode, modesList, modesSize)) {
+       
+                }
+                
+                ImGui::TableNextColumn();
+
+                ImGui::SliderFloat(" ", &thickness, 1.f, 10.f, "thickness = %.1f");
+
+                ImGui::EndTable();
+            }
+            //ImGui::SameLine();
             ImGui::Text("Number of prims: %d", primitives.size());
             ImGui::Text("Current prim: %d", current_prim);
 
@@ -199,13 +214,13 @@ int main(void)
                 {
                 case Mode::Point:          
                     if (is_hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-                        primitives.push_back((Primitive*)new Point(mouse_pos_in_canvas, GetCurrentColor(curr_color), 1.f));
+                        primitives.push_back((Primitive*)new Point(mouse_pos_in_canvas, GetCurrentColor(curr_color), thickness));
                     }                
                     break;
                 case Mode::Edge:
                     if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
                     {
-                        new_prim = new Edge(mouse_pos_in_canvas, mouse_pos_in_canvas, GetCurrentColor(curr_color), 1.f);
+                        new_prim = new Edge(mouse_pos_in_canvas, mouse_pos_in_canvas, GetCurrentColor(curr_color), thickness);
                         adding_line = FirstClick;
                     }
                     if (adding_line == FirstClick) {
@@ -227,7 +242,7 @@ int main(void)
                 case Mode::Polygon:
                     if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
                     {
-                        new_prim = new Primitive(GetCurrentColor(curr_color), 1.f);
+                        new_prim = new Primitive(GetCurrentColor(curr_color), thickness);
                         new_prim->push_back(mouse_pos_in_canvas);
                         new_prim->push_back(mouse_pos_in_canvas);
                         adding_line = FirstClick;
