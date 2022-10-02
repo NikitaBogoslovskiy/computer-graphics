@@ -141,10 +141,11 @@ int main(void)
         
         static int chosenMode = 0;
         static float thickness = 1.0f;
+        static float curr_color[4] = { 1.f, 1.f, 0.f, 1.f };
         
-        if (ImGui::Begin("Example: Fullscreen window", &p_open, flags))
+        if (ImGui::Begin("Affine transformaitons", &p_open, flags))
         {
-            if (ImGui::BeginTable("mode & thickness", 2)) {
+            if (ImGui::BeginTable("mode & thickness & color", 3)) {
                 ImGui::TableNextRow();
                 ImGui::TableNextColumn();
 
@@ -157,14 +158,16 @@ int main(void)
 
                 ImGui::SliderFloat(" ", &thickness, 1.f, 10.f, "thickness = %.1f");
 
+                ImGui::TableNextColumn();
+
+                ImGui::ColorEdit4("Line color", curr_color, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs); //ImGuiColorEditFlags_NoInputs
+
                 ImGui::EndTable();
             }
             //ImGui::SameLine();
-            ImGui::Text("Number of prims: %d", primitives.size());
-            ImGui::Text("Current prim: %d", current_prim);
+            //ImGui::Text("Number of prims: %d", primitives.size());
+            //ImGui::Text("Current prim: %d", current_prim);
 
-            static float curr_color[4] = { 1.f, 1.f, 0.f, 1.f };
-            ImGui::ColorEdit4("Line color", curr_color, ImGuiColorEditFlags_DisplayRGB); //ImGuiColorEditFlags_NoInputs
             
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
             if (ImGui::BeginTable("prims", 2, ImGuiTableFlags_Borders |  ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_SizingFixedFit, ImVec2(200.f, canvas_sz.y))) // ImGuiTableFlags_NoHostExtendX
