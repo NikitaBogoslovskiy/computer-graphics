@@ -27,6 +27,7 @@ ImU32 GetCurrentColor(const float* curr_color) {
     return (IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
 }
 
+Primitive* current_prim;
 
 void ShowPrimitiveTableRow(Primitive* prim, size_t idx)
 {
@@ -37,8 +38,17 @@ void ShowPrimitiveTableRow(Primitive* prim, size_t idx)
     ImGui::AlignTextToFramePadding();
     bool node_open = ImGui::TreeNode("Prim", "prim%d", idx);
     ImGui::TableSetColumnIndex(1);
-    ImGui::Text("%d-gon figure", prim->size());
+    
+    if (prim == current_prim) {
+        ImGui::TextColored(ImVec4(255, 0, 0, 255), "%d-gon figure", prim->size());
+    }
+    else {
+        ImGui::Text("%d-gon figure", prim->size());
+    }
 
+    if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+        current_prim = current_prim = prim;
+    }
     
     if (node_open)
     {
@@ -73,7 +83,7 @@ int main(void)
     CurrentState state;
     std::vector<Primitive*> primitives;
     ImVec2 canvas_sz;
-
+    current_prim = NULL;
 	/* Initialize the library */
 	if (!glfwInit())
 		return -1;
@@ -136,6 +146,7 @@ int main(void)
             }
 
             ImGui::Text("Number of prims: %d", primitives.size());
+            ImGui::Text("Current prim: %d", current_prim);
 
             static float curr_color[4] = { 1.f, 1.f, 0.f, 1.f };
             ImGui::ColorEdit4("Line color", curr_color, ImGuiColorEditFlags_DisplayRGB); //ImGuiColorEditFlags_NoInputs
