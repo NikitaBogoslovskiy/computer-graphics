@@ -27,51 +27,44 @@ ImU32 GetCurrentColor(const float* curr_color) {
     return (IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
 }
 
-void ShowPrimitiveTableRow(const char* prefix, int uid)
+
+void ShowPrimitiveTableRow(Primitive* prim, size_t idx)
 {
-    /*
-    ImGui::PushID(uid);
+    ImGui::PushID(prim);
 
     ImGui::TableNextRow();
     ImGui::TableSetColumnIndex(0);
     ImGui::AlignTextToFramePadding();
-    bool node_open = ImGui::TreeNode("Object", "%s_%u", prefix, uid);
+    bool node_open = ImGui::TreeNode("Prim", "prim%d", idx);
     ImGui::TableSetColumnIndex(1);
-    ImGui::Text("my sailor is rich");
+    ImGui::Text("%d-gon figure", prim->size());
 
+    
     if (node_open)
     {
-        static float placeholder_members[8] = { 0.0f, 0.0f, 1.0f, 3.1416f, 100.0f, 999.0f };
-        for (int i = 0; i < 8; i++)
-        {
-            ImGui::PushID(i); // Use field index as identifier.
-            if (i < 2)
-            {
-                ShowPlaceholderObject("Child", 424242);
-            }
-            else
-            {
-                // Here we use a TreeNode to highlight on hover (we could use e.g. Selectable as well)
-                ImGui::TableNextRow();
-                ImGui::TableSetColumnIndex(0);
-                ImGui::AlignTextToFramePadding();
-                ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
-                ImGui::TreeNodeEx("Field", flags, "Field_%d", i);
+        for (size_t i = 0; i < prim->size(); i++) {
+            ImGui::PushID(&(prim->operator[](i)));
 
-                ImGui::TableSetColumnIndex(1);
-                ImGui::SetNextItemWidth(-FLT_MIN);
-                if (i >= 5)
-                    ImGui::InputFloat("##value", &placeholder_members[i], 1.0f);
-                else
-                    ImGui::DragFloat("##value", &placeholder_members[i], 0.01f);
-                ImGui::NextColumn();
-            }
+            ImGui::TableNextRow();
+            ImGui::TableSetColumnIndex(0);
+            ImGui::AlignTextToFramePadding();
+            ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
+            ImGui::Text("Point %d", i);
+
+            ImGui::TableSetColumnIndex(1);
+            //ImGui::SliderFloat("x", &(prim->operator[](i).x), 0.f, 1000.f, ".1f", 0.5f);
+            ImGui::InputFloat("x", &(prim->operator[](i).x));
+            //ImGui::SameLine();
+            //ImGui::SliderFloat("y", &(prim->operator[](i).y), 0.f, 1000.f, ".1f", 0.5f);
+            ImGui::InputFloat("y", &(prim->operator[](i).y));
+
             ImGui::PopID();
         }
+
         ImGui::TreePop();
     }
+    
     ImGui::PopID();
-    */
 }
 
 int main(void)
@@ -79,6 +72,7 @@ int main(void)
 	GLFWwindow* window;
     CurrentState state;
     std::vector<Primitive*> primitives;
+    ImVec2 canvas_sz;
 
 	/* Initialize the library */
 	if (!glfwInit())
@@ -141,57 +135,36 @@ int main(void)
                 //state.mode = (Mode)(chosenMode + 1);            
             }
 
-            ImGui::Text("Current mode: %d", chosenMode);
             ImGui::Text("Number of prims: %d", primitives.size());
-            ImGui::Text("Current line mode: %d", adding_line);
-
-            /*
-            if (ImGui::TreeNode("Primitives"))
-            {
-                ImDrawList* draw_list = ImGui::GetWindowDrawList();
-                const ImVec2 p = ImGui::GetCursorScreenPos();
-                float x = p.x + 4.0f;
-                float y = p.y + 4.0f;
-                float sz = 36.f;
-                const float spacing = 5.0f;
-                for (int i = 1; i < 5; i++)
-                {
-                    // Use SetNextItemOpen() so set the default state of a node to be open. We could
-                    // also use TreeNodeEx() with the ImGuiTreeNodeFlags_DefaultOpen flag to achieve the same thing!
-                    if (i == 0)
-                        ImGui::SetNextItemOpen(true, ImGuiCond_Once);
-
-                    draw_list->AddNgon(ImVec2(x + sz * 0.5f, y + sz * 0.5f), sz * 0.5f, IM_COL32(255, 255, 0, 255), i + 2);
-                    x += sz + spacing;
-                    ImGui::PushID(i);
-                    if (ImGui::InvisibleButton(i + "-side polygon", ImVec2(sz, sz), ImGuiButtonFlags_MouseButtonLeft)) {
-                        printf("%d button has been clicked", i);
-                    }
-                    ImGui::PopID();
-                }
-                ImGui::TreePop();
-            };
-            */
 
             static float curr_color[4] = { 1.f, 1.f, 0.f, 1.f };
             ImGui::ColorEdit4("Line color", curr_color, ImGuiColorEditFlags_DisplayRGB); //ImGuiColorEditFlags_NoInputs
             
-            
+            ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
+            if (ImGui::BeginTable("prims", 2, ImGuiTableFlags_Borders |  ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_SizingFixedFit, ImVec2(200.f, canvas_sz.y))) // ImGuiTableFlags_NoHostExtendX
+            {
+                // Iterate placeholder objects (all the same data)
+                for (size_t i = 0; i < primitives.size(); i++)
+                {
+                    ShowPrimitiveTableRow(primitives[i], i);
+                    //ImGui::Separator();
+                }
+                ImGui::EndTable();
+            }
+            ImGui::PopStyleVar();
 
-            //ImGui::SameLine();
+            ImGui::SameLine();
             
-            if (ImGui::BeginChild("Canvas"))
+            static bool b_canvas = true;
+            if (b_canvas && ImGui::BeginChild("Canvas"))
             {
                 static ImVec2 scrolling(0.0f, 0.0f);
                 static bool opt_enable_grid = true;
                 static bool opt_enable_context_menu = true;            
 
-                //ImGui::Checkbox("Enable grid", &opt_enable_grid);
-                //ImGui::Text("Mouse Left: drag to add lines,\nMouse Right: drag to scroll, click for context menu.");
-
                 // Using InvisibleButton() as a convenience 1) it will advance the layout cursor and 2) allows us to use IsItemHovered()/IsItemActive()
                 ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();      // ImDrawList API uses screen coordinates!
-                ImVec2 canvas_sz = ImGui::GetContentRegionAvail();   // Resize canvas to what's available
+                canvas_sz = ImGui::GetContentRegionAvail();   // Resize canvas to what's available
                 if (canvas_sz.x < 50.0f) canvas_sz.x = 50.0f;
                 if (canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
                 ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
