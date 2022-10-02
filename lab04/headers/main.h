@@ -4,9 +4,12 @@
 #include <string>
 
 enum class Mode {
-	EdgeAndPoint,
+	Point,
+	Edge,
+	Polygon,
 	ConvexPolygon,
-	NonConvexPolygon
+	NonConvexPolygon,
+	None
 };
 
 struct CurrentState {
@@ -15,8 +18,8 @@ struct CurrentState {
 	std::string answer = "";
 };
 
-const unsigned char modesSize = 3;
-const char* modesList[modesSize] { "Edge and Point", "Convex Polygon", "Non-convex Polygon" };
+const unsigned char modesSize = 5;
+const char* modesList[modesSize] { "Point", "Edge", "Polygon", "Convex Polygon", "Non-convex Polygon" };
 
 
 #endif

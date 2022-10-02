@@ -23,11 +23,62 @@ static void HelpMarker(const char* desc)
     }
 }
 
+ImU32 GetCurrentColor(const float* curr_color) {
+    return (IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
+}
+
+void ShowPrimitiveTableRow(const char* prefix, int uid)
+{
+    /*
+    ImGui::PushID(uid);
+
+    ImGui::TableNextRow();
+    ImGui::TableSetColumnIndex(0);
+    ImGui::AlignTextToFramePadding();
+    bool node_open = ImGui::TreeNode("Object", "%s_%u", prefix, uid);
+    ImGui::TableSetColumnIndex(1);
+    ImGui::Text("my sailor is rich");
+
+    if (node_open)
+    {
+        static float placeholder_members[8] = { 0.0f, 0.0f, 1.0f, 3.1416f, 100.0f, 999.0f };
+        for (int i = 0; i < 8; i++)
+        {
+            ImGui::PushID(i); // Use field index as identifier.
+            if (i < 2)
+            {
+                ShowPlaceholderObject("Child", 424242);
+            }
+            else
+            {
+                // Here we use a TreeNode to highlight on hover (we could use e.g. Selectable as well)
+                ImGui::TableNextRow();
+                ImGui::TableSetColumnIndex(0);
+                ImGui::AlignTextToFramePadding();
+                ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
+                ImGui::TreeNodeEx("Field", flags, "Field_%d", i);
+
+                ImGui::TableSetColumnIndex(1);
+                ImGui::SetNextItemWidth(-FLT_MIN);
+                if (i >= 5)
+                    ImGui::InputFloat("##value", &placeholder_members[i], 1.0f);
+                else
+                    ImGui::DragFloat("##value", &placeholder_members[i], 0.01f);
+                ImGui::NextColumn();
+            }
+            ImGui::PopID();
+        }
+        ImGui::TreePop();
+    }
+    ImGui::PopID();
+    */
+}
+
 int main(void)
 {
 	GLFWwindow* window;
     CurrentState state;
-    std::vector<Primitive> primitives;
+    std::vector<Primitive*> primitives;
 
 	/* Initialize the library */
 	if (!glfwInit())
@@ -69,6 +120,13 @@ int main(void)
         static bool use_work_area = true;
         static ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
 
+        static enum AddingLine {
+            None,
+            FirstClick,
+            ReleasedState,
+            FinalClick
+        } adding_line;
+
         // We demonstrate using the full viewport area or the work area (without menu-bars, task-bars etc.)
         // Based on your use case you may want one of the other.
         const ImGuiViewport* viewport = ImGui::GetMainViewport();
@@ -78,29 +136,16 @@ int main(void)
         if (ImGui::Begin("Example: Fullscreen window", &p_open, flags))
         {
             //Toolbar for choosing the mode of program
-            int chosenMode;
-            ImGui::Combo("Modes", &chosenMode, modesList, modesSize);
-            state.mode = static_cast<Mode>(chosenMode);
-            switch (state.mode)
-            {
-                case Mode::EdgeAndPoint:
-                    ImGui::RadioButton("Nothing", &state.edgeAndPointOption, 0); ImGui::SameLine();
-                    ImGui::RadioButton("Edge", &state.edgeAndPointOption, 1); ImGui::SameLine();
-                    ImGui::RadioButton("Point", &state.edgeAndPointOption, 2); ImGui::SameLine();
-                    if (ImGui::Button("Solve"))
-                    {
-                        state.answer = "Answer";
-                    }
-                    if (!state.answer.empty())
-                    {
-                        ImGui::SameLine();
-                        ImGui::Text(state.answer.c_str());
-                    }
-                    ImGui::NewLine();
-                default:
-                    break;
+            static int chosenMode = 0;
+            if (ImGui::Combo("Modes", &chosenMode, modesList, modesSize)) {
+                //state.mode = (Mode)(chosenMode + 1);            
             }
 
+            ImGui::Text("Current mode: %d", chosenMode);
+            ImGui::Text("Number of prims: %d", primitives.size());
+            ImGui::Text("Current line mode: %d", adding_line);
+
+            /*
             if (ImGui::TreeNode("Primitives"))
             {
                 ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -126,23 +171,23 @@ int main(void)
                 }
                 ImGui::TreePop();
             };
+            */
 
-                //ImGui::EndChild();
-            //}
+            static float curr_color[4] = { 1.f, 1.f, 0.f, 1.f };
+            ImGui::ColorEdit4("Line color", curr_color, ImGuiColorEditFlags_DisplayRGB); //ImGuiColorEditFlags_NoInputs
+            
+            
 
+            //ImGui::SameLine();
+            
             if (ImGui::BeginChild("Canvas"))
             {
-                static ImVector<ImVec2> points;
-                static ImVector<ImU32> colors;
                 static ImVec2 scrolling(0.0f, 0.0f);
                 static bool opt_enable_grid = true;
-                static bool opt_enable_context_menu = true;
-                static bool adding_line = false;
-                static float curr_color[4] = { 1.f, 1.f, 0.f, 1.f };
+                static bool opt_enable_context_menu = true;            
 
-                ImGui::Checkbox("Enable grid", &opt_enable_grid);
-                ImGui::ColorEdit4("Line color", curr_color, ImGuiColorEditFlags_DisplayRGB); //ImGuiColorEditFlags_NoInputs
-                ImGui::Text("Mouse Left: drag to add lines,\nMouse Right: drag to scroll, click for context menu.");
+                //ImGui::Checkbox("Enable grid", &opt_enable_grid);
+                //ImGui::Text("Mouse Left: drag to add lines,\nMouse Right: drag to scroll, click for context menu.");
 
                 // Using InvisibleButton() as a convenience 1) it will advance the layout cursor and 2) allows us to use IsItemHovered()/IsItemActive()
                 ImVec2 canvas_p0 = ImGui::GetCursorScreenPos();      // ImDrawList API uses screen coordinates!
@@ -164,56 +209,69 @@ int main(void)
                 const ImVec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y); // Lock scrolled origin
                 const ImVec2 mouse_pos_in_canvas(io.MousePos.x - origin.x, io.MousePos.y - origin.y);
 
-                switch (state.mode)
+                static Primitive* new_prim;
+
+                switch ((Mode)chosenMode)
                 {
-                case Mode::EdgeAndPoint:
-                    if (state.edgeAndPointOption == 1)
+                case Mode::Point:          
+                    if (is_hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+                        primitives.push_back((Primitive*)new Point(mouse_pos_in_canvas, GetCurrentColor(curr_color), 1.f));
+                    }                
+                    break;
+                case Mode::Edge:
+                    if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
                     {
-                        if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-                        {
-                            points.push_back(mouse_pos_in_canvas);
-                            points.push_back(mouse_pos_in_canvas);
-                            adding_line = true;
-                        }
-                        if (adding_line)
-                        {
-                            points.back() = mouse_pos_in_canvas;
-                            if (!ImGui::IsMouseDown(ImGuiMouseButton_Left))
-                            {
-                                colors.push_back(IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
-                                adding_line = false;
-                                primitives.push_back(Edge(points.front().x, points.front().y, points.back().x, points.back().y));
-                            }
+                        new_prim = new Edge(mouse_pos_in_canvas, mouse_pos_in_canvas, GetCurrentColor(curr_color), 1.f);
+                        adding_line = FirstClick;
+                    }
+                    if (adding_line == FirstClick) {
+                        if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+                            adding_line = ReleasedState;
                         }
                     }
-                    if (state.edgeAndPointOption == 2)
+                    if (adding_line == ReleasedState)
                     {
-                        if (is_hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-                            primitives.push_back(Point(origin.x + mouse_pos_in_canvas.x, origin.y + mouse_pos_in_canvas.y));
+                        (*new_prim)[1] = mouse_pos_in_canvas;
+                        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                        {
+                            adding_line = None;
+                            primitives.push_back(new_prim);
+                            new_prim = NULL;
+                        }
+                    }
+                    break;
+                case Mode::Polygon:
+                    if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                    {
+                        new_prim = new Primitive(GetCurrentColor(curr_color), 1.f);
+                        new_prim->push_back(mouse_pos_in_canvas);
+                        new_prim->push_back(mouse_pos_in_canvas);
+                        adding_line = FirstClick;
+                    }
+                    if (adding_line == FirstClick) {
+                        if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+                            adding_line = ReleasedState;
+                        }
+                    }
+                    if (adding_line == ReleasedState)
+                    {
+                        (*new_prim).back() = mouse_pos_in_canvas;
+                        if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+                        {
+                            adding_line = FirstClick;
+                            new_prim->push_back(mouse_pos_in_canvas);                          
+                        }
+                    }
+                    if (ImGui::IsKeyPressed(ImGuiKey_Enter)) {
+                        adding_line = None;    
+                        new_prim->pop_back();
+                        primitives.push_back(new_prim);
+                        new_prim = NULL;
                     }
                     break;
                 default:
                     break;
                 }
-
-                // Add first and second point
-                /*
-                if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-                {
-                    points.push_back(mouse_pos_in_canvas);
-                    points.push_back(mouse_pos_in_canvas);
-                    adding_line = true;
-                }
-                if (adding_line)
-                {
-                    points.back() = mouse_pos_in_canvas;
-                    if (!ImGui::IsMouseDown(ImGuiMouseButton_Left))
-                    {
-                        colors.push_back(IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
-                        adding_line = false;
-                    }
-                }
-                */
 
                 // Pan (we use a zero mouse threshold when there's no context menu)
                 // You may decide to make that threshold dynamic based on whether the mouse is hovering something etc.
@@ -226,16 +284,13 @@ int main(void)
 
                 // Context menu (under default mouse threshold)
                 ImVec2 drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
-                if (opt_enable_context_menu && drag_delta.x == 0.0f && drag_delta.y == 0.0f)
+                if (!adding_line && opt_enable_context_menu && drag_delta.x == 0.0f && drag_delta.y == 0.0f) {
                     ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
-                if (ImGui::BeginPopup("context"))
-                {
-                    if (adding_line)
-                        points.resize(points.size() - 2);
-                    adding_line = false;
-                    if (ImGui::MenuItem("Remove one", NULL, false, points.Size > 0)) { points.resize(points.size() - 2); }
-                    if (ImGui::MenuItem("Remove all", NULL, false, points.Size > 0)) { points.clear(); }
-                    ImGui::EndPopup();
+                    if (ImGui::BeginPopup("context")) {
+                        if (ImGui::MenuItem("Remove last", NULL, false, primitives.size() > 0)) { primitives.pop_back(); }
+                        if (ImGui::MenuItem("Remove all", NULL, false, primitives.size() > 0)) { primitives.clear(); }
+                        ImGui::EndPopup();
+                    }
                 }
 
                 // Draw grid + all lines in the canvas
@@ -248,21 +303,20 @@ int main(void)
                     for (float y = fmodf(scrolling.y, GRID_STEP); y < canvas_sz.y; y += GRID_STEP)
                         draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
                 }
-                /*
-                for (int n = 0; n < points.Size; n += 2) {
-                    int temp = n / 2;
-                    ImU32 clr = IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255));
-                    if (colors.Size > temp)
-                        clr = colors[temp];
-                    draw_list->AddLine(ImVec2(origin.x + points[n].x, origin.y + points[n].y), ImVec2(origin.x + points[n + 1].x, origin.y + points[n + 1].y), clr, 2.0f);
+                
+                for (size_t i = 0; i < primitives.size(); i++) {
+                    primitives[i]->draw(draw_list, origin);
                 }
-                */
+                if (new_prim) {
+                    new_prim->draw_previe(draw_list, origin);               
+                }
+
+                
                 draw_list->PopClipRect();
 
-                ImGui::EndChild();
+            ImGui::EndChild();
             }
-
-            //ImGui::SameLine();
+            
 
         }
         ImGui::End();
