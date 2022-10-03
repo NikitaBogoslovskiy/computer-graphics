@@ -10,6 +10,7 @@
 #include "../headers/funcs.h"
 #include <vector>
 #include <set>
+#include <math.h>
 
 static void HelpMarker(const char* desc)
 {
@@ -218,6 +219,14 @@ int main(void)
                 ImGui::ColorEdit4("Line color", curr_color, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs); //ImGuiColorEditFlags_NoInputs
 
                 ImGui::EndTable();
+            }
+
+            if (ImGui::Button("rotate 90")) {   
+                for (auto prim : chosen_prims) {
+                    if (dynamic_cast<Point*>(prim) == NULL) {
+                        prim->rotate(1.57079632f);
+                    }
+                }
             }
             
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
