@@ -219,6 +219,14 @@ int main(void)
 
                 ImGui::EndTable();
             }
+
+            if (ImGui::Button("test rotate")) {   
+                for (auto prim : chosen_prims) {
+                    if (dynamic_cast<Edge*>(prim) != NULL) {
+                        dynamic_cast<Edge*>(prim)->rotate(3.14f / 2.f);
+                    }
+                }
+            }
             
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
             if (ImGui::BeginTable("prims", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_SizingFixedFit, ImVec2(200.f, canvas_sz.y))) // ImGuiTableFlags_NoHostExtendX

@@ -66,6 +66,8 @@ public:
 
 	virtual void draw(ImDrawList*, const ImVec2&);
 	virtual void draw_previe(ImDrawList*, const ImVec2&);
+
+	void rotate(const float& angle);
 };
 
 class Point : public Primitive
@@ -83,6 +85,22 @@ public:
 	inline ImVec2& p1() { return front(); }
 	inline ImVec2& p2() { return back(); }
 
+	void rotate(const float& angle);
+};
+
+class Affine
+{
+public:
+	static const Eigen::Matrix3f& rotate(const float& angle, const ImVec2& d = ImVec2(0.f, 0.f)) {
+		float cosa = cosf(angle);
+		float sina = sinf(angle);
+		Eigen::Matrix3f ret { 
+			{ cosa, sina, 0 }, 
+			{ -sina, cosa, 0 }, 
+			{ -d.x * cosa + d.y * sina + d.x, -d.x * sina - d.y * cosa + d.y, 1.f}
+		};
+		return ret;
+	}
 };
 
 #endif
