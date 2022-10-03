@@ -9,6 +9,7 @@
 #include "../headers/main.h"
 #include "../headers/funcs.h"
 #include <vector>
+#include <set>
 
 static void HelpMarker(const char* desc)
 {
@@ -23,11 +24,63 @@ static void HelpMarker(const char* desc)
     }
 }
 
+bool intersected(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, ImVec2* out) {
+    ImVec2 n = (d - c);
+    n = ImVec2(-n.y, n.x);
+    float buf = (n * (b - a));
+    if (!buf) return false;
+    float t = -(n * (a - c)) / buf;
+    *out = a + (t * (b-a));
+    if ((a.x < b.x && a.x <= out->x && b.x >= out->x || a.x > b.x && b.x <= out->x && a.x >= out->x || a.y < b.y && a.y <= out->y && b.y >= out->y || a.y > b.y && b.y <= out->y && a.y >= out->y) &&
+        (c.x < d.x && c.x <= out->x && d.x >= out->x || c.x > d.x && d.x <= out->x && c.x >= out->x || c.y < d.y && c.y <= out->y && d.y >= out->y || c.y > d.y && d.y <= out->y && c.y >= out->y)) return true;
+    return false;
+}
+
+//do u like ladders? i don`t
+ImVector<ImVec2*> get_intersections(std::set<Primitive*> prims) {
+    ImVector<ImVec2*> points = ImVector<ImVec2*>();
+    ImVec2 out = ImVec2();
+    for (auto src = prims.cbegin(); src != prims.cend(); src++) {
+        auto src1 = src;
+        for (auto dest = ++src1; dest != prims.cend(); dest++) {
+            if (src != dest) {
+                for (size_t j = 0; j < (*src)->size() - 1; j++) {
+                    for (size_t i = 0; i < (*dest)->size() - 1; i++) {
+                        if (intersected((*src)->at(j), (*src)->at(j + 1), (*dest)->at(i), (*dest)->at(i + 1), &out)) {
+                            points.push_back(new ImVec2(out));
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return points;
+}
+
+ImVector<ImVec2*> get_intersections(Primitive* curr, std::vector<Primitive*> prims) {
+    ImVector<ImVec2*> points = ImVector<ImVec2*>();
+    ImVec2 out = ImVec2();
+    for (auto dest = prims.cbegin(); dest != prims.cend(); dest++) {
+        if (curr != *dest) {
+            for (size_t j = 0; j < curr->size() - 1; j++) {
+                for (size_t i = 0; i < (*dest)->size() - 1; i++) {
+                    if (intersected(curr->at(j), curr->at(j + 1), (*dest)->at(i), (*dest)->at(i + 1), &out)) {
+                        points.push_back(new ImVec2(out));
+                    }
+                }
+            }
+        }
+    }
+    return points;
+}
+
 ImU32 GetCurrentColor(const float* curr_color) {
     return (IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
 }
 
-Primitive* current_prim;
+std::set<Primitive*> chosen_prims = std::set<Primitive*>();
+
+ImVector<ImVec2*> intersections;
 
 void ShowPrimitiveTableRow(Primitive* prim, size_t idx)
 {
@@ -39,7 +92,7 @@ void ShowPrimitiveTableRow(Primitive* prim, size_t idx)
     bool node_open = ImGui::TreeNode("Prim", "prim%d", idx);
     ImGui::TableSetColumnIndex(1);
     
-    if (prim == current_prim) {
+    if (chosen_prims.find(prim) != chosen_prims.end()) {
         ImGui::TextColored(ImVec4(255, 0, 0, 255), "%d-gon figure", prim->size());
     }
     else {
@@ -47,13 +100,16 @@ void ShowPrimitiveTableRow(Primitive* prim, size_t idx)
     }
 
     if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-        if (current_prim != prim) {
-            current_prim = current_prim = prim;
+        if (chosen_prims.find(prim) == chosen_prims.end()) {
+            chosen_prims.insert(prim);
         }
         else {
-            current_prim = NULL;
+            chosen_prims.erase(prim);
         }
     }
+
+    ImGui::SameLine();
+    ImGui::Checkbox(" ", &prim->show());
     
     if (node_open)
     {
@@ -88,8 +144,7 @@ int main(void)
     CurrentState state;
     std::vector<Primitive*> primitives;
     ImVec2 canvas_sz;
-    current_prim = NULL;
-	/* Initialize the library */
+    /* Initialize the library */
 	if (!glfwInit())
 		return -1;
 
@@ -166,11 +221,12 @@ int main(void)
             }
             //ImGui::SameLine();
             //ImGui::Text("Number of prims: %d", primitives.size());
+            ImGui::Text("Number of intersections: %d", intersections.size());
             //ImGui::Text("Current prim: %d", current_prim);
 
             
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
-            if (ImGui::BeginTable("prims", 2, ImGuiTableFlags_Borders |  ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_SizingFixedFit, ImVec2(200.f, canvas_sz.y))) // ImGuiTableFlags_NoHostExtendX
+            if (ImGui::BeginTable("prims", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_SizingFixedFit, ImVec2(200.f, canvas_sz.y))) // ImGuiTableFlags_NoHostExtendX
             {
                 // Iterate placeholder objects (all the same data)
                 for (size_t i = 0; i < primitives.size(); i++)
@@ -217,7 +273,7 @@ int main(void)
                 {
                 case Mode::Point:          
                     if (is_hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-                        primitives.push_back((Primitive*)new Point(mouse_pos_in_canvas, GetCurrentColor(curr_color), thickness));
+                        primitives.push_back(new Point(mouse_pos_in_canvas, GetCurrentColor(curr_color), thickness));
                     }                
                     break;
                 case Mode::Edge:
@@ -264,10 +320,10 @@ int main(void)
                             new_prim->push_back(mouse_pos_in_canvas);                          
                         }
                     }
-                    if (ImGui::IsKeyPressed(ImGuiKey_Enter)) {
+                    if (adding_line != None && ImGui::IsKeyPressed(ImGuiKey_Enter)) {
                         adding_line = None;    
                         new_prim->pop_back();
-                        primitives.push_back(new_prim);
+                        primitives.push_back(new_prim->size() == 1 ? new Point(new_prim->at(0), new_prim->color(), new_prim->thickness()) : new_prim);
                         new_prim = NULL;
                     }
                     break;
@@ -289,8 +345,14 @@ int main(void)
                 if (!adding_line && opt_enable_context_menu && drag_delta.x == 0.0f && drag_delta.y == 0.0f) {
                     ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
                     if (ImGui::BeginPopup("context")) {
-                        if (ImGui::MenuItem("Remove last", NULL, false, primitives.size() > 0)) { primitives.pop_back(); }
-                        if (ImGui::MenuItem("Remove all", NULL, false, primitives.size() > 0)) { primitives.clear(); }
+                        if (ImGui::MenuItem("Remove last", NULL, false, primitives.size() > 0)) { 
+                            chosen_prims.erase(primitives.back());
+                            primitives.pop_back(); 
+                        }
+                        if (ImGui::MenuItem("Remove all", NULL, false, primitives.size() > 0)) { 
+                            primitives.clear();
+                            chosen_prims.clear();
+                        }
                         ImGui::EndPopup();
                     }
                 }
@@ -306,6 +368,7 @@ int main(void)
                         draw_list->AddLine(ImVec2(canvas_p0.x, canvas_p0.y + y), ImVec2(canvas_p1.x, canvas_p0.y + y), IM_COL32(200, 200, 200, 40));
                 }
                 
+
                 for (size_t i = 0; i < primitives.size(); i++) {
                     primitives[i]->draw(draw_list, origin);
                 }
@@ -313,7 +376,25 @@ int main(void)
                     new_prim->draw_previe(draw_list, origin);               
                 }
 
-                
+                //пересечение выбранных примитивов
+                if (chosen_prims.size() > 0) {
+                    intersections = get_intersections(chosen_prims);
+                    for (size_t i = 0; i < intersections.Size; i++)
+                    {
+                        draw_list->AddCircleFilled(*intersections[i] + origin, 2.f, IM_COL32(255, 0, 0, 255), 10);
+                    }
+                }
+
+                //пересечение одного со множеством в динамике
+                if (new_prim != NULL && primitives.size() > 0) {
+                    intersections = get_intersections(new_prim, primitives);
+                    for (size_t i = 0; i < intersections.Size; i++)
+                    {
+                        draw_list->AddCircleFilled(*intersections[i] + origin, 2.f, IM_COL32(0, 0, 255, 255), 10);
+                    }
+                }
+
+
                 draw_list->PopClipRect();
 
             ImGui::EndChild();
