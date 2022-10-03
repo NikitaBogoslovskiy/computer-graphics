@@ -64,5 +64,18 @@ void Primitive::draw_previe(ImDrawList* draw_list, const ImVec2& offset)
 
 void Primitive::rotate(const float& angle)
 {
-	// todo:
+	float y = 0.f, x = 0.f;
+	for (size_t i = 0; i < size(); i++) {
+		x += this->at(i).x;
+		y += this->at(i).y;
+	}
+
+	auto m3f = Affine::rotate(angle, ImVec2(x / size(), y / size()));
+
+	for (size_t i = 0; i < size(); i++) {
+		Eigen::Matrix<float, 1, 3> v3fi{ this->at(i).x, this->at(i).y, 1.f };
+		auto v3fi_2 = v3fi * m3f;
+		this->at(i).x = v3fi_2(0, 0);
+		this->at(i).y = v3fi_2(0, 1);
+	}
 }

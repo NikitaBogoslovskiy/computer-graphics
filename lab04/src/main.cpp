@@ -10,6 +10,7 @@
 #include "../headers/funcs.h"
 #include <vector>
 #include <set>
+#include <math.h>
 
 static void HelpMarker(const char* desc)
 {
@@ -220,10 +221,10 @@ int main(void)
                 ImGui::EndTable();
             }
 
-            if (ImGui::Button("test rotate")) {   
+            if (ImGui::Button("rotate 90")) {   
                 for (auto prim : chosen_prims) {
-                    if (dynamic_cast<Edge*>(prim) != NULL) {
-                        dynamic_cast<Edge*>(prim)->rotate(3.14f / 2.f);
+                    if (dynamic_cast<Point*>(prim) == NULL) {
+                        prim->rotate(1.57079632f);
                     }
                 }
             }
