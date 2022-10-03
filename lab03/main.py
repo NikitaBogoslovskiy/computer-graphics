@@ -2,11 +2,13 @@ import tkinter as tk
 from tkinter import ttk, colorchooser, filedialog as fd
 import numpy as np
 from utils import constants, styles, util_funcs
+from utils.pixel_comparable_by_coords import Detour, PixelComparableByCoords as UberPix, ClockwiseTurn90
 from PIL import Image, ImageGrab, ImageTk as itk
 from numba import njit, prange
 import enum
 from collections import deque
 from numba import njit
+import heapq
 import math
 
 
@@ -79,8 +81,8 @@ class Window(tk.Tk):
                                        command=lambda: self.set_mode(PainterStatus.magic_wand),
                                        style="WTF.TButton", cursor="hand2")
         self.b_stamp = ttk.Button(self.f_toolbar, text="Stamp",
-                                       command=lambda: self.set_mode(PainterStatus.stamp),
-                                       style="WTF.TButton", cursor="hand2")
+                                  command=lambda: self.set_mode(PainterStatus.stamp),
+                                  style="WTF.TButton", cursor="hand2")
         self.b_triangle = ttk.Button(self.f_toolbar, text="Triangle",
                                        command=lambda: self.set_mode(PainterStatus.triangle),
                                        style="WTF.TButton", cursor="hand2")
@@ -89,7 +91,10 @@ class Window(tk.Tk):
         # well the name of current instrument will be inserted here
         # but current stylesheet highlights the button of picked mode as well
         # so this label has no use at all...
-        self.b_clear_canvas = ttk.Button(self.f_bottombar, text='Clear canvas', style="WTF.TButton", command=self.clear_canvas,
+        self.b_clear_canvas = ttk.Button(self.f_bottombar, text='Clear canvas', style="WTF.TButton",
+                                         command=self.clear_canvas,
+                                         cursor="hand2")
+        self.b_load_stamp = ttk.Button(self.f_bottombar, text='Load stamp', style="WTF.TButton", command=self.load_stamp,
                                       cursor="hand2")
         self.b_open_file = ttk.Button(self.f_bottombar, text='Load image', style="WTF.TButton", command=self.open_file,
                                       cursor="hand2")
@@ -128,6 +133,7 @@ class Window(tk.Tk):
         # think there is a way to just get the children list but whatever
         bottombar_elems = [
             self.b_clear_canvas,
+            self.b_load_stamp,
             self.b_open_file,
             self.b_save_file,
             # self.l_current_instrument,
@@ -151,7 +157,7 @@ class Window(tk.Tk):
             self.edges[:, 0, 0] = constants.WINDOW_WIDTH + 1
             self.edges[:, 1, 0] = -1
 
-    def open_file(self):
+    def load_stamp(self):
         self.filename = fd.askopenfilename()
         if not self.filename:
             return
@@ -162,6 +168,17 @@ class Window(tk.Tk):
         # self.canvas.config(width=img.width, height=img.height)
         # self.title(self.filename)
         # self.update_image()
+    def open_file(self):
+        self.filename = fd.askopenfilename()
+        if not self.filename:
+            return
+
+        img = Image.open(self.filename)
+        self.data = np.asarray(img).transpose((1, 0, 2)).copy()
+        self.loaded_image = np.asarray(img).copy()
+        self.canvas.config(width=img.width, height=img.height)
+        self.title(self.filename)
+        self.update_image(itk.PhotoImage(Image.fromarray(self.loaded_image)))
 
     def save_file(self):
         Image.fromarray(self.data).save(fd.asksaveasfilename())
@@ -245,14 +262,14 @@ class Window(tk.Tk):
             self.prev = None
             return
         # print('hello from mouse_click_handler ', event, self.mod)
-        #self.savePosition(event)
-        #if self.prev == None:
+        # self.savePosition(event)
+        # if self.prev == None:
         #    self.savePosition(event)
 
         match self.mod:
             case PainterStatus.pen:
                 self.prev = None
-                self.plot(event.x, event.y, 0)
+                self.plot(event.x, event.y, 0, True)
             case PainterStatus.stamp:
                 self.prev = None
                 self.plot_stamp((event.x, event.y))
@@ -274,6 +291,8 @@ class Window(tk.Tk):
                 self.wu_line(self.prev[0], self.prev[1], event.x, event.y)
                 self.set_mode(PainterStatus.wu_line)
                 self.prev = None
+            case PainterStatus.magic_wand:
+                self.magic_wand(event.x, event.y)
             case PainterStatus.triangle:
                 if len(self.vertices) < 3:
                     self.vertices[(event.x, event.y)] = self.colors[0].copy()
@@ -352,6 +371,74 @@ class Window(tk.Tk):
             else:
                 # yi does not change
                 di += 2 * dy * sign_dy
+
+    def magic_wand(self, x: int, y: int):
+        event_col = self.data[x][y].copy()
+        data_copy = self.data.copy()
+        start_x, start_y = self.search_area(x, y, event_col, data_copy)
+        start_x += 1
+        if start_x >= constants.CANV_WIDTH:
+            return
+        pix_list = self.get_outline(start_x, start_y)
+        self.plot_outline(pix_list, False)
+
+    def search_area(self, x, y, filled_color, data_copy: np.ndarray):
+        rdx = 0
+        while x + rdx + 1 < constants.CANV_WIDTH and rgb_equal(data_copy[x + rdx + 1][y], filled_color):
+            rdx += 1
+
+        ldx = 0
+        while x - ldx - 1 >= 0 and rgb_equal(data_copy[x - ldx - 1][y], filled_color):
+            ldx += 1
+
+        max_x, max_y = x + rdx, y
+        for i in np.arange(x - ldx, x + rdx + 1):
+            data_copy[i][y] = self.colors[1]
+        for i in np.arange(x - ldx, x + rdx + 1):
+            if y + 1 < constants.CANV_HEIGHT and rgb_equal(filled_color, data_copy[i][y + 1]):
+                try_x, try_y = self.search_area(i, y + 1, filled_color, data_copy)
+                if try_x > max_x:
+                    max_x, max_y = try_x, try_y
+            if y - 1 >= 0 and rgb_equal(filled_color, data_copy[i][y - 1]):
+                try_x, try_y = self.search_area(i, y - 1, filled_color, data_copy)
+                if try_x > max_x:
+                    max_x, max_y = try_x, try_y
+        return max_x, max_y
+
+    def get_outline(self, x: int, y: int):
+        pix_list = []
+        pix_list.append(UberPix(x, y))
+        first_pix_coords = (x, y)
+        outline_col = self.data[x][y].copy()
+
+        new_dir = 6
+        new_dir, x, y = self.get_new_pix(new_dir, x, y, outline_col)
+        while x != first_pix_coords[0] or y != first_pix_coords[1]:
+            # self.plot(x, y, 0, False)
+            pix_list.append(UberPix(x, y))
+            new_dir, x, y = self.get_new_pix(new_dir, x, y, outline_col)
+        return pix_list.copy()
+
+    def get_new_pix(self, new_dir, x, y, searched_col):
+        for i in [j for j in range(new_dir, 8)] + [j for j in range(new_dir)]:  # lol
+            direction = Detour[i]
+            new_x, new_y = x + direction.dx, y + direction.dy
+            if not (0 <= new_x <= constants.CANV_WIDTH - 1 and 0 <= new_y <= constants.CANV_HEIGHT - 1):
+                continue
+            if rgb_equal(self.data[new_x][new_y], searched_col):
+                new_dir = ClockwiseTurn90[i]
+                x, y = new_x, new_y
+                return new_dir, x, y
+        return None, None, None  # no neighbour points of searched color
+
+    def plot_outline(self, pix_list, save_to_data: bool):
+        for pix in pix_list:
+            self.plot(pix.x, pix.y, 0, save_to_data)
+
+    def plot(self, x: int, y: int, color_ind: int, save_to_data: bool):
+        if save_to_data:
+            self.data[x][y] = self.colors[color_ind].copy()
+        self.canvas.create_line(x, y, x + 1, y, fill=self.str_colors[color_ind], width=self.pen_width)
 
     def colored_bresenham_line(self,
                                x0: int,
@@ -472,88 +559,89 @@ class Window(tk.Tk):
     def mouse_fill_handler(self, event):
         pass
 
-    def wu_line(self, x0 : int, y0 : int, x1 : int, y1 : int):
+    def wu_line(self, x0: int, y0: int, x1: int, y1: int):
         dx = abs(x1 - x0)
         dy = abs(y1 - y0)
         
         if(dx == 0 or dy == 0):
             self.canvas.create_line(x0, y0, x1, y1, fill=self.str_colors[0])
             return
-        
+
         err = 0.
-        
-        if(dx == 0 or dy/dx > 1):
+
+        if (dx == 0 or dy / dx > 1):
             derr = (dx + 1.)
             x = x0
-            
+
             dirx = x1 - x0
-            if(dirx > 0):
+            if (dirx > 0):
                 dirx = 1
-            if(dirx < 0):
+            if (dirx < 0):
                 dirx = -1
 
             step = 1
-            if(y0 > y1):
+            if (y0 > y1):
                 step = -1
 
             dy1 = dy + 1.
             for y in range(y0, y1 + step, step):
-                div = err/dy1
-                self.plotA(x, y, 1. - div)    
+                div = err / dy1
+                self.plotA(x, y, 1. - div)
                 self.plotA(x + dirx, y, div)
                 err = err + derr
-                if(err >= dy1):
+                if (err >= dy1):
                     x = x + dirx
                     err = err - dy1
 
         else:
             derr = (dy + 1.)
             y = y0
-            
+
             diry = y1 - y0
-            if(diry > 0):
+            if (diry > 0):
                 diry = 1
-            if(diry < 0):
+            if (diry < 0):
                 diry = -1
 
             step = 1
-            if(x0 > x1):
+            if (x0 > x1):
                 step = -1
 
             dx1 = dx + 1.
             for x in range(x0, x1 + step, step):
-                div = err/dx1
+                div = err / dx1
                 self.plotA(x, y, 1. - div)
                 self.plotA(x, y + diry, div)
                 err = err + derr
-                if(err >= dx1):
+                if (err >= dx1):
                     y = y + diry
                     err = err - dx1
 
-    def plotA(self, x : int, y : int, alpha : float = 1.):
+    def plotA(self, x: int, y: int, alpha: float = 1.):
         combine_rgbas(self.colors[0], alpha, self.data[x][y], 1., self.data[x][y])
-        self.canvas.create_line(x, y, x+1, y, fill=('#%02x%02x%02x' %  (self.data[x][y][0], self.data[x][y][1], self.data[x][y][2])))
+        self.canvas.create_line(x, y, x + 1, y,
+                                fill=('#%02x%02x%02x' % (self.data[x][y][0], self.data[x][y][1], self.data[x][y][2])))
 
     def fill(self, x, y, filled_color=None):
-        if(np.array_equal(filled_color, None)):
+        if (np.array_equal(filled_color, None)):
             filled_color = self.data[x][y].copy()
 
         rdx = 0
-        while(x+rdx+1 < constants.CANV_WIDTH and rgb_equal(self.data[x+rdx+1][y], filled_color)):
+        while (x + rdx + 1 < constants.CANV_WIDTH and rgb_equal(self.data[x + rdx + 1][y], filled_color)):
             rdx += 1
-        
+
         ldx = 0
-        while(x-ldx-1 >= 0 and rgb_equal(self.data[x-ldx-1][y], filled_color)):
+        while (x - ldx - 1 >= 0 and rgb_equal(self.data[x - ldx - 1][y], filled_color)):
             ldx += 1
-        
+
         self.canvas.create_line(x - ldx, y, x + rdx + 1, y, fill=self.str_colors[1])
         for i in np.arange(x - ldx, x + rdx + 1):
             self.data[i][y] = self.colors[1]
         # self.line(x - ldx, y, x + rdx + 1, y)
-        for i in np.arange(x-ldx, x+rdx+1):
-            if(y + 1 < constants.CANV_HEIGHT and rgb_equal(filled_color, self.data[i][y + 1])):
+        for i in np.arange(x - ldx, x + rdx + 1):
+            if (y + 1 < constants.CANV_HEIGHT and rgb_equal(filled_color, self.data[i][y + 1])):
                 self.fill(i, y + 1, filled_color)
-            if(y - 1 >= 0 and rgb_equal(filled_color, self.data[i][y - 1])):    
+            if (y - 1 >= 0 and rgb_equal(filled_color, self.data[i][y - 1])):
                 self.fill(i, y - 1, filled_color)
 
     def draw_triangle(self):
@@ -588,16 +676,16 @@ class Window(tk.Tk):
 
 @njit(cache=True, inline='always')
 def rgb_equal(a, b):
-        if a[0] == b[0] and a[1] == b[1] and a[2] == b[2]:
-            return True
-        return False
+    if a[0] == b[0] and a[1] == b[1] and a[2] == b[2]:
+        return True
+    return False
 
 
 @njit(parallel=True, cache='always')
 def combine_rgbas(S, Sa, D, Da, out):
-    Ra = Da + Sa*(1. - Da)
+    Ra = Da + Sa * (1. - Da)
     for i in prange(0, 3):
-        out[i] = (S[i] * Sa + D[i]*Da*(1. - Sa))
+        out[i] = (S[i] * Sa + D[i] * Da * (1. - Sa))
 
 
 @njit(cache=True, inline='always')
