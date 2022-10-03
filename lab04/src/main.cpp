@@ -219,11 +219,6 @@ int main(void)
 
                 ImGui::EndTable();
             }
-            //ImGui::SameLine();
-            //ImGui::Text("Number of prims: %d", primitives.size());
-            ImGui::Text("Number of intersections: %d", intersections.size());
-            //ImGui::Text("Current prim: %d", current_prim);
-
             
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
             if (ImGui::BeginTable("prims", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_SizingFixedFit, ImVec2(200.f, canvas_sz.y))) // ImGuiTableFlags_NoHostExtendX
