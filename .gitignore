@@ -1,3 +1,11 @@
 .idea
 .git
+__pycache__
+*.jpg
+files
+*.pdf
+Debug
+Release
+.vs
+demo.cpp
 /lab*/__pycache__
