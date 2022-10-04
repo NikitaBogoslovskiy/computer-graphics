@@ -61,7 +61,23 @@ public:
 	virtual void draw(ImDrawList*, const ImVec2&);
 	virtual void draw_previe(ImDrawList*, const ImVec2&);
 
+	ImVec2 center() {
+		float y = 0.f, x = 0.f;
+		for (size_t i = 0; i < size(); i++) {
+			x += this->at(i).x;
+			y += this->at(i).y;
+		}
+		return ImVec2(x / size(), y / size());
+	}
+
+	//rotate(const float& angle, const ImVec2& d = ImVec2(0.f, 0.f))
 	void rotate(const float& angle);
+
+	//scale(const float& scaleCoeffX, const float& scaleCoeffY, const ImVec2& d = ImVec2(0.f, 0.f))
+	void scale(const float& scaleCoeffX, const float& scaleCoeffY);
+
+	//translate(const ImVec2& d = ImVec2(0.f, 0.f))
+	void translate(const ImVec2& d);
 };
 
 #endif
