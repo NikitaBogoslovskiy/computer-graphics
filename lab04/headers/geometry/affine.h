@@ -1,10 +1,10 @@
 #ifndef _AFFINE_H_
 #define _AFFINE_H
 
-#include "../src/imgui/imgui.h"
-#include "../src/imgui/imgui_impl_glfw.h"
-#include "../src/imgui/imgui_impl_opengl3.h"
-#include "../src/Eigen/Dense"
+#include "../../src/imgui/imgui.h"
+#include "../../src/imgui/imgui_impl_glfw.h"
+#include "../../src/imgui/imgui_impl_opengl3.h"
+#include "../../src/Eigen/Dense"
 
 class Affine
 {

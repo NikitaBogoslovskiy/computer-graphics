@@ -152,6 +152,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\primitives\checks.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
     <ClCompile Include="src\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\imgui\imgui_draw.cpp" />
@@ -165,6 +166,7 @@
     <ClCompile Include="src\primitives\primitive.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="headers\geometry\checks.h" />
     <ClInclude Include="headers\geometry\affine.h" />
     <ClInclude Include="headers\geometry\funcs.h" />
     <ClInclude Include="headers\geometry.h" />
