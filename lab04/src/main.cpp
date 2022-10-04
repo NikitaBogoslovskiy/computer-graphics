@@ -6,11 +6,12 @@
 #include "imgui/imgui_impl_opengl3.h"
 #include <stdio.h>
 #include <string>
-#include "../headers/main.h"
-#include "../headers/funcs.h"
 #include <vector>
 #include <set>
 #include <math.h>
+#include "../headers/main.h"
+#include "../headers/geometry.h"
+
 
 static void HelpMarker(const char* desc)
 {
