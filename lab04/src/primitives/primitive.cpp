@@ -29,15 +29,9 @@ void Primitive::draw_previe(ImDrawList* draw_list, const ImVec2& offset)
 	}
 }
 
-void Primitive::rotate(const float& angle)
+void Primitive::rotate(const float& angle, const ImVec2& origin)
 {
-	float y = 0.f, x = 0.f;
-	for (size_t i = 0; i < size(); i++) {
-		x += this->at(i).x;
-		y += this->at(i).y;
-	}
-
-	auto m3f = Affine::rotate(angle, ImVec2(x / size(), y / size()));
+	auto m3f = Affine::rotate(angle, origin);
 
 	for (size_t i = 0; i < size(); i++) {
 		Eigen::Matrix<float, 1, 3> v3fi{ this->at(i).x, this->at(i).y, 1.f };
@@ -47,15 +41,9 @@ void Primitive::rotate(const float& angle)
 	}
 }
 
-void Primitive::scale(const float& scaleCoeffX, const float& scaleCoeffY)
+void Primitive::scale(const float& scaleCoeffX, const float& scaleCoeffY, const ImVec2& origin)
 {
-	float y = 0.f, x = 0.f;
-	for (size_t i = 0; i < size(); i++) {
-		x += this->at(i).x;
-		y += this->at(i).y;
-	}
-
-	auto m3f = Affine::scale(scaleCoeffX, scaleCoeffY, ImVec2(x / size(), y / size()));
+	auto m3f = Affine::scale(scaleCoeffX, scaleCoeffY, origin);
 
 	for (size_t i = 0; i < size(); i++) {
 		Eigen::Matrix<float, 1, 3> v3fi{ this->at(i).x, this->at(i).y, 1.f };

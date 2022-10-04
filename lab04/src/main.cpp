@@ -12,6 +12,7 @@
 #include "../headers/main.h"
 #include "../headers/geometry.h"
 
+#include <iostream>
 
 static void HelpMarker(const char* desc)
 {
@@ -140,6 +141,33 @@ void ShowPrimitiveTableRow(Primitive* prim, size_t idx)
     ImGui::PopID();
 }
 
+void rotate_chosen_prims(const float& angle) {
+    if (chosen_prims.size() > 0) {
+        auto cpit = chosen_prims.begin();
+        if (dynamic_cast<Point*>(*cpit) == NULL) { // if first picked prim is not Point
+            //std::cout << "dynamic_cast<Point*>(*cpit) == NULL\n";
+            for (auto prim : chosen_prims) {
+                if (dynamic_cast<Point*>(prim) == NULL) {
+                    prim->rotate(angle, prim->center());
+                }
+            }
+        }
+        else { // we wanna rotate relatively to the first picked point
+            //std::cout << "dynamic_cast<Point*>(*cpit) != NULL\n";
+            auto origin = dynamic_cast<Point*>(*cpit)->at(0);
+            cpit++;
+            while (1) {
+                if (cpit == chosen_prims.end()) { break; }
+                if (dynamic_cast<Point*>(*cpit) == NULL) {
+                    (*cpit)->rotate(angle, origin);
+                }
+                cpit++;
+            }
+
+        }
+    }
+}
+
 int main(void)
 {
 	GLFWwindow* window;
@@ -221,15 +249,86 @@ int main(void)
 
                 ImGui::EndTable();
             }
-
-            if (ImGui::Button("rotate 90")) {   
-                for (auto prim : chosen_prims) {
+            
+            if (ImGui::Button("rotate 90")) {
+                rotate_chosen_prims(1.57079632f);
+                /*for (auto prim : chosen_prims) {
                     if (dynamic_cast<Point*>(prim) == NULL) {
-                        prim->rotate(1.57079632f);
+                        prim->rotate(1.57079632f, prim->center());
+                    }
+                }*/
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("rotate N")) {
+                rotate_chosen_prims(1.57079632f);
+                /*if (chosen_prims.size() > 0) {
+                    auto cpit = chosen_prims.begin();
+                    if (dynamic_cast<Point*>(*cpit) == NULL) { // if first picked prim is not Point
+                        //std::cout << "dynamic_cast<Point*>(*cpit) == NULL\n";
+                        for (auto prim : chosen_prims) {
+                            if (dynamic_cast<Point*>(prim) == NULL) {
+                                prim->rotate(1.57079632f, prim->center());
+                            }
+                        }
+                    }
+                    else { // we wanna rotate relatively to the first picked point
+                        //std::cout << "dynamic_cast<Point*>(*cpit) != NULL\n";
+                        auto origin = dynamic_cast<Point*>(*cpit)->at(0);
+                        cpit++;
+                        while (1) {
+                            if (cpit == chosen_prims.end()) { break; }
+                            if (dynamic_cast<Point*>(*cpit) == NULL) {
+                                (*cpit)->rotate(1.57079632f, origin);
+                            }
+                            cpit++;
+                        }
+
+                    }
+                }*/
+                
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("translate")) {
+                for (auto prim : chosen_prims) {
+                    //if (dynamic_cast<Point*>(prim) == NULL) {
+                    prim->translate(ImVec2(-20.f,-20.f));
+                    //}
+                }
+            }
+
+            ImGui::SameLine();
+
+            if (ImGui::Button("scale")) {
+                if (chosen_prims.size() > 0) {
+                    auto cpit = chosen_prims.begin();
+                    if (dynamic_cast<Point*>(*cpit) == NULL) { // if first picked prim is not Point
+                        //std::cout << "dynamic_cast<Point*>(*cpit) == NULL\n";
+                        for (auto prim : chosen_prims) {
+                            if (dynamic_cast<Point*>(prim) == NULL) {
+                                prim->scale(5.f, 5.f, prim->center());
+                            }
+                        }
+                    }
+                    else { // we wanna rotate relatively to the first picked point
+                        //std::cout << "dynamic_cast<Point*>(*cpit) != NULL\n";
+                        auto origin = dynamic_cast<Point*>(*cpit)->at(0);
+                        cpit++;
+                        while (1) {
+                            if (cpit == chosen_prims.end()) { break; }
+                            if (dynamic_cast<Point*>(*cpit) == NULL) {
+                                (*cpit)->scale(5.f, 5.f, origin);
+                            }
+                            cpit++;
+                        }
+
                     }
                 }
             }
-            
+
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
             if (ImGui::BeginTable("prims", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_SizingFixedFit, ImVec2(200.f, canvas_sz.y))) // ImGuiTableFlags_NoHostExtendX
             {

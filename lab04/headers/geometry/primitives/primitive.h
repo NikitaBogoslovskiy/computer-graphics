@@ -71,10 +71,10 @@ public:
 	}
 
 	//rotate(const float& angle, const ImVec2& d = ImVec2(0.f, 0.f))
-	void rotate(const float& angle);
+	void rotate(const float& angle, const ImVec2& origin);
 
 	//scale(const float& scaleCoeffX, const float& scaleCoeffY, const ImVec2& d = ImVec2(0.f, 0.f))
-	void scale(const float& scaleCoeffX, const float& scaleCoeffY);
+	void scale(const float& scaleCoeffX, const float& scaleCoeffY, const ImVec2& origin);
 
 	//translate(const ImVec2& d = ImVec2(0.f, 0.f))
 	void translate(const ImVec2& d);
