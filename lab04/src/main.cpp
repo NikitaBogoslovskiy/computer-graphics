@@ -81,6 +81,9 @@ ImU32 GetCurrentColor(const float* curr_color) {
     return (IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
 }
 
+char pseudo_console[] = "Command arguments go here...";
+//char* pseudo_console = "";
+
 std::set<Primitive*> chosen_prims = std::set<Primitive*>();
 
 ImVector<ImVec2*> intersections;
@@ -141,6 +144,11 @@ void ShowPrimitiveTableRow(Primitive* prim, size_t idx)
     ImGui::PopID();
 }
 
+float DegreesToRadians(const float& degrees) {
+    return degrees * (2 * acos(0.0) / 180);
+}
+
+//TODO make normal foreach with callback and struct of args
 void rotate_chosen_prims(const float& angle) {
     if (chosen_prims.size() > 0) {
         auto cpit = chosen_prims.begin();
@@ -251,65 +259,43 @@ int main(void)
             }
             
             if (ImGui::Button("rotate 90")) {
-                rotate_chosen_prims(1.57079632f);
-                /*for (auto prim : chosen_prims) {
-                    if (dynamic_cast<Point*>(prim) == NULL) {
-                        prim->rotate(1.57079632f, prim->center());
-                    }
-                }*/
+                rotate_chosen_prims(DegreesToRadians(90.f));
             }
 
             ImGui::SameLine();
 
             if (ImGui::Button("rotate N")) {
-                rotate_chosen_prims(1.57079632f);
-                /*if (chosen_prims.size() > 0) {
-                    auto cpit = chosen_prims.begin();
-                    if (dynamic_cast<Point*>(*cpit) == NULL) { // if first picked prim is not Point
-                        //std::cout << "dynamic_cast<Point*>(*cpit) == NULL\n";
-                        for (auto prim : chosen_prims) {
-                            if (dynamic_cast<Point*>(prim) == NULL) {
-                                prim->rotate(1.57079632f, prim->center());
-                            }
-                        }
-                    }
-                    else { // we wanna rotate relatively to the first picked point
-                        //std::cout << "dynamic_cast<Point*>(*cpit) != NULL\n";
-                        auto origin = dynamic_cast<Point*>(*cpit)->at(0);
-                        cpit++;
-                        while (1) {
-                            if (cpit == chosen_prims.end()) { break; }
-                            if (dynamic_cast<Point*>(*cpit) == NULL) {
-                                (*cpit)->rotate(1.57079632f, origin);
-                            }
-                            cpit++;
-                        }
-
-                    }
-                }*/
-                
+                char* nstr = pseudo_console;
+                float angle = (float)strtod(nstr, &nstr);
+                rotate_chosen_prims(DegreesToRadians(angle));
             }
 
             ImGui::SameLine();
 
             if (ImGui::Button("translate")) {
+                char* nstr = pseudo_console;
+                float dx = (float)strtod(nstr, &nstr);
+                float dy = (float)strtod(nstr, &nstr);
                 for (auto prim : chosen_prims) {
-                    //if (dynamic_cast<Point*>(prim) == NULL) {
-                    prim->translate(ImVec2(-20.f,-20.f));
-                    //}
+                    prim->translate(ImVec2(-1 * dx, -1 * dy));
                 }
             }
 
             ImGui::SameLine();
 
             if (ImGui::Button("scale")) {
+                //TODO make normal foreach with callback and struct of args
                 if (chosen_prims.size() > 0) {
+                    char* nstr = pseudo_console;
+                    float scaleX = (float)strtod(nstr, &nstr);
+                    float scaleY = (float)strtod(nstr, &nstr);
+
                     auto cpit = chosen_prims.begin();
                     if (dynamic_cast<Point*>(*cpit) == NULL) { // if first picked prim is not Point
                         //std::cout << "dynamic_cast<Point*>(*cpit) == NULL\n";
                         for (auto prim : chosen_prims) {
                             if (dynamic_cast<Point*>(prim) == NULL) {
-                                prim->scale(5.f, 5.f, prim->center());
+                                prim->scale(scaleX, scaleY, prim->center());
                             }
                         }
                     }
@@ -320,14 +306,16 @@ int main(void)
                         while (1) {
                             if (cpit == chosen_prims.end()) { break; }
                             if (dynamic_cast<Point*>(*cpit) == NULL) {
-                                (*cpit)->scale(5.f, 5.f, origin);
+                                (*cpit)->scale(scaleX, scaleY, origin);
                             }
                             cpit++;
                         }
-
                     }
                 }
             }
+
+            //const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
+            ImGui::InputText("console", pseudo_console, IM_ARRAYSIZE(pseudo_console));
 
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
             if (ImGui::BeginTable("prims", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_SizingFixedFit, ImVec2(200.f, canvas_sz.y))) // ImGuiTableFlags_NoHostExtendX
