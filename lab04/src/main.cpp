@@ -49,16 +49,11 @@ ImVector<ImVec2*> get_intersections(std::set<Primitive*> prims) {
             if (src != dest) {
                 auto src_size = (*src)->size();
                 auto dest_size = (*dest)->size();
-                for (size_t j = 0; j < src_size; j++) {
-                    for (size_t i = 0; i < dest_size; i++) {
+                for (size_t j = 0; j < src_size - ((*src)->size() == 2 ? 1 : 0); j++) {
+                    for (size_t i = 0; i < dest_size - ((*dest)->size() == 2 ? 1 : 0); i++) {
                         if (intersected((*src)->at(j % src_size), (*src)->at((j + 1) % src_size), (*dest)->at(i % dest_size), (*dest)->at((i + 1) % dest_size), &out)) {
                             points.push_back(new ImVec2(out));
                         }
-                        /*
-                        if (intersected((*src)->at(j), (*src)->at((j + 1)), (*dest)->at(i), (*dest)->at((i + 1)), &out)) {
-                            points.push_back(new ImVec2(out));
-                        }
-                        */
                     }
                 }
             }
@@ -101,8 +96,7 @@ void pointPositionWithPolygon(Point& point, Primitive& polygon, bool& isInside, 
                 ++correction;
         }
     }
-    int intersections_number = result.Size / 2 - correction;
-    isInside = intersections_number % 2 == 1;
+    isInside = (result.Size - correction) % 2 == 1;
 }
 
 ImU32 GetCurrentColor(const float* curr_color) {
@@ -384,10 +378,12 @@ int main(void)
                 char* nstr = pseudo_console;
                 float angle;
                 if (sscanf(nstr, "%f", &angle)) {
+                    feedback = "";
                     rotate_chosen_prims(DegreesToRadians(angle));
                 }
                 else {
-                    std::cout << "Incorrect arguments format for rotate N" << std::endl;
+                    feedback = "Incorrect arguments format for rotate N";
+                    feedback_color = ImVec4(255, 0, 0, 255);
                 }
             }
 
@@ -397,12 +393,14 @@ int main(void)
                 char* nstr = pseudo_console;
                 float dx, dy;
                 if (sscanf(nstr, "%f%*c%f", &dx, &dy)) {
+                    feedback = "";
                     for (auto prim : chosen_prims) {
                         prim->translate(ImVec2(-1 * dx, -1 * dy));
                     }
                 }
                 else {
-                    std::cout << "Incorrect arguments format for translate" << std::endl;
+                    feedback = "Incorrect arguments format for translate";
+                    feedback_color = ImVec4(255, 0, 0, 255);
                 }
             }
 
@@ -415,9 +413,11 @@ int main(void)
                     float scaleX, scaleY;
                     if (sscanf(nstr,"%f%*c%f", &scaleX, &scaleY)) {
                         if (scaleX <= 0 || scaleY <= 0) {
-                            std::cout << "Incorrect arguments format for scale" << std::endl;
+                            feedback = "Incorrect arguments format for scale";
+                            feedback_color = ImVec4(255, 0, 0, 255);
                         }
                         else {
+                            feedback = "";
                             auto cpit = chosen_prims.begin();
                             if (dynamic_cast<Point*>(*cpit) == NULL) { // if first picked prim is not Point
                                 //std::cout << "dynamic_cast<Point*>(*cpit) == NULL\n";
@@ -442,7 +442,8 @@ int main(void)
                         }
                     }
                     else {
-                        std::cout << "Incorrect arguments format for scale" << std::endl;
+                        feedback = "Incorrect arguments format for scale";
+                        feedback_color = ImVec4(255, 0, 0, 255);
                     }
                 }
             }
@@ -506,7 +507,7 @@ int main(void)
             }
             
             //const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
-            ImGui::InputText("console", pseudo_console, IM_ARRAYSIZE(pseudo_console));
+            ImGui::InputText("Console", pseudo_console, IM_ARRAYSIZE(pseudo_console));
 
             ImGui::Text("Output: ");
             ImGui::SameLine();
