@@ -382,18 +382,27 @@ int main(void)
 
             if (ImGui::Button("rotate N")) {
                 char* nstr = pseudo_console;
-                float angle = (float)strtod(nstr, &nstr);
-                rotate_chosen_prims(DegreesToRadians(angle));
+                float angle;
+                if (sscanf(nstr, "%f", &angle)) {
+                    rotate_chosen_prims(DegreesToRadians(angle));
+                }
+                else {
+                    std::cout << "Incorrect arguments format for rotate N" << std::endl;
+                }
             }
 
             ImGui::SameLine();
 
             if (ImGui::Button("translate")) {
                 char* nstr = pseudo_console;
-                float dx = (float)strtod(nstr, &nstr);
-                float dy = (float)strtod(nstr, &nstr);
-                for (auto prim : chosen_prims) {
-                    prim->translate(ImVec2(-1 * dx, -1 * dy));
+                float dx, dy;
+                if (sscanf(nstr, "%f%*c%f", &dx, &dy)) {
+                    for (auto prim : chosen_prims) {
+                        prim->translate(ImVec2(-1 * dx, -1 * dy));
+                    }
+                }
+                else {
+                    std::cout << "Incorrect arguments format for translate" << std::endl;
                 }
             }
 
@@ -403,29 +412,37 @@ int main(void)
                 //TODO make normal foreach with callback and struct of args
                 if (chosen_prims.size() > 0) {
                     char* nstr = pseudo_console;
-                    float scaleX = (float)strtod(nstr, &nstr);
-                    float scaleY = (float)strtod(nstr, &nstr);
-
-                    auto cpit = chosen_prims.begin();
-                    if (dynamic_cast<Point*>(*cpit) == NULL) { // if first picked prim is not Point
-                        //std::cout << "dynamic_cast<Point*>(*cpit) == NULL\n";
-                        for (auto prim : chosen_prims) {
-                            if (dynamic_cast<Point*>(prim) == NULL) {
-                                prim->scale(scaleX, scaleY, prim->center());
+                    float scaleX, scaleY;
+                    if (sscanf(nstr,"%f%*c%f", &scaleX, &scaleY)) {
+                        if (scaleX <= 0 || scaleY <= 0) {
+                            std::cout << "Incorrect arguments format for scale" << std::endl;
+                        }
+                        else {
+                            auto cpit = chosen_prims.begin();
+                            if (dynamic_cast<Point*>(*cpit) == NULL) { // if first picked prim is not Point
+                                //std::cout << "dynamic_cast<Point*>(*cpit) == NULL\n";
+                                for (auto prim : chosen_prims) {
+                                    if (dynamic_cast<Point*>(prim) == NULL) {
+                                        prim->scale(scaleX, scaleY, prim->center());
+                                    }
+                                }
                             }
+                            else { // we wanna rotate relatively to the first picked point
+                                //std::cout << "dynamic_cast<Point*>(*cpit) != NULL\n";
+                                auto origin = dynamic_cast<Point*>(*cpit)->at(0);
+                                cpit++;
+                                while (1) {
+                                    if (cpit == chosen_prims.end()) { break; }
+                                    if (dynamic_cast<Point*>(*cpit) == NULL) {
+                                        (*cpit)->scale(scaleX, scaleY, origin);
+                                    }
+                                    cpit++;
+                                }
+                            } 
                         }
                     }
-                    else { // we wanna rotate relatively to the first picked point
-                        //std::cout << "dynamic_cast<Point*>(*cpit) != NULL\n";
-                        auto origin = dynamic_cast<Point*>(*cpit)->at(0);
-                        cpit++;
-                        while (1) {
-                            if (cpit == chosen_prims.end()) { break; }
-                            if (dynamic_cast<Point*>(*cpit) == NULL) {
-                                (*cpit)->scale(scaleX, scaleY, origin);
-                            }
-                            cpit++;
-                        }
+                    else {
+                        std::cout << "Incorrect arguments format for scale" << std::endl;
                     }
                 }
             }
