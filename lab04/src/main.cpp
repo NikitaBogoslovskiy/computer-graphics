@@ -47,11 +47,18 @@ ImVector<ImVec2*> get_intersections(std::set<Primitive*> prims) {
         auto src1 = src;
         for (auto dest = ++src1; dest != prims.cend(); dest++) {
             if (src != dest) {
-                for (size_t j = 0; j < (*src)->size() - 1; j++) {
-                    for (size_t i = 0; i < (*dest)->size() - 1; i++) {
-                        if (intersected((*src)->at(j), (*src)->at(j + 1), (*dest)->at(i), (*dest)->at(i + 1), &out)) {
+                auto src_size = (*src)->size();
+                auto dest_size = (*dest)->size();
+                for (size_t j = 0; j < src_size; j++) {
+                    for (size_t i = 0; i < dest_size; i++) {
+                        if (intersected((*src)->at(j % src_size), (*src)->at((j + 1) % src_size), (*dest)->at(i % dest_size), (*dest)->at((i + 1) % dest_size), &out)) {
                             points.push_back(new ImVec2(out));
                         }
+                        /*
+                        if (intersected((*src)->at(j), (*src)->at((j + 1)), (*dest)->at(i), (*dest)->at((i + 1)), &out)) {
+                            points.push_back(new ImVec2(out));
+                        }
+                        */
                     }
                 }
             }
@@ -77,12 +84,118 @@ ImVector<ImVec2*> get_intersections(Primitive* curr, std::vector<Primitive*> pri
     return points;
 }
 
+void pointPositionWithPolygon(Point& point, Primitive& polygon, bool& isInside, float canvas_width)
+{
+    auto edge = Edge(point[0], ImVec2(canvas_width, point[0].y), point.color(), point.thickness());
+    std::set<Primitive*> prims = { &polygon, &edge };
+    auto result = get_intersections(prims);
+    int correction = 0;
+    size_t polygon_size = polygon.size();
+    for (size_t i = 0; i < polygon_size; ++i)
+    {
+        if (polygon[i].y == point[0].y && polygon[i].x > point[0].x) //we don`t count below edges
+        {
+            if (polygon[(i + polygon_size - 1) % polygon_size].y > polygon[i].y)
+                ++correction;
+            if (polygon[(i + 1) % polygon_size].y > polygon[i].y)
+                ++correction;
+        }
+    }
+    int intersections_number = result.Size / 2 - correction;
+    isInside = intersections_number % 2 == 1;
+}
+
 ImU32 GetCurrentColor(const float* curr_color) {
     return (IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
 }
 
+
 char pseudo_console[] = "Command arguments go here...";
 //char* pseudo_console = "";
+
+bool checkPointAndEdgeConditions(std::set<Primitive*>& primitives, std::string& answer, Point*& point, Edge*& edge)
+{
+    if (primitives.size() != 2)
+    {
+        answer = "You should choose 2 primitives";
+        return false;
+    }
+    else
+    {
+        for (auto it = primitives.begin(); it != primitives.end(); ++it)
+        {
+            auto p = dynamic_cast<Point*>(*it);
+            auto e = dynamic_cast<Edge*>(*it);
+            if (p != nullptr)
+            {
+                if (point == nullptr)
+                    point = p;
+                else
+                {
+                    answer = "You should choose only one point";
+                    return false;
+                }
+            }
+            else if (e != nullptr)
+            {
+                if (edge == nullptr)
+                    edge = e;
+                else
+                {
+                    answer = "You should choose only one edge";
+                    return false;
+                }
+            }
+            else
+            {
+                answer = "You can choose only edge and point";
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
+bool checkPointAndPolygonConditions(std::set<Primitive*>& primitives, std::string& answer, Point*& point, Primitive*& polygon)
+{
+    if (primitives.size() != 2)
+    {
+        answer = "You should choose 2 primitives";
+        return false;
+    }
+    else
+    {
+        for (auto it = primitives.begin(); it != primitives.end(); ++it)
+        {
+            if ((*it)->size() == 1)
+            {
+                if (point == nullptr)
+                    point = dynamic_cast<Point*>(*it);
+                else
+                {
+                    answer = "You should choose only one point";
+                    return false;
+                }
+            }
+            else if ((*it)->size() > 2)
+            {
+                if (polygon == nullptr)
+                    polygon = *it;
+                else
+                {
+                    answer = "You should choose only one polygon";
+                    return false;
+                }
+            }
+            else
+            {
+                answer = "You can choose only point and polygon";
+                return false;
+            }
+        }
+    }
+    return true;
+}
 
 std::set<Primitive*> chosen_prims = std::set<Primitive*>();
 
@@ -182,6 +295,9 @@ int main(void)
     CurrentState state;
     std::vector<Primitive*> primitives;
     ImVec2 canvas_sz;
+    std::string feedback;
+    ImVec4 feedback_color;
+    float canvas_width;
     /* Initialize the library */
 	if (!glfwInit())
 		return -1;
@@ -314,9 +430,71 @@ int main(void)
                 }
             }
 
+            int chosenType;
+            ImGui::Combo("##", &chosenType, classificationType, classificationTypeSize);
+            ImGui::SameLine();
+            if (ImGui::Button("Classify point position")) {
+                Point* point = nullptr;
+                Edge* edge = nullptr;
+                Primitive* polygon = nullptr;
+                bool success, onTheLeft, isInside;
+
+                switch (chosenType)
+                {
+                case 0:
+                    success = checkPointAndEdgeConditions(chosen_prims, feedback, point, edge);
+                    if (success)
+                    {
+                        feedback_color = ImVec4(0, 255, 0, 255);
+                        pointPositionWithEdge(*point, *edge, onTheLeft);
+                        if (onTheLeft)
+                            feedback = "Point on the left";
+                        else
+                            feedback = "Point on the right";
+                    }
+                    else
+                        feedback_color = ImVec4(255, 0, 0, 255);
+                    break;
+                case 1:
+                    success = checkPointAndPolygonConditions(chosen_prims, feedback, point, polygon);
+                    if (success)
+                    {
+                        feedback_color = ImVec4(0, 255, 0, 255);
+                        pointPositionWithConvexPolygon(*point, *polygon, isInside);
+                        if (isInside)
+                            feedback = "Point is inside";
+                        else
+                            feedback = "Point is outside";
+                    }
+                    else
+                        feedback_color = ImVec4(255, 0, 0, 255);
+                    break;
+                case 2:
+                    success = checkPointAndPolygonConditions(chosen_prims, feedback, point, polygon);
+                    if (success)
+                    {
+                        feedback_color = ImVec4(0, 255, 0, 255);
+                        pointPositionWithPolygon(*point, *polygon, isInside, canvas_width);
+                        if (isInside)
+                            feedback = "Point is inside";
+                        else
+                            feedback = "Point is outside";
+                    }
+                    else
+                        feedback_color = ImVec4(255, 0, 0, 255);
+                    break;
+                default:
+                    break;
+                }
+            }
+            
             //const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
             ImGui::InputText("console", pseudo_console, IM_ARRAYSIZE(pseudo_console));
 
+            ImGui::Text("Output: ");
+            ImGui::SameLine();
+            ImGui::TextColored(feedback_color, feedback.c_str());
+            
             ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
             if (ImGui::BeginTable("prims", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_SizingFixedFit, ImVec2(200.f, canvas_sz.y))) // ImGuiTableFlags_NoHostExtendX
             {
@@ -345,6 +523,7 @@ int main(void)
                 if (canvas_sz.x < 50.0f) canvas_sz.x = 50.0f;
                 if (canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
                 ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
+                canvas_width = canvas_p1.x;
 
                 // Draw border and background color
                 ImGuiIO& io = ImGui::GetIO();

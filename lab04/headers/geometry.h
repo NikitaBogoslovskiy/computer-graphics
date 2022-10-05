@@ -4,5 +4,6 @@
 #include "geometry/affine.h"
 #include "geometry/funcs.h"
 #include "geometry/primitives.h"
+#include "geometry/checks.h"
 
 #endif
