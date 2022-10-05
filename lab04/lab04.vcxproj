@@ -152,7 +152,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\funcs.cpp" />
+    <ClCompile Include="src\primitives\checks.cpp" />
     <ClCompile Include="src\imgui\imgui.cpp" />
     <ClCompile Include="src\imgui\imgui_demo.cpp" />
     <ClCompile Include="src\imgui\imgui_draw.cpp" />
@@ -161,10 +161,20 @@
     <ClCompile Include="src\imgui\imgui_tables.cpp" />
     <ClCompile Include="src\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\primitives\edge.cpp" />
+    <ClCompile Include="src\primitives\point.cpp" />
+    <ClCompile Include="src\primitives\primitive.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="headers\funcs.h" />
+    <ClInclude Include="headers\geometry\checks.h" />
+    <ClInclude Include="headers\geometry\affine.h" />
+    <ClInclude Include="headers\geometry\funcs.h" />
+    <ClInclude Include="headers\geometry.h" />
     <ClInclude Include="headers\main.h" />
+    <ClInclude Include="headers\geometry\primitives\edge.h" />
+    <ClInclude Include="headers\geometry\primitives\point.h" />
+    <ClInclude Include="headers\geometry\primitives\primitive.h" />
+    <ClInclude Include="headers\geometry\primitives.h" />
     <ClInclude Include="src\Eigen\src\Cholesky\LDLT.h" />
     <ClInclude Include="src\Eigen\src\Cholesky\LLT.h" />
     <ClInclude Include="src\Eigen\src\Cholesky\LLT_LAPACKE.h" />
