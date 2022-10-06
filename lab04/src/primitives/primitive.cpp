@@ -29,9 +29,11 @@ void Primitive::draw_previe(ImDrawList* draw_list, const ImVec2& offset)
 	}
 }
 
-void Primitive::rotate(const float& angle, const ImVec2& origin)
+void Primitive::rotate(const float& angle, const ImVec2* origin)
 {
-	auto m3f = Affine::rotate(angle, origin);
+	Eigen::Matrix3f m3f;
+	if (origin==nullptr) m3f = Affine::rotate(angle, this->center());
+	else m3f = Affine::rotate(angle, *origin);
 
 	for (size_t i = 0; i < size(); i++) {
 		Eigen::Matrix<float, 1, 3> v3fi{ this->at(i).x, this->at(i).y, 1.f };
@@ -41,9 +43,11 @@ void Primitive::rotate(const float& angle, const ImVec2& origin)
 	}
 }
 
-void Primitive::scale(const float& scaleCoeffX, const float& scaleCoeffY, const ImVec2& origin)
+void Primitive::scale(const float& scaleCoeffX, const float& scaleCoeffY, const ImVec2* origin)
 {
-	auto m3f = Affine::scale(scaleCoeffX, scaleCoeffY, origin);
+	Eigen::Matrix3f m3f;
+	if (origin == nullptr) m3f = Affine::scale(scaleCoeffX, scaleCoeffY, this->center());
+	else m3f = Affine::scale(scaleCoeffX, scaleCoeffY, *origin);
 
 	for (size_t i = 0; i < size(); i++) {
 		Eigen::Matrix<float, 1, 3> v3fi{ this->at(i).x, this->at(i).y, 1.f };
@@ -53,9 +57,11 @@ void Primitive::scale(const float& scaleCoeffX, const float& scaleCoeffY, const 
 	}
 }
 
-void Primitive::translate(const ImVec2& d)
+void Primitive::translate(const ImVec2* d)
 {
-	auto m3f = Affine::translate(d);
+	Eigen::Matrix3f m3f;
+	if (d == nullptr) return;
+	m3f = Affine::translate(*d);
 
 	for (size_t i = 0; i < size(); i++) {
 		Eigen::Matrix<float, 1, 3> v3fi{ this->at(i).x, this->at(i).y, 1.f };
