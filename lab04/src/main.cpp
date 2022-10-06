@@ -49,8 +49,8 @@ ImVector<ImVec2*> get_intersections(std::set<Primitive*> prims) {
             if (src != dest) {
                 auto src_size = (*src)->size();
                 auto dest_size = (*dest)->size();
-                for (size_t j = 0; j < src_size - ((*src)->size() == 2 ? 1 : 0); j++) {
-                    for (size_t i = 0; i < dest_size - ((*dest)->size() == 2 ? 1 : 0); i++) {
+                for (size_t j = 0; j < src_size - (src_size == 2 ? 1 : 0); j++) {
+                    for (size_t i = 0; i < dest_size - (dest_size == 2 ? 1 : 0); i++) {
                         if (intersected((*src)->at(j % src_size), (*src)->at((j + 1) % src_size), (*dest)->at(i % dest_size), (*dest)->at((i + 1) % dest_size), &out)) {
                             points.push_back(new ImVec2(out));
                         }
@@ -65,11 +65,13 @@ ImVector<ImVec2*> get_intersections(std::set<Primitive*> prims) {
 ImVector<ImVec2*> get_intersections(Primitive* curr, std::vector<Primitive*> prims) {
     ImVector<ImVec2*> points = ImVector<ImVec2*>();
     ImVec2 out = ImVec2();
+    auto curr_size = curr->size();
     for (auto dest = prims.cbegin(); dest != prims.cend(); dest++) {
         if (curr != *dest) {
-            for (size_t j = 0; j < curr->size() - 1; j++) {
-                for (size_t i = 0; i < (*dest)->size() - 1; i++) {
-                    if (intersected(curr->at(j), curr->at(j + 1), (*dest)->at(i), (*dest)->at(i + 1), &out)) {
+            auto dest_size = (*dest)->size();
+            for (size_t j = 0; j < curr_size - (curr_size == 2 ? 1 : 0); j++) {
+                for (size_t i = 0; i < dest_size - (dest_size == 2 ? 1 : 0); i++) {
+                    if (intersected(curr->at(j % curr_size), curr->at((j + 1) % curr_size), (*dest)->at(i % dest_size), (*dest)->at((i + 1) % dest_size), &out)) {
                         points.push_back(new ImVec2(out));
                     }
                 }
