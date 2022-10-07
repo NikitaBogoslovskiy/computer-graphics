@@ -1,4 +1,4 @@
-//библиотека для создания и открытия окон, создания OpenGL контекста и управления вводом
+//ГЎГЁГЎГ«ГЁГ®ГІГҐГЄГ  Г¤Г«Гї Г±Г®Г§Г¤Г Г­ГЁГї ГЁ Г®ГІГЄГ°Г»ГІГЁГї Г®ГЄГ®Г­, Г±Г®Г§Г¤Г Г­ГЁГї OpenGL ГЄГ®Г­ГІГҐГЄГ±ГІГ  ГЁ ГіГЇГ°Г ГўГ«ГҐГ­ГЁГї ГўГўГ®Г¤Г®Г¬
 #define _CRT_SECURE_NO_WARNINGS
 #include <GLFW/glfw3.h>
 #include "imgui/imgui.h"
@@ -41,42 +41,44 @@ bool intersected(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2
 
 //do u like ladders? i don`t
 ImVector<ImVec2*> get_intersections(std::set<Primitive*> prims) {
-	ImVector<ImVec2*> points = ImVector<ImVec2*>();
-	ImVec2 out = ImVec2();
-	for (auto src = prims.cbegin(); src != prims.cend(); src++) {
-		auto src1 = src;
-		for (auto dest = ++src1; dest != prims.cend(); dest++) {
-			if (src != dest) {
-				auto src_size = (*src)->size();
-				auto dest_size = (*dest)->size();
-				for (size_t j = 0; j < src_size - ((*src)->size() == 2 ? 1 : 0); j++) {
-					for (size_t i = 0; i < dest_size - ((*dest)->size() == 2 ? 1 : 0); i++) {
-						if (intersected((*src)->at(j % src_size), (*src)->at((j + 1) % src_size), (*dest)->at(i % dest_size), (*dest)->at((i + 1) % dest_size), &out)) {
-							points.push_back(new ImVec2(out));
-						}
-					}
-				}
-			}
-		}
-	}
-	return points;
+    ImVector<ImVec2*> points = ImVector<ImVec2*>();
+    ImVec2 out = ImVec2();
+    for (auto src = prims.cbegin(); src != prims.cend(); src++) {
+        auto src1 = src;
+        for (auto dest = ++src1; dest != prims.cend(); dest++) {
+            if (src != dest) {
+                auto src_size = (*src)->size();
+                auto dest_size = (*dest)->size();
+                for (size_t j = 0; j < src_size - (src_size == 2 ? 1 : 0); j++) {
+                    for (size_t i = 0; i < dest_size - (dest_size == 2 ? 1 : 0); i++) {
+                        if (intersected((*src)->at(j % src_size), (*src)->at((j + 1) % src_size), (*dest)->at(i % dest_size), (*dest)->at((i + 1) % dest_size), &out)) {
+                            points.push_back(new ImVec2(out));
+                        }
+                    }
+                }
+            }
+        }
+    }
+    return points;
 }
 
 ImVector<ImVec2*> get_intersections(Primitive* curr, std::vector<Primitive*> prims) {
-	ImVector<ImVec2*> points = ImVector<ImVec2*>();
-	ImVec2 out = ImVec2();
-	for (auto dest = prims.cbegin(); dest != prims.cend(); dest++) {
-		if (curr != *dest) {
-			for (size_t j = 0; j < curr->size() - 1; j++) {
-				for (size_t i = 0; i < (*dest)->size() - 1; i++) {
-					if (intersected(curr->at(j), curr->at(j + 1), (*dest)->at(i), (*dest)->at(i + 1), &out)) {
-						points.push_back(new ImVec2(out));
-					}
-				}
-			}
-		}
-	}
-	return points;
+    ImVector<ImVec2*> points = ImVector<ImVec2*>();
+    ImVec2 out = ImVec2();
+    auto curr_size = curr->size();
+    for (auto dest = prims.cbegin(); dest != prims.cend(); dest++) {
+        if (curr != *dest) {
+            auto dest_size = (*dest)->size();
+            for (size_t j = 0; j < curr_size - (curr_size == 2 ? 1 : 0); j++) {
+                for (size_t i = 0; i < dest_size - (dest_size == 2 ? 1 : 0); i++) {
+                    if (intersected(curr->at(j % curr_size), curr->at((j + 1) % curr_size), (*dest)->at(i % dest_size), (*dest)->at((i + 1) % dest_size), &out)) {
+                        points.push_back(new ImVec2(out));
+                    }
+                }
+            }
+        }
+    }
+    return points;
 }
 
 void pointPositionWithPolygon(Point& point, Primitive& polygon, bool& isInside, float canvas_width)
@@ -642,7 +644,7 @@ int main(void)
 					new_prim->draw_previe(draw_list, origin);
 				}
 
-				//пересечение выбранных примитивов
+				//ГЇГҐГ°ГҐГ±ГҐГ·ГҐГ­ГЁГҐ ГўГ»ГЎГ°Г Г­Г­Г»Гµ ГЇГ°ГЁГ¬ГЁГІГЁГўГ®Гў
 				if (chosen_prims.size() > 0) {
 					intersections = get_intersections(chosen_prims);
 					for (size_t i = 0; i < intersections.Size; i++)
@@ -651,7 +653,7 @@ int main(void)
 					}
 				}
 
-				//пересечение одного со множеством в динамике
+				//ГЇГҐГ°ГҐГ±ГҐГ·ГҐГ­ГЁГҐ Г®Г¤Г­Г®ГЈГ® Г±Г® Г¬Г­Г®Г¦ГҐГ±ГІГўГ®Г¬ Гў Г¤ГЁГ­Г Г¬ГЁГЄГҐ
 				if (new_prim != NULL && primitives.size() > 0) {
 					intersections = get_intersections(new_prim, primitives);
 					for (size_t i = 0; i < intersections.Size; i++)
