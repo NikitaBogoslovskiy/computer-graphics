@@ -276,11 +276,68 @@ int tr_chpr_rtp(const std::set<Primitive*>& primitives, std::function<void(Primi
 	return 0;
 }
 
+void ShowFractalTableRow(Primitive* prim, size_t idx)
+{
+	ImGui::PushID(prim);
+
+	ImGui::TableNextRow();
+	ImGui::TableSetColumnIndex(0);
+	ImGui::AlignTextToFramePadding();
+	bool node_open = ImGui::TreeNode("Fractal", "frac%d", idx);
+	ImGui::TableSetColumnIndex(1);
+
+	if (chosen_prims.find(prim) != chosen_prims.end()) {
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), "%d-gon figure", prim->size());
+	}
+	else {
+		ImGui::Text("%d-gon figure", prim->size());
+	}
+
+	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+		if (chosen_prims.find(prim) == chosen_prims.end()) {
+			chosen_prims.insert(prim);
+		}
+		else {
+			chosen_prims.erase(prim);
+		}
+	}
+
+	ImGui::SameLine();
+	ImGui::Checkbox(" ", &prim->show());
+
+	if (node_open)
+	{
+		for (size_t i = 0; i < prim->size(); i++) {
+			ImGui::PushID(&(prim->operator[](i)));
+
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::AlignTextToFramePadding();
+			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
+			ImGui::Text("Point %d", i);
+
+			ImGui::TableSetColumnIndex(1);
+			//ImGui::SliderFloat("x", &(prim->operator[](i).x), 0.f, 1000.f, ".1f", 0.5f);
+			ImGui::InputFloat("x", &(prim->operator[](i).x));
+			//ImGui::SameLine();
+			//ImGui::SliderFloat("y", &(prim->operator[](i).y), 0.f, 1000.f, ".1f", 0.5f);
+			ImGui::InputFloat("y", &(prim->operator[](i).y));
+
+			ImGui::PopID();
+		}
+
+		ImGui::TreePop();
+	}
+
+	ImGui::PopID();
+}
+
 int main(void)
 {
 	GLFWwindow* window;
 	CurrentState state;
 	std::vector<Primitive*> primitives;
+	std::vector<Lsystem*> fractals = std::vector<Lsystem*>();
 	ImVec2 canvas_sz;
 	std::string feedback;
 	ImVec4 feedback_color;
@@ -306,6 +363,27 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
+	std::vector<std::pair<char, std::string>> rules{
+		{'F', "F"},
+		{'X', "X+YF++YF-FX--FXFX-YF+"},
+		{'Y', "-FX+YFYF++YF+FX--FX-Y"} };
+	Lsystem fract("XF", rules, 3.14f / 3.f, 3);
+
+	std::vector<std::pair<char, std::string>> rules2{
+		{'A', "A-B--B+A++AA+B-"},
+		{'B', "+A-BB--B-A++A+B"} };
+
+	std::vector<std::pair<char, std::string>> rules3{
+		{'F', "F-F++F-F"} };
+
+	std::vector<std::pair<char, std::string>> rules4{
+		{'F', "F+F-F-FF+F+F-F"} };
+
+	fractals.push_back(new Lsystem("XF", rules, 3.14f / 3.f, 3));
+	fractals.push_back(new Lsystem("A", rules2, 3.14f / 3.f, 3));
+	fractals.push_back(new Lsystem("F++F++F", rules3, 3.14f / 3.f, 3));
+	fractals.push_back(new Lsystem("F", rules4, 3.14f / 2.f, 3));
+
 	bool p_open = true;
 
 	/* Loop until the user closes the window */
@@ -318,7 +396,6 @@ int main(void)
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
-
 
 		static bool use_work_area = true;
 		static ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
@@ -500,6 +577,11 @@ int main(void)
 					ShowPrimitiveTableRow(primitives[i], i);
 					//ImGui::Separator();
 				}
+				for (size_t i = 0; i < fractals.size(); i++)
+				{
+					ShowFractalTableRow(fractals[i]->prim(), i);
+					//ImGui::Separator();
+				}
 				ImGui::EndTable();
 			}
 			ImGui::PopStyleVar();
@@ -639,6 +721,11 @@ int main(void)
 				for (size_t i = 0; i < primitives.size(); i++) {
 					primitives[i]->draw(draw_list, origin);
 				}
+
+				for (size_t i = 0; i < fractals.size(); i++) {
+					fractals[i]->draw(draw_list, origin, GetCurrentColor(curr_color), thickness);
+				}
+
 				if (new_prim) {
 					new_prim->draw_previe(draw_list, origin);
 				}

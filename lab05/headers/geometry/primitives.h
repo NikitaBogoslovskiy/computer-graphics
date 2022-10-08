@@ -4,5 +4,6 @@
 #include "primitives/primitive.h"
 #include "primitives/point.h"
 #include "primitives/edge.h"
+#include "primitives/Lsystem.h"
 
 #endif

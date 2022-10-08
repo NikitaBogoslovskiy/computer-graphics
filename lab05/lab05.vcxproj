@@ -88,7 +88,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\dependencies\Eigen;$(SolutionDir)..\dependencies\imgui;$(SolutionDir)..\dependencies\GLFW\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)headers;$(SolutionDir)..\dependencies\Eigen;$(SolutionDir)..\dependencies\imgui;$(SolutionDir)..\dependencies\GLFW\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,7 +105,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>$(SolutionDir)..\dependencies\Eigen;$(SolutionDir)..\dependencies\imgui;$(SolutionDir)..\dependencies\GLFW\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)headers;$(SolutionDir)..\dependencies\Eigen;$(SolutionDir)..\dependencies\imgui;$(SolutionDir)..\dependencies\GLFW\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -122,7 +122,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Anoth\Desktop\_repos\computer-graphics\lab05\headers;$(SolutionDir)..\dependencies\Eigen;$(SolutionDir)..\dependencies\imgui;$(SolutionDir)..\dependencies\GLFW\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)headers;$(SolutionDir)..\dependencies\Eigen;$(SolutionDir)..\dependencies\imgui;$(SolutionDir)..\dependencies\GLFW\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -139,7 +139,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>C:\Users\Anoth\Desktop\_repos\computer-graphics\lab05\headers;$(SolutionDir)..\dependencies\Eigen;$(SolutionDir)..\dependencies\imgui;$(SolutionDir)..\dependencies\GLFW\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)headers;$(SolutionDir)..\dependencies\Eigen;$(SolutionDir)..\dependencies\imgui;$(SolutionDir)..\dependencies\GLFW\x64\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -161,6 +161,7 @@
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\primitives\checks.cpp" />
     <ClCompile Include="src\primitives\edge.cpp" />
+    <ClCompile Include="src\primitives\Lsystem.cpp" />
     <ClCompile Include="src\primitives\point.cpp" />
     <ClCompile Include="src\primitives\primitive.cpp" />
   </ItemGroup>
@@ -179,10 +180,11 @@
     <ClInclude Include="headers\geometry\funcs.h" />
     <ClInclude Include="headers\geometry\primitives.h" />
     <ClInclude Include="headers\geometry\primitives\edge.h" />
+    <ClInclude Include="headers\geometry\primitives\Lsystem.h" />
     <ClInclude Include="headers\geometry\primitives\point.h" />
     <ClInclude Include="headers\geometry\primitives\primitive.h" />
     <ClInclude Include="headers\main.h" />
-    <ClInclude Include="pch.h" />
+    <ClInclude Include="headers\pch.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\dependencies\Eigen\Eigen\Cholesky" />

@@ -19,21 +19,6 @@
     <Filter Include="Исходные файлы\Eiger">
       <UniqueIdentifier>{46a82057-6ed3-4ed3-bc0e-5f3acf38caf3}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Файлы заголовков\headers">
-      <UniqueIdentifier>{25ea5f16-a677-44d5-bf19-eb2f2cb54cfb}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Файлы заголовков\headers\geometry">
-      <UniqueIdentifier>{c08ef76c-e065-4102-94d5-25cf1037ae6c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Файлы заголовков\headers\geometry\primitives">
-      <UniqueIdentifier>{0084b1d8-54d2-45d4-8bbb-f00e6034ae54}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Исходные файлы\src">
-      <UniqueIdentifier>{44ebf7bd-bd34-4d08-9c61-c4cf22a22cc8}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Исходные файлы\src\primitives">
-      <UniqueIdentifier>{a5e20c40-4ab3-4e2f-985d-3c4b2948886c}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\dependencies\imgui\imgui\imgui.cpp">
@@ -57,20 +42,23 @@
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_widgets.cpp">
       <Filter>Исходные файлы\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\main.cpp">
-      <Filter>Исходные файлы\src</Filter>
-    </ClCompile>
     <ClCompile Include="src\primitives\checks.cpp">
-      <Filter>Исходные файлы\src\primitives</Filter>
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\primitives\edge.cpp">
-      <Filter>Исходные файлы\src\primitives</Filter>
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitives\Lsystem.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\primitives\point.cpp">
-      <Filter>Исходные файлы\src\primitives</Filter>
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\primitives\primitive.cpp">
-      <Filter>Исходные файлы\src\primitives</Filter>
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -98,35 +86,38 @@
     <ClInclude Include="..\dependencies\imgui\imgui\imstb_truetype.h">
       <Filter>Исходные файлы\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="headers\geometry.h">
-      <Filter>Файлы заголовков\headers</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\main.h">
-      <Filter>Файлы заголовков\headers</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\geometry\affine.h">
-      <Filter>Файлы заголовков\headers\geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\geometry\checks.h">
-      <Filter>Файлы заголовков\headers\geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\geometry\funcs.h">
-      <Filter>Файлы заголовков\headers\geometry</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\geometry\primitives.h">
-      <Filter>Файлы заголовков\headers\geometry</Filter>
-    </ClInclude>
     <ClInclude Include="headers\geometry\primitives\edge.h">
-      <Filter>Файлы заголовков\headers\geometry\primitives</Filter>
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\primitives\Lsystem.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\geometry\primitives\point.h">
-      <Filter>Файлы заголовков\headers\geometry\primitives</Filter>
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\geometry\primitives\primitive.h">
-      <Filter>Файлы заголовков\headers\geometry\primitives</Filter>
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="pch.h">
-      <Filter>Файлы заголовков\headers</Filter>
+    <ClInclude Include="headers\geometry\affine.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\checks.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\funcs.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\primitives.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\main.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\pch.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
