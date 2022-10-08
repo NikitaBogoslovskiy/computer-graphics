@@ -1,0 +1,224 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Исходные файлы">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Файлы заголовков">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Файлы ресурсов">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Исходные файлы\imgui">
+      <UniqueIdentifier>{b2c2ed64-4b17-47f0-bcd4-e1e91b69ce8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\Eiger">
+      <UniqueIdentifier>{46a82057-6ed3-4ed3-bc0e-5f3acf38caf3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\headers">
+      <UniqueIdentifier>{25ea5f16-a677-44d5-bf19-eb2f2cb54cfb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\headers\geometry">
+      <UniqueIdentifier>{c08ef76c-e065-4102-94d5-25cf1037ae6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Файлы заголовков\headers\geometry\primitives">
+      <UniqueIdentifier>{0084b1d8-54d2-45d4-8bbb-f00e6034ae54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\src">
+      <UniqueIdentifier>{44ebf7bd-bd34-4d08-9c61-c4cf22a22cc8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Исходные файлы\src\primitives">
+      <UniqueIdentifier>{a5e20c40-4ab3-4e2f-985d-3c4b2948886c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\dependencies\imgui\imgui\imgui.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\imgui\imgui\imgui_demo.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\imgui\imgui\imgui_draw.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\imgui\imgui\imgui_impl_glfw.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\imgui\imgui\imgui_impl_opengl3.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\imgui\imgui\imgui_tables.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="..\dependencies\imgui\imgui\imgui_widgets.cpp">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="src\main.cpp">
+      <Filter>Исходные файлы\src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitives\checks.cpp">
+      <Filter>Исходные файлы\src\primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitives\edge.cpp">
+      <Filter>Исходные файлы\src\primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitives\point.cpp">
+      <Filter>Исходные файлы\src\primitives</Filter>
+    </ClCompile>
+    <ClCompile Include="src\primitives\primitive.cpp">
+      <Filter>Исходные файлы\src\primitives</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\dependencies\imgui\imgui\imconfig.h">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui\imgui\imgui.h">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui\imgui\imgui_impl_glfw.h">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui\imgui\imgui_impl_opengl3.h">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui\imgui\imgui_internal.h">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui\imgui\imstb_rectpack.h">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui\imgui\imstb_textedit.h">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\dependencies\imgui\imgui\imstb_truetype.h">
+      <Filter>Исходные файлы\imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry.h">
+      <Filter>Файлы заголовков\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\main.h">
+      <Filter>Файлы заголовков\headers</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\affine.h">
+      <Filter>Файлы заголовков\headers\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\checks.h">
+      <Filter>Файлы заголовков\headers\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\funcs.h">
+      <Filter>Файлы заголовков\headers\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\primitives.h">
+      <Filter>Файлы заголовков\headers\geometry</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\primitives\edge.h">
+      <Filter>Файлы заголовков\headers\geometry\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\primitives\point.h">
+      <Filter>Файлы заголовков\headers\geometry\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\primitives\primitive.h">
+      <Filter>Файлы заголовков\headers\geometry\primitives</Filter>
+    </ClInclude>
+    <ClInclude Include="pch.h">
+      <Filter>Файлы заголовков\headers</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\dependencies\Eigen\Eigen\Cholesky">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\CholmodSupport">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\Core">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\Dense">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\Eigen">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\Eigenvalues">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\Geometry">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\Householder">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\IterativeLinearSolvers">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\Jacobi">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\KLUSupport">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\LU">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\MetisSupport">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\OrderingMethods">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\PardisoSupport">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\PaStiXSupport">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\QR">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\QtAlignedMalloc">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\Sparse">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\SparseCholesky">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\SparseCore">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\SparseLU">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\SparseQR">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\SPQRSupport">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\StdDeque">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\StdList">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\StdVector">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\SuperLUSupport">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\SVD">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+    <None Include="..\dependencies\Eigen\Eigen\UmfPackSupport">
+      <Filter>Исходные файлы\Eiger</Filter>
+    </None>
+  </ItemGroup>
+</Project>
