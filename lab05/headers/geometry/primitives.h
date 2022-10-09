@@ -5,5 +5,6 @@
 #include "primitives/point.h"
 #include "primitives/edge.h"
 #include "primitives/Lsystem.h"
+#include "primitives/bezier_curve.h"
 
 #endif

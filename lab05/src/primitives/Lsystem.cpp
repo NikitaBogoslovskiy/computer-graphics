@@ -88,7 +88,7 @@ void Lsystem::draw(ImDrawList* draw_list, const ImVec2& offset, const ImU32& col
 {
 	_fractal->color() = color;
 	_fractal->thickness() = thickness;
-	_fractal->draw(draw_list, offset, false);
+	_fractal->draw(draw_list, offset/*, true*/);
 }
 
 bool Lsystem::check_Lsystem(const std::string& axiom, const std::vector<std::pair<char, std::string>>& rules)

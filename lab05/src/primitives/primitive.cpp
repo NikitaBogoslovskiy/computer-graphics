@@ -9,13 +9,16 @@ void MyPolyline(ImDrawList* draw_list, const ImVec2* points, const size_t points
 	}
 }
 
-void Primitive::draw(ImDrawList* draw_list, const ImVec2& offset, bool connect_bounds)
+void Primitive::draw(ImDrawList* draw_list, const ImVec2& offset/*, bool connect_bounds*/)
 {
 	if (show()) {
 		MyPolyline(draw_list, this->points->Data, size(), color(), thickness(), offset);
-		if (connect_bounds && size() > 2) {
+		if (size() > 2) {
 			draw_list->AddLine(front() + offset, back() + offset, color(), thickness());
 		}
+		//if (connect_bounds && size() > 2) {
+		//	draw_list->AddLine(front() + offset, back() + offset, color(), thickness());
+		//}
 	}
 }
 

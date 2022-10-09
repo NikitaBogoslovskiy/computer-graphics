@@ -347,7 +347,7 @@ int main(void)
 		return -1;
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(640, 480, "Affine transformations", NULL, NULL);
+	window = glfwCreateWindow(640, 480, "CringeCAD", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -363,6 +363,7 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
+	/* WARNING
 	std::vector<std::pair<char, std::string>> rules{
 		{'F', "F"},
 		{'X', "X+YF++YF-FX--FXFX-YF+"},
@@ -383,7 +384,7 @@ int main(void)
 	fractals.push_back(new Lsystem("A", rules2, 3.14f / 3.f, 3));
 	fractals.push_back(new Lsystem("F++F++F", rules3, 3.14f / 3.f, 3));
 	fractals.push_back(new Lsystem("F", rules4, 3.14f / 2.f, 3));
-
+*/
 	bool p_open = true;
 
 	/* Loop until the user closes the window */
@@ -416,7 +417,7 @@ int main(void)
 		static float thickness = 1.0f;
 		static float curr_color[4] = { 1.f, 1.f, 0.f, 1.f };
 
-		if (ImGui::Begin("Affine transformaitons", &p_open, flags))
+		if (ImGui::Begin("CringeCAD", &p_open, flags))
 		{
 			if (ImGui::BeginTable("mode & thickness & color", 3)) {
 				ImGui::TableNextRow();
@@ -676,6 +677,35 @@ int main(void)
 						new_prim = NULL;
 					}
 					break;
+				case Mode::BezierCurve:
+					if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					{
+						new_prim = new BezierCurve(GetCurrentColor(curr_color), thickness);
+						new_prim->push_back(mouse_pos_in_canvas);
+						new_prim->push_back(mouse_pos_in_canvas);
+						adding_line = FirstClick;
+					}
+					if (adding_line == FirstClick) {
+						if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+							adding_line = ReleasedState;
+						}
+					}
+					if (adding_line == ReleasedState)
+					{
+						(*new_prim).back() = mouse_pos_in_canvas;
+						if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+						{
+							adding_line = FirstClick;
+							new_prim->push_back(mouse_pos_in_canvas);
+						}
+					}
+					if (adding_line != None && ImGui::IsKeyPressed(ImGuiKey_Enter)) {
+						adding_line = None;
+						new_prim->pop_back();
+						primitives.push_back(new_prim);
+						new_prim = NULL;
+					}
+					break;
 				default:
 					break;
 				}
@@ -722,9 +752,10 @@ int main(void)
 					primitives[i]->draw(draw_list, origin);
 				}
 
+				/* WARNING
 				for (size_t i = 0; i < fractals.size(); i++) {
 					fractals[i]->draw(draw_list, origin, GetCurrentColor(curr_color), thickness);
-				}
+				}*/
 
 				if (new_prim) {
 					new_prim->draw_previe(draw_list, origin);
