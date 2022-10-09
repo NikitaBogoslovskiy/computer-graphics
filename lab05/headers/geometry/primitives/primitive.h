@@ -55,7 +55,8 @@ public:
 
 	inline void pop_back() { points->pop_back(); }
 
-	virtual void draw(ImDrawList*, const ImVec2&, bool connect_bounds = true);
+	virtual void draw(ImDrawList*, const ImVec2&);
+	virtual void draw_polyline(ImDrawList*, const ImVec2&);
 	virtual void draw_previe(ImDrawList*, const ImVec2&);
 
 	ImVec2 center() {
