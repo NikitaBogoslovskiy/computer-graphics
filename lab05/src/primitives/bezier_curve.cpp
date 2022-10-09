@@ -1,32 +1,13 @@
 #include "../../headers/geometry.h"
 #include <vector>
-#include <iostream>
+#include <deque>
 
 BezierCurve::BezierCurve(const ImU32& color, const float& thickness) : Primitive(new ImVector<ImVec2>(), color, thickness)
 {
 
 }
 
-ImVec2& BezierCurve::nextBt3(const ImVector<ImVec2>* points, const float& t) {
-	if (points->size() < 4) throw std::invalid_argument("4 points required to get approximate Bezier point");
-	Eigen::Matrix<float, 1, 4> tVec{ 1, t, t * t, t * t * t };
-	Eigen::Matrix4f coeffs{
-			{ 1.f, 0.f, 0.f, 0.f },
-			{ -3.f, 3.f, 0.f, 0.f },
-			{ 3.f, -6.f, 3.f, 0.f},
-			{ -1.f, 3.f, -3.f, 1.f}
-	};
-	auto CRINGE = tVec * coeffs;
-	ImVec2 ans(0.f, 0.f);
-	for (size_t i = 0; i < 4; i++) {
-		Eigen::Matrix<float, 1, 2> p{ this->at(i).x, this->at(i).y };
-		auto cringe_i = CRINGE[i] * p;
-		ans.x += cringe_i[0];
-		ans.y += cringe_i[1];
-	}
-	return ans;
-}
-
+// draws frame of a curve
 void BezierCurve::draw_skeleton(ImDrawList* draw_list, const ImVec2& offset)
 {
 	if (!show()) return;
@@ -37,21 +18,78 @@ void BezierCurve::draw_skeleton(ImDrawList* draw_list, const ImVec2& offset)
 	draw_list->AddCircleFilled(this->points->Data[size() - 1] + offset, 4.f, color(), 10);
 }
 
+// spits out point corresponding to t assuming we draw a curve based on 4 points
+ImVec2& BezierCurve::nextBt3(const std::deque<ImVec2*>& points, const float& t) {
+	if (points.size() < 4) throw std::invalid_argument("4 points required to get approximate Bezier point");
+	Eigen::Matrix<float, 1, 4> tVec{ 1, t, t * t, t * t * t };
+	Eigen::Matrix4f coeffs{
+			{ 1.f, 0.f, 0.f, 0.f },
+			{ -3.f, 3.f, 0.f, 0.f },
+			{ 3.f, -6.f, 3.f, 0.f},
+			{ -1.f, 3.f, -3.f, 1.f}
+	};
+	auto CRINGE = tVec * coeffs;
+	ImVec2 ans(0.f, 0.f);
+	for (size_t i = 0; i < 4; i++) {
+		Eigen::Matrix<float, 1, 2> p{ (*points[i]).x, (*points[i]).y };
+		auto cringe_i = CRINGE[i] * p;
+		ans.x += cringe_i[0];
+		ans.y += cringe_i[1];
+	}
+	return ans;
+}
+
+// draws a curve using 4 points given
+void BezierCurve::draw_curve3(ImDrawList* draw_list, const std::deque<ImVec2*>& points, const ImVec2& offset) {
+	if (!show() || points.size() < 4) return;
+	ImVec2 p0 = *points[0];
+	for (int i = 1; i <= 1 / _step; i++) {
+		ImVec2 p1 = nextBt3(points, _step * i);
+		draw_list->AddLine(p0 + offset, p1 + offset, color(), thickness());
+		p0 = p1;
+	}
+}
+
 void BezierCurve::draw(ImDrawList* draw_list, const ImVec2& offset)
 {
 	if (!show()) return;
 	this->draw_skeleton(draw_list, offset);
-	if (size() < 4) return;
-
-	ImVec2 p0 = this->points->Data[0];
-	float step = 0.02;
-
-	for (int i = 1; i <= 1 / step; i++) {
-		ImVec2 p1 = nextBt3(this->points, step * i);
-		draw_list->AddLine(p0 + offset, p1 + offset, color(), thickness());
-		p0 = p1;
+	if (this->points->size() == 2) {
+		draw_list->AddLine(this->points->Data[0] + offset, this->points->Data[1] + offset, color(), thickness());
+		return;
 	}
 
+	bool oddSize = this->size() % 2 != 0;
+	int curvesRemained = (this->size() + 1) / 2 - 1;
+	std::deque<ImVec2*> d = { &this->front() };
+	int i = 1;
+	while (curvesRemained > 0) {
+		if (curvesRemained == 1) {
+			if (oddSize) {
+				d.push_back(&this->points->Data[i]);
+				auto dummy = 0.5f * (this->points->Data[i] + this->points->Data[i+1]);
+				d.push_back(&dummy);
+				d.push_back(&this->points->Data[i+1]);
+			} else {
+				while (d.size() < 4) {
+					d.push_back(&this->points->Data[i++]);
+				}
+			}
+			this->draw_curve3(draw_list, d, offset);
+			return;
+		}
+		while (d.size() < 3) {
+			d.push_back(&this->points->Data[i++]);
+		}
+		auto dummy = 0.5f * (this->points->Data[i-1] + this->points->Data[i]);
+		d.push_back(&dummy);
+		this->draw_curve3(draw_list, d, offset);
+
+		while (d.size() > 1) {
+			d.pop_front();
+		}
+		curvesRemained -= 1;
+	}
 }
 
 void BezierCurve::draw_previe(ImDrawList* draw_list, const ImVec2& offset)
