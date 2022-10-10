@@ -57,6 +57,7 @@ public:
 
 	virtual void draw(ImDrawList*, const ImVec2&);
 	virtual void draw_polyline(ImDrawList*, const ImVec2&);
+	virtual void draw_polyline(ImDrawList*, const ImVec2&, const ImVec4& from_col, const ImVec4& col_offset, const float& from_th, const float& th_offset);
 	virtual void draw_previe(ImDrawList*, const ImVec2&);
 
 	ImVec2 center() {

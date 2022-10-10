@@ -108,7 +108,6 @@ ImU32 GetColor(const float* curr_color) {
 	return (IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
 }
 
-
 char pseudo_console[] = "Command arguments go here...";
 //char* pseudo_console = "";
 
@@ -394,7 +393,7 @@ static void ShowAddLsys(bool* p_open) {
 
 
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 15);
-	ImGui::InputText("axiom", axiom, 254, flags2, TextFilters::FilterLsys);
+	ImGui::InputText("Axiom", axiom, 254, flags2, TextFilters::FilterLsys);
 	
 	ImGui::Separator();
 
@@ -427,10 +426,26 @@ static void ShowAddLsys(bool* p_open) {
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5);
 	ImGui::SliderInt("iters##lsysiters", &iters, 2, 5);
 
+	static char additional[30] = {'\0'};
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10);
+	ImGui::InputText("(fwd terms)", additional, 30, flags2, TextFilters::FilterLetters);
+
+	ImGui::SameLine();
+
+	static bool tree = false;
+	ImGui::Checkbox("tree?", &tree);
+
 	static size_t state = 0;
 
 	if (ImGui::Button("Add##lsysaddingconfirm")) {
-		auto t = new Lsystem(std::string(axiom), std::vector<std::pair<char, std::string>>(rules.begin(), rules.end()), angle, iters, GetColor(curr_color), thickness);
+		auto t = new Lsystem(std::string(axiom), 
+			std::vector<std::pair<char, std::string>>(rules.begin(), rules.end()), 
+			angle, 
+			iters, 
+			GetColor(curr_color), 
+			thickness, 
+			std::string(additional),
+			tree);
 		if (t->is_legal()) {
 			state = 1;
 			fractals.push_back(t);
@@ -453,6 +468,9 @@ static void ShowAddLsys(bool* p_open) {
 
 int main(void)
 {
+	srand(time(NULL));
+
+
 	GLFWwindow* window;
 	CurrentState state;
 	std::vector<Primitive*> primitives;

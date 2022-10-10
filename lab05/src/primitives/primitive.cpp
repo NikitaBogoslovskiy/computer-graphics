@@ -3,9 +3,19 @@
 #include <cstdlib>
 #include <iostream>
 
-void MyPolyline(ImDrawList* draw_list, const ImVec2* points, const size_t points_count, ImU32 col, float thickness, const ImVec2& offset) {
+void MyPolyline(ImDrawList* draw_list, const ImVec2* points, const size_t& points_count, const ImU32& col, const float& thickness, const ImVec2& offset) {
 	for (size_t i = 0; i < points_count - 1; i++) {
 		draw_list->AddLine(points[i] + offset, points[i + 1] + offset, col, thickness);
+	}
+}
+
+ImU32 GetColor(const ImVec4& curr_color) {
+	return IM_COL32(curr_color.x, curr_color.y, curr_color.z, curr_color.w);
+}
+
+void MyPolyline(ImDrawList* draw_list, const ImVec2* points, const size_t& points_count, const ImVec2& offset, const ImVec4& from_col, const ImVec4& col_offset, const float& from_th, const float& th_offset) {
+	for (size_t i = 0; i < points_count - 1; i++) {
+		draw_list->AddLine(points[i] + offset, points[i + 1] + offset, GetColor(from_col + i * col_offset), from_th + i * th_offset);
 	}
 }
 
@@ -23,6 +33,13 @@ void Primitive::draw_polyline(ImDrawList* draw_list, const ImVec2& offset)
 {
 	if (show()) {
 		MyPolyline(draw_list, this->points->Data, size(), color(), thickness(), offset);
+	}
+}
+
+void Primitive::draw_polyline(ImDrawList* draw_list, const ImVec2& offset, const ImVec4& from_col, const ImVec4& col_offset, const float& from_th, const float& th_offset)
+{
+	if (show()) {
+		MyPolyline(draw_list, this->points->Data, size(), offset, from_col, col_offset, from_th, th_offset);
 	}
 }
 
