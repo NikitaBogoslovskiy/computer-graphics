@@ -1,16 +1,6 @@
 #include "geometry.h"
 #include <set>
-
-Lsystem::Lsystem(const std::string& axiom, const std::vector<std::pair<char, std::string>>& rules, const float& angle, size_t num_iterations)
-{
-	this->_angle = angle;
-	this->_iters = num_iterations;
-	_line_length = 30.f;
-	if (_is_legal = check_Lsystem(axiom, rules)) {
-		calculate_fractal(IM_COL32_BLACK, 1.f);
-	}
-}
-
+#include <time.h>
 
 void Lsystem::calculate_fractal(const ImU32& color, const float& thickness)
 {
@@ -51,20 +41,26 @@ void Lsystem::calculate_rule(float* curr_angle, const std::string& pattern, size
 		calculate_edge(*curr_angle);
 		return;
 	}
-	for (char c : pattern) {
+	for (const auto& c : pattern) {
 		switch (c)
 		{
 		case '+':
-			*curr_angle += _angle;
+			*curr_angle += _random_angle ? _angle * (rand() % 101) / 100.f : _angle;
 			break;
 		case '-':
-			*curr_angle -= _angle;
+			*curr_angle -= _random_angle ? _angle * (rand() % 101) / 100.f : _angle;
 			break;
 		case '[':
 			// save
 			break;
 		case ']':
-			// restore
+			// restore & set random off
+			_random_angle = false;
+			break;
+		case '@':
+			// set random on
+			srand((unsigned int)time(0)/2);
+			_random_angle = true;
 			break;
 		default:
 			if (iter == _iters) {
@@ -84,10 +80,10 @@ void Lsystem::calculate_edge(const float& curr_angle)
 	_fractal->push_back(_fractal->back() + _line_length * ImVec2(cosf(curr_angle), sinf(curr_angle)));
 }
 
-void Lsystem::draw(ImDrawList* draw_list, const ImVec2& offset, const ImU32& color, const float& thickness)
+void Lsystem::draw(ImDrawList* draw_list, const ImVec2& offset) //, const ImU32& color, const float& thickness
 {
-	_fractal->color() = color;
-	_fractal->thickness() = thickness;
+	//_fractal->color() = color;
+	//_fractal->thickness() = thickness;
 	_fractal->draw_polyline(draw_list, offset);
 }
 
@@ -115,6 +111,9 @@ bool Lsystem::check_Lsystem(const std::string& axiom, const std::vector<std::pai
 	}
 
 	for (auto rule : rules) {
+		if (rule.first == '\0' || rule.second[0] == '\0') {
+			continue;
+		}
 		for (char c : rule.second) {
 			if (terms.find(c) == terms.end()) {
 				return false;
@@ -123,7 +122,13 @@ bool Lsystem::check_Lsystem(const std::string& axiom, const std::vector<std::pai
 	}
 
 	_axiom = axiom;
-	_rules = rules;
+
+	for (auto rule : rules) {
+		if (rule.first == '\0' || rule.second[0] == '\0') {
+			continue;
+		}
+		_rules.push_back(rule);
+	}
 
 	return true;
 }

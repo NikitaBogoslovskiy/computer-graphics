@@ -10,8 +10,12 @@
 #include <math.h>
 #include "../headers/main.h"
 #include "../headers/geometry.h"
+#include <deque>
+#include <tuple>
 
 #include <iostream>
+
+#define PI 3.14159265359f
 
 static void HelpMarker(const char* desc)
 {
@@ -100,7 +104,7 @@ void pointPositionWithPolygon(Point& point, Primitive& polygon, bool& isInside, 
 	isInside = (result.Size - correction) % 2 == 1;
 }
 
-ImU32 GetCurrentColor(const float* curr_color) {
+ImU32 GetColor(const float* curr_color) {
 	return (IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
 }
 
@@ -332,12 +336,126 @@ void ShowFractalTableRow(Primitive* prim, size_t idx)
 	ImGui::PopID();
 }
 
+
+std::vector<Lsystem*> fractals;
+
+static float thickness = 1.0f;
+static float curr_color[4] = { 1.f, 1.f, 0.f, 1.f };
+
+static void ShowAddLsys(bool* p_open) {
+	ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
+	ImGuiWindowFlags flags = 0;
+	if (!ImGui::Begin("lsys", p_open, flags))
+	{
+		ImGui::End();
+		return;
+	}
+
+	HelpMarker(
+		"An example:\n"
+		"axiom: 'A'\n"
+		"rule1: 'A', 'A-B--B+A++AA+B-'\n"
+		"rule2: 'B', '+A-BB--B-A++A+B'");
+
+	static char axiom[255] = "\0";
+	static std::deque<std::pair<char, char*>> rules;
+	if (rules.size() == 0) {
+		char term;
+		char* rule = (char*)malloc(sizeof(char) * 255);
+		rule[0] = (term = '\0');
+		rules.push_back(std::pair<char, char*>(term, rule));
+	}
+
+	struct TextFilters
+	{
+		static int FilterLetters(ImGuiInputTextCallbackData* data)
+		{
+			if (data->EventChar < 256 && strchr("ABCDEFGHIJKLMNOPQRSTUVWXYZ", (char)data->EventChar))
+				return 0;
+			return 1;
+		}
+
+		static int FilterSignes(ImGuiInputTextCallbackData* data)
+		{
+			if (data->EventChar < 256 && strchr("+-[]@", (char)data->EventChar))
+				return 0;
+			return 1;
+		}
+
+		static int FilterLsys(ImGuiInputTextCallbackData* data)
+		{
+			if (data->EventChar < 256 && (FilterLetters(data) || FilterSignes(data)))
+				return 0;
+			return 1;
+		}
+	};
+
+	ImGuiInputTextFlags flags2 = ImGuiInputTextFlags_CallbackCharFilter | ImGuiInputTextFlags_CharsUppercase;
+
+
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 15);
+	ImGui::InputText("axiom", axiom, 254, flags2, TextFilters::FilterLsys);
+	
+	ImGui::Separator();
+
+	for (size_t i = 0; i < rules.size(); i++) {
+		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 1);
+		char buf1[32];
+		sprintf(buf1, "##lsysterm%03d", i);
+		ImGui::InputText(buf1, &rules[i].first, 2, flags2, TextFilters::FilterLetters);
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 13);
+		char buf2[32];
+		sprintf(buf2, "##lsysrule%03d", i);
+		ImGui::InputText(buf2, rules[i].second, 255, flags2, TextFilters::FilterLsys);
+	}
+
+	if (rules.back().first != '\0' && rules.back().second[0] != '\0') {
+		char term;
+		char* rule = (char*)malloc(sizeof(char) * 255);
+		rule[0] = (term = '\0');
+		rules.push_back(std::pair<char, char*>(term, rule));
+	}
+
+	static float angle = PI / 3.f; // 60 deg
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5);
+	ImGui::SliderAngle("angle##lsysangle", &angle, 0.f);
+
+	ImGui::SameLine();
+
+	static int iters = 3;
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5);
+	ImGui::SliderInt("iters##lsysiters", &iters, 2, 5);
+
+	static size_t state = 0;
+
+	if (ImGui::Button("Add##lsysaddingconfirm")) {
+		auto t = new Lsystem(std::string(axiom), std::vector<std::pair<char, std::string>>(rules.begin(), rules.end()), angle, iters, GetColor(curr_color), thickness);
+		if (t->is_legal()) {
+			state = 1;
+			fractals.push_back(t);
+		}
+		else {
+			state = 2;
+		}
+	}
+
+	ImGui::SameLine();
+	if (state == 1) {
+		ImGui::TextColored(ImVec4(0, 255, 0, 255), "Added");
+	}
+	if (state == 2) {
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), "Wrong format");
+	}
+
+	ImGui::End();
+}
+
 int main(void)
 {
 	GLFWwindow* window;
 	CurrentState state;
 	std::vector<Primitive*> primitives;
-	std::vector<Lsystem*> fractals = std::vector<Lsystem*>();
 	ImVec2 canvas_sz;
 	std::string feedback;
 	ImVec4 feedback_color;
@@ -363,6 +481,7 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
+	/*
 	std::vector<std::pair<char, std::string>> rules{
 		{'F', "F"},
 		{'X', "X+YF++YF-FX--FXFX-YF+"},
@@ -383,8 +502,10 @@ int main(void)
 	fractals.push_back(new Lsystem("A", rules2, 3.14f / 3.f, 3));
 	fractals.push_back(new Lsystem("F++F++F", rules3, 3.14f / 3.f, 3));
 	fractals.push_back(new Lsystem("F", rules4, 3.14f / 2.f, 3));
+	*/
 
-	bool p_open = true;
+	static bool p_open = true;
+	static bool p_lsys = false;
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -396,6 +517,8 @@ int main(void)
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+
+		if(p_lsys) ShowAddLsys(&p_lsys);
 
 		static bool use_work_area = true;
 		static ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
@@ -412,9 +535,8 @@ int main(void)
 		ImGui::SetNextWindowSize(use_work_area ? viewport->WorkSize : viewport->Size);
 		/* */
 
+
 		static int chosenMode = 0;
-		static float thickness = 1.0f;
-		static float curr_color[4] = { 1.f, 1.f, 0.f, 1.f };
 
 		if (ImGui::Begin("Affine transformaitons", &p_open, flags))
 		{
@@ -501,6 +623,12 @@ int main(void)
 					feedback = e.what();
 					feedback_color = ImVec4(255, 0, 0, 255);
 				}
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("add L-system")) {
+				p_lsys = true;
 			}
 
 			int chosenType;
@@ -622,13 +750,13 @@ int main(void)
 				{
 				case Mode::Point:
 					if (is_hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-						primitives.push_back(new Point(mouse_pos_in_canvas, GetCurrentColor(curr_color), thickness));
+						primitives.push_back(new Point(mouse_pos_in_canvas, GetColor(curr_color), thickness));
 					}
 					break;
 				case Mode::Edge:
 					if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
-						new_prim = new Edge(mouse_pos_in_canvas, mouse_pos_in_canvas, GetCurrentColor(curr_color), thickness);
+						new_prim = new Edge(mouse_pos_in_canvas, mouse_pos_in_canvas, GetColor(curr_color), thickness);
 						adding_line = FirstClick;
 					}
 					if (adding_line == FirstClick) {
@@ -650,7 +778,7 @@ int main(void)
 				case Mode::Polygon:
 					if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
-						new_prim = new Primitive(GetCurrentColor(curr_color), thickness);
+						new_prim = new Primitive(GetColor(curr_color), thickness);
 						new_prim->push_back(mouse_pos_in_canvas);
 						new_prim->push_back(mouse_pos_in_canvas);
 						adding_line = FirstClick;
@@ -694,12 +822,17 @@ int main(void)
 				if (!adding_line && opt_enable_context_menu && drag_delta.x == 0.0f && drag_delta.y == 0.0f) {
 					ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
 					if (ImGui::BeginPopup("context")) {
-						if (ImGui::MenuItem("Remove last", NULL, false, primitives.size() > 0)) {
+						if (ImGui::MenuItem("Remove last prim", NULL, false, primitives.size() > 0)) {
 							chosen_prims.erase(primitives.back());
 							primitives.pop_back();
 						}
-						if (ImGui::MenuItem("Remove all", NULL, false, primitives.size() > 0)) {
+						if (ImGui::MenuItem("Remove last fractal", NULL, false, fractals.size() > 0)) {
+							chosen_prims.erase(fractals.back()->prim());
+							fractals.pop_back();
+						}
+						if (ImGui::MenuItem("Remove all", NULL, false, primitives.size() + fractals.size() > 0)) {
 							primitives.clear();
+							fractals.clear();
 							chosen_prims.clear();
 						}
 						ImGui::EndPopup();
@@ -723,7 +856,7 @@ int main(void)
 				}
 
 				for (size_t i = 0; i < fractals.size(); i++) {
-					fractals[i]->draw(draw_list, origin, GetCurrentColor(curr_color), thickness);
+					fractals[i]->draw(draw_list, origin);
 				}
 
 				if (new_prim) {
