@@ -1,9 +1,6 @@
-#include "geometry.h"
-#include <set>
+#include "geometry/primitives/Lsystem.h"
 #include <time.h>
 #include <cstdlib>
-#include <ctime>
-#include <set>
 #include <tuple>
 #include <stack>
 
@@ -35,7 +32,7 @@ void Lsystem::calculate_fractal(const ImU32& color, const float& thickness)
 			// restore
 			curr_angle = saved_states.top()._Myfirst._Val;
 			_fractals_iter_start.push_back(0);
-			_fractals.push_back(new Primitive(_color, _thickness));
+			_fractals.push_back(new Primitive(color, _thickness));
 			_fractal = _fractals.back();
 			_fractal->push_back(saved_states.top()._Get_rest()._Myfirst._Val);
 			_random_angle = saved_states.top()._Get_rest()._Get_rest()._Myfirst._Val;
@@ -84,7 +81,7 @@ void Lsystem::calculate_rule(float* curr_angle, const std::string& pattern, size
 			// restore
 			*curr_angle = saved_states.top()._Myfirst._Val;
 			_fractals_iter_start.push_back(iter);
-			_fractals.push_back(new Primitive(_color, _thickness));
+			_fractals.push_back(new Primitive(GetColorV4U32(_src_color), _thickness));
 			_fractal = _fractals.back();
 			_fractal->push_back(saved_states.top()._Get_rest()._Myfirst._Val);
 			_random_angle = saved_states.top()._Get_rest()._Get_rest()._Myfirst._Val;
@@ -114,21 +111,24 @@ void Lsystem::calculate_edge(const float& curr_angle, const size_t& iter)
 
 void Lsystem::draw(ImDrawList* draw_list, const ImVec2& offset)
 {
-	if (_is_tree) {
-		ImVec4 src(_color & 0x000000FF, (_color & 0x0000FF00) >> 8, (_color & 0x00FF0000) >> 16, 255);
-		ImVec4 dest(255 - src.x, 255 - src.y, 255 - src.z, 255);
-		for (size_t i = 0; i < _fractals.size(); i++) {
-			ImVec4 col_offset = (1.f / _iters) * (dest - src);
-			float th_offset = (1.f - _thickness) / _iters;
-			_fractals[i]->draw_polyline(draw_list, offset, src + (_fractals_iter_start[i] * col_offset), col_offset, _thickness + (_fractals_iter_start[i] * th_offset), th_offset);
+	if (_show) {
+		if (_is_tree) {
+			ImVec4& src = _src_color;
+			ImVec4& dest = _dest_color;
+			for (size_t i = 0; i < _fractals.size(); i++) {
+				ImVec4 col_offset = (1.f / _iters) * (dest - src);
+				float th_offset = (1.f - _thickness) / _iters;
+				_fractals[i]->draw_polyline(draw_list, offset, src + (_fractals_iter_start[i] * col_offset), col_offset, _thickness + (_fractals_iter_start[i] * th_offset), th_offset);
+			}
 		}
-	}
-	else {
-		for (auto _fractal : _fractals) {
-			_fractal->draw_polyline(draw_list, offset);
+		else {
+			for (auto _fractal : _fractals) {
+				_fractal->draw_polyline(draw_list, offset);
+			}
 		}
 	}
 }
+
 
 bool Lsystem::check_Lsystem(const std::vector<std::pair<char, std::string>>& rules, const std::string& additional)
 {

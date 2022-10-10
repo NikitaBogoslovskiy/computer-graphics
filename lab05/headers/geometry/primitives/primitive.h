@@ -1,5 +1,6 @@
+#pragma once
 #ifndef _PRIMITIVE_H_
-#define _PRIMITIVE_H
+#define _PRIMITIVE_H_
 
 #include "pch.h"
 

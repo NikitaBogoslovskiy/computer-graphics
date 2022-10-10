@@ -104,10 +104,6 @@ void pointPositionWithPolygon(Point& point, Primitive& polygon, bool& isInside, 
 	isInside = (result.Size - correction) % 2 == 1;
 }
 
-ImU32 GetColor(const float* curr_color) {
-	return (IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
-}
-
 char pseudo_console[] = "Command arguments go here...";
 //char* pseudo_console = "";
 
@@ -196,6 +192,7 @@ bool checkPointAndPolygonConditions(std::set<Primitive*>& primitives, std::strin
 }
 
 std::set<Primitive*> chosen_prims = std::set<Primitive*>();
+std::set<Lsystem*> chosen_lsys;
 
 ImVector<ImVec2*> intersections;
 
@@ -279,37 +276,38 @@ int tr_chpr_rtp(const std::set<Primitive*>& primitives, std::function<void(Primi
 	return 0;
 }
 
-void ShowFractalTableRow(Primitive* prim, size_t idx)
+void ShowFractalTableRow(Lsystem* lsys, size_t idx)
 {
-	ImGui::PushID(prim);
+	ImGui::PushID(lsys);
 
 	ImGui::TableNextRow();
 	ImGui::TableSetColumnIndex(0);
 	ImGui::AlignTextToFramePadding();
-	bool node_open = ImGui::TreeNode("Fractal", "frac%d", idx);
+	bool node_open = ImGui::TreeNode("Lsystem", "lsys%d", idx);
 	ImGui::TableSetColumnIndex(1);
 
-	if (chosen_prims.find(prim) != chosen_prims.end()) {
-		ImGui::TextColored(ImVec4(255, 0, 0, 255), "%d-gon figure", prim->size());
+	if (chosen_lsys.find(lsys) != chosen_lsys.end()) {
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), "%d iter. frac", lsys->prims().size());
 	}
 	else {
-		ImGui::Text("%d-gon figure", prim->size());
+		ImGui::Text("%d iter. frac", lsys->prims().size());
 	}
 
 	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-		if (chosen_prims.find(prim) == chosen_prims.end()) {
-			chosen_prims.insert(prim);
+		if (chosen_lsys.find(lsys) == chosen_lsys.end()) {
+			chosen_lsys.insert(lsys);
 		}
 		else {
-			chosen_prims.erase(prim);
+			chosen_lsys.erase(lsys);
 		}
 	}
 
 	ImGui::SameLine();
-	ImGui::Checkbox(" ", &prim->show());
+	ImGui::Checkbox(" ", &lsys->show());
 
 	if (node_open)
 	{
+		/*
 		for (size_t i = 0; i < prim->size(); i++) {
 			ImGui::PushID(&(prim->operator[](i)));
 
@@ -328,13 +326,13 @@ void ShowFractalTableRow(Primitive* prim, size_t idx)
 
 			ImGui::PopID();
 		}
+		*/
 
 		ImGui::TreePop();
 	}
 
 	ImGui::PopID();
 }
-
 
 std::vector<Lsystem*> fractals;
 
@@ -374,22 +372,15 @@ static void ShowAddLsys(bool* p_open) {
 			return 1;
 		}
 
-		static int FilterSignes(ImGuiInputTextCallbackData* data)
-		{
-			if (data->EventChar < 256 && strchr("+-[]@", (char)data->EventChar))
-				return 0;
-			return 1;
-		}
-
 		static int FilterLsys(ImGuiInputTextCallbackData* data)
 		{
-			if (data->EventChar < 256 && (FilterLetters(data) || FilterSignes(data)))
+			if (data->EventChar < 256 && strchr("ABCDEFGHIJKLMNOPQRSTUVWXYZ+-[]@", (char)data->EventChar))
 				return 0;
 			return 1;
 		}
 	};
 
-	ImGuiInputTextFlags flags2 = ImGuiInputTextFlags_CallbackCharFilter | ImGuiInputTextFlags_CharsUppercase;
+	ImGuiInputTextFlags flags2 = ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CallbackCharFilter;
 
 
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 15);
@@ -400,12 +391,12 @@ static void ShowAddLsys(bool* p_open) {
 	for (size_t i = 0; i < rules.size(); i++) {
 		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 1);
 		char buf1[32];
-		sprintf(buf1, "##lsysterm%03d", i);
+		sprintf(buf1, "##lsysterm%d", i);
 		ImGui::InputText(buf1, &rules[i].first, 2, flags2, TextFilters::FilterLetters);
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 13);
 		char buf2[32];
-		sprintf(buf2, "##lsysrule%03d", i);
+		sprintf(buf2, "rule%d##lsysrule%d", i, i);
 		ImGui::InputText(buf2, rules[i].second, 255, flags2, TextFilters::FilterLsys);
 	}
 
@@ -418,13 +409,21 @@ static void ShowAddLsys(bool* p_open) {
 
 	static float angle = PI / 3.f; // 60 deg
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5);
-	ImGui::SliderAngle("angle##lsysangle", &angle, 0.f);
+	ImGui::SliderAngle("##lsysangle", &angle, 0.f);
 
 	ImGui::SameLine();
 
 	static int iters = 3;
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5);
-	ImGui::SliderInt("iters##lsysiters", &iters, 2, 5);
+	ImGui::SliderInt("##lsysiters", &iters, 2, 5, "%d iters");
+
+	ImGui::SameLine();
+	static float src_col[4] = { curr_color[0], curr_color[1], curr_color[2], curr_color[3] };
+	ImGui::ColorEdit4("src##lsysSrcColor", src_col, ImGuiColorEditFlags_NoInputs);
+
+	ImGui::SameLine();
+	static float dest_col[4] = { curr_color[0], curr_color[1], curr_color[2], curr_color[3] };
+	ImGui::ColorEdit4("dest##lsysDestColor", dest_col, ImGuiColorEditFlags_NoInputs);
 
 	static char additional[30] = {'\0'};
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10);
@@ -438,12 +437,14 @@ static void ShowAddLsys(bool* p_open) {
 	static size_t state = 0;
 
 	if (ImGui::Button("Add##lsysaddingconfirm")) {
-		auto t = new Lsystem(std::string(axiom), 
+		auto t = new Lsystem(
+			std::string(axiom), 
 			std::vector<std::pair<char, std::string>>(rules.begin(), rules.end()), 
 			angle, 
 			iters, 
-			GetColor(curr_color), 
+			GetColorFlV4(src_col),
 			thickness, 
+			GetColorFlV4(dest_col),
 			std::string(additional),
 			tree);
 		if (t->is_legal()) {
@@ -725,7 +726,7 @@ int main(void)
 				}
 				for (size_t i = 0; i < fractals.size(); i++)
 				{
-					ShowFractalTableRow(fractals[i]->prim(), i);
+					ShowFractalTableRow(fractals[i], i);
 					//ImGui::Separator();
 				}
 				ImGui::EndTable();
@@ -768,13 +769,13 @@ int main(void)
 				{
 				case Mode::Point:
 					if (is_hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-						primitives.push_back(new Point(mouse_pos_in_canvas, GetColor(curr_color), thickness));
+						primitives.push_back(new Point(mouse_pos_in_canvas, GetColorFlU32(curr_color), thickness));
 					}
 					break;
 				case Mode::Edge:
 					if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
-						new_prim = new Edge(mouse_pos_in_canvas, mouse_pos_in_canvas, GetColor(curr_color), thickness);
+						new_prim = new Edge(mouse_pos_in_canvas, mouse_pos_in_canvas, GetColorFlU32(curr_color), thickness);
 						adding_line = FirstClick;
 					}
 					if (adding_line == FirstClick) {
@@ -796,7 +797,7 @@ int main(void)
 				case Mode::Polygon:
 					if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
-						new_prim = new Primitive(GetColor(curr_color), thickness);
+						new_prim = new Primitive(GetColorFlU32(curr_color), thickness);
 						new_prim->push_back(mouse_pos_in_canvas);
 						new_prim->push_back(mouse_pos_in_canvas);
 						adding_line = FirstClick;
@@ -845,13 +846,14 @@ int main(void)
 							primitives.pop_back();
 						}
 						if (ImGui::MenuItem("Remove last fractal", NULL, false, fractals.size() > 0)) {
-							chosen_prims.erase(fractals.back()->prim());
+							chosen_lsys.erase(fractals.back());
 							fractals.pop_back();
 						}
 						if (ImGui::MenuItem("Remove all", NULL, false, primitives.size() + fractals.size() > 0)) {
 							primitives.clear();
 							fractals.clear();
 							chosen_prims.clear();
+							chosen_lsys.clear();
 						}
 						ImGui::EndPopup();
 					}
