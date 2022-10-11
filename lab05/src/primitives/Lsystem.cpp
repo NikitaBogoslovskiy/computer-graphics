@@ -14,7 +14,7 @@ void Lsystem::calculate_fractal(const ImU32& color, const float& thickness)
 	auto _fractal = _fractals.back();
 
 	_fractal->push_back(ImVec2(0.f, 0.f));
-	float curr_angle = PI / 2.f;
+	float curr_angle = _is_tree ? -PI / 2.f : 0.f;
 	for (char c : _axiom) {
 		switch (c)
 		{
@@ -106,7 +106,7 @@ void Lsystem::calculate_rule(float* curr_angle, const std::string& pattern, size
 
 void Lsystem::calculate_edge(const float& curr_angle, const size_t& iter)
 {
-	_fractals.back()->push_back(_fractals.back()->back() + (_is_tree ? ((_iters - iter + 1.f) / _iters * _line_length) : _line_length) * ImVec2(cosf(curr_angle), sinf(-curr_angle)));
+	_fractals.back()->push_back(_fractals.back()->back() + (_is_tree ? ((_iters - iter + 1.f) / _iters * _line_length) : _line_length) * ImVec2(cosf(curr_angle), sinf(curr_angle)));
 }
 
 void Lsystem::draw(ImDrawList* draw_list, const ImVec2& offset)

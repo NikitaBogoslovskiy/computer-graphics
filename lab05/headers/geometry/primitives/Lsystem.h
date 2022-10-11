@@ -60,6 +60,10 @@ public:
 	void calculate_edge(const float& curr_angle, const size_t& iter);
 	void draw(ImDrawList* draw_list, const ImVec2& offset);
 	inline bool& show() { return _show; }
+	inline const bool& is_tree() { return _is_tree; }
+	inline ImVec4& src_col() { return _src_color; }
+	inline ImVec4& dest_col() { return _dest_color; }
+	inline float& thickness() { return _thickness; }
 
 private:
 	bool check_Lsystem(const std::vector<std::pair<char, std::string>>& rules, const std::string& additional);

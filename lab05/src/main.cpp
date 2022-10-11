@@ -30,6 +30,18 @@ static void HelpMarker(const char* desc)
 	}
 }
 
+static void HelpPrevItem(const char* desc)
+{
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::BeginTooltip();
+		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+		ImGui::TextUnformatted(desc);
+		ImGui::PopTextWrapPos();
+		ImGui::EndTooltip();
+	}
+}
+
 bool intersected(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, ImVec2* out) {
 	ImVec2 n = (d - c);
 	n = ImVec2(-n.y, n.x);
@@ -287,10 +299,10 @@ void ShowFractalTableRow(Lsystem* lsys, size_t idx)
 	ImGui::TableSetColumnIndex(1);
 
 	if (chosen_lsys.find(lsys) != chosen_lsys.end()) {
-		ImGui::TextColored(ImVec4(255, 0, 0, 255), "%d iter. frac", lsys->prims().size());
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), lsys->is_tree() ? "tree" : "frac");
 	}
 	else {
-		ImGui::Text("%d iter. frac", lsys->prims().size());
+		ImGui::Text(lsys->is_tree() ? "tree" : "frac");
 	}
 
 	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
@@ -307,27 +319,8 @@ void ShowFractalTableRow(Lsystem* lsys, size_t idx)
 
 	if (node_open)
 	{
-		/*
-		for (size_t i = 0; i < prim->size(); i++) {
-			ImGui::PushID(&(prim->operator[](i)));
-
-			ImGui::TableNextRow();
-			ImGui::TableSetColumnIndex(0);
-			ImGui::AlignTextToFramePadding();
-			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
-			ImGui::Text("Point %d", i);
-
-			ImGui::TableSetColumnIndex(1);
-			//ImGui::SliderFloat("x", &(prim->operator[](i).x), 0.f, 1000.f, ".1f", 0.5f);
-			ImGui::InputFloat("x", &(prim->operator[](i).x));
-			//ImGui::SameLine();
-			//ImGui::SliderFloat("y", &(prim->operator[](i).y), 0.f, 1000.f, ".1f", 0.5f);
-			ImGui::InputFloat("y", &(prim->operator[](i).y));
-
-			ImGui::PopID();
-		}
-		*/
-
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.7);
+		ImGui::SliderFloat("##changeLsysTh", &lsys->thickness(), 1.f, 10.f, "th = %.1f");
 		ImGui::TreePop();
 	}
 
@@ -350,7 +343,7 @@ static void ShowAddLsys(bool* p_open) {
 
 	HelpMarker(
 		"An example:\n"
-		"axiom: 'A'\n"
+		"Axiom: 'A'\n"
 		"rule1: 'A', 'A-B--B+A++AA+B-'\n"
 		"rule2: 'B', '+A-BB--B-A++A+B'");
 
@@ -386,17 +379,16 @@ static void ShowAddLsys(bool* p_open) {
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 15);
 	ImGui::InputText("Axiom", axiom, 254, flags2, TextFilters::FilterLsys);
 	
-	ImGui::Separator();
 
 	for (size_t i = 0; i < rules.size(); i++) {
 		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 1);
 		char buf1[32];
-		sprintf(buf1, "##lsysterm%d", i);
+		sprintf(buf1, "##lsysterm%d", i+1);
 		ImGui::InputText(buf1, &rules[i].first, 2, flags2, TextFilters::FilterLetters);
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 13);
 		char buf2[32];
-		sprintf(buf2, "rule%d##lsysrule%d", i, i);
+		sprintf(buf2, "rule%d##lsysrule%d", i+1, i+1);
 		ImGui::InputText(buf2, rules[i].second, 255, flags2, TextFilters::FilterLsys);
 	}
 
@@ -406,6 +398,13 @@ static void ShowAddLsys(bool* p_open) {
 		rule[0] = (term = '\0');
 		rules.push_back(std::pair<char, char*>(term, rule));
 	}
+
+	static char additional[30] = {'\0'};
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10);
+	ImGui::InputText("forward atoms", additional, 30, flags2, TextFilters::FilterLetters);
+	HelpPrevItem("Used to draw a line immediately");
+
+	ImGui::Separator();
 
 	static float angle = PI / 3.f; // 60 deg
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5);
@@ -421,18 +420,184 @@ static void ShowAddLsys(bool* p_open) {
 	static float src_col[4] = { curr_color[0], curr_color[1], curr_color[2], curr_color[3] };
 	ImGui::ColorEdit4("src##lsysSrcColor", src_col, ImGuiColorEditFlags_NoInputs);
 
-	ImGui::SameLine();
-	static float dest_col[4] = { curr_color[0], curr_color[1], curr_color[2], curr_color[3] };
-	ImGui::ColorEdit4("dest##lsysDestColor", dest_col, ImGuiColorEditFlags_NoInputs);
-
-	static char additional[30] = {'\0'};
-	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10);
-	ImGui::InputText("(fwd terms)", additional, 30, flags2, TextFilters::FilterLetters);
-
-	ImGui::SameLine();
-
 	static bool tree = false;
+	static float dest_col[4] = { curr_color[0], curr_color[1], curr_color[2], curr_color[3] };
+
+	if (tree) {
+		ImGui::SameLine();
+		ImGui::ColorEdit4("dest##lsysDestColor", dest_col, ImGuiColorEditFlags_NoInputs);
+	}
+
+	static float th = 2.f;
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10);
+	ImGui::SliderFloat("##changeLsysTh", &th, 1.f, 10.f, "th = %.1f");
+
+	ImGui::SameLine();
 	ImGui::Checkbox("tree?", &tree);
+	HelpPrevItem("Changing the thickness, color and length of lines");
+	
+	/**/
+	//adding ready L/systems
+
+	static std::vector<ready_l_system*> ready_l_systems{
+		
+		//Кривая Коха
+		new ready_l_system("Koch curve", 
+			"F", 
+			PI / 3.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "F-F++F-F")
+			},
+			""),
+
+		//Квадратный остров Коха
+		new ready_l_system("Koch island", 
+			"F+F+F+F", 
+			PI / 2.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "F+F-F-FF+F+F-F")
+			},
+			""),
+
+		//Ковёр Серпинского
+		new ready_l_system("Sierpinski carpet",
+			"FXF--FF--FF",
+			PI / 3.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "FF"),
+				std::make_pair('X', "--FXF++FXF++FXF--")
+			},
+			""),
+
+		//Наконечник Серпинского(треугольник)
+		new ready_l_system("Sierpinski triangle",
+			"YF",
+			PI / 3.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "F"),
+				std::make_pair('X', "YF+XF+Y"),
+				std::make_pair('Y', "XF-YF-X")
+			},
+			""),
+
+		//Кривая Гильберта
+		new ready_l_system("Hilbert curve",
+			"X",
+			PI / 2.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "F"),
+				std::make_pair('X', "-YF+XFX+FY-"),
+				std::make_pair('Y', "+XF-YFY-FX+")
+			},
+			""),
+
+		//Кривая дракона Хартера - Хейтуэя
+		new ready_l_system("Dragon curve",
+			"X",
+			PI / 2.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "F"),
+				std::make_pair('X', "X+YF+"),
+				std::make_pair('Y', "-FX-Y")
+			},
+			""),
+
+		//Шестиугольная кривая Госпера
+		new ready_l_system("Gosper curve",
+			"XF",
+			PI / 3.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "F"),
+				std::make_pair('X', "X+YF++YF-FX--FXFX-YF+"),
+				std::make_pair('Y', "-FX+YFYF++YF+FX--FX-Y")
+			},
+			""),
+
+		new ready_l_system("Tree 1",
+			"X",
+			PI / 3.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "FF"),
+				std::make_pair('X', "F[+X]F[-X]+X")
+			},
+			""),
+
+		new ready_l_system("Shrub 1",
+			"F",
+			PI / 90.f * 11.f, // 22
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "FF-[-F+F+F]+[+F-F-F]")
+			},
+			""),
+
+		new ready_l_system("Shrub 2",
+			"X",
+			PI / 9.f, // 20
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "FF"),
+				std::make_pair('X', "F[+X]F[-X]+X")
+			},
+			""),
+
+		new ready_l_system("Shrub 3",
+			"X",
+			PI / 8.f, // 22.5
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "FF"),
+				std::make_pair('X', "F-[[X]+X]+F[+FX]-X")
+			},
+			""),
+
+		//Шестиугольная мозаика
+		new ready_l_system("Hexagonal Mosaic",
+			"X",
+			PI / 3.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "F"),
+				std::make_pair('X', "[-F+F[Y]+F][+F-F[X]-F]"),
+				std::make_pair('Y', "[-F+F[Y]+F][+F-F-F]")
+			},
+			""),
+
+		new ready_l_system("\"Random\" tree",
+			"X",
+			PI / 4.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('X', "F[@[-X]+X]")
+			},
+			"F"),
+	};
+
+	static ready_l_system* selected = NULL;
+
+	if (ImGui::Button("Select.."))
+		ImGui::OpenPopup("select_popup_ready_lsys");
+	ImGui::SameLine();
+	ImGui::TextUnformatted(selected == NULL ? "<None>" : selected->name.c_str());
+	if (ImGui::BeginPopup("select_popup_ready_lsys"))
+	{
+		ImGui::Text("Ready L-systems");
+		ImGui::Separator();
+		for (size_t i = 0; i < ready_l_systems.size(); i++)
+			if (ImGui::Selectable(ready_l_systems[i]->name.c_str())) {
+				selected = ready_l_systems[i];
+				//axiom
+				strcpy(axiom, selected->axiom.c_str());
+				//forward atoms
+				strcpy(additional, selected->fwd_atoms.c_str());
+				//rules
+				rules.clear();
+				for (size_t r = 0; r < selected->rules.size(); r++) {
+					rules.push_back(std::pair<char, char*>(selected->rules[r].first, (char*)malloc(255 * sizeof(char))));
+					strcpy(rules.back().second, selected->rules[r].second.c_str());
+				}
+				//angle
+				angle = selected->angle;
+			}
+		ImGui::EndPopup();
+	}
+
+	/**/
 
 	static size_t state = 0;
 
@@ -443,7 +608,7 @@ static void ShowAddLsys(bool* p_open) {
 			angle, 
 			iters, 
 			GetColorFlV4(src_col),
-			thickness, 
+			th, 
 			GetColorFlV4(dest_col),
 			std::string(additional),
 			tree);
@@ -499,29 +664,6 @@ int main(void)
 
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
-
-	/*
-	std::vector<std::pair<char, std::string>> rules{
-		{'F', "F"},
-		{'X', "X+YF++YF-FX--FXFX-YF+"},
-		{'Y', "-FX+YFYF++YF+FX--FX-Y"} };
-	Lsystem fract("XF", rules, 3.14f / 3.f, 3);
-
-	std::vector<std::pair<char, std::string>> rules2{
-		{'A', "A-B--B+A++AA+B-"},
-		{'B', "+A-BB--B-A++A+B"} };
-
-	std::vector<std::pair<char, std::string>> rules3{
-		{'F', "F-F++F-F"} };
-
-	std::vector<std::pair<char, std::string>> rules4{
-		{'F', "F+F-F-FF+F+F-F"} };
-
-	fractals.push_back(new Lsystem("XF", rules, 3.14f / 3.f, 3));
-	fractals.push_back(new Lsystem("A", rules2, 3.14f / 3.f, 3));
-	fractals.push_back(new Lsystem("F++F++F", rules3, 3.14f / 3.f, 3));
-	fractals.push_back(new Lsystem("F", rules4, 3.14f / 2.f, 3));
-	*/
 
 	static bool p_open = true;
 	static bool p_lsys = false;
@@ -911,7 +1053,7 @@ int main(void)
 		}
 		ImGui::End();
 
-
+		//ImGui::ShowDemoWindow((bool*)1);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
