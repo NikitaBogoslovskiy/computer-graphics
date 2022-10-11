@@ -327,6 +327,9 @@ void ShowFractalTableRow(Lsystem* lsys, size_t idx)
 	{
 		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.7);
 		ImGui::SliderFloat("##changeLsysTh", &lsys->thickness(), 1.f, 10.f, "th = %.1f");
+
+		ImGui::Checkbox("alive?", &lsys->is_alive());
+
 		ImGui::TreePop();
 	}
 
@@ -1079,8 +1082,6 @@ int main(void)
 
 		}
 		ImGui::End();
-
-		ImGui::ShowDemoWindow((bool*)1);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

@@ -28,6 +28,8 @@ private:
 	bool _is_tree;
 	bool _show;
 
+	bool _is_alive;
+
 public:
 	Lsystem(const std::string& axiom, 
 		const std::vector<std::pair<char, std::string>>& rules, 
@@ -47,6 +49,7 @@ public:
 		_thickness = thickness;
 		_is_tree = is_tree;
 		_show = true;
+		_is_alive = false;
 		if (_is_legal = check_Lsystem(rules, additional)) {
 			calculate_fractal(GetColorV4U32(_src_color), _thickness);
 		}
@@ -61,6 +64,7 @@ public:
 	void draw(ImDrawList* draw_list, const ImVec2& offset);
 	inline bool& show() { return _show; }
 	inline const bool& is_tree() { return _is_tree; }
+	inline bool& is_alive() { return _is_alive; }
 	inline ImVec4& src_col() { return _src_color; }
 	inline ImVec4& dest_col() { return _dest_color; }
 	inline float& thickness() { return _thickness; }

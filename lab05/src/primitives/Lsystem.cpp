@@ -110,10 +110,17 @@ void Lsystem::calculate_edge(const float& curr_angle, const size_t& iter)
 	_prims.back()->push_back(_prims.back()->back() + (_is_tree ? ((_iters - iter + 1.f) / _iters * _line_length) : _line_length) * ImVec2(cosf(curr_angle), sinf(curr_angle)));
 }
 
+float max(const float& a, const float& b) {
+	return a > b ? a : b;
+}
+
 void Lsystem::draw(ImDrawList* draw_list, const ImVec2& offset)
 {
 	if (_show) {
 		if (_is_tree) {
+			if (_is_alive) {
+				_thickness = max(sinf(ImGui::GetTime()) * 7, 1.f);
+			}
 			ImVec4& src = _src_color;
 			ImVec4& dest = _dest_color;
 			for (size_t i = 0; i < _prims.size(); i++) {
