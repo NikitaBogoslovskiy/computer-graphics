@@ -268,14 +268,20 @@ float DegreesToRadians(const float& degrees) {
 	return degrees * (2 * acos(0.0) / 180);
 }
 
-std::tuple<int, ImVec2*> detect_point(const std::set<Primitive*>& primitives) {
+template<typename _Container, 
+	typename _Value = typename _Container::value_type,
+	typename = std::enable_if_t<std::is_convertible_v<_Value, Primitive*>>>
+std::tuple<int, ImVec2*> detect_point(const _Container& primitives) {
 	auto originIt = std::find_if(primitives.begin(), primitives.end(), [](const auto& prim) { return dynamic_cast<Point*>(prim) != NULL; });
 	if (originIt == primitives.end()) return std::make_tuple(0, nullptr);
 	return std::make_tuple(1, &(dynamic_cast<Point*>(*originIt)->at(0)));
 }
 
 //transforms chosen prims relatively to point
-int tr_chpr_rtp(const std::set<Primitive*>& primitives, std::function<void(Primitive*, ImVec2*)> lammy) {
+template<typename _Container,
+	typename _Value = typename _Container::value_type,
+	typename = std::enable_if_t<std::is_convertible_v<_Value, Primitive*>>>
+int tr_chpr_rtp(const _Container& primitives, std::function<void(Primitive*, ImVec2*)> lammy) {
 	if (primitives.size() == 0) throw std::invalid_argument("No primitives picked");
 	int pointsCount; ImVec2* origin;
 	std::tie(pointsCount, origin) = detect_point(primitives);
@@ -515,7 +521,7 @@ static void ShowAddLsys(bool* p_open) {
 
 		new ready_l_system("Tree 1",
 			"X",
-			PI / 3.f,
+			PI / 9.f,
 			std::deque<std::pair<char, std::string>>{
 				std::make_pair('F', "FF"),
 				std::make_pair('X', "F[+X]F[-X]+X")
@@ -724,7 +730,12 @@ int main(void)
 			if (ImGui::Button("rotate 90")) {
 				try {
 					auto lammy = [](Primitive* prim, ImVec2* origin) { prim->rotate(DegreesToRadians(90.f), origin); };
-					tr_chpr_rtp(chosen_prims, lammy);
+					if (chosen_prims.size() != 0) {
+						tr_chpr_rtp(chosen_prims, lammy);
+					}
+					for (auto lsys : chosen_lsys) {
+						lsys->rotate(DegreesToRadians(90.f), nullptr);
+					}
 					feedback = "";
 				}
 				catch (std::exception& e) {
@@ -741,7 +752,12 @@ int main(void)
 					if (sscanf(nstr, "%f", &angle) != 1) throw std::invalid_argument("Incorrect arguments format for rotate N");
 					feedback = "";
 					auto lammy = [&angle](Primitive* prim, ImVec2* origin) { prim->rotate(DegreesToRadians(angle), origin); };
-					tr_chpr_rtp(chosen_prims, lammy);
+					if (chosen_prims.size() != 0) {
+						tr_chpr_rtp(chosen_prims, lammy);
+					}
+					for (auto lsys : chosen_lsys) {
+						lsys->rotate(DegreesToRadians(angle), nullptr);
+					}
 				}
 				catch (std::exception& e) {
 					feedback = e.what();
@@ -757,7 +773,13 @@ int main(void)
 					if (sscanf(nstr, "%f%*c%f", &dx, &dy) != 2) throw std::invalid_argument("Incorrect arguments format for translate");
 					feedback = "";
 					auto d = ImVec2(-1 * dx, -1 * dy);
-					std::for_each(chosen_prims.begin(), chosen_prims.end(), [&dx, &dy, &d](Primitive* prim) { prim->translate(&d); });
+					auto lammy = [&dx, &dy, &d](Primitive* prim) { prim->translate(&d); };
+					
+					std::for_each(chosen_prims.begin(), chosen_prims.end(), lammy);
+
+					for (auto lsys : chosen_lsys) {
+						lsys->translate(&d);
+					}
 				}
 				catch (std::exception& e) {
 					feedback = e.what();
@@ -778,7 +800,12 @@ int main(void)
 						if (dynamic_cast<Point*>(prim) != NULL || dynamic_cast<Edge*>(prim) != NULL) return;
 						prim->scale(scaleX, scaleY, origin);
 					};
-					tr_chpr_rtp(chosen_prims, lammy);
+					if (chosen_prims.size() != 0) {
+						tr_chpr_rtp(chosen_prims, lammy);
+					}
+					for (auto lsys : chosen_lsys) {
+						lsys->scale(scaleX, scaleY, nullptr);
+					}
 				}
 				catch (std::exception& e) {
 					feedback = e.what();
@@ -1053,7 +1080,7 @@ int main(void)
 		}
 		ImGui::End();
 
-		//ImGui::ShowDemoWindow((bool*)1);
+		ImGui::ShowDemoWindow((bool*)1);
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

@@ -14,8 +14,8 @@ class Lsystem
 private:
 	std::string _axiom;
 	std::vector<std::pair<char, std::string>> _rules;
-	std::vector<Primitive*> _fractals;
-	std::vector<size_t> _fractals_iter_start;
+	std::vector<Primitive*> _prims;
+	std::vector<size_t> _prims_iter_start;
 	size_t _iters;
 	std::set<char> _fwds;
 	float _angle;
@@ -52,7 +52,7 @@ public:
 		}
 	}
 
-	inline std::vector<Primitive*> prims() { return _fractals; }
+	inline std::vector<Primitive*> prims() { return _prims; }
 	inline bool is_legal() { return _is_legal; }
 
 	void calculate_fractal(const ImU32& color, const float& thickness);
@@ -65,7 +65,12 @@ public:
 	inline ImVec4& dest_col() { return _dest_color; }
 	inline float& thickness() { return _thickness; }
 
+	void rotate(const float& angle, const ImVec2* origin);
+	void scale(const float& scaleCoeffX, const float& scaleCoeffY, const ImVec2* origin);
+	void translate(const ImVec2* d);
+	
 private:
 	bool check_Lsystem(const std::vector<std::pair<char, std::string>>& rules, const std::string& additional);
+	ImVec2 center();
 };
 #endif // !__LSYSTEM__
