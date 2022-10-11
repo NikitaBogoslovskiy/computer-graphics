@@ -1,5 +1,5 @@
 #ifndef _FUNCS_H_
-#define _FUNCS_H
+#define _FUNCS_H_
 
 #include "pch.h"
 

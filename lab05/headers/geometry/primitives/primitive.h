@@ -1,5 +1,5 @@
 #ifndef _PRIMITIVE_H_
-#define _PRIMITIVE_H
+#define _PRIMITIVE_H_
 
 #include "pch.h"
 
@@ -56,6 +56,7 @@ public:
 	inline ImVec2& back() { return points->Data[size() - 1]; }
 
 	inline void pop_back() { points->pop_back(); }
+	inline void pop(const ImVec2* it) { points->erase(it); }
 
 	//virtual void draw(ImDrawList*, const ImVec2&, bool connect_bounds = true);
 	virtual void draw(ImDrawList*, const ImVec2&);

@@ -1,6 +1,6 @@
 #pragma once
 #ifndef __LSYSTEM__
-#define __LSYSTEM
+#define __LSYSTEM__
 
 #include <string>
 #include <vector>

@@ -192,7 +192,9 @@ bool checkPointAndPolygonConditions(std::set<Primitive*>& primitives, std::strin
 	return true;
 }
 
+std::vector<Primitive*> primitives;
 std::set<Primitive*> chosen_prims = std::set<Primitive*>();
+std::vector<Lsystem*> fractals = std::vector<Lsystem*>();
 
 ImVector<ImVec2*> intersections;
 
@@ -231,11 +233,29 @@ void ShowPrimitiveTableRow(Primitive* prim, size_t idx)
 			ImGui::PushID(&(prim->operator[](i)));
 
 			ImGui::TableNextRow();
+			
 			ImGui::TableSetColumnIndex(0);
+			
+
 			ImGui::AlignTextToFramePadding();
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
 			ImGui::Text("Point %d", i);
-
+			
+			ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
+			if (ImGui::BeginPopup("context")) {
+				
+				if (ImGui::MenuItem("Remove", NULL, false, true)) {
+					if (prim->size() > 1) {
+						prim->pop(&prim->at(i));
+					}
+					else {
+						chosen_prims.erase(prim);
+						primitives.erase(primitives.begin() + idx);
+					}
+				}
+				ImGui::EndPopup();
+			}
+			
 			ImGui::TableSetColumnIndex(1);
 			//ImGui::SliderFloat("x", &(prim->operator[](i).x), 0.f, 1000.f, ".1f", 0.5f);
 			ImGui::InputFloat("x", &(prim->operator[](i).x));
@@ -336,8 +356,6 @@ int main(void)
 {
 	GLFWwindow* window;
 	CurrentState state;
-	std::vector<Primitive*> primitives;
-	std::vector<Lsystem*> fractals = std::vector<Lsystem*>();
 	ImVec2 canvas_sz;
 	std::string feedback;
 	ImVec4 feedback_color;
