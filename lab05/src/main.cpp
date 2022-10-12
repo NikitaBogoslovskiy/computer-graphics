@@ -10,10 +10,13 @@
 #include <math.h>
 #include "../headers/main.h"
 #include "../headers/geometry.h"
+
+#include <time.h>  
+
 #include <deque>
 #include <tuple>
-
 #include <iostream>
+#include <unordered_set>
 
 #define PI 3.14159265359f
 
@@ -114,6 +117,72 @@ void pointPositionWithPolygon(Point& point, Primitive& polygon, bool& isInside, 
 		}
 	}
 	isInside = (result.Size - correction) % 2 == 1;
+}
+
+Primitive midpointDisplacement(Primitive& displacement, Point* p1, Point* p2, int R, int I, int iter_num)
+{
+	auto color = p1->color();
+	float thikness = 1;
+	Primitive result(color, thikness);
+	std::vector<ImVec2> points1;
+	if (displacement.size() == 0)
+	{
+		points1.push_back(p1->at(0));
+		points1.push_back(p2->at(0));
+		if (iter_num == 1)
+		{
+			result.push_back(points1[0]);
+			result.push_back(points1[1]);
+			return result;
+		}
+		--iter_num;
+	}
+	else
+	{
+		for (size_t i = 0; i < displacement.size(); ++i)
+			points1.push_back(displacement[i]);
+	}
+
+	std::vector<ImVec2> points2;
+	std::vector<ImVec2>::iterator start_it = points1.begin(), end_it = points1.end();
+	std::vector<ImVec2>* current_vec = &points2;
+	srand(time(NULL));
+	for (size_t i = 0; i < iter_num; ++i)
+	{
+		auto it = start_it;
+		while(it != end_it - 1)
+		{
+			auto next = it + 1;
+			float x = (it->x + next->x) / 2;
+			float y = (it->y + next->y) / 2 + (R == 0 || I == 0 ? 0 : rand() % (2 * R * I) - R * I);
+			current_vec->push_back(*it);
+			current_vec->push_back(ImVec2(x, y));
+			it = next;
+		}
+		current_vec->push_back(*it);
+		
+		start_it = current_vec->begin();
+		end_it = current_vec->end();
+		if (i % 2 == 0)
+		{
+			points1.clear();
+			current_vec = &points1;
+		}
+		else
+		{
+			points2.clear();
+			current_vec = &points2;
+		}
+	}
+
+	for (auto it = start_it; it != end_it; ++it)
+		result.push_back(*it);
+
+	return result;
+}
+
+ImU32 GetCurrentColor(const float* curr_color) {
+	return (IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
 }
 
 char pseudo_console[] = "Command arguments go here...";
@@ -653,6 +722,8 @@ int main(void)
 	std::string feedback;
 	ImVec4 feedback_color;
 	float canvas_width;
+	Primitive&& prev_displacement = std::move(Primitive(ImU32(1), 1));
+	Primitive curr_displacement = Primitive(ImU32(1), 1);
 	/* Initialize the library */
 	if (!glfwInit())
 		return -1;
@@ -730,7 +801,7 @@ int main(void)
 				ImGui::EndTable();
 			}
 
-			if (ImGui::Button("rotate 90")) {
+			if (ImGui::Button("Rotate 90")) {
 				try {
 					auto lammy = [](Primitive* prim, ImVec2* origin) { prim->rotate(DegreesToRadians(90.f), origin); };
 					if (chosen_prims.size() != 0) {
@@ -749,7 +820,7 @@ int main(void)
 
 			ImGui::SameLine();
 
-			if (ImGui::Button("rotate N")) {
+			if (ImGui::Button("Rotate N")) {
 				try {
 					char* nstr = pseudo_console; float angle;
 					if (sscanf(nstr, "%f", &angle) != 1) throw std::invalid_argument("Incorrect arguments format for rotate N");
@@ -770,7 +841,7 @@ int main(void)
 
 			ImGui::SameLine();
 
-			if (ImGui::Button("translate")) {
+			if (ImGui::Button("Translate")) {
 				try {
 					char* nstr = pseudo_console; float dx, dy;
 					if (sscanf(nstr, "%f%*c%f", &dx, &dy) != 2) throw std::invalid_argument("Incorrect arguments format for translate");
@@ -792,7 +863,7 @@ int main(void)
 
 			ImGui::SameLine();
 
-			if (ImGui::Button("scale")) {
+			if (ImGui::Button("Scale")) {
 				try {
 					char* nstr = pseudo_console; float scaleX, scaleY;
 					if (sscanf(nstr, "%f%*c%f", &scaleX, &scaleY) != 2) throw std::invalid_argument("Incorrect arguments format for scale");
@@ -817,6 +888,47 @@ int main(void)
 			}
 
 			ImGui::SameLine();
+
+			if (ImGui::Button("Displace")) {
+				try {
+					if (chosen_prims.size() != 2)
+						throw std::invalid_argument("You should choose 2 points");
+					std::vector<Point*> points;
+					for (auto it = chosen_prims.begin(); it != chosen_prims.end(); ++it)
+					{
+						auto prim = dynamic_cast<Point*>(*it);
+						if (prim == nullptr)
+							throw std::invalid_argument("You should choose 2 points");
+						points.push_back(prim);
+					}
+
+					char* nstr = pseudo_console; 
+					int R, I, iter_num;
+					if (sscanf(nstr, "R=%d I=%d iters=%d", &R, &I, &iter_num) != 3) 
+						throw std::invalid_argument("Incorrect arguments format for displace");
+					if (R < 0 || I < 0) 
+						throw std::invalid_argument("R and I cannot be negative");
+					if (iter_num < 1)
+						throw std::invalid_argument("Iterations number must be positive");
+					feedback = "";
+
+					curr_displacement = midpointDisplacement(prev_displacement, points[0], points[1], R, I, iter_num);
+					if (prev_displacement.size() != 0)
+					{
+						auto it = std::find(primitives.begin(), primitives.end(), &prev_displacement);
+						if (it != primitives.end())
+							primitives.erase(it);
+					}
+					prev_displacement = std::move(curr_displacement);
+					prev_displacement.set_connect_bounds(2);
+					primitives.push_back(&prev_displacement);
+				}
+				catch (std::exception& e) {
+					feedback = e.what();
+					feedback_color = ImVec4(255, 0, 0, 255);
+				}
+
+      ImGui::SameLine();
 
 			if (ImGui::Button("add L-system")) {
 				p_lsys = true;
@@ -896,11 +1008,14 @@ int main(void)
 					ShowPrimitiveTableRow(primitives[i], i);
 					//ImGui::Separator();
 				}
+
+				/*
 				for (size_t i = 0; i < fractals.size(); i++)
 				{
 					ShowFractalTableRow(fractals[i], i);
 					//ImGui::Separator();
 				}
+				*/
 				ImGui::EndTable();
 			}
 			ImGui::PopStyleVar();
@@ -1015,6 +1130,11 @@ int main(void)
 					if (ImGui::BeginPopup("context")) {
 						if (ImGui::MenuItem("Remove last prim", NULL, false, primitives.size() > 0)) {
 							chosen_prims.erase(primitives.back());
+							if (primitives.back() == &prev_displacement)
+							{
+								prev_displacement = std::move(Primitive(ImU32(1), 1));
+								curr_displacement = Primitive(ImU32(1), 1);
+							}
 							primitives.pop_back();
 						}
 						if (ImGui::MenuItem("Remove last fractal", NULL, false, fractals.size() > 0)) {
@@ -1025,7 +1145,11 @@ int main(void)
 							primitives.clear();
 							fractals.clear();
 							chosen_prims.clear();
-							chosen_lsys.clear();
+              chosen_lsys.clear();
+
+							prev_displacement = std::move(Primitive(ImU32(1), 1));
+							curr_displacement = Primitive(ImU32(1), 1);
+
 						}
 						ImGui::EndPopup();
 					}
@@ -1046,10 +1170,12 @@ int main(void)
 				for (size_t i = 0; i < primitives.size(); i++) {
 					primitives[i]->draw(draw_list, origin);
 				}
-
+				
+				/*
 				for (size_t i = 0; i < fractals.size(); i++) {
 					fractals[i]->draw(draw_list, origin);
 				}
+				*/
 
 				if (new_prim) {
 					new_prim->draw_previe(draw_list, origin);

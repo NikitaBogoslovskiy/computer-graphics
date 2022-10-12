@@ -10,12 +10,14 @@ class Primitive
 	ImU32 _color;
 	float _thickness;
 	bool _show;
+	int _connect_bounds;
 public:
 	Primitive(const ImU32& color, const float& thickness) {
 		points = new ImVector<ImVec2>();
 		_color = color;
 		_thickness = thickness;
 		_show = true;
+		_connect_bounds = 0;
 	}
 
 	Primitive(ImVector<ImVec2>* points, const ImU32& color, const float& thickness) {
@@ -23,6 +25,7 @@ public:
 		_color = color;
 		_thickness = thickness;
 		_show = true;
+		_connect_bounds = 0;
 	}
 
 	inline size_t size() const { return points->size(); }
@@ -45,6 +48,10 @@ public:
 
 	inline bool& show() {
 		return _show;
+	}
+
+	inline void set_connect_bounds(int value) {
+		_connect_bounds = value;
 	}
 
 	inline void push_back(const ImVec2& p1) {
