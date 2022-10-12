@@ -9,6 +9,7 @@ void MyPolyline(ImDrawList* draw_list, const ImVec2* points, const size_t& point
 	}
 }
 
+
 void MyPolyline(ImDrawList* draw_list, const ImVec2* points, const size_t& points_count, const ImVec2& offset, const ImVec4& from_col, const ImVec4& col_offset, const float& from_th, const float& th_offset) {
 	for (size_t i = 0; i < points_count - 1; i++) {
 		draw_list->AddLine(points[i] + offset, points[i + 1] + offset, GetColorV4U32(from_col + i * col_offset), from_th + i * th_offset);
@@ -20,10 +21,17 @@ void Primitive::draw(ImDrawList* draw_list, const ImVec2& offset)
 	if (_connect_bounds != 0)
 		connect_bounds = _connect_bounds == 1 ? true : false;
 	if (show()) {
+		if (size() == 1) {
+			draw_list->AddCircleFilled(this->operator[](0) + offset, thickness(), color(), 10);
+			return;
+		}
 		MyPolyline(draw_list, this->points->Data, size(), color(), thickness(), offset);
 		if (size() > 2) {
 			draw_list->AddLine(front() + offset, back() + offset, color(), thickness());
 		}
+		//if (connect_bounds && size() > 2) {
+		//	draw_list->AddLine(front() + offset, back() + offset, color(), thickness());
+		//}
 	}
 }
 
@@ -44,6 +52,10 @@ void Primitive::draw_polyline(ImDrawList* draw_list, const ImVec2& offset, const
 void Primitive::draw_previe(ImDrawList* draw_list, const ImVec2& offset)
 {
 	if (show()) {
+		if (size() == 1) {
+			draw_list->AddCircleFilled(this->operator[](0) + offset, thickness(), color(), 10);
+			return;
+		}
 		MyPolyline(draw_list, this->points->Data, size(), color(), thickness(), offset);
 		if (size() > 3) {
 			draw_list->AddLine(front() + offset, (*this)[size() - 2] + offset, IM_COL32((uint8_t)(ImGui::GetTime() * 60), (uint8_t)(ImGui::GetTime() * 40), (uint8_t)(ImGui::GetTime() * 20), 255), thickness());

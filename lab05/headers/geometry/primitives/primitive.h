@@ -6,7 +6,9 @@
 
 class Primitive
 {
+protected:
 	ImVector<ImVec2>* points;
+public:
 	ImU32 _color;
 	float _thickness;
 	bool _show;
@@ -62,10 +64,12 @@ public:
 	inline ImVec2& back() { return points->Data[size() - 1]; }
 
 	inline void pop_back() { points->pop_back(); }
+	inline void pop(const ImVec2* it) { points->erase(it); }
 
 	virtual void draw(ImDrawList*, const ImVec2&);
 	virtual void draw_polyline(ImDrawList*, const ImVec2&);
 	virtual void draw_polyline(ImDrawList*, const ImVec2&, const ImVec4& from_col, const ImVec4& col_offset, const float& from_th, const float& th_offset);
+
 	virtual void draw_previe(ImDrawList*, const ImVec2&);
 
 	ImVec2 center() {

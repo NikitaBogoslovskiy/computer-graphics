@@ -272,7 +272,9 @@ bool checkPointAndPolygonConditions(std::set<Primitive*>& primitives, std::strin
 	return true;
 }
 
+std::vector<Primitive*> primitives;
 std::set<Primitive*> chosen_prims = std::set<Primitive*>();
+std::vector<Lsystem*> fractals = std::vector<Lsystem*>();
 std::set<Lsystem*> chosen_lsys;
 
 ImVector<ImVec2*> intersections;
@@ -312,11 +314,29 @@ void ShowPrimitiveTableRow(Primitive* prim, size_t idx)
 			ImGui::PushID(&(prim->operator[](i)));
 
 			ImGui::TableNextRow();
+			
 			ImGui::TableSetColumnIndex(0);
+			
+
 			ImGui::AlignTextToFramePadding();
 			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
 			ImGui::Text("Point %d", i);
-
+			
+			ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
+			if (ImGui::BeginPopup("context")) {
+				
+				if (ImGui::MenuItem("Remove", NULL, false, true)) {
+					if (prim->size() > 1) {
+						prim->pop(&prim->at(i));
+					}
+					else {
+						chosen_prims.erase(prim);
+						primitives.erase(primitives.begin() + idx);
+					}
+				}
+				ImGui::EndPopup();
+			}
+			
 			ImGui::TableSetColumnIndex(1);
 			//ImGui::SliderFloat("x", &(prim->operator[](i).x), 0.f, 1000.f, ".1f", 0.5f);
 			ImGui::InputFloat("x", &(prim->operator[](i).x));
@@ -717,7 +737,7 @@ int main(void)
 
 	GLFWwindow* window;
 	CurrentState state;
-	std::vector<Primitive*> primitives;
+
 	ImVec2 canvas_sz;
 	std::string feedback;
 	ImVec4 feedback_color;
@@ -729,7 +749,7 @@ int main(void)
 		return -1;
 
 	/* Create a windowed mode window and its OpenGL context */
-	window = glfwCreateWindow(640, 480, "Affine transformations", NULL, NULL);
+	window = glfwCreateWindow(640, 480, "CringeCAD", NULL, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -745,8 +765,11 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
+	bool p_open = true;
+
 	static bool p_open = true;
 	static bool p_lsys = false;
+
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -779,7 +802,7 @@ int main(void)
 
 		static int chosenMode = 0;
 
-		if (ImGui::Begin("Affine transformaitons", &p_open, flags))
+		if (ImGui::Begin("CringeCAD", &p_open, flags))
 		{
 			if (ImGui::BeginTable("mode & thickness & color", 3)) {
 				ImGui::TableNextRow();
@@ -1110,6 +1133,35 @@ int main(void)
 						new_prim = NULL;
 					}
 					break;
+				case Mode::BezierCurve:
+					if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					{
+						new_prim = new BezierCurve(GetCurrentColor(curr_color), thickness);
+						new_prim->push_back(mouse_pos_in_canvas);
+						new_prim->push_back(mouse_pos_in_canvas);
+						adding_line = FirstClick;
+					}
+					if (adding_line == FirstClick) {
+						if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+							adding_line = ReleasedState;
+						}
+					}
+					if (adding_line == ReleasedState)
+					{
+						(*new_prim).back() = mouse_pos_in_canvas;
+						if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+						{
+							adding_line = FirstClick;
+							new_prim->push_back(mouse_pos_in_canvas);
+						}
+					}
+					if (adding_line != None && ImGui::IsKeyPressed(ImGuiKey_Enter)) {
+						adding_line = None;
+						new_prim->pop_back();
+						primitives.push_back(new_prim);
+						new_prim = NULL;
+					}
+					break;
 				default:
 					break;
 				}
@@ -1171,11 +1223,9 @@ int main(void)
 					primitives[i]->draw(draw_list, origin);
 				}
 				
-				/*
 				for (size_t i = 0; i < fractals.size(); i++) {
 					fractals[i]->draw(draw_list, origin);
 				}
-				*/
 
 				if (new_prim) {
 					new_prim->draw_previe(draw_list, origin);

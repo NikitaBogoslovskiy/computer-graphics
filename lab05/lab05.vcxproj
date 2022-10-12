@@ -161,6 +161,7 @@
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\primitives\bezier_curve.cpp" />
     <ClCompile Include="src\primitives\checks.cpp" />
     <ClCompile Include="src\primitives\edge.cpp" />
     <ClCompile Include="src\primitives\Lsystem.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="headers\geometry\checks.h" />
     <ClInclude Include="headers\geometry\funcs.h" />
     <ClInclude Include="headers\geometry\primitives.h" />
+    <ClInclude Include="headers\geometry\primitives\bezier_curve.h" />
     <ClInclude Include="headers\geometry\primitives\edge.h" />
     <ClInclude Include="headers\geometry\primitives\Lsystem.h" />
     <ClInclude Include="headers\geometry\primitives\point.h" />

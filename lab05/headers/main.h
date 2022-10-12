@@ -10,6 +10,7 @@ enum class Mode {
 	Point,
 	Edge,
 	Polygon,
+	BezierCurve,
 	//ConvexPolygon,
 	//NonConvexPolygon,
 	None
@@ -21,8 +22,8 @@ struct CurrentState {
 	std::string answer = "";
 };
 
-const unsigned char modesSize = 3;
-const char* modesList[modesSize]{ "Point", "Edge", "Polygon" }; //, "Convex Polygon", "Non-convex Polygon" };
+const unsigned char modesSize = 4;
+const char* modesList[modesSize]{ "Point", "Edge", "Polygon", "Bezier Curve"  }; //, "Convex Polygon", "Non-convex Polygon" };
 
 const unsigned char classificationTypeSize = 3;
 const char* classificationType[classificationTypeSize]{ "Point and Edge", "Point and Convex Polygon", "Point and Non-convex Polygon" };
