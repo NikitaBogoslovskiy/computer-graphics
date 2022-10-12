@@ -10,12 +10,28 @@
 #include <math.h>
 #include "../headers/main.h"
 #include "../headers/geometry.h"
+#include <deque>
+#include <tuple>
 
 #include <iostream>
+
+#define PI 3.14159265359f
 
 static void HelpMarker(const char* desc)
 {
 	ImGui::TextDisabled("(?)");
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::BeginTooltip();
+		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+		ImGui::TextUnformatted(desc);
+		ImGui::PopTextWrapPos();
+		ImGui::EndTooltip();
+	}
+}
+
+static void HelpPrevItem(const char* desc)
+{
 	if (ImGui::IsItemHovered())
 	{
 		ImGui::BeginTooltip();
@@ -99,11 +115,6 @@ void pointPositionWithPolygon(Point& point, Primitive& polygon, bool& isInside, 
 	}
 	isInside = (result.Size - correction) % 2 == 1;
 }
-
-ImU32 GetCurrentColor(const float* curr_color) {
-	return (IM_COL32((int)(curr_color[0] * 255), (int)(curr_color[1] * 255), (int)(curr_color[2] * 255), (int)(curr_color[3] * 255)));
-}
-
 
 char pseudo_console[] = "Command arguments go here...";
 //char* pseudo_console = "";
@@ -193,6 +204,7 @@ bool checkPointAndPolygonConditions(std::set<Primitive*>& primitives, std::strin
 }
 
 std::set<Primitive*> chosen_prims = std::set<Primitive*>();
+std::set<Lsystem*> chosen_lsys;
 
 ImVector<ImVec2*> intersections;
 
@@ -256,14 +268,20 @@ float DegreesToRadians(const float& degrees) {
 	return degrees * (2 * acos(0.0) / 180);
 }
 
-std::tuple<int, ImVec2*> detect_point(const std::set<Primitive*>& primitives) {
+template<typename _Container, 
+	typename _Value = typename _Container::value_type,
+	typename = std::enable_if_t<std::is_convertible_v<_Value, Primitive*>>>
+std::tuple<int, ImVec2*> detect_point(const _Container& primitives) {
 	auto originIt = std::find_if(primitives.begin(), primitives.end(), [](const auto& prim) { return dynamic_cast<Point*>(prim) != NULL; });
 	if (originIt == primitives.end()) return std::make_tuple(0, nullptr);
 	return std::make_tuple(1, &(dynamic_cast<Point*>(*originIt)->at(0)));
 }
 
 //transforms chosen prims relatively to point
-int tr_chpr_rtp(const std::set<Primitive*>& primitives, std::function<void(Primitive*, ImVec2*)> lammy) {
+template<typename _Container,
+	typename _Value = typename _Container::value_type,
+	typename = std::enable_if_t<std::is_convertible_v<_Value, Primitive*>>>
+int tr_chpr_rtp(const _Container& primitives, std::function<void(Primitive*, ImVec2*)> lammy) {
 	if (primitives.size() == 0) throw std::invalid_argument("No primitives picked");
 	int pointsCount; ImVec2* origin;
 	std::tie(pointsCount, origin) = detect_point(primitives);
@@ -276,55 +294,41 @@ int tr_chpr_rtp(const std::set<Primitive*>& primitives, std::function<void(Primi
 	return 0;
 }
 
-void ShowFractalTableRow(Primitive* prim, size_t idx)
+void ShowFractalTableRow(Lsystem* lsys, size_t idx)
 {
-	ImGui::PushID(prim);
+	ImGui::PushID(lsys);
 
 	ImGui::TableNextRow();
 	ImGui::TableSetColumnIndex(0);
 	ImGui::AlignTextToFramePadding();
-	bool node_open = ImGui::TreeNode("Fractal", "frac%d", idx);
+	bool node_open = ImGui::TreeNode("Lsystem", "lsys%d", idx);
 	ImGui::TableSetColumnIndex(1);
 
-	if (chosen_prims.find(prim) != chosen_prims.end()) {
-		ImGui::TextColored(ImVec4(255, 0, 0, 255), "%d-gon figure", prim->size());
+	if (chosen_lsys.find(lsys) != chosen_lsys.end()) {
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), lsys->is_tree() ? "tree" : "frac");
 	}
 	else {
-		ImGui::Text("%d-gon figure", prim->size());
+		ImGui::Text(lsys->is_tree() ? "tree" : "frac");
 	}
 
 	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
-		if (chosen_prims.find(prim) == chosen_prims.end()) {
-			chosen_prims.insert(prim);
+		if (chosen_lsys.find(lsys) == chosen_lsys.end()) {
+			chosen_lsys.insert(lsys);
 		}
 		else {
-			chosen_prims.erase(prim);
+			chosen_lsys.erase(lsys);
 		}
 	}
 
 	ImGui::SameLine();
-	ImGui::Checkbox(" ", &prim->show());
+	ImGui::Checkbox(" ", &lsys->show());
 
 	if (node_open)
 	{
-		for (size_t i = 0; i < prim->size(); i++) {
-			ImGui::PushID(&(prim->operator[](i)));
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x * 0.7);
+		ImGui::SliderFloat("##changeLsysTh", &lsys->thickness(), 1.f, 10.f, "th = %.1f");
 
-			ImGui::TableNextRow();
-			ImGui::TableSetColumnIndex(0);
-			ImGui::AlignTextToFramePadding();
-			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
-			ImGui::Text("Point %d", i);
-
-			ImGui::TableSetColumnIndex(1);
-			//ImGui::SliderFloat("x", &(prim->operator[](i).x), 0.f, 1000.f, ".1f", 0.5f);
-			ImGui::InputFloat("x", &(prim->operator[](i).x));
-			//ImGui::SameLine();
-			//ImGui::SliderFloat("y", &(prim->operator[](i).y), 0.f, 1000.f, ".1f", 0.5f);
-			ImGui::InputFloat("y", &(prim->operator[](i).y));
-
-			ImGui::PopID();
-		}
+		ImGui::Checkbox("alive?", &lsys->is_alive());
 
 		ImGui::TreePop();
 	}
@@ -332,12 +336,319 @@ void ShowFractalTableRow(Primitive* prim, size_t idx)
 	ImGui::PopID();
 }
 
+std::vector<Lsystem*> fractals;
+
+static float thickness = 1.0f;
+static float curr_color[4] = { 1.f, 1.f, 0.f, 1.f };
+
+static void ShowAddLsys(bool* p_open) {
+	ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
+	ImGuiWindowFlags flags = 0;
+	if (!ImGui::Begin("lsys", p_open, flags))
+	{
+		ImGui::End();
+		return;
+	}
+
+	HelpMarker(
+		"An example:\n"
+		"Axiom: 'A'\n"
+		"rule1: 'A', 'A-B--B+A++AA+B-'\n"
+		"rule2: 'B', '+A-BB--B-A++A+B'");
+
+	static char axiom[255] = "\0";
+	static std::deque<std::pair<char, char*>> rules;
+	if (rules.size() == 0) {
+		char term;
+		char* rule = (char*)malloc(sizeof(char) * 255);
+		rule[0] = (term = '\0');
+		rules.push_back(std::pair<char, char*>(term, rule));
+	}
+
+	struct TextFilters
+	{
+		static int FilterLetters(ImGuiInputTextCallbackData* data)
+		{
+			if (data->EventChar < 256 && strchr("ABCDEFGHIJKLMNOPQRSTUVWXYZ", (char)data->EventChar))
+				return 0;
+			return 1;
+		}
+
+		static int FilterLsys(ImGuiInputTextCallbackData* data)
+		{
+			if (data->EventChar < 256 && strchr("ABCDEFGHIJKLMNOPQRSTUVWXYZ+-[]@", (char)data->EventChar))
+				return 0;
+			return 1;
+		}
+	};
+
+	ImGuiInputTextFlags flags2 = ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CallbackCharFilter;
+
+
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 15);
+	ImGui::InputText("Axiom", axiom, 254, flags2, TextFilters::FilterLsys);
+	
+
+	for (size_t i = 0; i < rules.size(); i++) {
+		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 1);
+		char buf1[32];
+		sprintf(buf1, "##lsysterm%d", i+1);
+		ImGui::InputText(buf1, &rules[i].first, 2, flags2, TextFilters::FilterLetters);
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 13);
+		char buf2[32];
+		sprintf(buf2, "rule%d##lsysrule%d", i+1, i+1);
+		ImGui::InputText(buf2, rules[i].second, 255, flags2, TextFilters::FilterLsys);
+	}
+
+	if (rules.back().first != '\0' && rules.back().second[0] != '\0') {
+		char term;
+		char* rule = (char*)malloc(sizeof(char) * 255);
+		rule[0] = (term = '\0');
+		rules.push_back(std::pair<char, char*>(term, rule));
+	}
+
+	static char additional[30] = {'\0'};
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10);
+	ImGui::InputText("forward atoms", additional, 30, flags2, TextFilters::FilterLetters);
+	HelpPrevItem("Used to draw a line immediately");
+
+	ImGui::Separator();
+
+	static float angle = PI / 3.f; // 60 deg
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5);
+	ImGui::SliderAngle("##lsysangle", &angle, 0.f);
+
+	ImGui::SameLine();
+
+	static int iters = 3;
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 5);
+	ImGui::SliderInt("##lsysiters", &iters, 2, 5, "%d iters");
+
+	ImGui::SameLine();
+	static float src_col[4] = { curr_color[0], curr_color[1], curr_color[2], curr_color[3] };
+	ImGui::ColorEdit4("src##lsysSrcColor", src_col, ImGuiColorEditFlags_NoInputs);
+
+	static bool tree = false;
+	static float dest_col[4] = { curr_color[0], curr_color[1], curr_color[2], curr_color[3] };
+
+	if (tree) {
+		ImGui::SameLine();
+		ImGui::ColorEdit4("dest##lsysDestColor", dest_col, ImGuiColorEditFlags_NoInputs);
+	}
+
+	static float th = 2.f;
+	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10);
+	ImGui::SliderFloat("##changeLsysTh", &th, 1.f, 10.f, "th = %.1f");
+
+	ImGui::SameLine();
+	ImGui::Checkbox("tree?", &tree);
+	HelpPrevItem("Changing the thickness, color and length of lines");
+	
+	/**/
+	//adding ready L/systems
+
+	static std::vector<ready_l_system*> ready_l_systems{
+		
+		//Кривая Коха
+		new ready_l_system("Koch curve", 
+			"F", 
+			PI / 3.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "F-F++F-F")
+			},
+			""),
+
+		//Квадратный остров Коха
+		new ready_l_system("Koch island", 
+			"F+F+F+F", 
+			PI / 2.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "F+F-F-FF+F+F-F")
+			},
+			""),
+
+		//Ковёр Серпинского
+		new ready_l_system("Sierpinski carpet",
+			"FXF--FF--FF",
+			PI / 3.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "FF"),
+				std::make_pair('X', "--FXF++FXF++FXF--")
+			},
+			""),
+
+		//Наконечник Серпинского(треугольник)
+		new ready_l_system("Sierpinski triangle",
+			"YF",
+			PI / 3.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "F"),
+				std::make_pair('X', "YF+XF+Y"),
+				std::make_pair('Y', "XF-YF-X")
+			},
+			""),
+
+		//Кривая Гильберта
+		new ready_l_system("Hilbert curve",
+			"X",
+			PI / 2.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "F"),
+				std::make_pair('X', "-YF+XFX+FY-"),
+				std::make_pair('Y', "+XF-YFY-FX+")
+			},
+			""),
+
+		//Кривая дракона Хартера - Хейтуэя
+		new ready_l_system("Dragon curve",
+			"X",
+			PI / 2.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "F"),
+				std::make_pair('X', "X+YF+"),
+				std::make_pair('Y', "-FX-Y")
+			},
+			""),
+
+		//Шестиугольная кривая Госпера
+		new ready_l_system("Gosper curve",
+			"XF",
+			PI / 3.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "F"),
+				std::make_pair('X', "X+YF++YF-FX--FXFX-YF+"),
+				std::make_pair('Y', "-FX+YFYF++YF+FX--FX-Y")
+			},
+			""),
+
+		new ready_l_system("Tree 1",
+			"X",
+			PI / 9.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "FF"),
+				std::make_pair('X', "F[+X]F[-X]+X")
+			},
+			""),
+
+		new ready_l_system("Shrub 1",
+			"F",
+			PI / 90.f * 11.f, // 22
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "FF-[-F+F+F]+[+F-F-F]")
+			},
+			""),
+
+		new ready_l_system("Shrub 2",
+			"X",
+			PI / 9.f, // 20
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "FF"),
+				std::make_pair('X', "F[+X]F[-X]+X")
+			},
+			""),
+
+		new ready_l_system("Shrub 3",
+			"X",
+			PI / 8.f, // 22.5
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "FF"),
+				std::make_pair('X', "F-[[X]+X]+F[+FX]-X")
+			},
+			""),
+
+		//Шестиугольная мозаика
+		new ready_l_system("Hexagonal Mosaic",
+			"X",
+			PI / 3.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('F', "F"),
+				std::make_pair('X', "[-F+F[Y]+F][+F-F[X]-F]"),
+				std::make_pair('Y', "[-F+F[Y]+F][+F-F-F]")
+			},
+			""),
+
+		new ready_l_system("\"Random\" tree",
+			"X",
+			PI / 4.f,
+			std::deque<std::pair<char, std::string>>{
+				std::make_pair('X', "F[@[-X]+X]")
+			},
+			"F"),
+	};
+
+	static ready_l_system* selected = NULL;
+
+	if (ImGui::Button("Select.."))
+		ImGui::OpenPopup("select_popup_ready_lsys");
+	ImGui::SameLine();
+	ImGui::TextUnformatted(selected == NULL ? "<None>" : selected->name.c_str());
+	if (ImGui::BeginPopup("select_popup_ready_lsys"))
+	{
+		ImGui::Text("Ready L-systems");
+		ImGui::Separator();
+		for (size_t i = 0; i < ready_l_systems.size(); i++)
+			if (ImGui::Selectable(ready_l_systems[i]->name.c_str())) {
+				selected = ready_l_systems[i];
+				//axiom
+				strcpy(axiom, selected->axiom.c_str());
+				//forward atoms
+				strcpy(additional, selected->fwd_atoms.c_str());
+				//rules
+				rules.clear();
+				for (size_t r = 0; r < selected->rules.size(); r++) {
+					rules.push_back(std::pair<char, char*>(selected->rules[r].first, (char*)malloc(255 * sizeof(char))));
+					strcpy(rules.back().second, selected->rules[r].second.c_str());
+				}
+				//angle
+				angle = selected->angle;
+			}
+		ImGui::EndPopup();
+	}
+
+	/**/
+
+	static size_t state = 0;
+
+	if (ImGui::Button("Add##lsysaddingconfirm")) {
+		auto t = new Lsystem(
+			std::string(axiom), 
+			std::vector<std::pair<char, std::string>>(rules.begin(), rules.end()), 
+			angle, 
+			iters, 
+			GetColorFlV4(src_col),
+			th, 
+			GetColorFlV4(dest_col),
+			std::string(additional),
+			tree);
+		if (t->is_legal()) {
+			state = 1;
+			fractals.push_back(t);
+		}
+		else {
+			state = 2;
+		}
+	}
+
+	ImGui::SameLine();
+	if (state == 1) {
+		ImGui::TextColored(ImVec4(0, 255, 0, 255), "Added");
+	}
+	if (state == 2) {
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), "Wrong format");
+	}
+
+	ImGui::End();
+}
+
 int main(void)
 {
+	srand(time(NULL));
+
+
 	GLFWwindow* window;
 	CurrentState state;
 	std::vector<Primitive*> primitives;
-	std::vector<Lsystem*> fractals = std::vector<Lsystem*>();
 	ImVec2 canvas_sz;
 	std::string feedback;
 	ImVec4 feedback_color;
@@ -363,28 +674,8 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
-	std::vector<std::pair<char, std::string>> rules{
-		{'F', "F"},
-		{'X', "X+YF++YF-FX--FXFX-YF+"},
-		{'Y', "-FX+YFYF++YF+FX--FX-Y"} };
-	Lsystem fract("XF", rules, 3.14f / 3.f, 3);
-
-	std::vector<std::pair<char, std::string>> rules2{
-		{'A', "A-B--B+A++AA+B-"},
-		{'B', "+A-BB--B-A++A+B"} };
-
-	std::vector<std::pair<char, std::string>> rules3{
-		{'F', "F-F++F-F"} };
-
-	std::vector<std::pair<char, std::string>> rules4{
-		{'F', "F+F-F-FF+F+F-F"} };
-
-	fractals.push_back(new Lsystem("XF", rules, 3.14f / 3.f, 3));
-	fractals.push_back(new Lsystem("A", rules2, 3.14f / 3.f, 3));
-	fractals.push_back(new Lsystem("F++F++F", rules3, 3.14f / 3.f, 3));
-	fractals.push_back(new Lsystem("F", rules4, 3.14f / 2.f, 3));
-
-	bool p_open = true;
+	static bool p_open = true;
+	static bool p_lsys = false;
 
 	/* Loop until the user closes the window */
 	while (!glfwWindowShouldClose(window))
@@ -396,6 +687,8 @@ int main(void)
 		ImGui_ImplOpenGL3_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
+
+		if(p_lsys) ShowAddLsys(&p_lsys);
 
 		static bool use_work_area = true;
 		static ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
@@ -412,9 +705,8 @@ int main(void)
 		ImGui::SetNextWindowSize(use_work_area ? viewport->WorkSize : viewport->Size);
 		/* */
 
+
 		static int chosenMode = 0;
-		static float thickness = 1.0f;
-		static float curr_color[4] = { 1.f, 1.f, 0.f, 1.f };
 
 		if (ImGui::Begin("Affine transformaitons", &p_open, flags))
 		{
@@ -441,7 +733,12 @@ int main(void)
 			if (ImGui::Button("rotate 90")) {
 				try {
 					auto lammy = [](Primitive* prim, ImVec2* origin) { prim->rotate(DegreesToRadians(90.f), origin); };
-					tr_chpr_rtp(chosen_prims, lammy);
+					if (chosen_prims.size() != 0) {
+						tr_chpr_rtp(chosen_prims, lammy);
+					}
+					for (auto lsys : chosen_lsys) {
+						lsys->rotate(DegreesToRadians(90.f), nullptr);
+					}
 					feedback = "";
 				}
 				catch (std::exception& e) {
@@ -458,7 +755,12 @@ int main(void)
 					if (sscanf(nstr, "%f", &angle) != 1) throw std::invalid_argument("Incorrect arguments format for rotate N");
 					feedback = "";
 					auto lammy = [&angle](Primitive* prim, ImVec2* origin) { prim->rotate(DegreesToRadians(angle), origin); };
-					tr_chpr_rtp(chosen_prims, lammy);
+					if (chosen_prims.size() != 0) {
+						tr_chpr_rtp(chosen_prims, lammy);
+					}
+					for (auto lsys : chosen_lsys) {
+						lsys->rotate(DegreesToRadians(angle), nullptr);
+					}
 				}
 				catch (std::exception& e) {
 					feedback = e.what();
@@ -474,7 +776,13 @@ int main(void)
 					if (sscanf(nstr, "%f%*c%f", &dx, &dy) != 2) throw std::invalid_argument("Incorrect arguments format for translate");
 					feedback = "";
 					auto d = ImVec2(-1 * dx, -1 * dy);
-					std::for_each(chosen_prims.begin(), chosen_prims.end(), [&dx, &dy, &d](Primitive* prim) { prim->translate(&d); });
+					auto lammy = [&dx, &dy, &d](Primitive* prim) { prim->translate(&d); };
+					
+					std::for_each(chosen_prims.begin(), chosen_prims.end(), lammy);
+
+					for (auto lsys : chosen_lsys) {
+						lsys->translate(&d);
+					}
 				}
 				catch (std::exception& e) {
 					feedback = e.what();
@@ -495,12 +803,23 @@ int main(void)
 						if (dynamic_cast<Point*>(prim) != NULL || dynamic_cast<Edge*>(prim) != NULL) return;
 						prim->scale(scaleX, scaleY, origin);
 					};
-					tr_chpr_rtp(chosen_prims, lammy);
+					if (chosen_prims.size() != 0) {
+						tr_chpr_rtp(chosen_prims, lammy);
+					}
+					for (auto lsys : chosen_lsys) {
+						lsys->scale(scaleX, scaleY, nullptr);
+					}
 				}
 				catch (std::exception& e) {
 					feedback = e.what();
 					feedback_color = ImVec4(255, 0, 0, 255);
 				}
+			}
+
+			ImGui::SameLine();
+
+			if (ImGui::Button("add L-system")) {
+				p_lsys = true;
 			}
 
 			int chosenType;
@@ -579,7 +898,7 @@ int main(void)
 				}
 				for (size_t i = 0; i < fractals.size(); i++)
 				{
-					ShowFractalTableRow(fractals[i]->prim(), i);
+					ShowFractalTableRow(fractals[i], i);
 					//ImGui::Separator();
 				}
 				ImGui::EndTable();
@@ -622,13 +941,13 @@ int main(void)
 				{
 				case Mode::Point:
 					if (is_hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-						primitives.push_back(new Point(mouse_pos_in_canvas, GetCurrentColor(curr_color), thickness));
+						primitives.push_back(new Point(mouse_pos_in_canvas, GetColorFlU32(curr_color), thickness));
 					}
 					break;
 				case Mode::Edge:
 					if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
-						new_prim = new Edge(mouse_pos_in_canvas, mouse_pos_in_canvas, GetCurrentColor(curr_color), thickness);
+						new_prim = new Edge(mouse_pos_in_canvas, mouse_pos_in_canvas, GetColorFlU32(curr_color), thickness);
 						adding_line = FirstClick;
 					}
 					if (adding_line == FirstClick) {
@@ -650,7 +969,7 @@ int main(void)
 				case Mode::Polygon:
 					if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
-						new_prim = new Primitive(GetCurrentColor(curr_color), thickness);
+						new_prim = new Primitive(GetColorFlU32(curr_color), thickness);
 						new_prim->push_back(mouse_pos_in_canvas);
 						new_prim->push_back(mouse_pos_in_canvas);
 						adding_line = FirstClick;
@@ -694,13 +1013,19 @@ int main(void)
 				if (!adding_line && opt_enable_context_menu && drag_delta.x == 0.0f && drag_delta.y == 0.0f) {
 					ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
 					if (ImGui::BeginPopup("context")) {
-						if (ImGui::MenuItem("Remove last", NULL, false, primitives.size() > 0)) {
+						if (ImGui::MenuItem("Remove last prim", NULL, false, primitives.size() > 0)) {
 							chosen_prims.erase(primitives.back());
 							primitives.pop_back();
 						}
-						if (ImGui::MenuItem("Remove all", NULL, false, primitives.size() > 0)) {
+						if (ImGui::MenuItem("Remove last fractal", NULL, false, fractals.size() > 0)) {
+							chosen_lsys.erase(fractals.back());
+							fractals.pop_back();
+						}
+						if (ImGui::MenuItem("Remove all", NULL, false, primitives.size() + fractals.size() > 0)) {
 							primitives.clear();
+							fractals.clear();
 							chosen_prims.clear();
+							chosen_lsys.clear();
 						}
 						ImGui::EndPopup();
 					}
@@ -723,7 +1048,7 @@ int main(void)
 				}
 
 				for (size_t i = 0; i < fractals.size(); i++) {
-					fractals[i]->draw(draw_list, origin, GetCurrentColor(curr_color), thickness);
+					fractals[i]->draw(draw_list, origin);
 				}
 
 				if (new_prim) {
@@ -757,8 +1082,6 @@ int main(void)
 
 		}
 		ImGui::End();
-
-
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());

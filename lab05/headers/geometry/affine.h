@@ -1,5 +1,6 @@
+#pragma once
 #ifndef _AFFINE_H_
-#define _AFFINE_H
+#define _AFFINE_H_
 
 #include "pch.h"
 

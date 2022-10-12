@@ -1,5 +1,4 @@
-#include "../../headers/geometry.h"
-#include <vector>
+#include "geometry/checks.h"
 
 void pointPositionWithEdge(Point& p, Edge& e, bool& onTheLeft)
 {
