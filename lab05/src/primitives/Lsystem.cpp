@@ -117,10 +117,10 @@ float max(const float& a, const float& b) {
 void Lsystem::draw(ImDrawList* draw_list, const ImVec2& offset)
 {
 	if (_show) {
+		if (_is_alive) {
+			_thickness = max(sinf(ImGui::GetTime()) * 7, 1.f);
+		}
 		if (_is_tree) {
-			if (_is_alive) {
-				_thickness = max(sinf(ImGui::GetTime()) * 7, 1.f);
-			}
 			ImVec4& src = _src_color;
 			ImVec4& dest = _dest_color;
 			for (size_t i = 0; i < _prims.size(); i++) {
@@ -131,6 +131,7 @@ void Lsystem::draw(ImDrawList* draw_list, const ImVec2& offset)
 		}
 		else {
 			for (auto _fractal : _prims) {
+				_fractal->thickness() = _thickness;
 				_fractal->draw_polyline(draw_list, offset);
 			}
 		}
@@ -208,7 +209,7 @@ ImVec2 Lsystem::center()
 void Lsystem::rotate(const float& angle, const ImVec2* origin)
 {
 	ImVec2 t;
-	if (origin == nullptr) t = center();
+	if (origin == nullptr) t = _prims.back()->at(0);//t = center();
 	else t = *origin;
 
 	for (auto prim : _prims) {
@@ -219,7 +220,7 @@ void Lsystem::rotate(const float& angle, const ImVec2* origin)
 void Lsystem::scale(const float& scaleCoeffX, const float& scaleCoeffY, const ImVec2* origin)
 {
 	ImVec2 t;
-	if (origin == nullptr) t = center();
+	if (origin == nullptr) t = _prims.back()->at(0);//t = center();
 	else t = *origin;
 
 	for (auto prim : _prims) {
