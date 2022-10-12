@@ -1,7 +1,7 @@
-#include "../../headers/geometry.h"
+#include "geometry/primitives/edge.h"
+#include "geometry/affine.h"
 #include <stdio.h>
 #include <cstdlib>
-#include <iostream>
 
 Edge::Edge(const ImVec2& p1, const ImVec2& p2, const ImU32& color, const float& thickness) : Primitive(new ImVector<ImVec2>(), color, thickness)
 {
