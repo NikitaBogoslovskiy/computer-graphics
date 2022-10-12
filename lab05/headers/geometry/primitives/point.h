@@ -1,7 +1,9 @@
+#pragma once
 #ifndef _POINT_H_
 #define _POINT_H_
 
 #include "pch.h"
+#include "geometry/primitives/primitive.h"
 
 class Point : public Primitive
 {

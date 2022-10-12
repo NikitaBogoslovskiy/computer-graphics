@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _PRIMITIVE_H_
 #define _PRIMITIVE_H_
 
@@ -11,12 +12,14 @@ public:
 	ImU32 _color;
 	float _thickness;
 	bool _show;
+	int _connect_bounds;
 public:
 	Primitive(const ImU32& color, const float& thickness) {
 		points = new ImVector<ImVec2>();
 		_color = color;
 		_thickness = thickness;
 		_show = true;
+		_connect_bounds = 0;
 	}
 
 	Primitive(ImVector<ImVec2>* points, const ImU32& color, const float& thickness) {
@@ -24,6 +27,7 @@ public:
 		_color = color;
 		_thickness = thickness;
 		_show = true;
+		_connect_bounds = 0;
 	}
 
 	inline size_t size() const { return points->size(); }
@@ -48,6 +52,10 @@ public:
 		return _show;
 	}
 
+	inline void set_connect_bounds(int value) {
+		_connect_bounds = value;
+	}
+
 	inline void push_back(const ImVec2& p1) {
 		points->push_back(p1);
 	}
@@ -58,8 +66,10 @@ public:
 	inline void pop_back() { points->pop_back(); }
 	inline void pop(const ImVec2* it) { points->erase(it); }
 
-	//virtual void draw(ImDrawList*, const ImVec2&, bool connect_bounds = true);
 	virtual void draw(ImDrawList*, const ImVec2&);
+	virtual void draw_polyline(ImDrawList*, const ImVec2&);
+	virtual void draw_polyline(ImDrawList*, const ImVec2&, const ImVec4& from_col, const ImVec4& col_offset, const float& from_th, const float& th_offset);
+
 	virtual void draw_previe(ImDrawList*, const ImVec2&);
 
 	ImVec2 center() {

@@ -1,6 +1,5 @@
-#include "../../headers/geometry.h"
-#include <stdio.h>
-#include <cstdlib>
+#include "geometry/primitives/point.h"
+#include "geometry/funcs.h"
 
 Point::Point(const ImVec2& p, const ImU32& color, const float& thickness) : Primitive(new ImVector<ImVec2>(), color, thickness)
 {

@@ -1,7 +1,9 @@
+#pragma once
 #ifndef _EDGE_H_
 #define _EDGE_H_
 
 #include "pch.h"
+#include "primitive.h"
 
 class Edge : public Primitive
 {
