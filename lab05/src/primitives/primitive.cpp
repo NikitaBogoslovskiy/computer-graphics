@@ -18,8 +18,11 @@ void MyPolyline(ImDrawList* draw_list, const ImVec2* points, const size_t& point
 
 void Primitive::draw(ImDrawList* draw_list, const ImVec2& offset)
 {
-	if (_connect_bounds != 0)
-		connect_bounds = _connect_bounds == 1 ? true : false;
+	if (_connect_bounds == 2) {
+		draw_polyline(draw_list, offset);
+		return;
+	}
+		
 	if (show()) {
 		if (size() == 1) {
 			draw_list->AddCircleFilled(this->operator[](0) + offset, thickness(), color(), 10);

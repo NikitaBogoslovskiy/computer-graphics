@@ -274,7 +274,6 @@ bool checkPointAndPolygonConditions(std::set<Primitive*>& primitives, std::strin
 
 std::vector<Primitive*> primitives;
 std::set<Primitive*> chosen_prims = std::set<Primitive*>();
-std::vector<Lsystem*> fractals = std::vector<Lsystem*>();
 std::set<Lsystem*> chosen_lsys;
 
 ImVector<ImVec2*> intersections;
@@ -765,8 +764,6 @@ int main(void)
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init();
 
-	bool p_open = true;
-
 	static bool p_open = true;
 	static bool p_lsys = false;
 
@@ -925,11 +922,11 @@ int main(void)
 						points.push_back(prim);
 					}
 
-					char* nstr = pseudo_console; 
+					char* nstr = pseudo_console;
 					int R, I, iter_num;
-					if (sscanf(nstr, "R=%d I=%d iters=%d", &R, &I, &iter_num) != 3) 
+					if (sscanf(nstr, "R=%d I=%d iters=%d", &R, &I, &iter_num) != 3)
 						throw std::invalid_argument("Incorrect arguments format for displace");
-					if (R < 0 || I < 0) 
+					if (R < 0 || I < 0)
 						throw std::invalid_argument("R and I cannot be negative");
 					if (iter_num < 1)
 						throw std::invalid_argument("Iterations number must be positive");
@@ -950,8 +947,9 @@ int main(void)
 					feedback = e.what();
 					feedback_color = ImVec4(255, 0, 0, 255);
 				}
+			}
 
-      ImGui::SameLine();
+			ImGui::SameLine();
 
 			if (ImGui::Button("add L-system")) {
 				p_lsys = true;
@@ -1032,13 +1030,13 @@ int main(void)
 					//ImGui::Separator();
 				}
 
-				/*
+				
 				for (size_t i = 0; i < fractals.size(); i++)
 				{
 					ShowFractalTableRow(fractals[i], i);
 					//ImGui::Separator();
 				}
-				*/
+				
 				ImGui::EndTable();
 			}
 			ImGui::PopStyleVar();
@@ -1197,10 +1195,11 @@ int main(void)
 							primitives.clear();
 							fractals.clear();
 							chosen_prims.clear();
-              chosen_lsys.clear();
+							chosen_lsys.clear();
 
 							prev_displacement = std::move(Primitive(ImU32(1), 1));
 							curr_displacement = Primitive(ImU32(1), 1);
+						
 
 						}
 						ImGui::EndPopup();
