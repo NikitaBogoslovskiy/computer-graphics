@@ -63,6 +63,9 @@
     <ClCompile Include="src\primitives\bezier_curve.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\BLEV.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\dependencies\imgui\imgui\imconfig.h">
@@ -123,6 +126,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\geometry\primitives\bezier_curve.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\BLEV.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

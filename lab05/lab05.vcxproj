@@ -160,6 +160,7 @@
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\BLEV.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\primitives\bezier_curve.cpp" />
     <ClCompile Include="src\primitives\checks.cpp" />
@@ -177,6 +178,7 @@
     <ClInclude Include="..\dependencies\imgui\imgui\imstb_rectpack.h" />
     <ClInclude Include="..\dependencies\imgui\imgui\imstb_textedit.h" />
     <ClInclude Include="..\dependencies\imgui\imgui\imstb_truetype.h" />
+    <ClInclude Include="headers\BLEV.h" />
     <ClInclude Include="headers\geometry.h" />
     <ClInclude Include="headers\geometry\affine.h" />
     <ClInclude Include="headers\geometry\checks.h" />

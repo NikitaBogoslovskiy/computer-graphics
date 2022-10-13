@@ -1,24 +1,13 @@
 #define _CRT_SECURE_NO_WARNINGS
-#include <GLFW/glfw3.h>
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+
+#include "main.h"
 #include <stdio.h>
-#include <string>
 #include <vector>
 #include <set>
 #include <math.h>
-#include "../headers/main.h"
-#include "../headers/geometry.h"
-
 #include <time.h>  
-
-#include <deque>
-#include <tuple>
 #include <iostream>
 #include <unordered_set>
-
-#define PI 3.14159265359f
 
 static void HelpMarker(const char* desc)
 {
@@ -337,11 +326,8 @@ void ShowPrimitiveTableRow(Primitive* prim, size_t idx)
 			}
 			
 			ImGui::TableSetColumnIndex(1);
-			//ImGui::SliderFloat("x", &(prim->operator[](i).x), 0.f, 1000.f, ".1f", 0.5f);
-			ImGui::InputFloat("x", &(prim->operator[](i).x));
-			//ImGui::SameLine();
-			//ImGui::SliderFloat("y", &(prim->operator[](i).y), 0.f, 1000.f, ".1f", 0.5f);
-			ImGui::InputFloat("y", &(prim->operator[](i).y));
+			ImGui::DragFloat("x", &(prim->operator[](i).x), 1.f, -1000.f, 1000.f, "%.0f");
+			ImGui::DragFloat("y", &(prim->operator[](i).y), 1.f, -1000.f, 1000.f, "%.0f");
 
 			ImGui::PopID();
 		}
@@ -428,16 +414,202 @@ std::vector<Lsystem*> fractals;
 
 static float thickness = 1.0f;
 static float curr_color[4] = { 1.f, 1.f, 0.f, 1.f };
+float canvas_width;
+Primitive&& prev_displacement = std::move(Primitive(ImU32(1), 1));
+Primitive curr_displacement = Primitive(ImU32(1), 1);
 
-static void ShowAddLsys(bool* p_open) {
-	ImGui::SetNextWindowSize(ImVec2(0.0f, 0.0f), ImGuiCond_FirstUseEver);
-	ImGuiWindowFlags flags = 0;
-	if (!ImGui::Begin("lsys", p_open, flags))
-	{
-		ImGui::End();
-		return;
+void F_Rotate() {
+	static char pseudo_console[100] = { '\0' };
+	static std::string feedback;
+	static ImVec4 feedback_color;
+
+	ImGui::BeginGroup();
+	ImGui::InputText("##Console", pseudo_console, 100);
+	if (!feedback.empty()) {
+		ImGui::TextColored(feedback_color, feedback.c_str());
+	}
+	ImGui::EndGroup();
+	HelpPrevItem("anlge(degree)");
+
+	if (ImGui::Button("Rotate 90")) {
+		try {
+			auto lammy = [](Primitive* prim, ImVec2* origin) { prim->rotate(DegreesToRadians(90.f), origin); };
+			if (chosen_prims.size() != 0) {
+				tr_chpr_rtp(chosen_prims, lammy);
+			}
+			for (auto lsys : chosen_lsys) {
+				lsys->rotate(DegreesToRadians(90.f), nullptr);
+			}
+			feedback = "";
+		}
+		catch (std::exception& e) {
+			feedback = e.what();
+			feedback_color = ImVec4(255, 0, 0, 255);
+		}
 	}
 
+	ImGui::SameLine();
+
+	if (ImGui::Button("Rotate N")) {
+		try {
+			char* nstr = pseudo_console; float angle;
+			if (sscanf(nstr, "%f", &angle) != 1) throw std::invalid_argument("Incorrect arguments format for rotate N");
+			feedback = "";
+			auto lammy = [&angle](Primitive* prim, ImVec2* origin) { prim->rotate(DegreesToRadians(angle), origin); };
+			if (chosen_prims.size() + chosen_lsys.size() == 0) {
+				throw std::invalid_argument("The number of selected objects must be at least 1");
+			}
+			if (chosen_prims.size() != 0) {
+				tr_chpr_rtp(chosen_prims, lammy);
+			}
+			for (auto lsys : chosen_lsys) {
+				lsys->rotate(DegreesToRadians(angle), nullptr);
+			}
+		}
+		catch (std::exception& e) {
+			feedback = e.what();
+			feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+}
+
+void F_Translate() {
+	static char pseudo_console[100] = { '\0' };
+	static std::string feedback;
+	static ImVec4 feedback_color;
+
+	ImGui::BeginGroup();
+	ImGui::InputText("##Console", pseudo_console, 100);
+	if (!feedback.empty()) {
+		ImGui::TextColored(feedback_color, feedback.c_str());
+	}
+	ImGui::EndGroup();
+	HelpPrevItem("dx;dy");
+
+	if (ImGui::Button("Translate")) {
+		try {
+			char* nstr = pseudo_console; float dx, dy;
+			if (sscanf(nstr, "%f%*c%f", &dx, &dy) != 2) throw std::invalid_argument("Incorrect arguments format for translate");
+			feedback = "";
+			auto d = ImVec2(-1 * dx, -1 * dy);
+			auto lammy = [&dx, &dy, &d](Primitive* prim) { prim->translate(&d); };
+
+			if (chosen_prims.size() + chosen_lsys.size() == 0) {
+				throw std::invalid_argument("The number of selected objects must be at least 1");
+			}
+			std::for_each(chosen_prims.begin(), chosen_prims.end(), lammy);
+			for (auto lsys : chosen_lsys) {
+				lsys->translate(&d);
+			}
+		}
+		catch (std::exception& e) {
+			feedback = e.what();
+			feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+}
+
+void F_Scale() {
+	static char pseudo_console[100] = { '\0' };
+	static std::string feedback;
+	static ImVec4 feedback_color;
+
+	ImGui::BeginGroup();
+	ImGui::InputText("##Console", pseudo_console, 100);
+	if (!feedback.empty()) {
+		ImGui::TextColored(feedback_color, feedback.c_str());
+	}
+	ImGui::EndGroup();
+	HelpPrevItem("s_x;s_y (scale factors)");
+
+	if (ImGui::Button("Scale")) {
+		try {
+			char* nstr = pseudo_console; float scaleX, scaleY;
+			if (sscanf(nstr, "%f%*c%f", &scaleX, &scaleY) != 2) throw std::invalid_argument("Incorrect arguments format for scale");
+			if (scaleX <= 0 || scaleY <= 0) throw std::invalid_argument("Incorrect arguments format for scale");
+			feedback = "";
+
+			auto lammy = [&scaleX, &scaleY](Primitive* prim, ImVec2* origin) {
+				if (dynamic_cast<Point*>(prim) != NULL || dynamic_cast<Edge*>(prim) != NULL) return;
+				prim->scale(scaleX, scaleY, origin);
+			};
+
+			if (chosen_prims.size() + chosen_lsys.size() == 0) {
+				throw std::invalid_argument("The number of selected objects must be at least 1");
+			}
+
+			if (chosen_prims.size() != 0) {
+				tr_chpr_rtp(chosen_prims, lammy);
+			}
+			for (auto lsys : chosen_lsys) {
+				lsys->scale(scaleX, scaleY, nullptr);
+			}
+		}
+		catch (std::exception& e) {
+			feedback = e.what();
+			feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+}
+
+void F_Displace() {
+	static char pseudo_console[100] = { '\0' };
+	static std::string feedback;
+	static ImVec4 feedback_color;
+
+	ImGui::BeginGroup();
+	ImGui::InputText("##Console", pseudo_console, 100);
+	if (!feedback.empty()) {
+		ImGui::TextColored(feedback_color, feedback.c_str());
+	}
+	ImGui::EndGroup();
+	HelpPrevItem("R=_ I=_ iters=_");
+
+	if (ImGui::Button("Displace")) {
+		prev_displacement = std::move(Primitive(ImU32(1), 1));
+		curr_displacement = Primitive(ImU32(1), 1);
+
+		try {
+			if (chosen_prims.size() != 2)
+				throw std::invalid_argument("You should choose 2 points");
+			std::vector<Point*> points;
+			for (auto it = chosen_prims.begin(); it != chosen_prims.end(); ++it)
+			{
+				auto prim = dynamic_cast<Point*>(*it);
+				if (prim == nullptr)
+					throw std::invalid_argument("You should choose 2 points");
+				points.push_back(prim);
+			}
+
+			char* nstr = pseudo_console;
+			int R, I, iter_num;
+			if (sscanf(nstr, "R=%d I=%d iters=%d", &R, &I, &iter_num) != 3)
+				throw std::invalid_argument("Incorrect arguments format for displace");
+			if (R < 0 || I < 0)
+				throw std::invalid_argument("R and I cannot be negative");
+			if (iter_num < 1)
+				throw std::invalid_argument("Iterations number must be positive");
+			feedback = "";
+
+			curr_displacement = midpointDisplacement(prev_displacement, points[0], points[1], R, I, iter_num);
+			if (prev_displacement.size() != 0)
+			{
+				auto it = std::find(primitives.begin(), primitives.end(), &prev_displacement);
+				if (it != primitives.end())
+					primitives.erase(it);
+			}
+			prev_displacement = std::move(curr_displacement);
+			prev_displacement.set_connect_bounds(2);
+			primitives.push_back(&prev_displacement);
+		}
+		catch (std::exception& e) {
+			feedback = e.what();
+			feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+}
+
+void F_Lsystem() {
 	HelpMarker(
 		"An example:\n"
 		"Axiom: 'A'\n"
@@ -453,39 +625,22 @@ static void ShowAddLsys(bool* p_open) {
 		rules.push_back(std::pair<char, char*>(term, rule));
 	}
 
-	struct TextFilters
-	{
-		static int FilterLetters(ImGuiInputTextCallbackData* data)
-		{
-			if (data->EventChar < 256 && strchr("ABCDEFGHIJKLMNOPQRSTUVWXYZ", (char)data->EventChar))
-				return 0;
-			return 1;
-		}
-
-		static int FilterLsys(ImGuiInputTextCallbackData* data)
-		{
-			if (data->EventChar < 256 && strchr("ABCDEFGHIJKLMNOPQRSTUVWXYZ+-[]@", (char)data->EventChar))
-				return 0;
-			return 1;
-		}
-	};
-
 	ImGuiInputTextFlags flags2 = ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CallbackCharFilter;
 
 
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 15);
 	ImGui::InputText("Axiom", axiom, 254, flags2, TextFilters::FilterLsys);
-	
+
 
 	for (size_t i = 0; i < rules.size(); i++) {
 		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 1);
 		char buf1[32];
-		sprintf(buf1, "##lsysterm%d", i+1);
+		sprintf(buf1, "##lsysterm%d", i + 1);
 		ImGui::InputText(buf1, &rules[i].first, 2, flags2, TextFilters::FilterLetters);
 		ImGui::SameLine();
 		ImGui::SetNextItemWidth(ImGui::GetFontSize() * 13);
 		char buf2[32];
-		sprintf(buf2, "rule%d##lsysrule%d", i+1, i+1);
+		sprintf(buf2, "rule%d##lsysrule%d", i + 1, i + 1);
 		ImGui::InputText(buf2, rules[i].second, 255, flags2, TextFilters::FilterLsys);
 	}
 
@@ -496,7 +651,7 @@ static void ShowAddLsys(bool* p_open) {
 		rules.push_back(std::pair<char, char*>(term, rule));
 	}
 
-	static char additional[30] = {'\0'};
+	static char additional[30] = { '\0' };
 	ImGui::SetNextItemWidth(ImGui::GetFontSize() * 10);
 	ImGui::InputText("forward atoms", additional, 30, flags2, TextFilters::FilterLetters);
 	HelpPrevItem("Used to draw a line immediately");
@@ -532,138 +687,7 @@ static void ShowAddLsys(bool* p_open) {
 	ImGui::SameLine();
 	ImGui::Checkbox("tree?", &tree);
 	HelpPrevItem("Changing the thickness, color and length of lines");
-	
-	/**/
-	//adding ready L/systems
 
-	static std::vector<ready_l_system*> ready_l_systems{
-		
-		//Кривая Коха
-		new ready_l_system("Koch curve", 
-			"F", 
-			PI / 3.f,
-			std::deque<std::pair<char, std::string>>{
-				std::make_pair('F', "F-F++F-F")
-			},
-			""),
-
-		//Квадратный остров Коха
-		new ready_l_system("Koch island", 
-			"F+F+F+F", 
-			PI / 2.f,
-			std::deque<std::pair<char, std::string>>{
-				std::make_pair('F', "F+F-F-FF+F+F-F")
-			},
-			""),
-
-		//Ковёр Серпинского
-		new ready_l_system("Sierpinski carpet",
-			"FXF--FF--FF",
-			PI / 3.f,
-			std::deque<std::pair<char, std::string>>{
-				std::make_pair('F', "FF"),
-				std::make_pair('X', "--FXF++FXF++FXF--")
-			},
-			""),
-
-		//Наконечник Серпинского(треугольник)
-		new ready_l_system("Sierpinski triangle",
-			"YF",
-			PI / 3.f,
-			std::deque<std::pair<char, std::string>>{
-				std::make_pair('F', "F"),
-				std::make_pair('X', "YF+XF+Y"),
-				std::make_pair('Y', "XF-YF-X")
-			},
-			""),
-
-		//Кривая Гильберта
-		new ready_l_system("Hilbert curve",
-			"X",
-			PI / 2.f,
-			std::deque<std::pair<char, std::string>>{
-				std::make_pair('F', "F"),
-				std::make_pair('X', "-YF+XFX+FY-"),
-				std::make_pair('Y', "+XF-YFY-FX+")
-			},
-			""),
-
-		//Кривая дракона Хартера - Хейтуэя
-		new ready_l_system("Dragon curve",
-			"X",
-			PI / 2.f,
-			std::deque<std::pair<char, std::string>>{
-				std::make_pair('F', "F"),
-				std::make_pair('X', "X+YF+"),
-				std::make_pair('Y', "-FX-Y")
-			},
-			""),
-
-		//Шестиугольная кривая Госпера
-		new ready_l_system("Gosper curve",
-			"XF",
-			PI / 3.f,
-			std::deque<std::pair<char, std::string>>{
-				std::make_pair('F', "F"),
-				std::make_pair('X', "X+YF++YF-FX--FXFX-YF+"),
-				std::make_pair('Y', "-FX+YFYF++YF+FX--FX-Y")
-			},
-			""),
-
-		new ready_l_system("Tree 1",
-			"X",
-			PI / 9.f,
-			std::deque<std::pair<char, std::string>>{
-				std::make_pair('F', "FF"),
-				std::make_pair('X', "F[+X]F[-X]+X")
-			},
-			""),
-
-		new ready_l_system("Shrub 1",
-			"F",
-			PI / 90.f * 11.f, // 22
-			std::deque<std::pair<char, std::string>>{
-				std::make_pair('F', "FF-[-F+F+F]+[+F-F-F]")
-			},
-			""),
-
-		new ready_l_system("Shrub 2",
-			"X",
-			PI / 9.f, // 20
-			std::deque<std::pair<char, std::string>>{
-				std::make_pair('F', "FF"),
-				std::make_pair('X', "F[+X]F[-X]+X")
-			},
-			""),
-
-		new ready_l_system("Shrub 3",
-			"X",
-			PI / 8.f, // 22.5
-			std::deque<std::pair<char, std::string>>{
-				std::make_pair('F', "FF"),
-				std::make_pair('X', "F-[[X]+X]+F[+FX]-X")
-			},
-			""),
-
-		//Шестиугольная мозаика
-		new ready_l_system("Hexagonal Mosaic",
-			"X",
-			PI / 3.f,
-			std::deque<std::pair<char, std::string>>{
-				std::make_pair('F', "F"),
-				std::make_pair('X', "[-F+F[Y]+F][+F-F[X]-F]"),
-				std::make_pair('Y', "[-F+F[Y]+F][+F-F-F]")
-			},
-			""),
-
-		new ready_l_system("\"Random\" tree",
-			"X",
-			PI / 4.f,
-			std::deque<std::pair<char, std::string>>{
-				std::make_pair('X', "F[@[-X]+X]")
-			},
-			"F"),
-	};
 
 	static ready_l_system* selected = NULL;
 
@@ -694,18 +718,16 @@ static void ShowAddLsys(bool* p_open) {
 		ImGui::EndPopup();
 	}
 
-	/**/
-
 	static size_t state = 0;
 
 	if (ImGui::Button("Add##lsysaddingconfirm")) {
 		auto t = new Lsystem(
-			std::string(axiom), 
-			std::vector<std::pair<char, std::string>>(rules.begin(), rules.end()), 
-			angle, 
-			iters, 
+			std::string(axiom),
+			std::vector<std::pair<char, std::string>>(rules.begin(), rules.end()),
+			angle,
+			iters,
 			GetColorFlV4(src_col),
-			th, 
+			th,
 			GetColorFlV4(dest_col),
 			std::string(additional),
 			tree);
@@ -725,7 +747,78 @@ static void ShowAddLsys(bool* p_open) {
 	if (state == 2) {
 		ImGui::TextColored(ImVec4(255, 0, 0, 255), "Wrong format");
 	}
+}
 
+void F_Classify() {
+	static std::string feedback;
+	static ImVec4 feedback_color;
+
+	static int chosenType = 0;
+	ImGui::Combo("##", &chosenType, classificationType, classificationTypeSize);
+
+	if (ImGui::Button("Classify point position")) {
+		Point* point = nullptr;
+		Edge* edge = nullptr;
+		Primitive* polygon = nullptr;
+		bool success, onTheLeft, isInside;
+
+		switch (chosenType)
+		{
+		case 0:
+			success = checkPointAndEdgeConditions(chosen_prims, feedback, point, edge);
+			if (success)
+			{
+				feedback_color = ImVec4(0, 255, 0, 255);
+				pointPositionWithEdge(*point, *edge, onTheLeft);
+				if (onTheLeft)
+					feedback = "Point on the left";
+				else
+					feedback = "Point on the right";
+			}
+			else
+				feedback_color = ImVec4(255, 0, 0, 255);
+			break;
+		case 1:
+			success = checkPointAndPolygonConditions(chosen_prims, feedback, point, polygon);
+			if (success)
+			{
+				feedback_color = ImVec4(0, 255, 0, 255);
+				pointPositionWithConvexPolygon(*point, *polygon, isInside);
+				if (isInside)
+					feedback = "Point is inside";
+				else
+					feedback = "Point is outside";
+			}
+			else
+				feedback_color = ImVec4(255, 0, 0, 255);
+			break;
+		case 2:
+			success = checkPointAndPolygonConditions(chosen_prims, feedback, point, polygon);
+			if (success)
+			{
+				feedback_color = ImVec4(0, 255, 0, 255);
+				pointPositionWithPolygon(*point, *polygon, isInside, canvas_width);
+				if (isInside)
+					feedback = "Point is inside";
+				else
+					feedback = "Point is outside";
+			}
+			else
+				feedback_color = ImVec4(255, 0, 0, 255);
+			break;
+		default:
+			break;
+		}
+	}
+
+	if (!feedback.empty()) {
+		ImGui::TextColored(feedback_color, feedback.c_str());
+	}
+}
+
+void NewWindow(const char* label, bool* p_open, void (*func)()) {
+	ImGui::Begin(label, p_open);
+	func();
 	ImGui::End();
 }
 
@@ -738,11 +831,6 @@ int main(void)
 	CurrentState state;
 
 	ImVec2 canvas_sz;
-	std::string feedback;
-	ImVec4 feedback_color;
-	float canvas_width;
-	Primitive&& prev_displacement = std::move(Primitive(ImU32(1), 1));
-	Primitive curr_displacement = Primitive(ImU32(1), 1);
 	/* Initialize the library */
 	if (!glfwInit())
 		return -1;
@@ -779,10 +867,120 @@ int main(void)
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		if(p_lsys) ShowAddLsys(&p_lsys);
+		static size_t chosenMode = 0;
+
+		static bool rotate_open = false;
+		static bool translate_open = false;
+		static bool scale_open = false;
+		static bool displace_open = false;
+		static bool lsys_open = false;
+		static bool classify_open = false;
+		
+		if (ImGui::BeginMainMenuBar())
+		{
+			if (ImGui::BeginMenu("Mode")) {
+				static const unsigned char modesSize = 5;
+				static const char* modesList[modesSize]{ "Translation", "Point", "Edge", "Polygon", "Bezier Curve" };
+				for (size_t i = 0; i < modesSize; i++) {
+					if (ImGui::Selectable(modesList[i], chosenMode == i)) {
+						chosenMode = i;
+					}
+				}
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Funcs"))
+			{
+
+				if (ImGui::BeginMenu("Rotate")) {
+					
+					if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+						rotate_open = true;
+					}
+
+					//if (!rotate_open) {
+						F_Rotate();
+					//}
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("Translate")) {
+
+					if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+						translate_open = true;
+					}
+
+					//if (!translate_open) {
+						F_Translate();
+					//}
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("Scale")) {
+
+					if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+						scale_open = true;
+					}
+
+					//if (!scale_open) {
+						F_Scale();
+					//}
+
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("Displace")) {
+
+					if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+						displace_open = true;
+					}
+
+					//if (!displace_open) {
+						F_Displace();
+					//}
+
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("L-system")) {
+					
+					if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+						lsys_open = true;
+					}
+
+					//if (!lsys_open) {
+						F_Lsystem();
+					//}
+
+					ImGui::EndMenu();
+				}
+
+				if (ImGui::BeginMenu("Classify")) {
+
+					if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+						classify_open = true;
+					}
+
+					//if (!classify_open) {
+						F_Classify();
+					//}
+
+					ImGui::EndMenu();
+				}
+
+				ImGui::EndMenu();
+			}
+			
+			ImGui::SetNextItemWidth(250.f);
+			ImGui::DragFloat("##globalThickness", &thickness, 0.05f, 1.f, 10.f, "thickness = %.1f", ImGuiSliderFlags_AlwaysClamp);
+
+			ImGui::ColorEdit4("Line color", curr_color, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+			
+			ImGui::EndMainMenuBar();
+		}
 
 		static bool use_work_area = true;
-		static ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings;
+		static ImGuiWindowFlags flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBringToFrontOnFocus;
 
 		static enum AddingLine {
 			None,
@@ -791,235 +989,20 @@ int main(void)
 			FinalClick
 		} adding_line;
 
+		if (rotate_open) NewWindow("Rotate", &rotate_open, F_Rotate);
+		if (translate_open) NewWindow("Translate", &translate_open, F_Translate);
+		if (scale_open) NewWindow("Scale", &scale_open, F_Scale);
+		if (displace_open) NewWindow("Displace", &displace_open, F_Displace);
+		if (lsys_open) NewWindow("Lsystem", &lsys_open, F_Lsystem);
+		if (classify_open) NewWindow("Classify", &classify_open, F_Classify);
+
 		const ImGuiViewport* viewport = ImGui::GetMainViewport();
 		ImGui::SetNextWindowPos(use_work_area ? viewport->WorkPos : viewport->Pos);
 		ImGui::SetNextWindowSize(use_work_area ? viewport->WorkSize : viewport->Size);
 		/* */
 
-
-		static int chosenMode = 0;
-
 		if (ImGui::Begin("CringeCAD", &p_open, flags))
 		{
-			if (ImGui::BeginTable("mode & thickness & color", 3)) {
-				ImGui::TableNextRow();
-				ImGui::TableNextColumn();
-
-				//Toolbar for choosing the mode of program
-				if (ImGui::Combo("Modes", &chosenMode, modesList, modesSize)) {
-
-				}
-
-				ImGui::TableNextColumn();
-
-				ImGui::SliderFloat(" ", &thickness, 1.f, 10.f, "thickness = %.1f");
-
-				ImGui::TableNextColumn();
-
-				ImGui::ColorEdit4("Line color", curr_color, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs); //ImGuiColorEditFlags_NoInputs
-
-				ImGui::EndTable();
-			}
-
-			if (ImGui::Button("Rotate 90")) {
-				try {
-					auto lammy = [](Primitive* prim, ImVec2* origin) { prim->rotate(DegreesToRadians(90.f), origin); };
-					if (chosen_prims.size() != 0) {
-						tr_chpr_rtp(chosen_prims, lammy);
-					}
-					for (auto lsys : chosen_lsys) {
-						lsys->rotate(DegreesToRadians(90.f), nullptr);
-					}
-					feedback = "";
-				}
-				catch (std::exception& e) {
-					feedback = e.what();
-					feedback_color = ImVec4(255, 0, 0, 255);
-				}
-			}
-
-			ImGui::SameLine();
-
-			if (ImGui::Button("Rotate N")) {
-				try {
-					char* nstr = pseudo_console; float angle;
-					if (sscanf(nstr, "%f", &angle) != 1) throw std::invalid_argument("Incorrect arguments format for rotate N");
-					feedback = "";
-					auto lammy = [&angle](Primitive* prim, ImVec2* origin) { prim->rotate(DegreesToRadians(angle), origin); };
-					if (chosen_prims.size() != 0) {
-						tr_chpr_rtp(chosen_prims, lammy);
-					}
-					for (auto lsys : chosen_lsys) {
-						lsys->rotate(DegreesToRadians(angle), nullptr);
-					}
-				}
-				catch (std::exception& e) {
-					feedback = e.what();
-					feedback_color = ImVec4(255, 0, 0, 255);
-				}
-			}
-
-			ImGui::SameLine();
-
-			if (ImGui::Button("Translate")) {
-				try {
-					char* nstr = pseudo_console; float dx, dy;
-					if (sscanf(nstr, "%f%*c%f", &dx, &dy) != 2) throw std::invalid_argument("Incorrect arguments format for translate");
-					feedback = "";
-					auto d = ImVec2(-1 * dx, -1 * dy);
-					auto lammy = [&dx, &dy, &d](Primitive* prim) { prim->translate(&d); };
-					
-					std::for_each(chosen_prims.begin(), chosen_prims.end(), lammy);
-
-					for (auto lsys : chosen_lsys) {
-						lsys->translate(&d);
-					}
-				}
-				catch (std::exception& e) {
-					feedback = e.what();
-					feedback_color = ImVec4(255, 0, 0, 255);
-				}
-			}
-
-			ImGui::SameLine();
-
-			if (ImGui::Button("Scale")) {
-				try {
-					char* nstr = pseudo_console; float scaleX, scaleY;
-					if (sscanf(nstr, "%f%*c%f", &scaleX, &scaleY) != 2) throw std::invalid_argument("Incorrect arguments format for scale");
-					if (scaleX <= 0 || scaleY <= 0) throw std::invalid_argument("Incorrect arguments format for scale");
-					feedback = "";
-
-					auto lammy = [&scaleX, &scaleY](Primitive* prim, ImVec2* origin) {
-						if (dynamic_cast<Point*>(prim) != NULL || dynamic_cast<Edge*>(prim) != NULL) return;
-						prim->scale(scaleX, scaleY, origin);
-					};
-					if (chosen_prims.size() != 0) {
-						tr_chpr_rtp(chosen_prims, lammy);
-					}
-					for (auto lsys : chosen_lsys) {
-						lsys->scale(scaleX, scaleY, nullptr);
-					}
-				}
-				catch (std::exception& e) {
-					feedback = e.what();
-					feedback_color = ImVec4(255, 0, 0, 255);
-				}
-			}
-
-			ImGui::SameLine();
-
-			if (ImGui::Button("Displace")) {
-				try {
-					if (chosen_prims.size() != 2)
-						throw std::invalid_argument("You should choose 2 points");
-					std::vector<Point*> points;
-					for (auto it = chosen_prims.begin(); it != chosen_prims.end(); ++it)
-					{
-						auto prim = dynamic_cast<Point*>(*it);
-						if (prim == nullptr)
-							throw std::invalid_argument("You should choose 2 points");
-						points.push_back(prim);
-					}
-
-					char* nstr = pseudo_console;
-					int R, I, iter_num;
-					if (sscanf(nstr, "R=%d I=%d iters=%d", &R, &I, &iter_num) != 3)
-						throw std::invalid_argument("Incorrect arguments format for displace");
-					if (R < 0 || I < 0)
-						throw std::invalid_argument("R and I cannot be negative");
-					if (iter_num < 1)
-						throw std::invalid_argument("Iterations number must be positive");
-					feedback = "";
-
-					curr_displacement = midpointDisplacement(prev_displacement, points[0], points[1], R, I, iter_num);
-					if (prev_displacement.size() != 0)
-					{
-						auto it = std::find(primitives.begin(), primitives.end(), &prev_displacement);
-						if (it != primitives.end())
-							primitives.erase(it);
-					}
-					prev_displacement = std::move(curr_displacement);
-					prev_displacement.set_connect_bounds(2);
-					primitives.push_back(&prev_displacement);
-				}
-				catch (std::exception& e) {
-					feedback = e.what();
-					feedback_color = ImVec4(255, 0, 0, 255);
-				}
-			}
-
-			ImGui::SameLine();
-
-			if (ImGui::Button("add L-system")) {
-				p_lsys = true;
-			}
-
-			int chosenType;
-			ImGui::Combo("##", &chosenType, classificationType, classificationTypeSize);
-			ImGui::SameLine();
-			if (ImGui::Button("Classify point position")) {
-				Point* point = nullptr;
-				Edge* edge = nullptr;
-				Primitive* polygon = nullptr;
-				bool success, onTheLeft, isInside;
-
-				switch (chosenType)
-				{
-				case 0:
-					success = checkPointAndEdgeConditions(chosen_prims, feedback, point, edge);
-					if (success)
-					{
-						feedback_color = ImVec4(0, 255, 0, 255);
-						pointPositionWithEdge(*point, *edge, onTheLeft);
-						if (onTheLeft)
-							feedback = "Point on the left";
-						else
-							feedback = "Point on the right";
-					}
-					else
-						feedback_color = ImVec4(255, 0, 0, 255);
-					break;
-				case 1:
-					success = checkPointAndPolygonConditions(chosen_prims, feedback, point, polygon);
-					if (success)
-					{
-						feedback_color = ImVec4(0, 255, 0, 255);
-						pointPositionWithConvexPolygon(*point, *polygon, isInside);
-						if (isInside)
-							feedback = "Point is inside";
-						else
-							feedback = "Point is outside";
-					}
-					else
-						feedback_color = ImVec4(255, 0, 0, 255);
-					break;
-				case 2:
-					success = checkPointAndPolygonConditions(chosen_prims, feedback, point, polygon);
-					if (success)
-					{
-						feedback_color = ImVec4(0, 255, 0, 255);
-						pointPositionWithPolygon(*point, *polygon, isInside, canvas_width);
-						if (isInside)
-							feedback = "Point is inside";
-						else
-							feedback = "Point is outside";
-					}
-					else
-						feedback_color = ImVec4(255, 0, 0, 255);
-					break;
-				default:
-					break;
-				}
-			}
-
-			//const char* label, char* buf, size_t buf_size, ImGuiInputTextFlags flags, ImGuiInputTextCallback callback, void* user_data)
-			ImGui::InputText("Console", pseudo_console, IM_ARRAYSIZE(pseudo_console));
-
-			ImGui::Text("Output: ");
-			ImGui::SameLine();
-			ImGui::TextColored(feedback_color, feedback.c_str());
-
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
 			if (ImGui::BeginTable("prims", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_ScrollX | ImGuiTableFlags_ScrollY | ImGuiTableFlags_SizingFixedFit, ImVec2(200.f, canvas_sz.y))) // ImGuiTableFlags_NoHostExtendX
 			{
@@ -1254,9 +1237,10 @@ int main(void)
 				ImGui::EndChild();
 			}
 
-
+			ImGui::End();
 		}
-		ImGui::End();
+
+		//ImGui::ShowDemoWindow();
 
 		ImGui::Render();
 		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
