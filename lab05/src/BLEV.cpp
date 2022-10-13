@@ -115,12 +115,36 @@ void BLEV::ShowMenuBar()
 
 void BLEV::ShowAdditionalWindows()
 {
-	//if (rotate_open) NewWindow("Rotate", &rotate_open, &F_Rotate);
-	//if (translate_open) NewWindow("Translate", &translate_open, &F_Translate);
-	//if (scale_open) NewWindow("Scale", &scale_open, &F_Scale);
-	//if (displace_open) NewWindow("Displace", &displace_open, &F_Displace);
-	//if (lsys_open) NewWindow("Lsystem", &lsys_open, &F_Lsystem);
-	//if (classify_open) NewWindow("Classify", &classify_open, &F_Classify);
+	if (rotate_open) {
+		ImGui::Begin("Rotate", &rotate_open);
+		F_Rotate();
+		ImGui::End();
+	}
+	if (translate_open) {
+		ImGui::Begin("Translate", &translate_open);
+		F_Translate();
+		ImGui::End();
+	}
+	if (scale_open) {
+		ImGui::Begin("Scale", &scale_open);
+		F_Scale();
+		ImGui::End();
+	}
+	if (displace_open) {
+		ImGui::Begin("Displace", &displace_open);
+		F_Displace();
+		ImGui::End();
+	}
+	if (lsys_open) {
+		ImGui::Begin("Lsystem", &lsys_open);
+		F_Lsystem();
+		ImGui::End();
+	}
+	if (classify_open) {
+		ImGui::Begin("Classify", &classify_open);
+		F_Classify();
+		ImGui::End();
+	}
 }
 
 void BLEV::ShowContent()
@@ -613,6 +637,7 @@ void BLEV::F_Scale() {
 			if (chosen_prims.size() != 0) {
 				tr_chpr_rtp(chosen_prims, lammy);
 			}
+
 			for (auto lsys : chosen_lsys) {
 				lsys->scale(scaleX, scaleY, nullptr);
 			}
