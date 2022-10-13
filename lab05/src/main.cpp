@@ -853,7 +853,6 @@ int main(void)
 	ImGui_ImplOpenGL3_Init();
 
 	static bool p_open = true;
-	static bool p_lsys = false;
 
 
 	/* Loop until the user closes the window */
