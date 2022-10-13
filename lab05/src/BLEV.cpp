@@ -1,4 +1,5 @@
-﻿#include "BLEV.h"
+﻿#define _CRT_SECURE_NO_WARNINGS
+#include "BLEV.h"
 #include <functional>
 
 typedef void (BLEV::* MemberPointerType)();
@@ -114,16 +115,21 @@ void BLEV::ShowMenuBar()
 
 void BLEV::ShowAdditionalWindows()
 {
-	if (rotate_open) NewWindow("Rotate", &rotate_open, &F_Rotate);
-	if (translate_open) NewWindow("Translate", &translate_open, &F_Translate);
-	if (scale_open) NewWindow("Scale", &scale_open, &F_Scale);
-	if (displace_open) NewWindow("Displace", &displace_open, &F_Displace);
-	if (lsys_open) NewWindow("Lsystem", &lsys_open, &F_Lsystem);
-	if (classify_open) NewWindow("Classify", &classify_open, &F_Classify);
+	//if (rotate_open) NewWindow("Rotate", &rotate_open, &F_Rotate);
+	//if (translate_open) NewWindow("Translate", &translate_open, &F_Translate);
+	//if (scale_open) NewWindow("Scale", &scale_open, &F_Scale);
+	//if (displace_open) NewWindow("Displace", &displace_open, &F_Displace);
+	//if (lsys_open) NewWindow("Lsystem", &lsys_open, &F_Lsystem);
+	//if (classify_open) NewWindow("Classify", &classify_open, &F_Classify);
 }
 
 void BLEV::ShowContent()
 {
+	static bool use_work_area = true;
+	const ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGui::SetNextWindowPos(use_work_area ? viewport->WorkPos : viewport->Pos);
+	ImGui::SetNextWindowSize(use_work_area ? viewport->WorkSize : viewport->Size);
+
 	if (ImGui::Begin("CringeCAD", (bool*)0, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBringToFrontOnFocus))
 	{
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));

@@ -221,13 +221,12 @@ private:
 	bool classify_open = false;
 
 public:
-	BLEV() {
-
-	}
+	BLEV() {}
 
 	void ShowMenuBar();
 	void ShowAdditionalWindows();
 	void ShowContent();
+
 private:
 	void ShowModes();
 	void ShowFuncs();
