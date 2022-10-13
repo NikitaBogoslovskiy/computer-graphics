@@ -166,7 +166,6 @@ void BLEV::ShowContent()
 				//ImGui::Separator();
 			}
 
-
 			for (size_t i = 0; i < fractals.size(); i++)
 			{
 				ShowFractalTableRow(fractals[i], i);
@@ -516,6 +515,7 @@ void BLEV::NewWindow(const char* label, bool* p_open, MemberPointerType func)
 
 void BLEV::F_Rotate() {
 	ImGui::BeginGroup();
+	ImGui::SetNextItemWidth(-FLT_MIN);
 	ImGui::InputText("##ConsoleRotate", console[0]->pseudo_console, 100);
 	if (!console[0]->feedback.empty()) {
 		ImGui::TextColored(console[0]->feedback_color, console[0]->feedback.c_str());
@@ -567,6 +567,7 @@ void BLEV::F_Rotate() {
 
 void BLEV::F_Translate() {
 	ImGui::BeginGroup();
+	ImGui::SetNextItemWidth(-FLT_MIN);
 	ImGui::InputText("##ConsoleTranslate", console[1]->pseudo_console, 100);
 	if (!console[1]->feedback.empty()) {
 		ImGui::TextColored(console[1]->feedback_color, console[1]->feedback.c_str());
@@ -599,6 +600,7 @@ void BLEV::F_Translate() {
 
 void BLEV::F_Scale() {
 	ImGui::BeginGroup();
+	ImGui::SetNextItemWidth(-FLT_MIN);
 	ImGui::InputText("##ConsoleScale", console[2]->pseudo_console, 100);
 	if (!console[2]->feedback.empty()) {
 		ImGui::TextColored(console[2]->feedback_color, console[2]->feedback.c_str());
@@ -639,6 +641,7 @@ void BLEV::F_Scale() {
 
 void BLEV::F_Displace() {
 	ImGui::BeginGroup();
+	ImGui::SetNextItemWidth(-FLT_MIN);
 	ImGui::InputText("##ConsoleDisplace", console[3]->pseudo_console, 100);
 	if (!console[3]->feedback.empty()) {
 		ImGui::TextColored(console[3]->feedback_color, console[3]->feedback.c_str());
