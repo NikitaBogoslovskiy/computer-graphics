@@ -166,7 +166,6 @@ void BLEV::ShowContent()
 				//ImGui::Separator();
 			}
 
-
 			for (size_t i = 0; i < fractals.size(); i++)
 			{
 				ShowFractalTableRow(fractals[i], i);
@@ -515,14 +514,11 @@ void BLEV::NewWindow(const char* label, bool* p_open, MemberPointerType func)
 }
 
 void BLEV::F_Rotate() {
-	static char pseudo_console[100] = { '\0' };
-	static std::string feedback;
-	static ImVec4 feedback_color;
-
 	ImGui::BeginGroup();
-	ImGui::InputText("##Console", pseudo_console, 100);
-	if (!feedback.empty()) {
-		ImGui::TextColored(feedback_color, feedback.c_str());
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	ImGui::InputText("##ConsoleRotate", console[0]->pseudo_console, 100);
+	if (!console[0]->feedback.empty()) {
+		ImGui::TextColored(console[0]->feedback_color, console[0]->feedback.c_str());
 	}
 	ImGui::EndGroup();
 	HelpPrevItem("anlge(degree)");
@@ -536,11 +532,11 @@ void BLEV::F_Rotate() {
 			for (auto lsys : chosen_lsys) {
 				lsys->rotate(DegreesToRadians(90.f), nullptr);
 			}
-			feedback = "";
+			console[0]->feedback = "";
 		}
 		catch (std::exception& e) {
-			feedback = e.what();
-			feedback_color = ImVec4(255, 0, 0, 255);
+			console[0]->feedback = e.what();
+			console[0]->feedback_color = ImVec4(255, 0, 0, 255);
 		}
 	}
 
@@ -548,9 +544,9 @@ void BLEV::F_Rotate() {
 
 	if (ImGui::Button("Rotate N")) {
 		try {
-			char* nstr = pseudo_console; float angle;
+			char* nstr = console[0]->pseudo_console; float angle;
 			if (sscanf(nstr, "%f", &angle) != 1) throw std::invalid_argument("Incorrect arguments format for rotate N");
-			feedback = "";
+			console[0]->feedback = "";
 			auto lammy = [&angle](Primitive* prim, ImVec2* origin) { prim->rotate(DegreesToRadians(angle), origin); };
 			if (chosen_prims.size() + chosen_lsys.size() == 0) {
 				throw std::invalid_argument("The number of selected objects must be at least 1");
@@ -563,30 +559,27 @@ void BLEV::F_Rotate() {
 			}
 		}
 		catch (std::exception& e) {
-			feedback = e.what();
-			feedback_color = ImVec4(255, 0, 0, 255);
+			console[0]->feedback = e.what();
+			console[0]->feedback_color = ImVec4(255, 0, 0, 255);
 		}
 	}
 }
 
 void BLEV::F_Translate() {
-	static char pseudo_console[100] = { '\0' };
-	static std::string feedback;
-	static ImVec4 feedback_color;
-
 	ImGui::BeginGroup();
-	ImGui::InputText("##Console", pseudo_console, 100);
-	if (!feedback.empty()) {
-		ImGui::TextColored(feedback_color, feedback.c_str());
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	ImGui::InputText("##ConsoleTranslate", console[1]->pseudo_console, 100);
+	if (!console[1]->feedback.empty()) {
+		ImGui::TextColored(console[1]->feedback_color, console[1]->feedback.c_str());
 	}
 	ImGui::EndGroup();
 	HelpPrevItem("dx;dy");
 
 	if (ImGui::Button("Translate")) {
 		try {
-			char* nstr = pseudo_console; float dx, dy;
+			char* nstr = console[1]->pseudo_console; float dx, dy;
 			if (sscanf(nstr, "%f%*c%f", &dx, &dy) != 2) throw std::invalid_argument("Incorrect arguments format for translate");
-			feedback = "";
+			console[1]->feedback = "";
 			auto d = ImVec2(-1 * dx, -1 * dy);
 			auto lammy = [&dx, &dy, &d](Primitive* prim) { prim->translate(&d); };
 
@@ -599,31 +592,28 @@ void BLEV::F_Translate() {
 			}
 		}
 		catch (std::exception& e) {
-			feedback = e.what();
-			feedback_color = ImVec4(255, 0, 0, 255);
+			console[1]->feedback = e.what();
+			console[1]->feedback_color = ImVec4(255, 0, 0, 255);
 		}
 	}
 }
 
 void BLEV::F_Scale() {
-	static char pseudo_console[100] = { '\0' };
-	static std::string feedback;
-	static ImVec4 feedback_color;
-
 	ImGui::BeginGroup();
-	ImGui::InputText("##Console", pseudo_console, 100);
-	if (!feedback.empty()) {
-		ImGui::TextColored(feedback_color, feedback.c_str());
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	ImGui::InputText("##ConsoleScale", console[2]->pseudo_console, 100);
+	if (!console[2]->feedback.empty()) {
+		ImGui::TextColored(console[2]->feedback_color, console[2]->feedback.c_str());
 	}
 	ImGui::EndGroup();
 	HelpPrevItem("s_x;s_y (scale factors)");
 
 	if (ImGui::Button("Scale")) {
 		try {
-			char* nstr = pseudo_console; float scaleX, scaleY;
+			char* nstr = console[2]->pseudo_console; float scaleX, scaleY;
 			if (sscanf(nstr, "%f%*c%f", &scaleX, &scaleY) != 2) throw std::invalid_argument("Incorrect arguments format for scale");
 			if (scaleX <= 0 || scaleY <= 0) throw std::invalid_argument("Incorrect arguments format for scale");
-			feedback = "";
+			console[2]->feedback = "";
 
 			auto lammy = [&scaleX, &scaleY](Primitive* prim, ImVec2* origin) {
 				if (dynamic_cast<Point*>(prim) != NULL || dynamic_cast<Edge*>(prim) != NULL) return;
@@ -643,21 +633,18 @@ void BLEV::F_Scale() {
 			}
 		}
 		catch (std::exception& e) {
-			feedback = e.what();
-			feedback_color = ImVec4(255, 0, 0, 255);
+			console[2]->feedback = e.what();
+			console[2]->feedback_color = ImVec4(255, 0, 0, 255);
 		}
 	}
 }
 
 void BLEV::F_Displace() {
-	static char pseudo_console[100] = { '\0' };
-	static std::string feedback;
-	static ImVec4 feedback_color;
-
 	ImGui::BeginGroup();
-	ImGui::InputText("##Console", pseudo_console, 100);
-	if (!feedback.empty()) {
-		ImGui::TextColored(feedback_color, feedback.c_str());
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	ImGui::InputText("##ConsoleDisplace", console[3]->pseudo_console, 100);
+	if (!console[3]->feedback.empty()) {
+		ImGui::TextColored(console[3]->feedback_color, console[3]->feedback.c_str());
 	}
 	ImGui::EndGroup();
 	HelpPrevItem("R=_ I=_ iters=_");
@@ -678,7 +665,7 @@ void BLEV::F_Displace() {
 				points.push_back(prim);
 			}
 
-			char* nstr = pseudo_console;
+			char* nstr = console[3]->pseudo_console;
 			int R, I, iter_num;
 			if (sscanf(nstr, "R=%d I=%d iters=%d", &R, &I, &iter_num) != 3)
 				throw std::invalid_argument("Incorrect arguments format for displace");
@@ -686,7 +673,7 @@ void BLEV::F_Displace() {
 				throw std::invalid_argument("R and I cannot be negative");
 			if (iter_num < 1)
 				throw std::invalid_argument("Iterations number must be positive");
-			feedback = "";
+			console[3]->feedback = "";
 
 			curr_displacement = midpointDisplacement(prev_displacement, points[0], points[1], R, I, iter_num);
 			if (prev_displacement.size() != 0)
@@ -700,8 +687,8 @@ void BLEV::F_Displace() {
 			primitives.push_back(&prev_displacement);
 		}
 		catch (std::exception& e) {
-			feedback = e.what();
-			feedback_color = ImVec4(255, 0, 0, 255);
+			console[3]->feedback = e.what();
+			console[3]->feedback_color = ImVec4(255, 0, 0, 255);
 		}
 	}
 }

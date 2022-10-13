@@ -61,6 +61,11 @@ private:
 			return 1;
 		}
 	};
+	struct ConsoleFields {
+		char pseudo_console[100] = { '\0' };
+		std::string feedback;
+		ImVec4 feedback_color;
+	};
 
 	const uint8_t classificationTypeSize = 3;
 	const char* classificationType[3]{ "Point and Edge", "Point and Convex Polygon", "Point and Non-convex Polygon" };
@@ -211,6 +216,12 @@ private:
 																std::make_pair('X', "F[@[-X]+X]")
 															},
 															"F"),
+	};
+	std::vector<ConsoleFields*> console{
+		new ConsoleFields(),
+		new ConsoleFields(),
+		new ConsoleFields(),
+		new ConsoleFields()
 	};
 
 	bool rotate_open = false;
