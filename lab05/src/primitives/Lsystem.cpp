@@ -132,7 +132,7 @@ void Lsystem::draw(ImDrawList* draw_list, const ImVec2& offset)
 		else {
 			for (auto _fractal : _prims) {
 				_fractal->thickness() = _thickness;
-				_fractal->draw_polyline(draw_list, offset);
+				_fractal->draw_polyline(draw_list, offset, _fractal->color());
 			}
 		}
 	}

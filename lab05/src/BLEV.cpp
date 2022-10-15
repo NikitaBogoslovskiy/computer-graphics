@@ -6,8 +6,8 @@ typedef void (BLEV::* MemberPointerType)();
 
 void BLEV::ShowModes()
 {
-	static const unsigned char modesSize = 5;
-	static const char* modesList[modesSize]{ "Translation", "Point", "Edge", "Polygon", "Bezier Curve" };
+	static const unsigned char modesSize = 6;
+	static const char* modesList[modesSize]{ "Translation", "Point", "Edge", "Polygon", "Bezier Curve", "Select"};
 	for (size_t i = 0; i < modesSize; i++) {
 		if (ImGui::Selectable(modesList[i], chosenMode == i)) {
 			chosenMode = i;
@@ -293,6 +293,24 @@ void BLEV::ShowContent()
 					new_prim = NULL;
 				}
 				break;
+			case Mode::Select:
+				if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+				{
+					for (int i = 0; primitives.size(); i++)
+					{
+						size_t p_ind = primitives[i]->find_point(mouse_pos_in_canvas);
+						if (p_ind != primitives[i]->size()) {
+							if (chosen_prims.find(primitives[i]) == chosen_prims.end()) {
+								chosen_prims.insert(primitives[i]);
+							}
+							else {
+								chosen_prims.erase(primitives[i]);
+							}
+							break;
+						}
+					}
+				}
+				break;
 			default:
 				break;
 			}
@@ -352,7 +370,9 @@ void BLEV::ShowContent()
 
 
 			for (size_t i = 0; i < primitives.size(); i++) {
-				primitives[i]->draw(draw_list, origin);
+				primitives[i]->draw(draw_list,
+					origin,
+					chosen_prims.find(primitives[i]) == chosen_prims.end() ? primitives[i]->color() : IM_COL32(255, 0, 0, 255));
 			}
 
 			for (size_t i = 0; i < fractals.size(); i++) {

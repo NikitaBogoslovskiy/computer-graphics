@@ -1,4 +1,3 @@
-#pragma once
 #ifndef _CHECKS_H_
 #define _CHECKS_H_
 

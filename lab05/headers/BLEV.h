@@ -1,4 +1,6 @@
-#pragma once
+#ifndef _BLEV_H_
+#define _BLEV_H_
+
 #include "pch.h"
 #include "geometry.h"
 #include <functional>
@@ -11,7 +13,8 @@ private:
 		Point,
 		Edge,
 		Polygon,
-		BezierCurve
+		BezierCurve,
+		Select
 	};
 	enum AddingLine {
 		None,
@@ -275,3 +278,4 @@ private:
 	ImVector<ImVec2*> get_intersections(Primitive* curr, std::vector<Primitive*> prims);
 };
 
+#endif // _BLEV_H_

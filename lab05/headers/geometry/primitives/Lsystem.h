@@ -1,4 +1,3 @@
-#pragma once
 #ifndef __LSYSTEM__
 #define __LSYSTEM__
 

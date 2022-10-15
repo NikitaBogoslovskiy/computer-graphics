@@ -1,4 +1,3 @@
-#pragma once
 #ifndef _PRIMITIVE_H_
 #define _PRIMITIVE_H_
 
@@ -66,8 +65,8 @@ public:
 	inline void pop_back() { points->pop_back(); }
 	inline void pop(const ImVec2* it) { points->erase(it); }
 
-	virtual void draw(ImDrawList*, const ImVec2&);
-	virtual void draw_polyline(ImDrawList*, const ImVec2&);
+	virtual void draw(ImDrawList*, const ImVec2&, const ImU32& col);
+	virtual void draw_polyline(ImDrawList*, const ImVec2&, const ImU32& col);
 	virtual void draw_polyline(ImDrawList*, const ImVec2&, const ImVec4& from_col, const ImVec4& col_offset, const float& from_th, const float& th_offset);
 
 	virtual void draw_previe(ImDrawList*, const ImVec2&);
@@ -79,6 +78,18 @@ public:
 			y += this->at(i).y;
 		}
 		return ImVec2(x / size(), y / size());
+	}
+
+	inline size_t find_point(const ImVec2& sample) {
+		size_t ind = -1;
+		for (ind; ind < size(); ind++) {
+			auto dx = this->at(ind).x - sample.x;
+			auto dy = this->at(ind).y - sample.y;
+			if (dx * dx + dy * dy <= std::max(10.f, thickness() * thickness())) { // just for user convenience - not having them pixelhunting in case of microscopic thickness
+				break;
+			}
+		}
+		return ind;
 	}
 
 	//rotate(const float& angle, const ImVec2& d = ImVec2(0.f, 0.f))
