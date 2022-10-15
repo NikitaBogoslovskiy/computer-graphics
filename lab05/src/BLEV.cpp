@@ -1,16 +1,55 @@
 ﻿#define _CRT_SECURE_NO_WARNINGS
 #include "BLEV.h"
 #include <functional>
+#include <iostream>
 
 typedef void (BLEV::* MemberPointerType)();
 
 void BLEV::ShowModes()
 {
-	static const unsigned char modesSize = 6;
-	static const char* modesList[modesSize]{ "Translation", "Point", "Edge", "Polygon", "Bezier Curve", "Select"};
 	for (size_t i = 0; i < modesSize; i++) {
 		if (ImGui::Selectable(modesList[i], chosenMode == i)) {
 			chosenMode = i;
+		}
+	}
+}
+
+void BLEV::CheckCallbacks() {
+	for (size_t i = 0; i < hotkeysSize; i++) {
+		if (funcs::IsLegacyNativeDupe(hotkeys[i])) continue;
+		if (ImGui::IsKeyPressed(ImGuiKey_Escape)) {
+			if (chosenPrimEditMode != (int)PrimEditMode::None) {
+				chosenPrimEditMode = (int)PrimEditMode::None;
+			}
+			else {
+				chosen_prims.clear();
+			}
+
+			break;
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_M)) {
+			chosenMode = (int)Mode::FreeMove;
+			break;
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_P)) {
+			chosenMode = (int)Mode::Point;
+			break;
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_E)) {
+			chosenMode = (int)Mode::Edge;
+			break;
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_G)) {
+			chosenMode = (int)Mode::Polygon;
+			break;
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_B)) {
+			chosenMode = (int)Mode::BezierCurve;
+			break;
+		}
+		if (ImGui::IsKeyPressed(ImGuiKey_S)) {
+			chosenMode = (int)Mode::Select;
+			break;
 		}
 	}
 }
@@ -98,16 +137,23 @@ void BLEV::ShowMenuBar()
 			ImGui::EndMenu();
 		}
 
-		if (ImGui::BeginMenu("Funcs"))
+		ImGui::Separator();
+
+		if (ImGui::BeginMenu("Edit"))
 		{
 			ShowFuncs();
 			ImGui::EndMenu();
 		}
 
 		ImGui::SetNextItemWidth(250.f);
+
 		ImGui::DragFloat("##globalThickness", &thickness, 0.05f, 1.f, 10.f, "thickness = %.1f", ImGuiSliderFlags_AlwaysClamp);
 
 		ImGui::ColorEdit4("Line color", curr_color, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+
+		ImGui::Separator();
+
+		ImGui::Text("Mode: %s", chosenPrimEditMode==(int)PrimEditMode::None? modesList[chosenMode] : primEditModesList[chosenPrimEditMode]);
 
 		ImGui::EndMainMenuBar();
 	}
@@ -206,6 +252,7 @@ void BLEV::ShowContent()
 			const ImVec2 origin(canvas_p0.x + scrolling.x, canvas_p0.y + scrolling.y); // Lock scrolled origin
 			const ImVec2 mouse_pos_in_canvas(io.MousePos.x - origin.x, io.MousePos.y - origin.y);
 
+			CheckCallbacks();
 			switch ((Mode)chosenMode)
 			{
 			case Mode::Point:
@@ -296,18 +343,74 @@ void BLEV::ShowContent()
 			case Mode::Select:
 				if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 				{
-					for (int i = 0; primitives.size(); i++)
-					{
-						size_t p_ind = primitives[i]->find_point(mouse_pos_in_canvas);
-						if (p_ind != primitives[i]->size()) {
-							if (chosen_prims.find(primitives[i]) == chosen_prims.end()) {
-								chosen_prims.insert(primitives[i]);
+					if (chosen_prims.size() == 1 && chosenPrimEditMode == (int)PrimEditMode::SelectPoints) {
+						Primitive* prim = *chosen_prims.begin();
+						size_t p_ind = prim->find_point(mouse_pos_in_canvas);
+						if (p_ind != prim->size()) {
+							std::cout << prim->at(p_ind).x << " " << prim->at(p_ind).y << std::endl;
+							if (chosen_prim_points.find(&prim->at(p_ind)) == chosen_prim_points.end()) {
+								chosen_prim_points.insert(&prim->at(p_ind));
 							}
 							else {
-								chosen_prims.erase(primitives[i]);
+								chosen_prim_points.erase(&prim->at(p_ind));
 							}
 							break;
 						}
+					}
+					else if (chosenPrimEditMode != (int)PrimEditMode::MovePoints)  {
+						for (int i = 0; i < primitives.size(); i++)
+						{
+							size_t p_ind = primitives[i]->find_point(mouse_pos_in_canvas);
+							if (p_ind != primitives[i]->size()) {
+								if (chosen_prims.find(primitives[i]) == chosen_prims.end()) {
+									chosen_prims.insert(primitives[i]);
+								}
+								else {
+									chosen_prims.erase(primitives[i]);
+								}
+								break;
+							}
+						}
+					}
+				}
+				break;
+			case Mode::FreeMove:
+				if (is_hovered && !adding_line && chosen_prims.size() > 0 && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+				{
+					if (chosen_prims.size() == 1 && chosenPrimEditMode == (int)PrimEditMode::MovePoints) {
+						std::cout << "kuku" << std::endl;
+						Primitive* prim = *chosen_prims.begin();
+						size_t p_ind = prim->find_point(mouse_pos_in_canvas);
+						int ind = prim->find_point(mouse_pos_in_canvas);
+						if (ind != prim->size()) {
+							setTouchedPrim(prim, ind);
+							break;
+						}
+					}
+					else {
+						for (auto prim = chosen_prims.begin(); prim != chosen_prims.end(); prim++) {
+							int ind = (*prim)->find_point(mouse_pos_in_canvas);
+							if (ind != (*prim)->size()) {
+								setTouchedPrim(*prim, ind);
+								break;
+							}
+						}
+					}
+					if (point_of_transformation != -1) {
+						adding_line = FirstClick;
+					}
+				}
+				if (adding_line == FirstClick && point_of_transformation != -1) {
+					ImVec2 d = touched_prim->at(point_of_transformation) - mouse_pos_in_canvas;
+					if (chosen_prims.size() == 1 && chosenPrimEditMode == (int)PrimEditMode::MovePoints) {
+						std::for_each(chosen_prim_points.begin(), chosen_prim_points.end(), [&d](ImVec2* iv) { *iv = *iv + d; });
+					}
+					else {
+						std::for_each(chosen_prims.begin(), chosen_prims.end(), [&d](Primitive* prim) { prim->translate(&d); });
+					}
+					if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+						setTouchedPrim(nullptr, -1);
+						adding_line = None;
 					}
 				}
 				break;
@@ -329,6 +432,55 @@ void BLEV::ShowContent()
 			if (!adding_line && opt_enable_context_menu && drag_delta.x == 0.0f && drag_delta.y == 0.0f) {
 				ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
 				if (ImGui::BeginPopup("context")) {
+					if (chosen_prims.size() == 1) {
+						Primitive* prim = *chosen_prims.begin();
+						ImGui::TextColored(ImVec4(100.f, 100.f, 100.f, 255), "%d-gon figure", prim->size());
+
+						if (ImGui::MenuItem("Cancel selection", NULL, false, chosen_prims.size() == 1)) {
+							chosen_prims.erase(prim);
+						}
+
+						if (ImGui::MenuItem("Delete object", NULL, false, chosen_prims.size() == 1)) {
+							chosen_prims.erase(prim);
+							primitives.erase(std::remove(primitives.begin(), primitives.end(), prim), primitives.end());
+						}
+
+						if (ImGui::BeginMenu("Points...")) {
+							if (ImGui::MenuItem("Select", NULL, false, chosen_prims.size() == 1)) {
+								std::cout << "selecting" << std::endl;
+								if (chosenPrimEditMode == (int)PrimEditMode::SelectPoints) {
+									chosenPrimEditMode = (int)PrimEditMode::None;
+								}
+								else {
+									chosenPrimEditMode = (int)PrimEditMode::SelectPoints;
+								}
+							}
+							if (ImGui::MenuItem("Move", NULL, false, chosen_prims.size() == 1)) {
+								std::cout << "moving" << std::endl;
+								if (chosenPrimEditMode == (int)PrimEditMode::MovePoints) {
+									chosenPrimEditMode = (int)PrimEditMode::None;
+								}
+								else {
+									chosenPrimEditMode = (int)PrimEditMode::MovePoints;
+								}
+							}
+							if (ImGui::MenuItem("Delete", NULL, false, chosen_prims.size() == 1 && chosen_prim_points.size() > 0)) {
+								// deleting if prim size == 0?
+								/*
+								for (auto it = chosen_prim_points.begin(); it != chosen_prim_points.end(); ++it) {
+									auto pt = *it;
+									Primitive* prim = *chosen_prims.begin();
+									prim->pop(pt);
+									chosen_prim_points.erase(it);
+								}
+								*/
+							}
+							ImGui::EndMenu();
+						}
+
+						ImGui::Separator();
+					}
+
 					if (ImGui::MenuItem("Remove last prim", NULL, false, primitives.size() > 0)) {
 						chosen_prims.erase(primitives.back());
 						if (primitives.back() == &prev_displacement)
@@ -482,7 +634,6 @@ void BLEV::ShowPrimitiveTableRow(Primitive* prim, size_t idx)
 
 	ImGui::PopID();
 }
-
 
 void BLEV::ShowFractalTableRow(Lsystem* lsys, size_t idx)
 {
@@ -920,7 +1071,7 @@ void BLEV::F_Classify() {
 	}
 }
 
-template<typename _Container, 
+template<typename _Container,
 	typename _Value,
 	typename>
 std::tuple<int, ImVec2*> BLEV::detect_point(const _Container& primitives) {
@@ -938,15 +1089,15 @@ int BLEV::tr_chpr_rtp(const _Container& primitives, std::function<void(Primitive
 	int pointsCount; ImVec2* origin;
 	std::tie(pointsCount, origin) = detect_point(primitives);
 
-	std::for_each(primitives.begin(), primitives.end(), [&lammy, &origin](Primitive* prim) { 
+	std::for_each(primitives.begin(), primitives.end(), [&lammy, &origin](Primitive* prim) {
 		auto test = dynamic_cast<Point*>(prim);
 		if (test != NULL && &(test->at(0)) == origin) return;
 		lammy(prim, origin);
-	});
+		});
 	return 0;
 }
 
-Primitive BLEV::midpointDisplacement(Primitive & displacement, Point * p1, Point * p2, int R, int I, int iter_num)
+Primitive BLEV::midpointDisplacement(Primitive& displacement, Point* p1, Point* p2, int R, int I, int iter_num)
 {
 	auto color = p1->color();
 	float thikness = 1;
@@ -1008,7 +1159,7 @@ Primitive BLEV::midpointDisplacement(Primitive & displacement, Point * p1, Point
 	return result;
 }
 
-void BLEV::pointPositionWithPolygon(Point & point, Primitive & polygon, bool& isInside, float canvas_width)
+void BLEV::pointPositionWithPolygon(Point& point, Primitive& polygon, bool& isInside, float canvas_width)
 {
 	auto edge = Edge(point[0], ImVec2(canvas_width, point[0].y), point.color(), point.thickness());
 	std::set<Primitive*> prims = { &polygon, &edge };

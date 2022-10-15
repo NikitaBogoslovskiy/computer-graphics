@@ -13,9 +13,9 @@ void BezierCurve::draw_skeleton(ImDrawList* draw_list, const ImVec2& offset, con
 	if (!show()) return;
 	for (size_t i = 0; i < size() - 1; i++) {
 		draw_list->AddLine(this->points->Data[i] + offset, this->points->Data[i + 1] + offset, IM_COL32((uint8_t)(ImGui::GetTime() * 60), (uint8_t)(ImGui::GetTime() * 40), (uint8_t)(ImGui::GetTime() * 20), 255), thickness());
-		draw_list->AddCircleFilled(this->points->Data[i] + offset, 4.f, col, 10);
+		draw_list->AddCircleFilled(this->points->Data[i] + offset, 3.f, col, 10);
 	}
-	draw_list->AddCircleFilled(this->points->Data[size() - 1] + offset, 4.f, col, 10);
+	draw_list->AddCircleFilled(this->points->Data[size() - 1] + offset, 3.f, col, 10);
 }
 
 // spits out point corresponding to t assuming we draw a curve based on 4 points

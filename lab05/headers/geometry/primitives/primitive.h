@@ -63,7 +63,7 @@ public:
 	inline ImVec2& back() { return points->Data[size() - 1]; }
 
 	inline void pop_back() { points->pop_back(); }
-	inline void pop(const ImVec2* it) { points->erase(it); }
+	inline void pop(ImVec2* iv) { points->erase(iv); }
 
 	virtual void draw(ImDrawList*, const ImVec2&, const ImU32& col);
 	virtual void draw_polyline(ImDrawList*, const ImVec2&, const ImU32& col);
@@ -80,12 +80,12 @@ public:
 		return ImVec2(x / size(), y / size());
 	}
 
-	inline size_t find_point(const ImVec2& sample) {
-		size_t ind = -1;
-		for (ind; ind < size(); ind++) {
+	inline int find_point(const ImVec2& sample) {
+		int ind = -1;
+		for (ind; ind < (int)size(); ind++) {
 			auto dx = this->at(ind).x - sample.x;
 			auto dy = this->at(ind).y - sample.y;
-			if (dx * dx + dy * dy <= std::max(10.f, thickness() * thickness())) { // just for user convenience - not having them pixelhunting in case of microscopic thickness
+			if (dx * dx + dy * dy <= std::max(9.f, thickness() * thickness())) { // just for user convenience - not having them pixelhunting in case of microscopic thickness
 				break;
 			}
 		}

@@ -9,12 +9,17 @@ class BLEV
 {
 private:
 	enum class Mode {
-		Translating,
 		Point,
 		Edge,
 		Polygon,
 		BezierCurve,
-		Select
+		Select,
+		FreeMove
+	};
+	enum class PrimEditMode {
+		None,
+		SelectPoints,
+		MovePoints
 	};
 	enum AddingLine {
 		None,
@@ -70,6 +75,19 @@ private:
 		ImVec4 feedback_color;
 	};
 
+	//static const uint8_t modesSize = 7;
+	//static char* modesList[modesSize]{ "Translation", "Point", "Edge", "Polygon", "Bezier Curve", "Select", "Free Move" };
+	static const uint8_t primEditModesSize = 3;
+	const char* primEditModesList[primEditModesSize]{ "None", "Select points", "Move points" };
+
+
+	static const uint8_t modesSize = 6;
+	const char* modesList[modesSize]{ "Point", "Edge", "Polygon", "Bezier Curve", "Select", "Free Move" };
+
+	struct funcs { static bool IsLegacyNativeDupe(ImGuiKey key) { return key < 512 && ImGui::GetIO().KeyMap[key] != -1; } }; // Hide Native<>ImGuiKey duplicates when both exists in the array
+	static const uint8_t hotkeysSize = 1;
+	const ImGuiKey hotkeys[hotkeysSize]{ ImGuiKey_M };
+
 	const uint8_t classificationTypeSize = 3;
 	const char* classificationType[3]{ "Point and Edge", "Point and Convex Polygon", "Point and Non-convex Polygon" };
 
@@ -78,16 +96,26 @@ private:
 
 	ImVec2 canvas_sz;
 	float canvas_width;
-	
+
 	Primitive&& prev_displacement = std::move(Primitive(ImU32(1), 1));
 	Primitive curr_displacement = Primitive(ImU32(1), 1);
 
+	Primitive* touched_prim = nullptr;
+	int point_of_transformation = -1;
+	void setTouchedPrim(Primitive* new_touched_prim, const int& new_point) {
+		touched_prim = new_touched_prim;
+		point_of_transformation = new_point;
+	}
+
+	size_t chosenPrimEditMode = 0;
 	size_t chosenMode = 0;
+	std::set<ImVec2*> chosen_prim_points;
 
 	std::vector<Primitive*> primitives;
 	std::vector<Lsystem*> fractals;
 	std::set<Primitive*> chosen_prims;
 	std::set<Lsystem*> chosen_lsys;
+
 	Primitive* new_prim;
 
 	ImVector<ImVec2*> intersections;
@@ -244,11 +272,12 @@ public:
 private:
 	void ShowModes();
 	void ShowFuncs();
+	void CheckCallbacks();
 
 	void ShowPrimitiveTableRow(Primitive* prim, size_t idx);
 	void ShowFractalTableRow(Lsystem* lsys, size_t idx);
 
-	void NewWindow(const char* label, bool* p_open, void (BLEV::*func)());
+	void NewWindow(const char* label, bool* p_open, void (BLEV::* func)());
 
 	void F_Rotate();
 	void F_Translate();
@@ -260,12 +289,12 @@ private:
 	template<typename _Container,
 		typename _Value = typename _Container::value_type,
 		typename = std::enable_if_t<std::is_convertible_v<_Value, Primitive*>>>
-		std::tuple<int, ImVec2*> detect_point(const _Container& primitives);
+	std::tuple<int, ImVec2*> detect_point(const _Container& primitives);
 
 	template<typename _Container,
 		typename _Value = typename _Container::value_type,
 		typename = std::enable_if_t<std::is_convertible_v<_Value, Primitive*>>>
-		int tr_chpr_rtp(const _Container& primitives, std::function<void(Primitive*, ImVec2*)> lammy);
+	int tr_chpr_rtp(const _Container& primitives, std::function<void(Primitive*, ImVec2*)> lammy);
 
 	Primitive midpointDisplacement(Primitive& displacement, Point* p1, Point* p2, int R, int I, int iter_num);
 
