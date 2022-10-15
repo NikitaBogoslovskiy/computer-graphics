@@ -63,7 +63,7 @@ public:
 	inline ImVec2& back() { return points->Data[size() - 1]; }
 
 	inline void pop_back() { points->pop_back(); }
-	inline void pop(ImVec2* iv) { points->erase(iv); }
+	inline void pop(const ImVec2* iv) { points->erase(iv); }
 
 	virtual void draw(ImDrawList*, const ImVec2&, const ImU32& col);
 	virtual void draw_polyline(ImDrawList*, const ImVec2&, const ImU32& col);

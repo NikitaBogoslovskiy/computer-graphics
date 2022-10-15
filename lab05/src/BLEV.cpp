@@ -18,13 +18,13 @@ void BLEV::CheckCallbacks() {
 	for (size_t i = 0; i < hotkeysSize; i++) {
 		if (funcs::IsLegacyNativeDupe(hotkeys[i])) continue;
 		if (ImGui::IsKeyPressed(ImGuiKey_Escape)) {
-			if (chosenPrimEditMode != (int)PrimEditMode::None) {
-				chosenPrimEditMode = (int)PrimEditMode::None;
+			if (chosen_prim_points.size() > 0) {
+				chosen_prim_points.clear();
 			}
 			else {
 				chosen_prims.clear();
+				chosenPrimEditMode = (int)PrimEditMode::None;
 			}
-
 			break;
 		}
 		if (ImGui::IsKeyPressed(ImGuiKey_M)) {
@@ -153,7 +153,7 @@ void BLEV::ShowMenuBar()
 
 		ImGui::Separator();
 
-		ImGui::Text("Mode: %s", chosenPrimEditMode==(int)PrimEditMode::None? modesList[chosenMode] : primEditModesList[chosenPrimEditMode]);
+		ImGui::Text("Mode: %s", chosenPrimEditMode == (int)PrimEditMode::None ? modesList[chosenMode] : primEditModesList[chosenPrimEditMode]);
 
 		ImGui::EndMainMenuBar();
 	}
@@ -253,97 +253,13 @@ void BLEV::ShowContent()
 			const ImVec2 mouse_pos_in_canvas(io.MousePos.x - origin.x, io.MousePos.y - origin.y);
 
 			CheckCallbacks();
-			switch ((Mode)chosenMode)
-			{
-			case Mode::Point:
-				if (is_hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-					primitives.push_back(new Point(mouse_pos_in_canvas, GetColorFlU32(curr_color), thickness));
-				}
-				break;
-			case Mode::Edge:
-				if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-				{
-					new_prim = new Edge(mouse_pos_in_canvas, mouse_pos_in_canvas, GetColorFlU32(curr_color), thickness);
-					adding_line = FirstClick;
-				}
-				if (adding_line == FirstClick) {
-					if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-						adding_line = ReleasedState;
-					}
-				}
-				if (adding_line == ReleasedState)
-				{
-					(*new_prim)[1] = mouse_pos_in_canvas;
-					if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+
+
+			if (chosenPrimEditMode != (int)PrimEditMode::None) {
+				switch ((PrimEditMode)chosenPrimEditMode) {
+				case PrimEditMode::SelectPoints:
+					if (is_hovered && !adding_line && chosen_prims.size() == 1 && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 					{
-						adding_line = None;
-						primitives.push_back(new_prim);
-						new_prim = NULL;
-					}
-				}
-				break;
-			case Mode::Polygon:
-				if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-				{
-					new_prim = new Primitive(GetColorFlU32(curr_color), thickness);
-					new_prim->push_back(mouse_pos_in_canvas);
-					new_prim->push_back(mouse_pos_in_canvas);
-					adding_line = FirstClick;
-				}
-				if (adding_line == FirstClick) {
-					if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-						adding_line = ReleasedState;
-					}
-				}
-				if (adding_line == ReleasedState)
-				{
-					(*new_prim).back() = mouse_pos_in_canvas;
-					if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-					{
-						adding_line = FirstClick;
-						new_prim->push_back(mouse_pos_in_canvas);
-					}
-				}
-				if (adding_line != None && ImGui::IsKeyPressed(ImGuiKey_Enter)) {
-					adding_line = None;
-					new_prim->pop_back();
-					primitives.push_back(new_prim->size() == 1 ? new Point(new_prim->at(0), new_prim->color(), new_prim->thickness()) : new_prim);
-					new_prim = NULL;
-				}
-				break;
-			case Mode::BezierCurve:
-				if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-				{
-					new_prim = new BezierCurve(GetColorFlU32(curr_color), thickness);
-					new_prim->push_back(mouse_pos_in_canvas);
-					new_prim->push_back(mouse_pos_in_canvas);
-					adding_line = FirstClick;
-				}
-				if (adding_line == FirstClick) {
-					if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-						adding_line = ReleasedState;
-					}
-				}
-				if (adding_line == ReleasedState)
-				{
-					(*new_prim).back() = mouse_pos_in_canvas;
-					if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-					{
-						adding_line = FirstClick;
-						new_prim->push_back(mouse_pos_in_canvas);
-					}
-				}
-				if (adding_line != None && ImGui::IsKeyPressed(ImGuiKey_Enter)) {
-					adding_line = None;
-					new_prim->pop_back();
-					primitives.push_back(new_prim);
-					new_prim = NULL;
-				}
-				break;
-			case Mode::Select:
-				if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-				{
-					if (chosen_prims.size() == 1 && chosenPrimEditMode == (int)PrimEditMode::SelectPoints) {
 						Primitive* prim = *chosen_prims.begin();
 						size_t p_ind = prim->find_point(mouse_pos_in_canvas);
 						if (p_ind != prim->size()) {
@@ -357,7 +273,130 @@ void BLEV::ShowContent()
 							break;
 						}
 					}
-					else if (chosenPrimEditMode != (int)PrimEditMode::MovePoints)  {
+					break;
+				case PrimEditMode::MovePoints:
+					if (is_hovered && !adding_line && chosen_prims.size() == 1 && chosen_prim_points.size() > 0 && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					{
+						std::cout << "hello!!!..." << std::endl;
+						Primitive* prim = *chosen_prims.begin();
+						size_t p_ind = prim->find_point(mouse_pos_in_canvas);
+						if (p_ind != prim->size()) {
+							std::cout << prim->at(p_ind).x << " " << prim->at(p_ind).y << std::endl;
+							setTouchedPrim(prim, p_ind);
+						}
+						if (point_of_transformation != -1) {
+							adding_line = FirstClick;
+						}
+					}
+					if (adding_line == FirstClick && point_of_transformation != -1) {
+						//ImVec2 save = (*touched_prim)[point_of_transformation];
+						ImVec2 d = (*touched_prim)[point_of_transformation] - mouse_pos_in_canvas;
+						//(*touched_prim)[point_of_transformation] = mouse_pos_in_canvas;
+						//std::cout << "d = (" << d.x << " " << d.y << ")" << std::endl;
+						std::cout << "transforming..." << std::endl;
+						std::for_each(chosen_prim_points.begin(), chosen_prim_points.end(), [&d](ImVec2* iv) { auto newPos = *iv - d; (*iv).x = newPos.x; (*iv).y = newPos.y; });
+						if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+							setTouchedPrim(nullptr, -1);
+							adding_line = None;
+						}
+					}
+					break;
+				default:
+					break;
+				}
+
+			}
+			else
+				switch ((Mode)chosenMode)
+				{
+				case Mode::Point:
+					if (is_hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+						primitives.push_back(new Point(mouse_pos_in_canvas, GetColorFlU32(curr_color), thickness));
+					}
+					break;
+				case Mode::Edge:
+					if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					{
+						new_prim = new Edge(mouse_pos_in_canvas, mouse_pos_in_canvas, GetColorFlU32(curr_color), thickness);
+						adding_line = FirstClick;
+					}
+					if (adding_line == FirstClick) {
+						if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+							adding_line = ReleasedState;
+						}
+					}
+					if (adding_line == ReleasedState)
+					{
+						(*new_prim)[1] = mouse_pos_in_canvas;
+						if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+						{
+							adding_line = None;
+							primitives.push_back(new_prim);
+							new_prim = NULL;
+						}
+					}
+					break;
+				case Mode::Polygon:
+					if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					{
+						new_prim = new Primitive(GetColorFlU32(curr_color), thickness);
+						new_prim->push_back(mouse_pos_in_canvas);
+						new_prim->push_back(mouse_pos_in_canvas);
+						adding_line = FirstClick;
+					}
+					if (adding_line == FirstClick) {
+						if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+							adding_line = ReleasedState;
+						}
+					}
+					if (adding_line == ReleasedState)
+					{
+						(*new_prim).back() = mouse_pos_in_canvas;
+						if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+						{
+							adding_line = FirstClick;
+							new_prim->push_back(mouse_pos_in_canvas);
+						}
+					}
+					if (adding_line != None && ImGui::IsKeyPressed(ImGuiKey_Enter)) {
+						adding_line = None;
+						new_prim->pop_back();
+						primitives.push_back(new_prim->size() == 1 ? new Point(new_prim->at(0), new_prim->color(), new_prim->thickness()) : new_prim);
+						new_prim = NULL;
+					}
+					break;
+				case Mode::BezierCurve:
+					if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					{
+						new_prim = new BezierCurve(GetColorFlU32(curr_color), thickness);
+						new_prim->push_back(mouse_pos_in_canvas);
+						new_prim->push_back(mouse_pos_in_canvas);
+						adding_line = FirstClick;
+					}
+					if (adding_line == FirstClick) {
+						if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+							adding_line = ReleasedState;
+						}
+					}
+					if (adding_line == ReleasedState)
+					{
+						(*new_prim).back() = mouse_pos_in_canvas;
+						if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+						{
+							adding_line = FirstClick;
+							new_prim->push_back(mouse_pos_in_canvas);
+						}
+					}
+					if (adding_line != None && ImGui::IsKeyPressed(ImGuiKey_Enter)) {
+						adding_line = None;
+						new_prim->pop_back();
+						primitives.push_back(new_prim);
+						new_prim = NULL;
+					}
+					break;
+				case Mode::Select:
+					if (is_hovered && !adding_line && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					{
 						for (int i = 0; i < primitives.size(); i++)
 						{
 							size_t p_ind = primitives[i]->find_point(mouse_pos_in_canvas);
@@ -372,22 +411,10 @@ void BLEV::ShowContent()
 							}
 						}
 					}
-				}
-				break;
-			case Mode::FreeMove:
-				if (is_hovered && !adding_line && chosen_prims.size() > 0 && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
-				{
-					if (chosen_prims.size() == 1 && chosenPrimEditMode == (int)PrimEditMode::MovePoints) {
-						std::cout << "kuku" << std::endl;
-						Primitive* prim = *chosen_prims.begin();
-						size_t p_ind = prim->find_point(mouse_pos_in_canvas);
-						int ind = prim->find_point(mouse_pos_in_canvas);
-						if (ind != prim->size()) {
-							setTouchedPrim(prim, ind);
-							break;
-						}
-					}
-					else {
+					break;
+				case Mode::FreeMove:
+					if (is_hovered && !adding_line && chosen_prims.size() > 0 && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					{
 						for (auto prim = chosen_prims.begin(); prim != chosen_prims.end(); prim++) {
 							int ind = (*prim)->find_point(mouse_pos_in_canvas);
 							if (ind != (*prim)->size()) {
@@ -395,28 +422,22 @@ void BLEV::ShowContent()
 								break;
 							}
 						}
+						if (point_of_transformation != -1) {
+							adding_line = FirstClick;
+						}
 					}
-					if (point_of_transformation != -1) {
-						adding_line = FirstClick;
-					}
-				}
-				if (adding_line == FirstClick && point_of_transformation != -1) {
-					ImVec2 d = touched_prim->at(point_of_transformation) - mouse_pos_in_canvas;
-					if (chosen_prims.size() == 1 && chosenPrimEditMode == (int)PrimEditMode::MovePoints) {
-						std::for_each(chosen_prim_points.begin(), chosen_prim_points.end(), [&d](ImVec2* iv) { *iv = *iv + d; });
-					}
-					else {
+					if (adding_line == FirstClick && point_of_transformation != -1) {
+						ImVec2 d = touched_prim->at(point_of_transformation) - mouse_pos_in_canvas;
 						std::for_each(chosen_prims.begin(), chosen_prims.end(), [&d](Primitive* prim) { prim->translate(&d); });
+						if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+							setTouchedPrim(nullptr, -1);
+							adding_line = None;
+						}
 					}
-					if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
-						setTouchedPrim(nullptr, -1);
-						adding_line = None;
-					}
+					break;
+				default:
+					break;
 				}
-				break;
-			default:
-				break;
-			}
 
 			// Pan (we use a zero mouse threshold when there's no context menu)
 			// You may decide to make that threshold dynamic based on whether the mouse is hovering something etc.
@@ -465,15 +486,20 @@ void BLEV::ShowContent()
 								}
 							}
 							if (ImGui::MenuItem("Delete", NULL, false, chosen_prims.size() == 1 && chosen_prim_points.size() > 0)) {
-								// deleting if prim size == 0?
-								/*
-								for (auto it = chosen_prim_points.begin(); it != chosen_prim_points.end(); ++it) {
-									auto pt = *it;
-									Primitive* prim = *chosen_prims.begin();
-									prim->pop(pt);
-									chosen_prim_points.erase(it);
+								Primitive* prim = *chosen_prims.begin();
+								if (prim->size() == chosen_prim_points.size()) {
+									chosen_prim_points.clear();
+									chosen_prims.erase(prim);
+									primitives.erase(std::remove(primitives.begin(), primitives.end(), prim), primitives.end());
+									if (chosen_prims.size() == 0) {
+										chosenPrimEditMode = (int)PrimEditMode::None;
+									}
 								}
-								*/
+								while (chosen_prim_points.size() > 0) {
+									ImVec2* iv = *chosen_prim_points.begin();
+									chosen_prim_points.erase(chosen_prim_points.begin());// тут он вылетает
+									prim->pop(iv);
+								}
 							}
 							ImGui::EndMenu();
 						}
@@ -535,6 +561,8 @@ void BLEV::ShowContent()
 				new_prim->draw_previe(draw_list, origin);
 			}
 
+			std::for_each(chosen_prim_points.begin(), chosen_prim_points.end(), [&draw_list, &origin](const ImVec2* ch_p) { draw_list->AddCircleFilled(*ch_p + origin, 3.f, IM_COL32(0, 255, 0, 255), 10); });
+
 			//ïåðåñå÷åíèå âûáðàííûõ ïðèìèòèâîâ
 			if (chosen_prims.size() > 0) {
 				intersections = get_intersections(chosen_prims);
@@ -587,6 +615,9 @@ void BLEV::ShowPrimitiveTableRow(Primitive* prim, size_t idx)
 		}
 		else {
 			chosen_prims.erase(prim);
+			if (chosen_prims.size() == 0) {
+				chosenPrimEditMode = (int)PrimEditMode::None;
+			}
 		}
 	}
 
@@ -617,6 +648,9 @@ void BLEV::ShowPrimitiveTableRow(Primitive* prim, size_t idx)
 					else {
 						chosen_prims.erase(prim);
 						primitives.erase(primitives.begin() + idx);
+						if (chosen_prims.size() == 0) {
+							chosenPrimEditMode = (int)PrimEditMode::None;
+						}
 					}
 				}
 				ImGui::EndPopup();
