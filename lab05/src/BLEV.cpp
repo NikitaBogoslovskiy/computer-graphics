@@ -840,7 +840,7 @@ void BLEV::F_Scale() {
 			console[2]->feedback = "";
 
 			auto lammy = [&scaleX, &scaleY](Primitive* prim, ImVec2* origin) {
-				if (dynamic_cast<Point*>(prim) != NULL || dynamic_cast<Edge*>(prim) != NULL) return;
+				if (dynamic_cast<Point*>(prim) != NULL) return;
 				prim->scale(scaleX, scaleY, origin);
 			};
 
