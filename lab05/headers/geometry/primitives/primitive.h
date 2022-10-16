@@ -63,7 +63,7 @@ public:
 	inline ImVec2& back() { return points->Data[size() - 1]; }
 
 	inline void pop_back() { points->pop_back(); }
-	inline void pop(const ImVec2* iv) { points->erase(iv); }
+	inline void pop(ImVec2* iv) { points->erase(iv); }
 
 	virtual void draw(ImDrawList*, const ImVec2&, const ImU32& col);
 	virtual void draw_polyline(ImDrawList*, const ImVec2&, const ImU32& col);
@@ -90,6 +90,10 @@ public:
 			}
 		}
 		return ind;
+	}
+
+	inline int point_ind(const ImVec2* sample) {
+		return this->points->index_from_ptr(sample); //sample - this->points->Data;
 	}
 
 	//rotate(const float& angle, const ImVec2& d = ImVec2(0.f, 0.f))

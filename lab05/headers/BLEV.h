@@ -101,7 +101,7 @@ private:
 	Primitive curr_displacement = Primitive(ImU32(1), 1);
 
 	Primitive* touched_prim = nullptr;
-	int point_of_transformation = -1;
+	int point_of_transformation = -1; // maybe index would be useful for output in some case 
 	void setTouchedPrim(Primitive* new_touched_prim, const int& new_point) {
 		touched_prim = new_touched_prim;
 		point_of_transformation = new_point;
@@ -272,7 +272,7 @@ public:
 private:
 	void ShowModes();
 	void ShowFuncs();
-	void CheckCallbacks();
+	void PollCallbacks();
 
 	void ShowPrimitiveTableRow(Primitive* prim, size_t idx);
 	void ShowFractalTableRow(Lsystem* lsys, size_t idx);
