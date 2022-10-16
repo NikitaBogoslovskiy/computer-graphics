@@ -515,8 +515,8 @@ void BLEV::ShowContent()
 						chosen_prims.erase(primitives.back());
 						if (primitives.back() == &prev_displacement)
 						{
-							prev_displacement = std::move(Primitive(ImU32(1), 1));
-							curr_displacement = Primitive(ImU32(1), 1);
+							prev_displacement.clear();
+							curr_displacement.clear();
 						}
 						primitives.pop_back();
 						if (chosen_prims.size() == 0) {
@@ -532,10 +532,9 @@ void BLEV::ShowContent()
 						fractals.clear();
 						chosen_prims.clear();
 						chosen_lsys.clear();
+						prev_displacement.clear();
+						curr_displacement.clear();
 						chosenPrimEditMode = (int)PrimEditMode::None;
-
-						prev_displacement = std::move(Primitive(ImU32(1), 1));
-						curr_displacement = Primitive(ImU32(1), 1);
 					}
 					ImGui::EndPopup();
 				}
@@ -874,9 +873,6 @@ void BLEV::F_Displace() {
 	HelpPrevItem("R=_ I=_ iters=_");
 
 	if (ImGui::Button("Displace")) {
-		prev_displacement = std::move(Primitive(ImU32(1), 1));
-		curr_displacement = Primitive(ImU32(1), 1);
-
 		try {
 			if (chosen_prims.size() != 2)
 				throw std::invalid_argument("You should choose 2 points");
@@ -906,7 +902,7 @@ void BLEV::F_Displace() {
 				if (it != primitives.end())
 					primitives.erase(it);
 			}
-			prev_displacement = std::move(curr_displacement);
+			prev_displacement = curr_displacement;
 			prev_displacement.set_connect_bounds(2);
 			primitives.push_back(&prev_displacement);
 		}

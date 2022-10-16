@@ -62,6 +62,7 @@ public:
 	inline ImVec2& front() { return points->Data[0]; }
 	inline ImVec2& back() { return points->Data[size() - 1]; }
 
+	inline void clear() { points->clear(); }
 	inline void pop_back() { points->pop_back(); }
 	inline void pop(ImVec2* iv) { points->erase(iv); }
 

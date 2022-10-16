@@ -97,7 +97,7 @@ private:
 	ImVec2 canvas_sz;
 	float canvas_width;
 
-	Primitive&& prev_displacement = std::move(Primitive(ImU32(1), 1));
+	Primitive prev_displacement = Primitive(ImU32(1), 1);
 	Primitive curr_displacement = Primitive(ImU32(1), 1);
 
 	Primitive* touched_prim = nullptr;
