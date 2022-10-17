@@ -7,11 +7,38 @@ class Primitive
 {
 protected:
 	ImVector<ImVec2>* points;
-public:
+private:
 	ImU32 _color;
 	float _thickness;
 	bool _show;
 	int _connect_bounds;
+
+	inline bool pointPositionWithEdge(const ImVec2& e1, const ImVec2& e2, const ImVec2& point)
+	{
+		float t = e1.y;
+		t = e2.y;
+		float x2 = e2.x - e1.x;
+		float y2 = -(e2.y - e1.y);
+		float px = point.x - e1.x;
+		float py = -(point.y - e1.y);
+		return (py * x2 - px * y2) > 0;
+	}
+
+	inline bool foundOnEdge(const ImVec2* start, const ImVec2* end, const float& offset, const ImVec2& point) {
+		if (point.x < std::min(start->x, end->x) || point.x > std::max(start->x, end->x) || point.y < std::min(start->y, end->y) || point.y > std::max(start->y, end->y)) return false;
+
+		auto first = ImVec2(start->x - offset, start->y);
+		auto second = ImVec2(start->x + offset, start->y);
+		auto third = ImVec2(end->x + offset, end->y);
+		auto forth = ImVec2(end->x - offset, end->y);
+
+		bool firstSide = pointPositionWithEdge(first, second, point);
+		if (pointPositionWithEdge(second, third, point) != firstSide
+			|| pointPositionWithEdge(third, forth, point) != firstSide
+			|| pointPositionWithEdge(forth, first, point) != firstSide) return false;
+		return true;
+	}
+
 public:
 	Primitive(const ImU32& color, const float& thickness) {
 		points = new ImVector<ImVec2>();
@@ -81,16 +108,25 @@ public:
 		return ImVec2(x / size(), y / size());
 	}
 
-	inline int find_point(const ImVec2& sample) {
-		int ind = -1;
-		for (ind; ind < (int)size(); ind++) {
+	inline size_t find_point(const ImVec2& sample) {
+		for (int ind = 0; ind < (int)size(); ind++) {
 			auto dx = this->at(ind).x - sample.x;
 			auto dy = this->at(ind).y - sample.y;
 			if (dx * dx + dy * dy <= std::max(9.f, thickness() * thickness())) { // just for user convenience - not having them pixelhunting in case of microscopic thickness
-				break;
+				return ind;
 			}
 		}
-		return ind;
+		return size();
+	}
+
+	inline size_t find_edge(const ImVec2& sample) {
+		for (int ind = 0; ind < (int)size() - 1; ind++) {
+			if (foundOnEdge(&this->at(ind), &this->at(ind + 1), std::max(this->thickness() * 0.5f, 5.f), sample)) {
+				return ind;
+			}
+		}
+		if (!_connect_bounds && foundOnEdge(&this->at(size() - 1), &this->at(0), std::max(this->thickness() * 0.5f, 5.f), sample)) return size() - 1;
+		return size();
 	}
 
 	inline int point_ind(const ImVec2* sample) {

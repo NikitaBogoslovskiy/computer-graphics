@@ -21,7 +21,10 @@ void BLEV::PollCallbacks() {
 			if (chosen_prim_points.size() > 0) {
 				chosen_prim_points.clear();
 			}
-			else {
+			if (chosen_prim_edges.size() > 0) {
+				chosen_prim_edges.clear();
+			}
+			if (chosen_prim_points.size() == 0 && chosen_prim_edges.size() == 0) { // to make it concise
 				chosen_prims.clear();
 				chosenPrimEditMode = (int)PrimEditMode::None;
 			}
@@ -283,8 +286,6 @@ void BLEV::ShowContent()
 						size_t p_ind = prim->find_point(mouse_pos_in_canvas);
 						if (p_ind != prim->size()) {
 							setTouchedPrim(prim, p_ind);
-						}
-						if (point_of_transformation != -1) {
 							adding_line = FirstClick;
 						}
 					}
@@ -295,6 +296,47 @@ void BLEV::ShowContent()
 							setTouchedPrim(nullptr, -1);
 							adding_line = None;
 						}
+					}
+					break;
+				case PrimEditMode::SelectEdges:
+					if (is_hovered && !adding_line && chosen_prims.size() == 1 && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					{
+						Primitive* prim = *chosen_prims.begin();
+						size_t e_ind = prim->find_edge(mouse_pos_in_canvas);
+						std::cout << "e_ind " << e_ind << std::endl;
+						if (e_ind != prim->size()) {
+							std::cout << "found edge " << e_ind << " " << e_ind + 1 << std::endl;
+							auto pr = std::pair<ImVec2*, ImVec2*>(&prim->at(e_ind), &prim->at(e_ind == prim->size() - 1 ? 0 : e_ind + 1)); // e_ind == prim->size() - 1 if we found "_connect_bounds" edge
+							if (chosen_prim_edges.find(pr) == chosen_prim_edges.end()) {
+								chosen_prim_edges.insert(pr);
+							}
+							else {
+								chosen_prim_edges.erase(pr);
+							}
+							break;
+						}
+					}
+					break;
+				case PrimEditMode::MoveEdges:
+					if (is_hovered && !adding_line && chosen_prims.size() == 1 && chosen_prim_points.size() > 0 && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					{
+						/*
+						Primitive* prim = *chosen_prims.begin();
+						size_t p_ind = prim->find_point(mouse_pos_in_canvas);
+						if (p_ind != prim->size()) {
+							setTouchedPrim(prim, p_ind);
+							adding_line = FirstClick;
+						}
+						*/
+					}
+					if (adding_line == FirstClick && point_of_transformation != -1) {
+						/*
+						ImVec2 d = (*touched_prim)[point_of_transformation] - mouse_pos_in_canvas;
+						std::for_each(chosen_prim_points.begin(), chosen_prim_points.end(), [&d](ImVec2* iv) { auto newPos = *iv - d; (*iv).x = newPos.x; (*iv).y = newPos.y; });
+						if (ImGui::IsMouseReleased(ImGuiMouseButton_Left)) {
+							setTouchedPrim(nullptr, -1);
+							adding_line = None;
+						}*/
 					}
 					break;
 				default:
@@ -490,7 +532,7 @@ void BLEV::ShowContent()
 									if (chosen_prims.size() == 0) {
 										chosenPrimEditMode = (int)PrimEditMode::None;
 									}
-								} 
+								}
 								int offset = 0;
 								while (chosen_prim_points.size() > 0) {
 									ImVec2* iv = *chosen_prim_points.begin();
@@ -504,6 +546,52 @@ void BLEV::ShowContent()
 										console[0]->feedback_color = ImVec4(255, 0, 0, 255);
 									}
 								}
+							}
+							ImGui::EndMenu();
+						}
+
+						if (ImGui::BeginMenu("Edges...")) {
+							if (ImGui::MenuItem("Select", NULL, false, chosen_prims.size() == 1)) {
+								if (chosenPrimEditMode == (int)PrimEditMode::SelectEdges) {
+									chosenPrimEditMode = (int)PrimEditMode::None;
+								}
+								else {
+									chosenPrimEditMode = (int)PrimEditMode::SelectEdges;
+								}
+							}
+							if (ImGui::MenuItem("Move", NULL, false, chosen_prims.size() == 1)) {
+								if (chosenPrimEditMode == (int)PrimEditMode::MoveEdges) {
+									chosenPrimEditMode = (int)PrimEditMode::None;
+								}
+								else {
+									chosenPrimEditMode = (int)PrimEditMode::MoveEdges;
+								}
+							}
+							if (ImGui::MenuItem("Delete", NULL, false, chosen_prims.size() == 1 && chosen_prim_points.size() > 0)) {
+								std::cout << "deleting points...\n";
+								/*
+								Primitive* prim = *chosen_prims.begin();
+								if (prim->size() == chosen_prim_points.size()) {
+									chosen_prim_points.clear();
+									chosen_prims.erase(prim);
+									primitives.erase(std::remove(primitives.begin(), primitives.end(), prim), primitives.end());
+									if (chosen_prims.size() == 0) {
+										chosenPrimEditMode = (int)PrimEditMode::None;
+									}
+								}
+								int offset = 0;
+								while (chosen_prim_points.size() > 0) {
+									ImVec2* iv = *chosen_prim_points.begin();
+									chosen_prim_points.erase(chosen_prim_points.begin());
+
+									try {
+										prim->pop(iv - offset++);
+									}
+									catch (std::exception e) {
+										console[0]->feedback = e.what();
+										console[0]->feedback_color = ImVec4(255, 0, 0, 255);
+									}
+								}*/
 							}
 							ImGui::EndMenu();
 						}
@@ -568,6 +656,7 @@ void BLEV::ShowContent()
 
 			// thickness 3.f doesnt git with very thick lines obviously. would be useful if chosen point knew its prim thickness at least
 			std::for_each(chosen_prim_points.begin(), chosen_prim_points.end(), [&draw_list, &origin](const ImVec2* ch_p) { draw_list->AddCircleFilled(*ch_p + origin, 3.f, IM_COL32(0, 255, 0, 255), 10); });
+			std::for_each(chosen_prim_edges.begin(), chosen_prim_edges.end(), [&draw_list, &origin](const std::pair<ImVec2*, ImVec2*> ch_e) { draw_list->AddLine(*ch_e.first + origin, *ch_e.second + origin, IM_COL32(0, 255, 0, 255), 1.f); });
 
 			//ïåðåñå÷åíèå âûáðàííûõ ïðèìèòèâîâ
 			if (chosen_prims.size() > 0) {

@@ -19,7 +19,9 @@ private:
 	enum class PrimEditMode {
 		None,
 		SelectPoints,
-		MovePoints
+		MovePoints,
+		SelectEdges,
+		MoveEdges
 	};
 	enum AddingLine {
 		None,
@@ -77,8 +79,8 @@ private:
 
 	//static const uint8_t modesSize = 7;
 	//static char* modesList[modesSize]{ "Translation", "Point", "Edge", "Polygon", "Bezier Curve", "Select", "Free Move" };
-	static const uint8_t primEditModesSize = 3;
-	const char* primEditModesList[primEditModesSize]{ "None", "Select points", "Move points" };
+	static const uint8_t primEditModesSize = 5;
+	const char* primEditModesList[primEditModesSize]{ "None", "Select points", "Move points", "Select edges", "Move edges" };
 
 
 	static const uint8_t modesSize = 6;
@@ -110,6 +112,7 @@ private:
 	size_t chosenPrimEditMode = 0;
 	size_t chosenMode = 0;
 	std::set<ImVec2*> chosen_prim_points;
+	std::set<std::pair<ImVec2*,ImVec2*>> chosen_prim_edges;
 
 	std::vector<Primitive*> primitives;
 	std::vector<Lsystem*> fractals;
