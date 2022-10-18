@@ -102,12 +102,13 @@ private:
 	Primitive prev_displacement = Primitive(ImU32(1), 1);
 	Primitive curr_displacement = Primitive(ImU32(1), 1);
 
-	Primitive* touched_prim = nullptr;
-	int point_of_transformation = -1; // maybe index would be useful for output in some case 
-	void setTouchedPrim(Primitive* new_touched_prim, const int& new_point) {
-		touched_prim = new_touched_prim;
-		point_of_transformation = new_point;
-	}
+	//Primitive* touched_prim = nullptr;
+	//int point_of_transformation = -1; // maybe index would be useful for output in some case 
+	//void setTouchedPrim(Primitive* new_touched_prim, const int& new_point) {
+		//touched_prim = new_touched_prim;
+	//	point_of_transformation = new_point;
+	//}
+	ImVec2* point_of_transformation = nullptr;
 
 	size_t chosenPrimEditMode = 0;
 	size_t chosenMode = 0;
