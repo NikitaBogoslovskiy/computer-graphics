@@ -19,7 +19,9 @@ private:
 	enum class PrimEditMode {
 		None,
 		SelectPoints,
-		MovePoints
+		MovePoints,
+		SelectEdges,
+		MoveEdges
 	};
 	enum AddingLine {
 		None,
@@ -77,8 +79,8 @@ private:
 
 	//static const uint8_t modesSize = 7;
 	//static char* modesList[modesSize]{ "Translation", "Point", "Edge", "Polygon", "Bezier Curve", "Select", "Free Move" };
-	static const uint8_t primEditModesSize = 3;
-	const char* primEditModesList[primEditModesSize]{ "None", "Select points", "Move points" };
+	static const uint8_t primEditModesSize = 5;
+	const char* primEditModesList[primEditModesSize]{ "None", "Select points", "Move points", "Select edges", "Move edges" };
 
 
 	static const uint8_t modesSize = 6;
@@ -100,16 +102,19 @@ private:
 	Primitive prev_displacement = Primitive(ImU32(1), 1);
 	Primitive curr_displacement = Primitive(ImU32(1), 1);
 
-	Primitive* touched_prim = nullptr;
-	int point_of_transformation = -1; // maybe index would be useful for output in some case 
-	void setTouchedPrim(Primitive* new_touched_prim, const int& new_point) {
-		touched_prim = new_touched_prim;
-		point_of_transformation = new_point;
-	}
+	//Primitive* touched_prim = nullptr;
+	//int point_of_transformation = -1; // maybe index would be useful for output in some case 
+	//void setTouchedPrim(Primitive* new_touched_prim, const int& new_point) {
+		//touched_prim = new_touched_prim;
+	//	point_of_transformation = new_point;
+	//}
+	ImVec2* point_of_transformation = nullptr;
 
 	size_t chosenPrimEditMode = 0;
 	size_t chosenMode = 0;
 	std::set<ImVec2*> chosen_prim_points;
+	std::set<std::pair<ImVec2*,ImVec2*>> chosen_prim_edges;
+	ImVec2 prev_point;
 
 	std::vector<Primitive*> primitives;
 	std::vector<Lsystem*> fractals;

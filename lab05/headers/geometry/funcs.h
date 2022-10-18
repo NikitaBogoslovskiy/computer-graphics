@@ -2,9 +2,15 @@
 #ifndef _FUNCS_H_
 #define _FUNCS_H_
 
+#include <algorithm>    // std::min
 #include "pch.h"
 
 #define PI 3.14159265359f
+
+struct edgePointer { // This structure is named "myDataType"
+	ImVec2* p1;
+	ImVec2* p2;
+};
 
 inline ImVec2 operator+(const ImVec2& lhs, const ImVec2& rhs) { return ImVec2(lhs.x + rhs.x, lhs.y + rhs.y); }
 inline ImVec2 operator-(const ImVec2& lhs, const ImVec2& rhs) { return ImVec2(lhs.x - rhs.x, lhs.y - rhs.y); }
