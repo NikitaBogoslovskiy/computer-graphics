@@ -113,6 +113,7 @@ private:
 	size_t chosenMode = 0;
 	std::set<ImVec2*> chosen_prim_points;
 	std::set<std::pair<ImVec2*,ImVec2*>> chosen_prim_edges;
+	ImVec2 prev_point;
 
 	std::vector<Primitive*> primitives;
 	std::vector<Lsystem*> fractals;

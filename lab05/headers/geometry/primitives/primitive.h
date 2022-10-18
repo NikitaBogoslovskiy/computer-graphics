@@ -45,7 +45,7 @@ public:
 		_color = color;
 		_thickness = thickness;
 		_show = true;
-		_connect_bounds = 0;
+		_connect_bounds = 0; // _connect_bounds == 2 <==> DO NOT CONNECT;  
 	}
 
 	Primitive(ImVector<ImVec2>* points, const ImU32& color, const float& thickness) {
@@ -121,11 +121,11 @@ public:
 
 	inline size_t find_edge(const ImVec2& sample) {
 		for (int ind = 0; ind < (int)size() - 1; ind++) {
-			if (foundOnEdge(&this->at(ind), &this->at(ind + 1), std::max(this->thickness() * 0.5f, 5.f), sample)) {
+			if (foundOnEdge(&this->at(ind), &this->at(ind + 1), std::max(this->thickness() * (float)0.5, 10.f), sample)) {
 				return ind;
 			}
 		}
-		if (!_connect_bounds && foundOnEdge(&this->at(size() - 1), &this->at(0), std::max(this->thickness() * 0.5f, 5.f), sample)) return size() - 1;
+		if (_connect_bounds!=2 && foundOnEdge(&this->at(size() - 1), &this->at(0), std::max(this->thickness() * (float)0.5, 10.f), sample)) return size() - 1;
 		return size();
 	}
 
