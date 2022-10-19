@@ -18,5 +18,5 @@ public:
 	inline void add_polygon(Polygon&& polygon) { polygons.push_back(std::move(polygon)); }
 	inline ImVec3 center() { return sum(points) / points.size(); }
 
-	void draw(ImDrawList* draw_list);
+	void draw(ImDrawList* draw_list, const ImVec2& offset);
 };

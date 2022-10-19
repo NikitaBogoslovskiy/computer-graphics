@@ -24,7 +24,7 @@ public:
 			{  xaxis.y,					 yaxis.y,				   zaxis.y,					 0.f },
 			{  xaxis.z,					 yaxis.z,				   zaxis.z,					 0.f },
 			{ -Affine::dot(xaxis, eye), -Affine::dot(yaxis, eye), -Affine::dot(zaxis, eye),  1.f }
-		};
+		}.transpose();
 	}
 
 	/**
@@ -42,7 +42,7 @@ public:
 			{ 0.f,						  1.f / tanHalfVoV, 0.f,					  0.f						  },
 			{ 0.f,						  0.f,				(-zNear - zFar) / zRange, 2.f * zFar * zNear / zRange },
 			{ 0.f,						  0.f,				1.f,					  0.f						  }
-		};
+		}.transpose();
 	}
 };
 
