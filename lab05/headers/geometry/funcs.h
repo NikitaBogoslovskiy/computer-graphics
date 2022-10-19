@@ -77,4 +77,23 @@ inline bool intersected(const ImVec2& a, const ImVec2& b, const ImVec2& c, const
 	return false;
 }
 
+#include "geometry/primitives3d/structers.h"
+
+inline ImVec3 operator+(const ImVec3& lhs, const ImVec3& rhs) { return ImVec3(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z); }
+inline ImVec3 operator-(const ImVec3& lhs, const ImVec3& rhs) { return ImVec3(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z); }
+inline float operator*(const ImVec3& lhs, const ImVec3& rhs) { return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z; }
+inline ImVec3 operator*(const float& lhs, const ImVec3& rhs) { return ImVec3(lhs * rhs.x, lhs * rhs.y, lhs * rhs.z); }
+inline ImVec3 operator*(const ImVec3& lhs, const float& rhs) { return rhs * lhs; }
+inline bool operator==(const ImVec3& lhs, const ImVec3& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z; }
+inline ImVec3 operator/(const ImVec3& lhs, const float& rhs) { return ImVec3(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs); }
+
+// sometime in future, but now just this
+template<class T>
+T sum(std::vector<T> vT) {
+	t = T();
+	for (auto& vt : vT) {
+		t += vt;
+	}
+	return t;
+}
 #endif
