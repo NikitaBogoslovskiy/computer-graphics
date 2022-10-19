@@ -82,12 +82,13 @@ inline bool operator==(const ImVec3& lhs, const ImVec3& rhs) { return lhs.x == r
 inline ImVec3 operator/(const ImVec3& lhs, const float& rhs) { return ImVec3(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs); }
 
 // sometime in future, but now just this
-template<class T>
-T sum(std::vector<T> vT) {
-	t = T();
+template<class C>
+static C sum(std::vector<C> vT) {
+	C t = C();
 	for (auto& vt : vT) {
 		t += vt;
 	}
 	return t;
 }
+
 #endif

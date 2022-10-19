@@ -2,6 +2,7 @@
 
 void Mesh::draw(ImDrawList* draw_list)
 {
+	throw std::exception("Not implemented");
 	for (auto& facet : polygons) {
 		facet.draw(draw_list);
 	}
