@@ -185,6 +185,7 @@
     <ClInclude Include="headers\BLEV.h" />
     <ClInclude Include="headers\geometry.h" />
     <ClInclude Include="headers\geometry\affine.h" />
+    <ClInclude Include="headers\geometry\camera.h" />
     <ClInclude Include="headers\geometry\checks.h" />
     <ClInclude Include="headers\geometry\funcs.h" />
     <ClInclude Include="headers\geometry\primitives.h" />

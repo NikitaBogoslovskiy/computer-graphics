@@ -6,5 +6,6 @@
 #include "geometry/primitives.h"
 #include "geometry/checks.h"
 #include "geometry/primitives3d/primitives3d.h"
+#include "geometry/camera.h"
 
 #endif
