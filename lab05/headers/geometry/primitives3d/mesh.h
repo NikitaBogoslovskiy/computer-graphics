@@ -19,7 +19,11 @@ public:
 	inline void add_polygon(Polygon&& polygon) { polygons.push_back(std::move(polygon)); }
 	inline ImVec3 center() { return sum(points) / points.size(); }
 	inline size_t polygons_size() { return polygons.size(); }
+	inline size_t points_size() { return points.size(); }
 
+	inline ImVec3& getPoint(size_t idx) {
+		return points[idx];
+	}
 	inline Polygon& operator[](size_t idx) {
 		return polygons[idx];
 	}

@@ -277,6 +277,7 @@ private:
 
 	void ShowPrimitiveTableRow(Primitive* prim, size_t idx);
 	void ShowFractalTableRow(Lsystem* lsys, size_t idx);
+	void ShowMeshTableRow(Mesh* mesh, size_t idx);
 
 	void NewWindow(const char* label, bool* p_open, void (BLEV::* func)());
 

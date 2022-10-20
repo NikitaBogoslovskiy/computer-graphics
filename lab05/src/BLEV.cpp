@@ -167,7 +167,18 @@ void BLEV::ShowMenuBar()
 		if (ImGui::Button("Add cube")) {
 			meshes.push_back(new Cube(ImVec3(0.f, 0.f, 0.f)));
 		}
-
+		if (ImGui::Button("Add tetrahedr")) {
+			meshes.push_back(new Tetrahedron(ImVec3(0.f, 0.f, 0.f)));
+		}
+		if (ImGui::Button("Add octahedr")) {
+			meshes.push_back(new Octahedron(ImVec3(0.f, 0.f, 0.f)));
+		}
+		if (ImGui::Button("Add Dodecahedron")) {
+			meshes.push_back(new Dodecahedron(ImVec3(0.f, 0.f, 0.f)));
+		}
+		if (ImGui::Button("Add Icosahedron")) {
+			meshes.push_back(new Icosahedron(ImVec3(0.f, 0.f, 0.f)));
+		}
 		ImGui::EndMainMenuBar();
 	}
 }
@@ -231,6 +242,11 @@ void BLEV::ShowContent()
 				//ImGui::Separator();
 			}
 
+			for (size_t i = 0; i < meshes.size(); i++)
+			{
+				ShowMeshTableRow(meshes[i], i);
+				//ImGui::Separator();
+			}
 			ImGui::EndTable();
 		}
 		ImGui::PopStyleVar();
@@ -251,10 +267,14 @@ void BLEV::ShowContent()
 			if (canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
 			ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
 			canvas_width = canvas_p1.x;
-			main_camera.setEye(ImVec3(200.f, 200.f, 200.f)); // will be iniated corresponding to user input later
-			//main_camera.setRotation(ImVec3(0.f, 0.f, 0.f));
+
+			const float radius = 10.0f;
+			float camX = sin(glfwGetTime()) * radius;
+			float camZ = cos(glfwGetTime()) * radius;
+			main_camera.setEye(ImVec3(camX, 10.f, camZ)); // will be iniated corresponding to user input later //main_camera.setRotation(ImVec3(0.f, 0.f, 0.f));
+			//main_camera.setEye(ImVec3(10.f, 10.f, 10.f));
 			main_camera.setViewport(canvas_sz);
-			main_camera.update(ImVec3(0.f, 0.f, 0.f));
+			main_camera.lookAt(ImVec3(0.f, 0.f, 0.f));
 
 			// Draw border and background color
 			ImGuiIO& io = ImGui::GetIO();
@@ -649,7 +669,7 @@ void BLEV::ShowContent()
 						chosen_lsys.erase(fractals.back());
 						fractals.pop_back();
 					}
-					if (ImGui::MenuItem("Remove all", NULL, false, primitives.size() + fractals.size() > 0)) {
+					if (ImGui::MenuItem("Remove all", NULL, false, primitives.size() + fractals.size() + meshes.size() > 0)) {
 						chosen_prims.clear();
 						chosen_prim_points.clear();
 						chosen_prim_edges.clear();
@@ -658,6 +678,7 @@ void BLEV::ShowContent()
 						chosen_lsys.clear();
 						prev_displacement.clear();
 						curr_displacement.clear();
+						meshes.clear();
 						chosenPrimEditMode = (int)PrimEditMode::None;
 					}
 					ImGui::EndPopup();
@@ -702,7 +723,7 @@ void BLEV::ShowContent()
 
 			auto vp = main_camera.getViewProjecion();
 			//auto vp = main_camera.getView();
-			for (auto mesh: meshes) {
+			for (auto mesh : meshes) {
 				mesh->draw(draw_list, origin, vp);
 			}
 
@@ -865,6 +886,48 @@ void BLEV::ShowFractalTableRow(Lsystem* lsys, size_t idx)
 		ImGui::SliderFloat("##changeLsysTh", &lsys->thickness(), 1.f, 10.f, "th = %.1f");
 
 		ImGui::Checkbox("alive?", &lsys->is_alive());
+
+		ImGui::TreePop();
+	}
+
+	ImGui::PopID();
+}
+
+void BLEV::ShowMeshTableRow(Mesh* mesh, size_t idx)
+{
+	ImGui::PushID(mesh);
+
+	ImGui::TableNextRow();
+	ImGui::TableSetColumnIndex(0);
+	ImGui::AlignTextToFramePadding();
+	bool node_open = ImGui::TreeNode("Prim", "prim%d", idx);
+	ImGui::TableSetColumnIndex(1);
+
+	ImGui::Text("%d-hedr figure", mesh->polygons_size());
+
+
+	ImGui::SameLine();
+
+	if (node_open)
+	{
+		for (size_t i = 0; i < mesh->points_size(); i++) {
+			ImGui::PushID(&(mesh->getPoint(i)));
+
+			ImGui::TableNextRow();
+
+			ImGui::TableSetColumnIndex(0);
+
+			ImGui::AlignTextToFramePadding();
+			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
+			ImGui::Text("Point %d", i);
+
+			ImGui::TableSetColumnIndex(1);
+			ImGui::DragFloat("x", &(mesh->getPoint(i).x), 1.f, -1000.f, 1000.f, "%.0f");
+			ImGui::DragFloat("y", &(mesh->getPoint(i).y), 1.f, -1000.f, 1000.f, "%.0f");
+			ImGui::DragFloat("z", &(mesh->getPoint(i).z), 1.f, -1000.f, 1000.f, "%.0f");
+
+			ImGui::PopID();
+		}
 
 		ImGui::TreePop();
 	}

@@ -44,9 +44,9 @@ public:
 		this->_projection = Linal::axonometry(angleX, angleY); 
 	}
 	
-	inline void update(const ImVec3& target) {
+	inline void lookAt(const ImVec3& target) {
 		setViewMatrix(target);
-		setPerspectiveProjection(30.f, 4.f / 3.f, 1.f, 1000.f); //EXAMPLES!
+		setPerspectiveProjection(45.f, _viewport.x/ _viewport.y, 0.1f, 1000.f); //EXAMPLES!
 		this->_vp = (this->_projection) * (this->_view);
 	}
 };

@@ -3,21 +3,28 @@
 
 void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp)
 {
-	for (auto& facet : polygons) {
-		for (size_t i = 1; i <= facet.size(); i++)
+	for (auto& polygon : polygons) {
+		for (size_t i = 1; i <= polygon.size(); i++)
 		{
-			auto ind0 = i % facet.size();
-			auto ind1 = (ind0 + 1) % facet.size();
-			Eigen::Vector4f v0{ points[ind0].x, points[ind0].y, points[ind0].z,  1.f }; // COLUMN-VEC
-			Eigen::Vector4f v1{ points[ind1].x, points[ind1].y, points[ind1].z,  1.f };
+			auto ind0 = i % polygon.size();
+			auto ind1 = (ind0 + 1) % polygon.size();
+			auto point_ind0 = polygon[ind0];
+			auto point_ind1 = polygon[ind1];
+
+			Eigen::Vector4f v0{ points[point_ind0].x, points[point_ind0].y, points[point_ind0].z,  1.f }; // COLUMN-VEC
+			Eigen::Vector4f v1{ points[point_ind1].x, points[point_ind1].y, points[point_ind1].z,  1.f };
 
 			Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
 			Eigen::Vector4f v1_2d = vp * v1;
 
+			/*auto coeff0 = (1 - v0_2d(2) / 1000.f);
+			auto coeff1 = (1 - v1_2d(2) / 1000.f);
+			auto start = (1 / coeff0) * ImVec2(v0_2d(0), v0_2d(1));
+			auto end = (1 / coeff1) * ImVec2(v1_2d(0), v1_2d(1));*/
 			auto start = ImVec2(v0_2d(0), v0_2d(1));
 			auto end = ImVec2(v1_2d(0), v1_2d(1));
 			draw_list->AddLine(start + offset, end + offset, IM_COL32(0, 255, 0, 255), 1.f);
-			draw_list->AddCircleFilled(start + offset, 3.f, IM_COL32(0, 255, 0, 255), 10);
+			draw_list->AddCircleFilled(start + offset, 3.f, IM_COL32(255, 0, 0, 255), 10);
 		}
 	}
 }

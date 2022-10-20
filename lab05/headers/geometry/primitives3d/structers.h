@@ -39,8 +39,8 @@ struct Polygon
     inline void insert(size_t idx, uint16_t val) { assert(indices.size() > idx);  indices.insert(indices.begin() + idx, val); }
     ImVec3 center(const std::vector<ImVec3>& points);
     
-    void draw(ImDrawList* draw_list) {
-        throw std::exception("Not implemented");
+    void draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp) {
+        
     }
 };
 
