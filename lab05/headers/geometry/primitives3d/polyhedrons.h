@@ -47,7 +47,7 @@ public:
 // 6
 class Cube : public Polyhedron {
 public:
-	Cube(const ImVec3& center, float line = 30.f) {
+	Cube(const ImVec3& center, float line = 2.f) {
 		float hlife = line / 2;
 		add_point(center + ImVec3(hlife, hlife, hlife));
 		add_point(center + ImVec3(hlife, hlife, -hlife));

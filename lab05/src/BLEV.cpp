@@ -154,7 +154,7 @@ void BLEV::ShowMenuBar()
 			ImGui::EndMenu();
 		}
 
-		ImGui::SetNextItemWidth(250.f);
+		ImGui::SetNextItemWidth(200.f);
 
 		ImGui::DragFloat("##globalThickness", &thickness, 0.05f, 1.f, 10.f, "thickness = %.1f", ImGuiSliderFlags_AlwaysClamp);
 
@@ -163,6 +163,10 @@ void BLEV::ShowMenuBar()
 		ImGui::Separator();
 
 		ImGui::Text("Mode: %s", chosenPrimEditMode == (int)PrimEditMode::None ? modesList[chosenMode] : primEditModesList[chosenPrimEditMode]);
+
+		if (ImGui::Button("Add cube")) {
+			meshes.push_back(new Cube(ImVec3(0.f, 0.f, 0.f)));
+		}
 
 		ImGui::EndMainMenuBar();
 	}
@@ -247,6 +251,10 @@ void BLEV::ShowContent()
 			if (canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
 			ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
 			canvas_width = canvas_p1.x;
+			main_camera.setEye(ImVec3(100.f, 100.f, 100.f)); // will be iniated corresponding to user input later
+			main_camera.setRotation(ImVec3(0.f, 0.f, 0.f));
+			main_camera.setViewport(canvas_sz);
+			main_camera.update();
 
 			// Draw border and background color
 			ImGuiIO& io = ImGui::GetIO();
@@ -690,6 +698,12 @@ void BLEV::ShowContent()
 			for (auto chp_it = chosen_prim_points.begin(); chp_it != chosen_prim_points.end(); ++chp_it) {
 				ImVec2* ch_p = *chp_it;
 				draw_list->AddCircleFilled(*ch_p + origin, (*chosen_prims.begin())->thickness() + 2.f, IM_COL32(0, 255, 0, 255), 10);
+			}
+
+			auto vp = main_camera.getViewProjecion();
+			//auto vp = main_camera.getView();
+			for (auto mesh: meshes) {
+				mesh->draw(draw_list, origin, vp);
 			}
 
 			//ïåðåñå÷åíèå âûáðàííûõ ïðèìèòèâîâ

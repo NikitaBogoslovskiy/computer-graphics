@@ -2,6 +2,7 @@
 
 #include "pch.h"
 #include "structers.h"
+#include "geometry/camera.h"
 #include "geometry/funcs.h"
 #include <deque>
 
@@ -17,6 +18,11 @@ public:
 	inline void add_polygon(const Polygon& polygon) { polygons.push_back(polygon); }
 	inline void add_polygon(Polygon&& polygon) { polygons.push_back(std::move(polygon)); }
 	inline ImVec3 center() { return sum(points) / points.size(); }
+	inline size_t polygons_size() { return polygons.size(); }
 
-	void draw(ImDrawList* draw_list, const ImVec2& offset);
+	void draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp);
+
+	inline Polygon& operator[](size_t idx) {
+		return polygons[idx];
+	}
 };

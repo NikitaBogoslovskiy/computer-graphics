@@ -109,7 +109,8 @@ private:
 	std::set<ImVec2*> chosen_prim_points;
 	std::set<std::pair<ImVec2*,ImVec2*>> chosen_prim_edges;
 	ImVec2 prev_point;
-
+	
+	Camera main_camera;
 	std::vector<Mesh*> meshes;
 	std::vector<Primitive*> primitives;
 	std::vector<Lsystem*> fractals;

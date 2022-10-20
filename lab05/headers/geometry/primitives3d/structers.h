@@ -29,6 +29,7 @@ struct Polygon
     Polygon(Polygon&& _polygon) noexcept : indices(std::move(_polygon.indices)) {}
     inline uint16_t  operator[] (size_t idx) const { return indices[idx]; }
     inline uint16_t& operator[] (size_t idx) { return indices[idx]; }
+    inline uint16_t& at(size_t idx) { return indices[idx]; }
     inline size_t size() const noexcept { return indices.size(); }
     inline void push_back(uint16_t val) { indices.push_back(val); }
     inline void pop_back() { assert(indices.size() > 3); indices.pop_back(); } 
@@ -36,8 +37,10 @@ struct Polygon
     inline void pop_front() { assert(indices.size() > 3); indices.pop_front(); }
     inline void insert(size_t idx, uint16_t val) { assert(indices.size() > idx);  indices.insert(indices.begin() + idx, val); }
     ImVec3 center(const std::vector<ImVec3>& points);
-
+    
     void draw(ImDrawList* draw_list) {
         throw std::exception("Not implemented");
     }
 };
+
+//typedef Eigen::Product<Eigen::Matrix4f, Eigen::Matrix4f, 0> Matrix4fProduct;
