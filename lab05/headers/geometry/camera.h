@@ -8,6 +8,9 @@ class Camera
 {
 
 public:
+	// transposing - for multiplication onto COLUMN-vector
+
+	// VIEW MATRICES
 
 	/**
 		eye - position of the camera
@@ -27,6 +30,8 @@ public:
 		}.transpose();
 	}
 
+	// PROJECTIONS
+
 	/**
 		FoV - field of view angle (rad)
 		ratio - screen aspect ratio (width / height)
@@ -42,7 +47,23 @@ public:
 			{ 0.f,						  1.f / tanHalfVoV, 0.f,					  0.f						  },
 			{ 0.f,						  0.f,				(-zNear - zFar) / zRange, 2.f * zFar * zNear / zRange },
 			{ 0.f,						  0.f,				1.f,					  0.f						  }
-		}.transpose();
+		};
+	}
+
+	/**
+		angleX - angle of xAxis rotation
+		angleY - angle of yAxis rotation
+	*/
+	static const Eigen::Matrix4f axonometry(const float& angleX, const float& angleY) {
+		float sinX = sin(angleX); float cosX = cos(angleX);
+		float sinY = sin(angleY); float cosY = cos(angleY);
+
+		return Eigen::Matrix4f{
+			{ cosY,		   0.f,	  sinY,		   0.f },
+			{ sinX * sinY, cosX, -sinX * cosY, 0.f },
+			{ 0.f,		   0.f,	  0.f,		   0.f },
+			{ 0.f,		   0.f,	  0.f,		   1.f }
+		};
 	}
 };
 

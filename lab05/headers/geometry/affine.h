@@ -35,7 +35,6 @@ public:
 	}
 
 	// ===> 3d
-
 	static const float len(const ImVec3& v) {
 		return v.x * v.x + v.y * v.y + v.z * v.z;
 	}
@@ -56,6 +55,8 @@ public:
 		return  v / Affine::len(v);
 	}
 
+	// all the methods are for multiplication onto COLUMN-vectors
+
 	// rotation about x-axis
 	static const Eigen::Matrix4f rotateX(const float& angle) {
 		float cosa = cosf(angle);
@@ -65,7 +66,7 @@ public:
 			{ 0.f,  cosa, sina, 0.f },
 			{ 0.f, -sina, cosa, 0.f },
 			{ 0.f,  0.f,  0.f,	1.f }
-		};
+		}.transpose();
 	}
 
 	// rotation about y-axis
@@ -73,11 +74,11 @@ public:
 		float cosa = cosf(angle);
 		float sina = sinf(angle);
 		return Eigen::Matrix4f{
-			{ cosa, 0.f, -sina, 0.f },
+			{ cosa, 0.f, sina, 0.f },
 			{ 0.f,  1.f,  0.f,  0.f },
-			{ sina, 0.f,  cosa, 0.f },
+			{ -sina, 0.f,  cosa, 0.f },
 			{ 0.f,  0.f,  0.f,  1.f }
-		};
+		}.transpose();
 	}
 
 	// rotation about z-axis
@@ -89,26 +90,26 @@ public:
 			{ -sina,  cosa, 0.f, 0.f },
 			{  0.f,   0.f,  1.f, 0.f },
 			{  0.f,   0.f,  0.f, 1.f }
-		};
+		}.transpose();
 	}
 
 	static const Eigen::Matrix4f scale(const float& scaleCoeffX, const float& scaleCoeffY, const float& scaleCoeffZ) {
 		return Eigen::Matrix4f{
 			{ scaleCoeffX, 0.f,			0.f,		 0.f },
 			{ 0.f,		   scaleCoeffY, 0.f,		 0.f },
-			{ 0.f,		   0.f,			scaleCoeffZ, 0.f},
-			{ 0.f,		   0.f,			0.f,		 1.f},
+			{ 0.f,		   0.f,			scaleCoeffZ, 0.f },
+			{ 0.f,		   0.f,			0.f,		 1.f },
 		};
 	}
 
 	// maybe we should decide if minuses are appended or they come strictly from d
 	static const Eigen::Matrix4f translate(const ImVec3& d = ImVec3(0.f, 0.f, 0.f)) {
 		return Eigen::Matrix4f{
-			{ 1.f, 0.f, 0.f, 0.f},
+			{ 1.f, 0.f, 0.f, 0.f },
 			{ 0.f, 1.f, 0.f, 0.f },
-			{ 0.f, 0.f, 1.f, 0.f},
+			{ 0.f, 0.f, 1.f, 0.f },
 			{ d.x, d.y, d.z, 1.f },
-		};
+		}.transpose();
 	}
 
 	static const Eigen::Matrix4f identity() {

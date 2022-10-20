@@ -4,7 +4,6 @@
 #include "pch.h"
 #include "geometry.h"
 #include <functional>
-#include "geometry/primitives3d/mesh.h" //
 
 class BLEV
 {
