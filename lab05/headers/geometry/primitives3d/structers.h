@@ -22,6 +22,7 @@ struct ImVec3
 
 struct Polygon
 {
+    Polygon() = default;
     std::deque<uint16_t> indices;
     Polygon(const std::initializer_list<uint16_t>& _indices) : indices(_indices) { assert(_indices.size() >= 3); }
     Polygon(std::initializer_list<uint16_t>&& _indices) : indices(_indices) { assert(indices.size() >= 3); }

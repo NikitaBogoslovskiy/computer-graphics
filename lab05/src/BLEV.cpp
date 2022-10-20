@@ -251,10 +251,10 @@ void BLEV::ShowContent()
 			if (canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
 			ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
 			canvas_width = canvas_p1.x;
-			main_camera.setEye(ImVec3(100.f, 100.f, 100.f)); // will be iniated corresponding to user input later
-			main_camera.setRotation(ImVec3(0.f, 0.f, 0.f));
+			main_camera.setEye(ImVec3(200.f, 200.f, 200.f)); // will be iniated corresponding to user input later
+			//main_camera.setRotation(ImVec3(0.f, 0.f, 0.f));
 			main_camera.setViewport(canvas_sz);
-			main_camera.update();
+			main_camera.update(ImVec3(0.f, 0.f, 0.f));
 
 			// Draw border and background color
 			ImGuiIO& io = ImGui::GetIO();
