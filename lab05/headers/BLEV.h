@@ -110,7 +110,7 @@ private:
 	std::set<std::pair<ImVec2*,ImVec2*>> chosen_prim_edges;
 	ImVec2 prev_point;
 
-	//std::vector<Mesh*> meshes;
+	std::vector<Mesh*> meshes;
 	std::vector<Primitive*> primitives;
 	std::vector<Lsystem*> fractals;
 	std::set<Primitive*> chosen_prims;

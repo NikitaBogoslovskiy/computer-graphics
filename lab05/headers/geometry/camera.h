@@ -13,6 +13,7 @@ class Camera
 	Eigen::Matrix4f _projection;
 
 public:
+	Camera() {}
 	/*Camera(): _viewport(0.f, 0.f), 
 		_eye(100.f), 
 		_rotation(0.f), 
