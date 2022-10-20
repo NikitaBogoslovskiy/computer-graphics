@@ -19,15 +19,15 @@ public:
 			up - up direction
 		*/
 	static const Eigen::Matrix4f lookAt(const ImVec3& eye = ImVec3(0.f, 0.f, 0.f), const ImVec3& target = ImVec3(0.f, 0.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
-		ImVec3 zaxis = Affine::normalize(eye - target);		// "ray" from the eye to the target
+		ImVec3 zaxis = Affine::normalize(target - eye);		// "ray" from the eye to the target
 		ImVec3 xaxis = Affine::normalize(Affine::cross(up, zaxis)); // x axis of the new coordinate system
 		ImVec3 yaxis = Affine::cross(zaxis, xaxis); // y axis of the new coordinate system
 
 		return Eigen::Matrix4f{
-			{  xaxis.x,					 yaxis.x,				   zaxis.x,					 0.f },
-			{  xaxis.y,					 yaxis.y,				   zaxis.y,					 0.f },
-			{  xaxis.z,					 yaxis.z,				   zaxis.z,					 0.f },
-			{ -Affine::dot(xaxis, eye), -Affine::dot(yaxis, eye), -Affine::dot(zaxis, eye),  1.f }
+			{  xaxis.x,					 yaxis.x,				  zaxis.x,					 0.f },
+			{  xaxis.y,					 yaxis.y,				  zaxis.y,					 0.f },
+			{  xaxis.z,					 yaxis.z,				  zaxis.z,					 0.f },
+			{ -Affine::dot(xaxis, eye), -Affine::dot(yaxis, eye), -Affine::dot(zaxis, eye),   1.f }
 		}.transpose();
 	}
 
@@ -40,13 +40,13 @@ public:
 		zfar - location of the far Z clipping plane
 	*/
 	static const Eigen::Matrix4f perspective(const float& FoV, const float& ratio, const float& zNear, const float& zFar) {
-		float zRange = zNear - zFar;
+		float zRange = zFar - zNear;
 		float tanHalfVoV = tan(FoV / 2);
 
 		return Eigen::Matrix4f{
 			{ 1.f / (tanHalfVoV * ratio), 0.f,				0.f,					  0.f						  },
 			{ 0.f,						  1.f / tanHalfVoV, 0.f,					  0.f						  },
-			{ 0.f,						  0.f,				(-zNear - zFar) / zRange, 2.f * zFar * zNear / zRange },
+			{ 0.f,						  0.f,			    -(zNear + zFar) / zRange, -2.f * zFar * zNear / zRange },
 			{ 0.f,						  0.f,				1.f,					  0.f						  }
 		};
 	}

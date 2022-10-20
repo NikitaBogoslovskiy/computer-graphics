@@ -162,7 +162,7 @@
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_widgets.cpp" />
     <ClCompile Include="src\primitives\structers.cpp" />
     <ClCompile Include="src\primitives\mesh.cpp" />
-    <ClCompile Include="headers\geometry\primitives3d\mesh.h" />
+    <ClInclude Include="headers\geometry\primitives3d\mesh.h" />
     <ClCompile Include="src\primitives\polyhedrons.cpp" />
     <ClCompile Include="src\BLEV.cpp" />
     <ClCompile Include="src\main.cpp" />

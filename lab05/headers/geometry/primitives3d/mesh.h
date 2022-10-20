@@ -20,9 +20,9 @@ public:
 	inline ImVec3 center() { return sum(points) / points.size(); }
 	inline size_t polygons_size() { return polygons.size(); }
 
-	void draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp);
-
 	inline Polygon& operator[](size_t idx) {
 		return polygons[idx];
 	}
+
+	void draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp);
 };

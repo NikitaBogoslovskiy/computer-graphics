@@ -15,9 +15,9 @@ void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp
 			Eigen::Vector4f v1_2d = vp * v1;
 
 			auto start = ImVec2(v0_2d(0), v0_2d(1));
-			auto end = ImVec2(v1_2d(0), v1_2d(0));
-			draw_list->AddLine(start + offset, end + offset, IM_COL32(0, 255, 0, 255), 2.f);
-			draw_list->AddCircleFilled(start + offset, 4.f, IM_COL32(0, 255, 0, 255), 10);
+			auto end = ImVec2(v1_2d(0), v1_2d(1));
+			draw_list->AddLine(start + offset, end + offset, IM_COL32(0, 255, 0, 255), 1.f);
+			draw_list->AddCircleFilled(start + offset, 3.f, IM_COL32(0, 255, 0, 255), 10);
 		}
 	}
 }
