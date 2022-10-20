@@ -2,68 +2,49 @@
 #define _CAMERA_H_
 
 #include "pch.h"
-#include "affine.h"
+#include "linal.h"
 
 class Camera
 {
+	ImVec2 _viewport; /*width, height of screen*/
+	ImVec3 _eye;
+	ImVec3 _rotation;
+	Eigen::Matrix4f _view;
+	Eigen::Matrix4f _projection;
 
 public:
-	// transposing - for multiplication onto COLUMN-vector
+	Camera(): _viewport(0.f, 0.f), 
+		_eye(100.f), 
+		_rotation(0.f), 
+		_projection(1.f), 
+		_view(1.f)
+	{}
 
-	// VIEW MATRICES
+	Camera(const ImVec2& viewport, const ImVec3& eye) : 
+		_viewport(viewport),
+		_eye(eye),
+		_rotation(0.f),
+		_projection(1.f),
+		_view(1.f)
+	{}
 
-	/**
-		eye - position of the camera
-		target - the point camera targeted on
-		up - up direction
-	*/
-	static const Eigen::Matrix4f lookAtRH(const ImVec3& eye = ImVec3(0.f, 0.f, 0.f), const ImVec3& target = ImVec3(0.f, 0.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
-		ImVec3 zaxis = Affine::normalize(eye - target);		// "ray" from the eye to the target
-		ImVec3 xaxis = Affine::normalize(Affine::cross(up, zaxis)); // x axis of the new coordinate system
-		ImVec3 yaxis = Affine::cross(zaxis, xaxis); // y axis of the new coordinate system
+	inline ImVec2& getViewport() { return this->_viewport; }
+	inline ImVec3& getEye() { return this->_eye; }
+	inline ImVec3& getRotation() { return this->_rotation; }
 
-		return Eigen::Matrix4f{
-			{  xaxis.x,					 yaxis.x,				   zaxis.x,					 0.f },
-			{  xaxis.y,					 yaxis.y,				   zaxis.y,					 0.f },
-			{  xaxis.z,					 yaxis.z,				   zaxis.z,					 0.f },
-			{ -Affine::dot(xaxis, eye), -Affine::dot(yaxis, eye), -Affine::dot(zaxis, eye),  1.f }
-		}.transpose();
-	}
+	inline Eigen::Matrix4f getViewMatrix() { return this->_view; }
+	inline Eigen::Matrix4f getProjectionMatrix() { return this->_projection; }
 
-	// PROJECTIONS
+	inline void setViewport(const ImVec2& viewport) { this->_viewport = viewport; }
+	inline void setEye(const ImVec3& eye) { this->_eye = eye; }
+	inline void setRotation(const ImVec3& rotation) { this->_rotation = rotation; }
 
-	/**
-		FoV - field of view angle (rad)
-		ratio - screen aspect ratio (width / height)
-		znear - location of the near Z clipping plane
-		zfar - location of the far Z clipping plane
-	*/
-	static const Eigen::Matrix4f perspective(const float& FoV, const float& ratio, const float& zNear, const float& zFar) {
-		float zRange = zNear - zFar;
-		float tanHalfVoV = tan(FoV / 2);
+	inline void setViewMatrix(const ImVec3& target, const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) { this->_view = Linal::lookAt(this->_eye, target, up); }
+	inline void setPerspectiveProjection(const float& FoV, const float& ratio, const float& zNear, const float& zFar) { this->_projection = Linal::perspective(FoV, ratio, zNear, zFar); }
+	inline void setAxonometryProjection(const float& angleX, const float& angleY) { this->_projection = Linal::axonometry(angleX, angleY); }
 
-		return Eigen::Matrix4f{
-			{ 1.f / (tanHalfVoV * ratio), 0.f,				0.f,					  0.f						  },
-			{ 0.f,						  1.f / tanHalfVoV, 0.f,					  0.f						  },
-			{ 0.f,						  0.f,				(-zNear - zFar) / zRange, 2.f * zFar * zNear / zRange },
-			{ 0.f,						  0.f,				1.f,					  0.f						  }
-		};
-	}
-
-	/**
-		angleX - angle of xAxis rotation
-		angleY - angle of yAxis rotation
-	*/
-	static const Eigen::Matrix4f axonometry(const float& angleX, const float& angleY) {
-		float sinX = sin(angleX); float cosX = cos(angleX);
-		float sinY = sin(angleY); float cosY = cos(angleY);
-
-		return Eigen::Matrix4f{
-			{ cosY,		   0.f,	  sinY,		   0.f },
-			{ sinX * sinY, cosX, -sinX * cosY, 0.f },
-			{ 0.f,		   0.f,	  0.f,		   0.f },
-			{ 0.f,		   0.f,	  0.f,		   1.f }
-		};
+	inline void updateViewMatrix() {
+		/*this->_view = Affine::unifiedRotationMatr(_rotation)??? * translate(-_eye)*/
 	}
 };
 

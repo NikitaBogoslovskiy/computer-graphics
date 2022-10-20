@@ -155,6 +155,9 @@
     <ClInclude Include="headers\geometry\camera.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="headers\geometry\linal.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\dependencies\Eigen\Eigen\Cholesky">

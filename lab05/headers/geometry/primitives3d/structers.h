@@ -12,6 +12,7 @@ struct ImVec3
     constexpr ImVec3(const float& _x, const float& _y, const float& _z) : x(_x), y(_y), z(_z) { }
     //[[deprecated("I m not sure that rvalues are operated correctly")]]
     constexpr ImVec3(float&& _x, float&& _y, float&& _z) : x(_x), y(_y), z(_z) { }
+    constexpr ImVec3(const float& _val) : x(_val), y(_val), z(_val) { }
     constexpr ImVec3(ImVec2 v2, float _z = 0.0) : x(v2.x), y(v2.y), z(_z) { }
     inline float  operator[] (size_t idx) const { assert(idx <= 2); return (&x)[idx]; }
     inline float& operator[] (size_t idx) { assert(idx <= 2); return (&x)[idx]; }

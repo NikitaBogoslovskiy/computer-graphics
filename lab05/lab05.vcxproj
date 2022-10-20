@@ -188,6 +188,7 @@
     <ClInclude Include="headers\geometry\camera.h" />
     <ClInclude Include="headers\geometry\checks.h" />
     <ClInclude Include="headers\geometry\funcs.h" />
+    <ClInclude Include="headers\geometry\linal.h" />
     <ClInclude Include="headers\geometry\primitives.h" />
     <ClInclude Include="headers\geometry\primitives3d\primitives3d.h" />
     <ClInclude Include="headers\geometry\primitives\bezier_curve.h" />
