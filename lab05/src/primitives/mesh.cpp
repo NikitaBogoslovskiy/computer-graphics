@@ -16,11 +16,6 @@ void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp
 
 			Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
 			Eigen::Vector4f v1_2d = vp * v1;
-
-			/*auto coeff0 = (1 - v0_2d(2) / 1000.f);
-			auto coeff1 = (1 - v1_2d(2) / 1000.f);
-			auto start = (1 / coeff0) * ImVec2(v0_2d(0), v0_2d(1));
-			auto end = (1 / coeff1) * ImVec2(v1_2d(0), v1_2d(1));*/
 			auto start = ImVec2(v0_2d(0), v0_2d(1));
 			auto end = ImVec2(v1_2d(0), v1_2d(1));
 			draw_list->AddLine(start + offset, end + offset, IM_COL32(0, 255, 0, 255), 1.f);

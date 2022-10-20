@@ -46,7 +46,8 @@ public:
 	
 	inline void lookAt(const ImVec3& target) {
 		setViewMatrix(target);
-		setPerspectiveProjection(45.f, _viewport.x/ _viewport.y, 0.1f, 1000.f); //EXAMPLES!
+		//setPerspectiveProjection(45.f, _viewport.x / _viewport.y, 0.1f, 1000.f); //EXAMPLES!
+		setPerspectiveProjection(45.f, 3620.f / 240.f, 0.1f, 1000.f); //EXAMPLES!
 		this->_vp = (this->_projection) * (this->_view);
 	}
 };
