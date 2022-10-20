@@ -13,7 +13,7 @@ class Camera
 	Eigen::Matrix4f _projection;
 
 public:
-	Camera(): _viewport(0.f, 0.f), 
+	/*Camera(): _viewport(0.f, 0.f), 
 		_eye(100.f), 
 		_rotation(0.f), 
 		_projection(1.f), 
@@ -26,7 +26,7 @@ public:
 		_rotation(0.f),
 		_projection(1.f),
 		_view(1.f)
-	{}
+	{}*/
 
 	inline ImVec2& getViewport() { return this->_viewport; }
 	inline ImVec3& getEye() { return this->_eye; }
