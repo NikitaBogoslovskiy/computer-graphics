@@ -3,9 +3,12 @@
 //#include <iostream>
 void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp)
 {
+	//int j = 0;
 	for (auto& polygon : polygons) {
+		//std::cout << "===>polygon " << j++ << std::endl;
 		for (size_t i = 1; i <= polygon.size(); i++)
 		{
+			//std::cout << "vertice " << i << ": " << std::endl;
 			auto ind0 = i % polygon.size();
 			auto ind1 = (ind0 + 1) % polygon.size();
 			auto point_ind0 = polygon[ind0];
@@ -17,11 +20,11 @@ void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp
 			Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
 			Eigen::Vector4f v1_2d = vp * v1;
 
-			//std::cout << v0_2d(0) / v0_2d(3) << " " << v0_2d(1) / v0_2d(3) << " " << v0_2d(2) / v0_2d(3) << " " << v0_2d(3) / v0_2d(3) << std::endl;
+			//std::cout << v0_2d(0) << " " << v0_2d(1) << " " << v0_2d(2) << " " << v0_2d(3) << " | " << v0_2d(0) / v0_2d(3) << " " << v0_2d(1) / v0_2d(3) << std::endl;
 			//std::cout << v1_2d(0) / v1_2d(3) << " " << v1_2d(1) / v1_2d(3) << " " << v1_2d(2) / v1_2d(3) << " " << v1_2d(3) / v1_2d(3) << std::endl;
-			
-			auto start = ImVec2(v0_2d(0), v0_2d(1));
-			auto end = ImVec2(v1_2d(0) , v1_2d(1));
+
+			auto start = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3));
+			auto end = ImVec2(v1_2d(0) / v1_2d(3), v1_2d(1) / v1_2d(3));
 			draw_list->AddLine(start + offset, end + offset, IM_COL32(0, 255, 0, 255), 1.f);
 			draw_list->AddCircleFilled(start + offset, 3.f, IM_COL32(255, 0, 0, 255), 10);
 		}

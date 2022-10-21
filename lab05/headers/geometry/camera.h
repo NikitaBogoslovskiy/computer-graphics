@@ -37,8 +37,12 @@ public:
 	inline void setViewMatrix(const ImVec3& target, const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) { 
 		this->_view = Linal::lookAt(this->_eye, target, up); 
 	}
-	inline void setPerspectiveProjection(const float& FoV, const float& ratio, const float& zNear, const float& zFar) { 
-		this->_projection = Linal::perspective(FoV, ratio, zNear, zFar); 
+	inline void setPerspectiveFoVProjection(const float& FoV, const float& ratio, const float& zNear, const float& zFar) { 
+		this->_projection = Linal::perspectiveFoV(FoV, ratio, zNear, zFar); 
+	}
+	inline void setPerspectiveProjection(const float& r) {
+		this->_projection = Linal::perspective(r);
+
 	}
 	inline void setAxonometryProjection(const float& angleX, const float& angleY) { 
 		this->_projection = Linal::axonometry(angleX, angleY); 
@@ -46,7 +50,8 @@ public:
 	
 	inline void lookAt(const ImVec3& target) {
 		setViewMatrix(target);
-		setPerspectiveProjection(45.f, 1.f, 0.1f, 100.f); //EXAMPLES!
+		//setPerspectiveFoVProjection(45.f, 1.f, 0.1f, 100.f); //EXAMPLES!
+		setPerspectiveProjection(1000.f); //EXAMPLES!
 		this->_vp = (this->_projection) * (this->_view);
 	}
 };

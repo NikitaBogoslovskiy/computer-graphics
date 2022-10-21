@@ -168,16 +168,16 @@ void BLEV::ShowMenuBar()
 			meshes.push_back(new Cube(ImVec3(0.f, 0.f, 0.f)));
 		}
 		if (ImGui::Button("Add tetrahedr")) {
-			meshes.push_back(new Tetrahedron(ImVec3(0.f, 0.f, 0.f)));
+			meshes.push_back(new Tetrahedron(ImVec3(10.f, 0.f, 0.f)));
 		}
 		if (ImGui::Button("Add octahedr")) {
-			meshes.push_back(new Octahedron(ImVec3(0.f, 0.f, 0.f)));
+			meshes.push_back(new Octahedron(ImVec3(20.f, 0.f, 0.f)));
 		}
 		if (ImGui::Button("Add Dodecahedron")) {
-			meshes.push_back(new Dodecahedron(ImVec3(0.f, 0.f, 0.f)));
+			meshes.push_back(new Dodecahedron(ImVec3(30.f, 0.f, 0.f)));
 		}
 		if (ImGui::Button("Add Icosahedron")) {
-			meshes.push_back(new Icosahedron(ImVec3(0.f, 0.f, 0.f)));
+			meshes.push_back(new Icosahedron(ImVec3(40.f, 0.f, 0.f)));
 		}
 		ImGui::EndMainMenuBar();
 	}
@@ -268,11 +268,12 @@ void BLEV::ShowContent()
 			ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
 			canvas_width = canvas_p1.x;
 
-			const float radius = 10.0f;
-			float camX = sin(glfwGetTime()) * radius;
-			float camZ = cos(glfwGetTime()) * radius;
-			//main_camera.setEye(ImVec3(camX, 10.f, camZ)); // will be iniated corresponding to user input later //main_camera.setRotation(ImVec3(0.f, 0.f, 0.f));
-			main_camera.setEye(ImVec3(0.f, 5.f, 10.f));
+			//const float radius = 3.0f;
+			//float camX = sin(glfwGetTime()) * radius;
+			//float camZ = cos(glfwGetTime()) * radius;
+			//main_camera.setEye(ImVec3(camX, 3.f, camZ)); // will be iniated corresponding to user input later //main_camera.setRotation(ImVec3(0.f, 0.f, 0.f));
+			main_camera.setEye(ImVec3(2.f, 3.f, 5.f));
+			//main_camera.setEye(ImVec3(camZ, camX, 1.f));
 			main_camera.lookAt(ImVec3(0.f, 0.f, 0.f));
 
 			// Draw border and background color
@@ -721,6 +722,7 @@ void BLEV::ShowContent()
 			}
 
 			auto vp = main_camera.getViewProjecion();
+			//auto vp = main_camera.getProjection();
 			//auto vp = main_camera.getView();
 			for (auto mesh : meshes) {
 				mesh->draw(draw_list, origin, vp);

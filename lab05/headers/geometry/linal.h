@@ -37,7 +37,7 @@ public:
 		up - up direction
 	*/
 	static const Eigen::Matrix4f lookAt(const ImVec3& eye = ImVec3(0.f, 0.f, 0.f), const ImVec3& target = ImVec3(0.f, 0.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
-		ImVec3 zaxis = normalize(eye - target);		// "ray" from the eye to the target
+		ImVec3 zaxis = normalize(target - eye);		// "ray" from the eye to the target
 		ImVec3 xaxis = normalize(cross(up, zaxis)); // x axis of the new coordinate system
 		ImVec3 yaxis = cross(zaxis, xaxis); // y axis of the new coordinate system
 
@@ -51,13 +51,17 @@ public:
 
 	// PROJECTIONS
 
-	/**
-		FoV - field of view angle (rad)
-		ratio - screen aspect ratio (width / height)
-		znear - location of the near Z clipping plane
-		zfar - location of the far Z clipping plane
-	*/
-	static const Eigen::Matrix4f perspective(const float& FoV, const float& ratio, const float& zNear, const float& zFar) {
+	/* unneccessary blood and sweat */
+	static const Eigen::Matrix4f perspective(const float& r) {
+		return Eigen::Matrix4f{
+			{ 1.f, 0.f,  0.f,     0.f },
+			{ 0.f, 1.f,  0.f,     0.f },
+			{ 0.f, 0.f,	 0.f,     0.f },
+			{ 0.f, 0.f, -1.f / r, 1.f }
+		};
+	}
+
+	static const Eigen::Matrix4f perspectiveFoV(const float& FoV, const float& ratio, const float& zNear, const float& zFar) {
 		float zRange = zFar - zNear;
 		float tanHalfVoV = tan(DegreesToRadians(FoV) / 2);
 
@@ -78,12 +82,13 @@ public:
 		};*/
 	}
 
+
 	/**
 		angleX - angle of xAxis rotation
 		angleY - angle of yAxis rotation
 	*/
 	static const Eigen::Matrix4f axonometry(const float& angleX, const float& angleY) {
-		auto _angleX = DegreesToRadians(angleX);
+		auto _angleX = DegreesToRadians(angleX); 
 		auto _angleY = DegreesToRadians(angleY);
 		float sinX = sin(_angleX); float cosX = cos(_angleX);
 		float sinY = sin(_angleY); float cosY = cos(_angleY);
