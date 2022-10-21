@@ -271,10 +271,8 @@ void BLEV::ShowContent()
 			const float radius = 10.0f;
 			float camX = sin(glfwGetTime()) * radius;
 			float camZ = cos(glfwGetTime()) * radius;
-			main_camera.setEye(ImVec3(camX, 10.f, camZ)); // will be iniated corresponding to user input later //main_camera.setRotation(ImVec3(0.f, 0.f, 0.f));
-			//main_camera.setEye(ImVec3(10.f, 10.f, 10.f));
-			//main_camera.setViewport(canvas_sz);
-			//std::cout << canvas_sz.x << " " << canvas_sz.y << std::endl;
+			//main_camera.setEye(ImVec3(camX, 10.f, camZ)); // will be iniated corresponding to user input later //main_camera.setRotation(ImVec3(0.f, 0.f, 0.f));
+			main_camera.setEye(ImVec3(0.f, 5.f, 10.f));
 			main_camera.lookAt(ImVec3(0.f, 0.f, 0.f));
 
 			// Draw border and background color

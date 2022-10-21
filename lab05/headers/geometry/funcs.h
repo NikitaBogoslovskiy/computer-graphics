@@ -62,7 +62,7 @@ inline void HelpPrevItem(const char* desc)
 }
 
 inline float DegreesToRadians(const float& degrees) {
-	return degrees * (2 * acos(0.0) / 180);
+	return degrees * (PI / 180);
 }
 
 inline bool intersected(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, ImVec2* out) {
