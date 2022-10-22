@@ -295,6 +295,7 @@ private:
 	void F_Classify();
 
 	void Draw3dGrid(ImDrawList* draw_list, Eigen::Matrix4f& vp, const float& DIST, const float& GRID_STEP, const ImVec2& offset, const VisualParams& vis_p);
+	void DrawAxis(ImDrawList* draw_list, Eigen::Matrix4f& vp, const float& GRID_STEP, const ImVec2& offset, const VisualParams& vis_pX, const VisualParams& vis_pY, const VisualParams& vis_pZ);
 
 	template<typename _Container,
 		typename _Value = typename _Container::value_type,

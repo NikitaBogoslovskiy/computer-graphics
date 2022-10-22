@@ -54,6 +54,18 @@ public:
 		this->_scale = Affine::identity();
 		this->_zFocus = 1000.f;
 		this->_isMouseDirty = false;
+		updateRotation();
+	}
+
+	inline void updateRotation() {
+		auto radYaw = DegreesToRadians(this->_rotation.x);
+		auto radPitch = DegreesToRadians(this->_rotation.y);
+
+		ImVec3 newDirection;
+		newDirection.x = cos(radYaw) * cos(radPitch);
+		newDirection.y = sin(radPitch);
+		newDirection.z = sin(radYaw) * cos(radPitch);
+		this->_direction = Linal::normalize(newDirection);
 	}
 
 	inline void setViewMatrix(const ImVec3& target, const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {

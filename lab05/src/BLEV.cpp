@@ -246,14 +246,10 @@ void BLEV::ProcessCamMouseInput(ImVec2& deltaMouse, Camera& cam) {
 		cam.rotation().x += offset.x; // yaw
 		cam.rotation().y -= offset.y; // pitch
 
-		if (cam.rotation().y > 89.0f) cam.rotation().y = 89.0f;
-		if (cam.rotation().y < -89.0f) cam.rotation().y = -89.0f;
+		cam.rotation().y = std::min(cam.rotation().y, 89.0f);
+		cam.rotation().y = std::max(cam.rotation().y, -89.0f);
 
-		ImVec3 newDirection;
-		newDirection.x = cos(DegreesToRadians(cam.rotation().x)) * cos(DegreesToRadians(cam.rotation().y));
-		newDirection.y = sin(DegreesToRadians(cam.rotation().y));
-		newDirection.z = sin(DegreesToRadians(cam.rotation().x)) * cos(DegreesToRadians(cam.rotation().y));
-		cam.direction() = Linal::normalize(newDirection);
+		cam.updateRotation();
 	}
 }
 
@@ -780,8 +776,11 @@ void BLEV::ShowContent()
 			}
 
 			static const VisualParams vis_p(IM_COL32(200, 200, 200, 40), 1.f, true);
-			Draw3dGrid(draw_list, vp, 400.f, 10.f, origin, vis_p);
-
+			float GRID_STEP3D = 10.f;
+			Draw3dGrid(draw_list, vp, GRID_STEP3D * 40.f, GRID_STEP, origin, vis_p);
+			DrawAxis(draw_list, vp, GRID_STEP3D, origin, VisualParams(IM_COL32(0, 255, 0, 255), 1.f, true), 
+														VisualParams(IM_COL32(0, 0, 255, 255), 1.f, true), 
+														VisualParams(IM_COL32(255, 0, 0, 255), 1.f, true));
 			//ïåðåñå÷åíèå âûáðàííûõ ïðèìèòèâîâ
 			if (chosen_prims.size() > 0) {
 				intersections = get_intersections(chosen_prims);
@@ -1392,6 +1391,12 @@ void BLEV::Draw3dGrid(ImDrawList* draw_list, Eigen::Matrix4f& vp, const float& D
 		Line3d::draw(draw_list, ImVec3(-border, -30.f, next), ImVec3(border, -30.f, next), offset, vp, vis_p);
 		Line3d::draw(draw_list, ImVec3(-border, -30.f, -next), ImVec3(border, -30.f, -next), offset, vp, vis_p);
 	}
+}
+
+void BLEV::DrawAxis(ImDrawList* draw_list, Eigen::Matrix4f& vp, const float& GRID_STEP, const ImVec2& offset, const VisualParams& vis_pX, const VisualParams& vis_pY, const VisualParams& vis_pZ) {
+	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(GRID_STEP * 3.f, 0.f, 0.f), offset, vp, vis_pX);
+	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(0.f, GRID_STEP * 3.f, 0.f), offset, vp, vis_pY);
+	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(0.f, 0.f, GRID_STEP * 3.f), offset, vp, vis_pZ);
 }
 
 template<typename _Container,
