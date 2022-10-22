@@ -65,7 +65,7 @@ struct Point3d : VisualParams {
         if (show) {
             Eigen::Vector4f v0{ point.x, point.y, point.z,  1.f }; // COLUMN-VEC
             Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
-            auto start = ImVec2(v0_2d(0), v0_2d(1));
+            auto start = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3));
             draw_list->AddCircleFilled(start + offset, thickness, color, 10);
         }
     }
@@ -85,8 +85,8 @@ struct Line3d : VisualParams {
 
             Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
             Eigen::Vector4f v1_2d = vp * v1;
-            auto start = ImVec2(v0_2d(0), v0_2d(1));
-            auto end = ImVec2(v1_2d(0), v1_2d(1));
+            auto start = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3));
+            auto end = ImVec2(v1_2d(0) / v1_2d(3), v1_2d(1) / v1_2d(3));
             draw_list->AddLine(start + offset, end + offset, color, thickness);
             //draw_list->AddCircleFilled(start + offset, 3.f, IM_COL32(255, 0, 0, 255), 10);
         }
