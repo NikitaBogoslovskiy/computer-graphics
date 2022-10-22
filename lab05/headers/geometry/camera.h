@@ -17,18 +17,10 @@ class Camera
 	Eigen::Matrix4f _scale;
 	float _zFocus;
 	ImDrawList* _draw_list;
+	bool _isMouseDirty;
 public:
 	Camera() {
-		this->_viewport = ImVec2(800.f, 800.f); // maybe we'll need it someday
-		//this->_eye = ImVec3(0.f, 0.f, 150.f);
-		this->_eye = ImVec3(0.f, 0.f, 1.f);
-		this->_direction = ImVec3(0.f, 0.f, -1.f);
-		this->_rotation = ImVec3(0.f, 0.f, 0.f);
-		this->_up = ImVec3(0.f, 1.f, 0.f);
-		this->_view = Affine::identity();
-		this->_projection = Affine::identity();
-		this->_scale = Affine::identity();
-		this->_zFocus = 1000.f;
+		resetPosition();
 	}
 
 	Camera(const ImVec2& viewport, const ImVec3& eye, Eigen::Matrix4f& projection, ImDrawList*& draw_list) {
@@ -38,27 +30,30 @@ public:
 		this->_draw_list = draw_list;
 	}
 
-	inline ImVec2& getViewport() { return this->_viewport; }
-	inline ImVec3& getEye() { return this->_eye; }
-	inline ImVec3& getDirection() { return this->_direction; }
-	inline ImVec3& getRotation() { return this->_rotation; }
-	inline ImVec3& getUp() { return this->_up; }
-	inline float& getZFocus() { return this->_zFocus; }
+	inline ImVec2& viewport() { return this->_viewport; }
+	inline ImVec3& eye() { return this->_eye; }
+	inline ImVec3& direction() { return this->_direction; }
+	inline ImVec3& rotation() { return this->_rotation; }
+	inline ImVec3& up() { return this->_up; }
+	inline float& zFocus() { return this->_zFocus; }
 
-	inline Eigen::Matrix4f& getView() { return this->_view; }
-	inline Eigen::Matrix4f& getProjection() { return this->_projection; }
-	inline Eigen::Matrix4f getViewProjecion() { return this->_vp; }
+	inline Eigen::Matrix4f& view() { return this->_view; }
+	inline Eigen::Matrix4f& projection() { return this->_projection; }
+	inline Eigen::Matrix4f viewProjecion() { return this->_vp; }
+	inline bool& dirtiness() { return this->_isMouseDirty; }
 
-	inline void setViewport(const ImVec2& viewport) { this->_viewport = viewport; }
-	inline void setEye(const ImVec3& eye) { this->_eye = eye; }
-	inline void setRotation(const ImVec3& rotation) { this->_rotation = rotation; }
-	inline void setUp(const ImVec3& up) { this->_up = up; }
-	inline void resetPosition() { 
-		this->_scale = Affine::identity();
-		this->_up = ImVec3(0.f, 1.f, 0.f);
+	inline void resetPosition() {
+		this->_viewport = ImVec2(800.f, 800.f); // maybe we'll need it someday
+		//this->_eye = ImVec3(0.f, 0.f, 150.f);
 		this->_eye = ImVec3(0.f, 0.f, 1.f);
 		this->_direction = ImVec3(0.f, 0.f, -1.f);
+		this->_rotation = ImVec3(0.f, 0.f, 0.f);
+		this->_up = ImVec3(0.f, 1.f, 0.f);
 		this->_view = Linal::lookAt(this->_eye, this->_eye + this->_direction, this->_up);
+		this->_projection = Affine::identity();
+		this->_scale = Affine::identity();
+		this->_zFocus = 1000.f;
+		this->_isMouseDirty = false;
 	}
 
 	inline void setViewMatrix(const ImVec3& target, const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {

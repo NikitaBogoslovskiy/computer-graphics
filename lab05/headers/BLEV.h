@@ -109,10 +109,8 @@ private:
 	std::set<ImVec2*> chosen_prim_points;
 	std::set<std::pair<ImVec2*,ImVec2*>> chosen_prim_edges;
 
-	bool isMouseFirst = true;
 	ImVec2 prev_point = ImVec2(0.f, 0.f);
 	ImVec2 deltaMouse = ImVec2(0.f, 0.f);
-	//ImVec2 prev_point = ImVec2(0.f, 0.f);
 	float deltaTime = 0.0f;	// Time between current frame and last frame
 	float lastFrame = 0.0f; // Time of last frame
 	Camera main_camera;
@@ -296,7 +294,7 @@ private:
 	void F_Lsystem();
 	void F_Classify();
 
-	void Draw3dGrid(ImDrawList* draw_list, Eigen::Matrix4f& vp, const float& FOCUS_DIST, const float& GRID_STEP, const ImVec2& offset, const VisualParams& vis_p);
+	void Draw3dGrid(ImDrawList* draw_list, Eigen::Matrix4f& vp, const float& DIST, const float& GRID_STEP, const ImVec2& offset, const VisualParams& vis_p);
 
 	template<typename _Container,
 		typename _Value = typename _Container::value_type,

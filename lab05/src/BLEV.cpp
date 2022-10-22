@@ -225,19 +225,17 @@ void BLEV::ProcessCamKeyboardInput(ImGuiIO& io, Camera& cam, float& deltaTime) {
 	}
 	float cameraSpeed = 1000.f * deltaTime;
 	if (ImGui::IsKeyPressed(ImGuiKey_W)) {
-		//std::cout << "hello" << std::endl;
-		cam.getEye() += cameraSpeed * cam.getDirection();
+		cam.eye() += cameraSpeed * cam.direction();
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_S)) {
-		cam.getEye() += -cameraSpeed * cam.getDirection();
+		cam.eye() += -cameraSpeed * cam.direction();
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_A)) {
-		cam.getEye() += -cameraSpeed * Linal::normalize(Linal::cross(cam.getDirection(), cam.getUp()));
+		cam.eye() += -cameraSpeed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_D)) {
-		cam.getEye() += cameraSpeed * Linal::normalize(Linal::cross(cam.getDirection(), cam.getUp()));
+		cam.eye() += cameraSpeed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
 	}
-	//std::cout << cam.getEye().x << " " << cam.getEye().y << " " << cam.getEye().z << std::endl;
 }
 
 void BLEV::ProcessCamMouseInput(ImVec2& deltaMouse, Camera& cam) {
@@ -245,17 +243,17 @@ void BLEV::ProcessCamMouseInput(ImVec2& deltaMouse, Camera& cam) {
 		float sensitivity = 0.1f;
 		ImVec2 offset = sensitivity * deltaMouse;
 
-		cam.getRotation().x += offset.x; // yaw
-		cam.getRotation().y -= offset.y; // pitch
+		cam.rotation().x += offset.x; // yaw
+		cam.rotation().y -= offset.y; // pitch
 
-		if (cam.getRotation().y > 89.0f) cam.getRotation().y = 89.0f;
-		if (cam.getRotation().y < -89.0f) cam.getRotation().y = -89.0f;
+		if (cam.rotation().y > 89.0f) cam.rotation().y = 89.0f;
+		if (cam.rotation().y < -89.0f) cam.rotation().y = -89.0f;
 
 		ImVec3 newDirection;
-		newDirection.x = cos(DegreesToRadians(cam.getRotation().x)) * cos(DegreesToRadians(cam.getRotation().y));
-		newDirection.y = sin(DegreesToRadians(cam.getRotation().y));
-		newDirection.z = sin(DegreesToRadians(cam.getRotation().x)) * cos(DegreesToRadians(cam.getRotation().y));
-		cam.getDirection() = Linal::normalize(newDirection);
+		newDirection.x = cos(DegreesToRadians(cam.rotation().x)) * cos(DegreesToRadians(cam.rotation().y));
+		newDirection.y = sin(DegreesToRadians(cam.rotation().y));
+		newDirection.z = sin(DegreesToRadians(cam.rotation().x)) * cos(DegreesToRadians(cam.rotation().y));
+		cam.direction() = Linal::normalize(newDirection);
 	}
 }
 
@@ -310,7 +308,7 @@ void BLEV::ShowContent()
 			if (canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
 			ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
 			canvas_width = canvas_p1.x;
-			main_camera.lookAt(main_camera.getEye() + main_camera.getDirection());
+			main_camera.lookAt(main_camera.eye() + main_camera.direction());
 
 			// Draw border and background color
 			ImGuiIO& io = ImGui::GetIO();
@@ -327,10 +325,10 @@ void BLEV::ShowContent()
 
 			PollCallbacks();
 
-			if (isMouseFirst)
+			if (!main_camera.dirtiness())
 			{
 				prev_point = mouse_pos_in_canvas;
-				isMouseFirst = false;
+				main_camera.dirtiness() = true;
 			}
 			deltaMouse = mouse_pos_in_canvas - prev_point;
 			prev_point = mouse_pos_in_canvas;
@@ -776,13 +774,13 @@ void BLEV::ShowContent()
 				draw_list->AddCircleFilled(*ch_p + origin, (*chosen_prims.begin())->thickness() + 2.f, IM_COL32(0, 255, 0, 255), 10);
 			}
 
-			auto vp = main_camera.getViewProjecion(); //auto vp = main_camera.getProjection(); //auto vp = main_camera.getView();
+			auto vp = main_camera.viewProjecion(); //auto vp = main_camera.getProjection(); //auto vp = main_camera.getView();
 			for (auto mesh : meshes) {
 				mesh->draw(draw_list, origin, vp);
 			}
 
 			static const VisualParams vis_p(IM_COL32(200, 200, 200, 40), 1.f, true);
-			Draw3dGrid(draw_list, vp, 200.f, 10.f, origin, vis_p);
+			Draw3dGrid(draw_list, vp, 400.f, 10.f, origin, vis_p);
 
 			//ïåðåñå÷åíèå âûáðàííûõ ïðèìèòèâîâ
 			if (chosen_prims.size() > 0) {
@@ -1383,11 +1381,11 @@ void BLEV::F_Classify() {
 	}
 }
 
-void BLEV::Draw3dGrid(ImDrawList* draw_list, Eigen::Matrix4f& vp, const float& FOCUS_DIST, const float& GRID_STEP, const ImVec2& offset, const VisualParams& vis_p) {
-	auto border = FOCUS_DIST * 0.5;
+void BLEV::Draw3dGrid(ImDrawList* draw_list, Eigen::Matrix4f& vp, const float& DIST, const float& GRID_STEP, const ImVec2& offset, const VisualParams& vis_p) {
+	auto border = DIST * 0.5;
 	Line3d::draw(draw_list, ImVec3(0, -30.f, -border), ImVec3(0, -30.f, border), offset, vp, vis_p);
 	Line3d::draw(draw_list, ImVec3(-border, -30.f, 0), ImVec3(border, -30.f, 0), offset, vp, vis_p);
-	for (int i = 1; i < 0.5f * FOCUS_DIST / GRID_STEP; i++) {
+	for (int i = 1; i < 0.5f * DIST / GRID_STEP; i++) {
 		auto next = i * GRID_STEP;
 		Line3d::draw(draw_list, ImVec3(next, -30.f, -border), ImVec3(next, -30.f, border), offset, vp, vis_p);
 		Line3d::draw(draw_list, ImVec3(-next, -30.f, -border), ImVec3(-next, -30.f, border), offset, vp, vis_p);
