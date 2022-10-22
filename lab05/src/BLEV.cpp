@@ -281,7 +281,8 @@ void BLEV::ShowContent()
 		if (b_canvas && ImGui::BeginChild("Canvas"))
 		{
 			static ImVec2 scrolling(0.0f, 0.0f);
-			static bool opt_enable_grid = true;
+			static bool opt_enable_grid = false;
+			static bool opt_enable_z0_grid = true;
 			static bool opt_enable_context_menu = true;
 
 			// Using InvisibleButton() as a convenience 1) it will advance the layout cursor and 2) allows us to use IsItemHovered()/IsItemActive()
@@ -717,9 +718,8 @@ void BLEV::ShowContent()
 
 			// Draw grid + all lines in the canvas
 			draw_list->PushClipRect(canvas_p0, canvas_p1, true);
-			if (opt_enable_grid)
-			{
-				const float GRID_STEP = 64.0f;
+			static const float GRID_STEP = 64.0f;
+			if (opt_enable_grid){
 				for (float x = fmodf(scrolling.x, GRID_STEP); x < canvas_sz.x; x += GRID_STEP)
 					draw_list->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y), ImVec2(canvas_p0.x + x, canvas_p1.y), IM_COL32(200, 200, 200, 40));
 				for (float y = fmodf(scrolling.y, GRID_STEP); y < canvas_sz.y; y += GRID_STEP)
@@ -756,6 +756,15 @@ void BLEV::ShowContent()
 			//auto vp = main_camera.getView();
 			for (auto mesh : meshes) {
 				mesh->draw(draw_list, origin, vp);
+			}
+
+			static const VisualParams vis_p(IM_COL32(200, 200, 200, 40), 1.f, true);
+
+			if (opt_enable_z0_grid) {
+				for (float x = fmodf(scrolling.x, GRID_STEP); x < canvas_sz.x; x += GRID_STEP)
+					Line3d::draw(draw_list, ImVec3(canvas_p0.x + x, canvas_p0.y, 0), ImVec3(canvas_p0.x + x, canvas_p1.y, 0), origin, vp, vis_p);
+				for (float y = fmodf(scrolling.y, GRID_STEP); y < canvas_sz.y; y += GRID_STEP)
+					Line3d::draw(draw_list, ImVec3(canvas_p0.x, canvas_p0.y + y, 0), ImVec3(canvas_p1.x, canvas_p0.y + y, 0), origin, vp, vis_p);
 			}
 
 			//ïåðåñå÷åíèå âûáðàííûõ ïðèìèòèâîâ

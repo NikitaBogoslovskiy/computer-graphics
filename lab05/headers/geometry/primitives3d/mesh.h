@@ -6,7 +6,7 @@
 #include "geometry/funcs.h"
 #include <deque>
 
-class Mesh
+class Mesh : public VisualParams
 {
 private:
 	std::vector<ImVec3> points;
