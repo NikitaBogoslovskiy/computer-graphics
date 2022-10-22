@@ -44,4 +44,53 @@ struct Polygon
     }
 };
 
+struct VisualParams {
+    ImU32 color;
+    float thickness;
+    bool show;
+    VisualParams() noexcept : color(IM_COL32(255, 255, 204, 255)), thickness(1.f), show(true) {};
+    VisualParams(const VisualParams& vp) : color(vp.color), thickness(vp.thickness), show(vp.show) {};
+    VisualParams(VisualParams&& vp) : color(std::move(vp.color)), thickness(std::move(vp.thickness)), show(std::move(vp.show)) {};
+};
+
+#include "geometry/funcs.h"
+
+struct Point3d : VisualParams {
+    ImVec3 point;
+    Point3d() : point() {}
+    Point3d(const ImVec3& _point) : point(_point) {}
+    Point3d(ImVec3&& _point) : point(std::move(_point)) {}
+
+    void draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f vp) {
+        if (show) {
+            Eigen::Vector4f v0{ point.x, point.y, point.z,  1.f }; // COLUMN-VEC
+            Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
+            auto start = ImVec2(v0_2d(0), v0_2d(1));
+            draw_list->AddCircleFilled(start + offset, thickness, color, 10);
+        }
+    }
+};
+
+struct Line3d : VisualParams {
+    ImVec3 p1;
+    ImVec3 p2;
+    bool infinity;
+    Line3d() : p1(), p2(), infinity(false) {}
+    Line3d(const ImVec3& _p1, const ImVec3& _p2, bool _inf = false) : p1(_p1), p2(_p2), infinity(_inf) {}
+    Line3d(ImVec3&& _p1, ImVec3&& _p2, bool _inf = false) : p1(std::move(_p1)), p2(std::move(_p2)), infinity(_inf) {}
+    void draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f vp) {
+        if (show) {
+            Eigen::Vector4f v0{ p1.x, p1.y, p1.z,  1.f }; // COLUMN-VEC
+            Eigen::Vector4f v1{ p2.x, p2.y, p2.z,  1.f };
+
+            Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
+            Eigen::Vector4f v1_2d = vp * v1;
+            auto start = ImVec2(v0_2d(0), v0_2d(1));
+            auto end = ImVec2(v1_2d(0), v1_2d(1));
+            draw_list->AddLine(start + offset, end + offset, color, thickness);
+            //draw_list->AddCircleFilled(start + offset, 3.f, IM_COL32(255, 0, 0, 255), 10);
+        }
+    }
+};
+
 //typedef Eigen::Product<Eigen::Matrix4f, Eigen::Matrix4f, 0> Matrix4fProduct;

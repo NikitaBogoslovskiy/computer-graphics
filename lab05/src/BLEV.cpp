@@ -257,7 +257,8 @@ void BLEV::ShowContent()
 		if (b_canvas && ImGui::BeginChild("Canvas"))
 		{
 			static ImVec2 scrolling(0.0f, 0.0f);
-			static bool opt_enable_grid = true;
+			static bool opt_enable_grid = false;
+			static bool opt_enable_z0_grid = true;
 			static bool opt_enable_context_menu = true;
 
 			// Using InvisibleButton() as a convenience 1) it will advance the layout cursor and 2) allows us to use IsItemHovered()/IsItemActive()
