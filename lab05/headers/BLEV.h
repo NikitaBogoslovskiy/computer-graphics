@@ -108,8 +108,11 @@ private:
 	size_t chosenMode = 0;
 	std::set<ImVec2*> chosen_prim_points;
 	std::set<std::pair<ImVec2*,ImVec2*>> chosen_prim_edges;
-	ImVec2 prev_point;
-	
+
+	bool isMouseFirst = true;
+	ImVec2 prev_point = ImVec2(0.f, 0.f);
+	ImVec2 deltaMouse = ImVec2(0.f, 0.f);
+	//ImVec2 prev_point = ImVec2(0.f, 0.f);
 	float deltaTime = 0.0f;	// Time between current frame and last frame
 	float lastFrame = 0.0f; // Time of last frame
 	Camera main_camera;
@@ -277,7 +280,8 @@ private:
 	void ShowModes();
 	void ShowFuncs();
 	void PollCallbacks();
-	void ProcessCamInput(ImGuiIO& io, Camera & cam, float& deltaTime);
+	void ProcessCamKeyboardInput(ImGuiIO& io, Camera & cam, float& deltaTime);
+	void ProcessCamMouseInput(ImVec2& deltaMouse, Camera& cam);
 
 	void ShowPrimitiveTableRow(Primitive* prim, size_t idx);
 	void ShowFractalTableRow(Lsystem* lsys, size_t idx);
@@ -291,6 +295,8 @@ private:
 	void F_Displace();
 	void F_Lsystem();
 	void F_Classify();
+
+	void Draw3dGrid(ImDrawList* draw_list, Eigen::Matrix4f& vp, const float& FOCUS_DIST, const float& GRID_STEP, const ImVec2& offset, const VisualParams& vis_p);
 
 	template<typename _Container,
 		typename _Value = typename _Container::value_type,
