@@ -320,8 +320,10 @@ void BLEV::ShowContent()
 			float currentFrame = glfwGetTime();
 			deltaTime = currentFrame - lastFrame;
 			lastFrame = currentFrame;
-			ProcessCamInput(io, main_camera, deltaTime);
-
+			if (is_hovered) {
+				ProcessCamInput(io, main_camera, deltaTime);
+			}
+			
 			if (chosenPrimEditMode != (int)PrimEditMode::None) {
 				switch ((PrimEditMode)chosenPrimEditMode) {
 				case PrimEditMode::SelectPoints:
