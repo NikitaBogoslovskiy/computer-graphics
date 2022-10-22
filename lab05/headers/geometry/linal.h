@@ -42,22 +42,22 @@ public:
 		ImVec3 yaxis = cross(zaxis, xaxis); // y axis of the new coordinate system
 
 		return Eigen::Matrix4f{
-			{  xaxis.x,	-xaxis.y, xaxis.z, -dot(xaxis, eye) },
-			{  yaxis.x,	-yaxis.y, yaxis.z,  dot(yaxis, eye) },
-			{  zaxis.x,	-zaxis.y, zaxis.z, -dot(zaxis, eye) },
-			{  0.f,		0.f,	 0.f,	   1.f			   }
+			{  -xaxis.x,	-xaxis.y, -xaxis.z,  dot(xaxis, eye) },
+			{  -yaxis.x,	-yaxis.y, -yaxis.z,  dot(yaxis, eye) },
+			{  -zaxis.x,	-zaxis.y, -zaxis.z,  dot(zaxis, eye) },
+			{   0.f,		 0.f,	   0.f,	     1.f			   }
 		}; // = orientation * translation
 	}
 
 	// PROJECTIONS
 
 	/* unneccessary blood and sweat */
-	static const Eigen::Matrix4f perspective(const float& r) {
+	static const Eigen::Matrix4f perspective(const float& zFocus) {
 		return Eigen::Matrix4f{
-			{ 1.f, 0.f,  0.f,     0.f },
-			{ 0.f, 1.f,  0.f,     0.f },
-			{ 0.f, 0.f,	 0.f,     0.f },
-			{ 0.f, 0.f, -1.f / r, 1.f }
+			{ 1.f, 0.f,  0.f,		   0.f },
+			{ 0.f, 1.f,  0.f,		   0.f },
+			{ 0.f, 0.f,  1.f,		   0.f },
+			{ 0.f, 0.f, -1.f / zFocus, 1.f }
 		};
 	}
 
@@ -88,7 +88,7 @@ public:
 		angleY - angle of yAxis rotation
 	*/
 	static const Eigen::Matrix4f axonometry(const float& angleX, const float& angleY) {
-		auto _angleX = DegreesToRadians(angleX); 
+		auto _angleX = DegreesToRadians(angleX);
 		auto _angleY = DegreesToRadians(angleY);
 		float sinX = sin(_angleX); float cosX = cos(_angleX);
 		float sinY = sin(_angleY); float cosY = cos(_angleY);

@@ -217,6 +217,30 @@ void BLEV::ShowAdditionalWindows()
 	}
 }
 
+void BLEV::ProcessCamInput(ImGuiIO& io, Camera& cam, float & deltaTime) {
+	auto x = (float)io.MouseWheel;
+	if (x != 0.f) {
+		cam.altPerspectiveScale(x < 0? -1.f : 1.f);
+		return;
+	}
+	float cameraSpeed = 12.f * deltaTime;
+	
+	if (ImGui::IsKeyPressed(ImGuiKey_UpArrow)) {
+		//std::cout << "hello" << std::endl;
+		cam.getEye() += (cameraSpeed * ImVec3(0.0f, 0.0f, 1.0f));
+	}
+	if (ImGui::IsKeyPressed(ImGuiKey_DownArrow)) {
+		cam.getEye() += - cameraSpeed * ImVec3(0.0f, 0.0f, 1.0f);
+	}
+	if (ImGui::IsKeyPressed(ImGuiKey_LeftArrow)) {
+		cam.getEye() += cameraSpeed * Linal::normalize(Linal::cross(ImVec3(0.0f, 0.0f, 1.0f), cam.getUp()));
+	}
+	if (ImGui::IsKeyPressed(ImGuiKey_RightArrow)) {
+		cam.getEye() += - cameraSpeed * Linal::normalize(Linal::cross(ImVec3(0.0f, 0.0f, 1.0f), cam.getUp()));
+	}
+	//std::cout << cam.getEye().x << " " << cam.getEye().y << " " << cam.getEye().z << std::endl;
+}
+
 void BLEV::ShowContent()
 {
 	static bool use_work_area = true;
@@ -268,12 +292,13 @@ void BLEV::ShowContent()
 			ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
 			canvas_width = canvas_p1.x;
 
-			//const float radius = 3.0f;
-			//float camX = sin(glfwGetTime()) * radius;
-			//float camZ = cos(glfwGetTime()) * radius;
+			const float radius = 5.0f;
+			float camX = sin(glfwGetTime()) * radius;
+			float camZ = cos(glfwGetTime()) * radius;
 			//main_camera.setEye(ImVec3(camX, 3.f, camZ)); // will be iniated corresponding to user input later //main_camera.setRotation(ImVec3(0.f, 0.f, 0.f));
-			main_camera.setEye(ImVec3(2.f, 3.f, 5.f));
-			//main_camera.setEye(ImVec3(camZ, camX, 1.f));
+			//main_camera.setEye(ImVec3(2.f, 3.f, 5.f));
+			//main_camera.setEye(ImVec3(-30.f, -30.f, 5.f));
+			//main_camera.setEye(ImVec3(5.f, 5.f, 5.f));
 			main_camera.lookAt(ImVec3(0.f, 0.f, 0.f));
 
 			// Draw border and background color
@@ -290,6 +315,11 @@ void BLEV::ShowContent()
 			const ImVec2 mouse_pos_in_canvas(io.MousePos.x - origin.x, io.MousePos.y - origin.y);
 
 			PollCallbacks();
+
+			float currentFrame = glfwGetTime();
+			deltaTime = currentFrame - lastFrame;
+			lastFrame = currentFrame;
+			ProcessCamInput(io, main_camera, deltaTime);
 
 			if (chosenPrimEditMode != (int)PrimEditMode::None) {
 				switch ((PrimEditMode)chosenPrimEditMode) {

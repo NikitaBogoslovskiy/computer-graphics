@@ -110,7 +110,10 @@ private:
 	std::set<std::pair<ImVec2*,ImVec2*>> chosen_prim_edges;
 	ImVec2 prev_point;
 	
+	float deltaTime = 0.0f;	// Time between current frame and last frame
+	float lastFrame = 0.0f; // Time of last frame
 	Camera main_camera;
+
 	std::vector<Mesh*> meshes;
 	std::vector<Primitive*> primitives;
 	std::vector<Lsystem*> fractals;
@@ -274,6 +277,7 @@ private:
 	void ShowModes();
 	void ShowFuncs();
 	void PollCallbacks();
+	void ProcessCamInput(ImGuiIO& io, Camera & cam, float& deltaTime);
 
 	void ShowPrimitiveTableRow(Primitive* prim, size_t idx);
 	void ShowFractalTableRow(Lsystem* lsys, size_t idx);
