@@ -268,7 +268,18 @@ private:
 	bool classify_open = false;
 
 public:
-	BLEV() {}
+	BLEV() {
+		Mesh* m = new Mesh();
+		
+		//m->open("bunny.obj");
+		//m->open("male.obj");
+		
+		//m->open("boat.obj");
+		//m->open("hand.obj");
+		//m->open("tree.obj");
+		m->open("mill.obj");
+		meshes.push_back(m);
+	}
 
 	void ShowMenuBar();
 	void ShowAdditionalWindows();

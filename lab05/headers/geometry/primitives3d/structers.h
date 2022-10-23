@@ -23,20 +23,20 @@ struct ImVec3
 struct Polygon
 {
     Polygon() = default;
-    std::deque<uint16_t> indices;
-    Polygon(const std::initializer_list<uint16_t>& _indices) : indices(_indices) { assert(_indices.size() >= 3); }
-    Polygon(std::initializer_list<uint16_t>&& _indices) : indices(_indices) { assert(indices.size() >= 3); }
+    std::deque<uint32_t> indices;
+    Polygon(const std::initializer_list<uint32_t>& _indices) : indices(_indices) { assert(_indices.size() >= 3); }
+    Polygon(std::initializer_list<uint32_t>&& _indices) : indices(_indices) { assert(indices.size() >= 3); }
     Polygon(const Polygon& _polygon) noexcept : indices(_polygon.indices) {}
     Polygon(Polygon&& _polygon) noexcept : indices(std::move(_polygon.indices)) {}
-    inline uint16_t  operator[] (size_t idx) const { return indices[idx]; }
-    inline uint16_t& operator[] (size_t idx) { return indices[idx]; }
-    inline uint16_t& at(size_t idx) { return indices[idx]; }
+    inline uint32_t  operator[] (size_t idx) const { return indices[idx]; }
+    inline uint32_t& operator[] (size_t idx) { return indices[idx]; }
+    inline uint32_t& at(size_t idx) { return indices[idx]; }
     inline size_t size() const noexcept { return indices.size(); }
-    inline void push_back(uint16_t val) { indices.push_back(val); }
+    inline void push_back(uint32_t val) { indices.push_back(val); }
     inline void pop_back() { assert(indices.size() > 3); indices.pop_back(); } 
-    inline void push_front(uint16_t val) { indices.push_front(val); }
+    inline void push_front(uint32_t val) { indices.push_front(val); }
     inline void pop_front() { assert(indices.size() > 3); indices.pop_front(); }
-    inline void insert(size_t idx, uint16_t val) { assert(indices.size() > idx);  indices.insert(indices.begin() + idx, val); }
+    inline void insert(size_t idx, uint32_t val) { assert(indices.size() > idx);  indices.insert(indices.begin() + idx, val); }
     ImVec3 center(const std::vector<ImVec3>& points);
     
     void draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp) {

@@ -29,4 +29,11 @@ public:
 	}
 
 	void draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp);
+	void save(const char* filename);
+	void open(const char* filename);
 };
+
+static Mesh&& open(const char* filename) {
+	Mesh t;
+	return (t.open(filename), std::move(t));
+}

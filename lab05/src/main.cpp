@@ -52,7 +52,6 @@ int main(void)
 		app.ShowMenuBar();
 		app.ShowAdditionalWindows();
 		app.ShowContent();
-
 		//ImGui::ShowDemoWindow();
 
 		ImGui::Render();
