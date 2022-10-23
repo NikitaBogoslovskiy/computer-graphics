@@ -89,6 +89,7 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)headers;$(SolutionDir)..\dependencies\Eigen;$(SolutionDir)..\dependencies\imgui;$(SolutionDir)..\dependencies\GLFW\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -106,6 +107,7 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <AdditionalIncludeDirectories>$(SolutionDir)headers;$(SolutionDir)..\dependencies\Eigen;$(SolutionDir)..\dependencies\imgui;$(SolutionDir)..\dependencies\GLFW\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -160,6 +162,10 @@
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\primitives\structers.cpp" />
+    <ClCompile Include="src\primitives\mesh.cpp" />
+    <ClInclude Include="headers\geometry\primitives3d\mesh.h" />
+    <ClCompile Include="src\primitives\polyhedrons.cpp" />
     <ClCompile Include="src\BLEV.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\primitives\bezier_curve.cpp" />
@@ -181,9 +187,12 @@
     <ClInclude Include="headers\BLEV.h" />
     <ClInclude Include="headers\geometry.h" />
     <ClInclude Include="headers\geometry\affine.h" />
+    <ClInclude Include="headers\geometry\camera.h" />
     <ClInclude Include="headers\geometry\checks.h" />
     <ClInclude Include="headers\geometry\funcs.h" />
+    <ClInclude Include="headers\geometry\linal.h" />
     <ClInclude Include="headers\geometry\primitives.h" />
+    <ClInclude Include="headers\geometry\primitives3d\primitives3d.h" />
     <ClInclude Include="headers\geometry\primitives\bezier_curve.h" />
     <ClInclude Include="headers\geometry\primitives\edge.h" />
     <ClInclude Include="headers\geometry\primitives\Lsystem.h" />
@@ -191,6 +200,8 @@
     <ClInclude Include="headers\geometry\primitives\primitive.h" />
     <ClInclude Include="headers\main.h" />
     <ClInclude Include="headers\pch.h" />
+    <ClInclude Include="headers\geometry\primitives3d\structers.h" />
+    <ClInclude Include="headers\geometry\primitives3d\polyhedrons.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\dependencies\Eigen\Eigen\Cholesky" />

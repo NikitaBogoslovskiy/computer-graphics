@@ -52,7 +52,7 @@ void BLEV::PollCallbacks() {
 			chosenMode = (int)Mode::BezierCurve;
 			break;
 		}
-		if (ImGui::IsKeyPressed(ImGuiKey_S)) {
+		if (ImGui::IsKeyPressed(ImGuiKey_P)) {
 			chosenMode = (int)Mode::Select;
 			break;
 		}
@@ -137,7 +137,7 @@ void BLEV::ShowMenuBar()
 {
 	if (ImGui::BeginMainMenuBar())
 	{
-		HelpMarker("Hotkeys for multiple tools:\n> Select: S\n> Free move: M\n> Point: P\n> Edge: E\n> Polygon: G\n> Bezier cruve: B");
+		HelpMarker("Hotkeys for multiple tools:\n> Select: P\n> Free move: M\n> Point: P\n> Edge: E\n> Polygon: G\n> Bezier cruve: B");
 
 		ImGui::SameLine();
 
@@ -154,7 +154,7 @@ void BLEV::ShowMenuBar()
 			ImGui::EndMenu();
 		}
 
-		ImGui::SetNextItemWidth(250.f);
+		ImGui::SetNextItemWidth(200.f);
 
 		ImGui::DragFloat("##globalThickness", &thickness, 0.05f, 1.f, 10.f, "thickness = %.1f", ImGuiSliderFlags_AlwaysClamp);
 
@@ -164,6 +164,21 @@ void BLEV::ShowMenuBar()
 
 		ImGui::Text("Mode: %s", chosenPrimEditMode == (int)PrimEditMode::None ? modesList[chosenMode] : primEditModesList[chosenPrimEditMode]);
 
+		if (ImGui::Button("Add cube")) {
+			meshes.push_back(new Cube(ImVec3(0.f, 30.f, 0.f)));
+		}
+		if (ImGui::Button("Add tetrahedr")) {
+			meshes.push_back(new Tetrahedron(ImVec3(0.f, 30.f, 0.f)));
+		}
+		if (ImGui::Button("Add octahedr")) {
+			meshes.push_back(new Octahedron(ImVec3(0.f, 30.f, 0.f)));
+		}
+		if (ImGui::Button("Add Dodecahedron")) {
+			meshes.push_back(new Dodecahedron(ImVec3(0.f, 30.f, 0.f)));
+		}
+		if (ImGui::Button("Add Icosahedron")) {
+			meshes.push_back(new Icosahedron(ImVec3(0.f, 30.f, 0.f)));
+		}
 		ImGui::EndMainMenuBar();
 	}
 }
@@ -202,6 +217,42 @@ void BLEV::ShowAdditionalWindows()
 	}
 }
 
+void BLEV::ProcessCamKeyboardInput(ImGuiIO& io, Camera& cam, float& deltaTime) {
+	auto x = (float)io.MouseWheel;
+	if (x != 0.f) {
+		cam.altPerspectiveScale(x < 0 ? -0.5f : 0.5f);
+		return;
+	}
+	float cameraSpeed = 1000.f * deltaTime;
+	if (ImGui::IsKeyPressed(ImGuiKey_W)) {
+		cam.eye() += cameraSpeed * cam.direction();
+	}
+	if (ImGui::IsKeyPressed(ImGuiKey_S)) {
+		cam.eye() += -cameraSpeed * cam.direction();
+	}
+	if (ImGui::IsKeyPressed(ImGuiKey_A)) {
+		cam.eye() += -cameraSpeed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
+	}
+	if (ImGui::IsKeyPressed(ImGuiKey_D)) {
+		cam.eye() += cameraSpeed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
+	}
+}
+
+void BLEV::ProcessCamMouseInput(ImVec2& deltaMouse, Camera& cam) {
+	if (ImGui::IsKeyDown(ImGuiKey_C)) {
+		float sensitivity = 0.1f;
+		ImVec2 offset = sensitivity * deltaMouse;
+
+		cam.rotation().x += offset.x; // yaw
+		cam.rotation().y -= offset.y; // pitch
+
+		cam.rotation().y = std::min(cam.rotation().y, 89.0f);
+		cam.rotation().y = std::max(cam.rotation().y, -89.0f);
+
+		cam.updateRotation();
+	}
+}
+
 void BLEV::ShowContent()
 {
 	static bool use_work_area = true;
@@ -227,6 +278,11 @@ void BLEV::ShowContent()
 				//ImGui::Separator();
 			}
 
+			for (size_t i = 0; i < meshes.size(); i++)
+			{
+				ShowMeshTableRow(meshes[i], i);
+				//ImGui::Separator();
+			}
 			ImGui::EndTable();
 		}
 		ImGui::PopStyleVar();
@@ -237,7 +293,8 @@ void BLEV::ShowContent()
 		if (b_canvas && ImGui::BeginChild("Canvas"))
 		{
 			static ImVec2 scrolling(0.0f, 0.0f);
-			static bool opt_enable_grid = true;
+			static bool opt_enable_grid = false;
+			static bool opt_enable_z0_grid = true;
 			static bool opt_enable_context_menu = true;
 
 			// Using InvisibleButton() as a convenience 1) it will advance the layout cursor and 2) allows us to use IsItemHovered()/IsItemActive()
@@ -247,7 +304,7 @@ void BLEV::ShowContent()
 			if (canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
 			ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
 			canvas_width = canvas_p1.x;
-
+			
 			// Draw border and background color
 			ImGuiIO& io = ImGui::GetIO();
 			ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -262,6 +319,27 @@ void BLEV::ShowContent()
 			const ImVec2 mouse_pos_in_canvas(io.MousePos.x - origin.x, io.MousePos.y - origin.y);
 
 			PollCallbacks();
+
+			if (!main_camera.dirtiness())
+			{
+				prev_point = mouse_pos_in_canvas;
+				main_camera.dirtiness() = true;
+			}
+			deltaMouse = mouse_pos_in_canvas - prev_point;
+			prev_point = mouse_pos_in_canvas;
+
+			float currentFrame = glfwGetTime();
+			deltaTime = currentFrame - lastFrame;
+			lastFrame = currentFrame;
+
+			if (is_hovered) {
+				if (ImGui::IsKeyPressed(ImGuiKey_R)) {
+					main_camera.resetPosition();
+				}
+				ProcessCamKeyboardInput(io, main_camera, deltaTime);
+				ProcessCamMouseInput(deltaMouse, main_camera);
+			}
+			main_camera.lookAt(main_camera.eye() + main_camera.direction());
 
 			if (chosenPrimEditMode != (int)PrimEditMode::None) {
 				switch ((PrimEditMode)chosenPrimEditMode) {
@@ -641,7 +719,7 @@ void BLEV::ShowContent()
 						chosen_lsys.erase(fractals.back());
 						fractals.pop_back();
 					}
-					if (ImGui::MenuItem("Remove all", NULL, false, primitives.size() + fractals.size() > 0)) {
+					if (ImGui::MenuItem("Remove all", NULL, false, primitives.size() + fractals.size() + meshes.size() > 0)) {
 						chosen_prims.clear();
 						chosen_prim_points.clear();
 						chosen_prim_edges.clear();
@@ -650,6 +728,7 @@ void BLEV::ShowContent()
 						chosen_lsys.clear();
 						prev_displacement.clear();
 						curr_displacement.clear();
+						meshes.clear();
 						chosenPrimEditMode = (int)PrimEditMode::None;
 					}
 					ImGui::EndPopup();
@@ -658,9 +737,8 @@ void BLEV::ShowContent()
 
 			// Draw grid + all lines in the canvas
 			draw_list->PushClipRect(canvas_p0, canvas_p1, true);
-			if (opt_enable_grid)
-			{
-				const float GRID_STEP = 64.0f;
+			static const float GRID_STEP = 64.0f;
+			if (opt_enable_grid) {
 				for (float x = fmodf(scrolling.x, GRID_STEP); x < canvas_sz.x; x += GRID_STEP)
 					draw_list->AddLine(ImVec2(canvas_p0.x + x, canvas_p0.y), ImVec2(canvas_p0.x + x, canvas_p1.y), IM_COL32(200, 200, 200, 40));
 				for (float y = fmodf(scrolling.y, GRID_STEP); y < canvas_sz.y; y += GRID_STEP)
@@ -692,6 +770,17 @@ void BLEV::ShowContent()
 				draw_list->AddCircleFilled(*ch_p + origin, (*chosen_prims.begin())->thickness() + 2.f, IM_COL32(0, 255, 0, 255), 10);
 			}
 
+			auto vp = main_camera.viewProjecion(); //auto vp = main_camera.getProjection(); //auto vp = main_camera.getView();
+			for (auto mesh : meshes) {
+				mesh->draw(draw_list, origin, vp);
+			}
+
+			static const VisualParams vis_p(IM_COL32(200, 200, 200, 40), 1.f, true);
+			float GRID_STEP3D = 10.f;
+			Draw3dGrid(draw_list, vp, GRID_STEP3D * 40.f, GRID_STEP, origin, vis_p);
+			DrawAxis(draw_list, vp, GRID_STEP3D, origin, VisualParams(IM_COL32(0, 255, 0, 255), 1.f, true), 
+														VisualParams(IM_COL32(0, 0, 255, 255), 1.f, true), 
+														VisualParams(IM_COL32(255, 0, 0, 255), 1.f, true));
 			//ïåðåñå÷åíèå âûáðàííûõ ïðèìèòèâîâ
 			if (chosen_prims.size() > 0) {
 				intersections = get_intersections(chosen_prims);
@@ -851,6 +940,48 @@ void BLEV::ShowFractalTableRow(Lsystem* lsys, size_t idx)
 		ImGui::SliderFloat("##changeLsysTh", &lsys->thickness(), 1.f, 10.f, "th = %.1f");
 
 		ImGui::Checkbox("alive?", &lsys->is_alive());
+
+		ImGui::TreePop();
+	}
+
+	ImGui::PopID();
+}
+
+void BLEV::ShowMeshTableRow(Mesh* mesh, size_t idx)
+{
+	ImGui::PushID(mesh);
+
+	ImGui::TableNextRow();
+	ImGui::TableSetColumnIndex(0);
+	ImGui::AlignTextToFramePadding();
+	bool node_open = ImGui::TreeNode("Prim", "prim%d", idx);
+	ImGui::TableSetColumnIndex(1);
+
+	ImGui::Text("%d-hedr figure", mesh->polygons_size());
+
+
+	ImGui::SameLine();
+
+	if (node_open)
+	{
+		for (size_t i = 0; i < mesh->points_size(); i++) {
+			ImGui::PushID(&(mesh->getPoint(i)));
+
+			ImGui::TableNextRow();
+
+			ImGui::TableSetColumnIndex(0);
+
+			ImGui::AlignTextToFramePadding();
+			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
+			ImGui::Text("Point %d", i);
+
+			ImGui::TableSetColumnIndex(1);
+			ImGui::DragFloat("x", &(mesh->getPoint(i).x), 1.f, -1000.f, 1000.f, "%.0f");
+			ImGui::DragFloat("y", &(mesh->getPoint(i).y), 1.f, -1000.f, 1000.f, "%.0f");
+			ImGui::DragFloat("z", &(mesh->getPoint(i).z), 1.f, -1000.f, 1000.f, "%.0f");
+
+			ImGui::PopID();
+		}
 
 		ImGui::TreePop();
 	}
@@ -1247,6 +1378,25 @@ void BLEV::F_Classify() {
 	if (!feedback.empty()) {
 		ImGui::TextColored(feedback_color, feedback.c_str());
 	}
+}
+
+void BLEV::Draw3dGrid(ImDrawList* draw_list, Eigen::Matrix4f& vp, const float& DIST, const float& GRID_STEP, const ImVec2& offset, const VisualParams& vis_p) {
+	auto border = DIST * 0.5f;
+	Line3d::draw(draw_list, ImVec3(0, 0.f, -border), ImVec3(0, 0.f, border), offset, vp, vis_p);
+	Line3d::draw(draw_list, ImVec3(-border, 0.f, 0), ImVec3(border, 0.f, 0), offset, vp, vis_p);
+	for (int i = 1; i < border / GRID_STEP; i++) {
+		auto next = i * GRID_STEP;
+		Line3d::draw(draw_list, ImVec3(next, 0.f, -border), ImVec3(next, 0.f, border), offset, vp, vis_p);
+		Line3d::draw(draw_list, ImVec3(-next, 0.f, -border), ImVec3(-next, 0.f, border), offset, vp, vis_p);
+		Line3d::draw(draw_list, ImVec3(-border, 0.f, next), ImVec3(border, 0.f, next), offset, vp, vis_p);
+		Line3d::draw(draw_list, ImVec3(-border, 0.f, -next), ImVec3(border, 0.f, -next), offset, vp, vis_p);
+	}
+}
+
+void BLEV::DrawAxis(ImDrawList* draw_list, Eigen::Matrix4f& vp, const float& GRID_STEP, const ImVec2& offset, const VisualParams& vis_pX, const VisualParams& vis_pY, const VisualParams& vis_pZ) {
+	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(GRID_STEP * 3.f, 0.f, 0.f), offset, vp, vis_pX);
+	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(0.f, GRID_STEP * 3.f, 0.f), offset, vp, vis_pY);
+	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(0.f, 0.f, GRID_STEP * 3.f), offset, vp, vis_pZ);
 }
 
 template<typename _Container,

@@ -62,7 +62,7 @@ inline void HelpPrevItem(const char* desc)
 }
 
 inline float DegreesToRadians(const float& degrees) {
-	return degrees * (2 * acos(0.0) / 180);
+	return degrees * (PI / 180);
 }
 
 inline bool intersected(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, ImVec2* out) {
@@ -75,6 +75,26 @@ inline bool intersected(const ImVec2& a, const ImVec2& b, const ImVec2& c, const
 	if ((a.x < b.x && a.x <= out->x && b.x >= out->x || a.x > b.x && b.x <= out->x && a.x >= out->x || a.y < b.y && a.y <= out->y && b.y >= out->y || a.y > b.y && b.y <= out->y && a.y >= out->y) &&
 		(c.x < d.x && c.x <= out->x && d.x >= out->x || c.x > d.x && d.x <= out->x && c.x >= out->x || c.y < d.y && c.y <= out->y && d.y >= out->y || c.y > d.y && d.y <= out->y && c.y >= out->y)) return true;
 	return false;
+}
+
+#include "geometry/primitives3d/structers.h"
+
+inline ImVec3 operator+(const ImVec3& lhs, const ImVec3& rhs) { return ImVec3(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z); }
+inline ImVec3 operator-(const ImVec3& lhs, const ImVec3& rhs) { return ImVec3(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z); }
+inline float operator*(const ImVec3& lhs, const ImVec3& rhs) { return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z; }
+inline ImVec3 operator*(const float& lhs, const ImVec3& rhs) { return ImVec3(lhs * rhs.x, lhs * rhs.y, lhs * rhs.z); }
+inline ImVec3 operator*(const ImVec3& lhs, const float& rhs) { return rhs * lhs; }
+inline bool operator==(const ImVec3& lhs, const ImVec3& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z; }
+inline ImVec3 operator/(const ImVec3& lhs, const float& rhs) { return ImVec3(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs); }
+
+// sometime in future, but now just this
+template<class C>
+static C sum(std::vector<C> vT) {
+	C t = C();
+	for (auto& vt : vT) {
+		t += vt;
+	}
+	return t;
 }
 
 #endif

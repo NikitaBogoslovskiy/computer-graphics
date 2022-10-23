@@ -102,20 +102,20 @@ private:
 	Primitive prev_displacement = Primitive(ImU32(1), 1);
 	Primitive curr_displacement = Primitive(ImU32(1), 1);
 
-	//Primitive* touched_prim = nullptr;
-	//int point_of_transformation = -1; // maybe index would be useful for output in some case 
-	//void setTouchedPrim(Primitive* new_touched_prim, const int& new_point) {
-		//touched_prim = new_touched_prim;
-	//	point_of_transformation = new_point;
-	//}
 	ImVec2* point_of_transformation = nullptr;
 
 	size_t chosenPrimEditMode = 0;
 	size_t chosenMode = 0;
 	std::set<ImVec2*> chosen_prim_points;
 	std::set<std::pair<ImVec2*,ImVec2*>> chosen_prim_edges;
-	ImVec2 prev_point;
 
+	ImVec2 prev_point = ImVec2(0.f, 0.f);
+	ImVec2 deltaMouse = ImVec2(0.f, 0.f);
+	float deltaTime = 0.0f;	// Time between current frame and last frame
+	float lastFrame = 0.0f; // Time of last frame
+	Camera main_camera;
+
+	std::vector<Mesh*> meshes;
 	std::vector<Primitive*> primitives;
 	std::vector<Lsystem*> fractals;
 	std::set<Primitive*> chosen_prims;
@@ -268,7 +268,18 @@ private:
 	bool classify_open = false;
 
 public:
-	BLEV() {}
+	BLEV() {
+		Mesh* mesh = new Mesh();
+		
+		mesh->open("bunny.obj");
+		//mesh->open("__male.obj");
+		//mesh->open("boat.obj");
+		//mesh->open("__hand.obj");
+		//mesh->open("tree.obj");
+		//mesh->open("mill.obj");
+		meshes.push_back(mesh);
+		mesh->save("mybunny.obj");
+	}
 
 	void ShowMenuBar();
 	void ShowAdditionalWindows();
@@ -278,9 +289,12 @@ private:
 	void ShowModes();
 	void ShowFuncs();
 	void PollCallbacks();
+	void ProcessCamKeyboardInput(ImGuiIO& io, Camera & cam, float& deltaTime);
+	void ProcessCamMouseInput(ImVec2& deltaMouse, Camera& cam);
 
 	void ShowPrimitiveTableRow(Primitive* prim, size_t idx);
 	void ShowFractalTableRow(Lsystem* lsys, size_t idx);
+	void ShowMeshTableRow(Mesh* mesh, size_t idx);
 
 	void NewWindow(const char* label, bool* p_open, void (BLEV::* func)());
 
@@ -290,6 +304,9 @@ private:
 	void F_Displace();
 	void F_Lsystem();
 	void F_Classify();
+
+	void Draw3dGrid(ImDrawList* draw_list, Eigen::Matrix4f& vp, const float& DIST, const float& GRID_STEP, const ImVec2& offset, const VisualParams& vis_p);
+	void DrawAxis(ImDrawList* draw_list, Eigen::Matrix4f& vp, const float& GRID_STEP, const ImVec2& offset, const VisualParams& vis_pX, const VisualParams& vis_pY, const VisualParams& vis_pZ);
 
 	template<typename _Container,
 		typename _Value = typename _Container::value_type,
