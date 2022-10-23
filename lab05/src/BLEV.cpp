@@ -221,27 +221,30 @@ void BLEV::ProcessCamKeyboardInput(ImGuiIO& io, Camera& cam, float& deltaTime) {
 	auto x = (float)io.MouseWheel;
 	if (x != 0.f) {
 		cam.altPerspectiveScale(x < 0 ? -0.5f : 0.5f);
-		return;
+		//return;
 	}
-	float cameraSpeed = 1000.f * deltaTime;
+	float speed = cam.speed() * deltaTime;
 	if (ImGui::IsKeyPressed(ImGuiKey_W)) {
-		cam.eye() += cameraSpeed * cam.direction();
+		cam.eye() += speed * Linal::normalize(cam.direction());
+		//return;
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_S)) {
-		cam.eye() += -cameraSpeed * cam.direction();
+		cam.eye() += -speed * Linal::normalize(cam.direction());
+		//return;
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_A)) {
-		cam.eye() += -cameraSpeed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
+		cam.eye() += -speed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
+		//return;
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_D)) {
-		cam.eye() += cameraSpeed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
+		cam.eye() += speed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
+		//return;
 	}
 }
 
 void BLEV::ProcessCamMouseInput(ImVec2& deltaMouse, Camera& cam) {
 	if (ImGui::IsKeyDown(ImGuiKey_C)) {
-		float sensitivity = 0.1f;
-		ImVec2 offset = sensitivity * deltaMouse;
+		ImVec2 offset = cam.sensitivity() * deltaMouse;
 
 		cam.rotation().x += offset.x; // yaw
 		cam.rotation().y -= offset.y; // pitch
@@ -249,7 +252,7 @@ void BLEV::ProcessCamMouseInput(ImVec2& deltaMouse, Camera& cam) {
 		cam.rotation().y = std::min(cam.rotation().y, 89.0f);
 		cam.rotation().y = std::max(cam.rotation().y, -89.0f);
 
-		cam.updateRotation();
+		cam.updateDirection();
 	}
 }
 
@@ -304,7 +307,7 @@ void BLEV::ShowContent()
 			if (canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
 			ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
 			canvas_width = canvas_p1.x;
-			
+
 			// Draw border and background color
 			ImGuiIO& io = ImGui::GetIO();
 			ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -320,26 +323,29 @@ void BLEV::ShowContent()
 
 			PollCallbacks();
 
-			if (!main_camera.dirtiness())
-			{
-				prev_point = mouse_pos_in_canvas;
-				main_camera.dirtiness() = true;
-			}
-			deltaMouse = mouse_pos_in_canvas - prev_point;
-			prev_point = mouse_pos_in_canvas;
-
 			float currentFrame = glfwGetTime();
 			deltaTime = currentFrame - lastFrame;
 			lastFrame = currentFrame;
 
 			if (is_hovered) {
 				if (ImGui::IsKeyPressed(ImGuiKey_R)) {
-					main_camera.resetPosition();
+					main_camera.resetFlightSettings();
+					main_camera.resetCamPosition();
+					main_camera.setPerspective();
 				}
 				ProcessCamKeyboardInput(io, main_camera, deltaTime);
+
+				if (!main_camera.dirtiness())
+				{
+					prev_point = mouse_pos_in_canvas;
+					main_camera.dirtiness() = true;
+				}
+				deltaMouse = mouse_pos_in_canvas - prev_point;
+				prev_point = mouse_pos_in_canvas;
 				ProcessCamMouseInput(deltaMouse, main_camera);
+
+				main_camera.updateLook();
 			}
-			main_camera.lookAt(main_camera.eye() + main_camera.direction());
 
 			if (chosenPrimEditMode != (int)PrimEditMode::None) {
 				switch ((PrimEditMode)chosenPrimEditMode) {
@@ -778,9 +784,9 @@ void BLEV::ShowContent()
 			static const VisualParams vis_p(IM_COL32(200, 200, 200, 40), 1.f, true);
 			float GRID_STEP3D = 10.f;
 			Draw3dGrid(draw_list, vp, GRID_STEP3D * 40.f, GRID_STEP, origin, vis_p);
-			DrawAxis(draw_list, vp, GRID_STEP3D, origin, VisualParams(IM_COL32(0, 255, 0, 255), 1.f, true), 
-														VisualParams(IM_COL32(0, 0, 255, 255), 1.f, true), 
-														VisualParams(IM_COL32(255, 0, 0, 255), 1.f, true));
+			DrawAxis(draw_list, vp, GRID_STEP3D, origin, VisualParams(IM_COL32(0, 255, 0, 255), 1.f, true),
+				VisualParams(IM_COL32(0, 0, 255, 255), 1.f, true),
+				VisualParams(IM_COL32(255, 0, 0, 255), 1.f, true));
 			//ïåðåñå÷åíèå âûáðàííûõ ïðèìèòèâîâ
 			if (chosen_prims.size() > 0) {
 				intersections = get_intersections(chosen_prims);
