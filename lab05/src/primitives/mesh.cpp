@@ -37,6 +37,28 @@ void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp
 
 void Mesh::save(const char* filename)
 {
+	std::ofstream out(filename);
+	if (!out.is_open())
+	{
+		printf("something went wrong\n");
+	}
+
+	out << "# Vertices: " << points.size() << "\n# Faces: " << polygons.size() << "\n\n";
+
+	for (auto& p : points) {
+		out << "v " << p.x << ' ' << p.y << ' ' << p.z << '\n';
+	}
+
+	out << '\n';
+
+	for (auto& p : polygons) {
+		out << 'f';
+		for (auto i : p.indices) {
+			out << ' ' << i;
+		}
+		out << '\n';
+	}
+	out.close();
 }
 
 void Mesh::open(const char* filename)
@@ -55,9 +77,7 @@ void Mesh::open(const char* filename)
 			
 		std::string type;
 		if (iss >> type, infile.eof()) {
-			this->points = std::move(m.points);
-			this->polygons = std::move(m.polygons);
-			return;
+			break;
 		}
 
 		if (type == "v") {
@@ -87,6 +107,8 @@ void Mesh::open(const char* filename)
 			m.add_polygon(std::move(p));
 		}
 	}
+	infile.close();
+
 	this->points = std::move(m.points);
 	this->polygons = std::move(m.polygons);
 }

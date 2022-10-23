@@ -269,16 +269,16 @@ private:
 
 public:
 	BLEV() {
-		Mesh* m = new Mesh();
+		Mesh* mesh = new Mesh();
 		
-		//m->open("bunny.obj");
-		//m->open("male.obj");
-		
-		//m->open("boat.obj");
-		//m->open("hand.obj");
-		//m->open("tree.obj");
-		m->open("mill.obj");
-		meshes.push_back(m);
+		mesh->open("bunny.obj");
+		//mesh->open("__male.obj");
+		//mesh->open("boat.obj");
+		//mesh->open("__hand.obj");
+		//mesh->open("tree.obj");
+		//mesh->open("mill.obj");
+		meshes.push_back(mesh);
+		mesh->save("mybunny.obj");
 	}
 
 	void ShowMenuBar();
