@@ -30,6 +30,11 @@ private:
 		FinalClick
 	} adding_line;
 
+	enum class CamMode {
+		Perspective,
+		Axonometry,
+	};
+
 	struct CurrentState {
 		Mode mode;
 		int edgeAndPointOption = 0;
