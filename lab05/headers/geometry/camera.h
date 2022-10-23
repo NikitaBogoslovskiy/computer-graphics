@@ -9,7 +9,7 @@ class Camera
 	ImVec2 _viewport; /*width, height of screen we project picture on! */
 	ImVec3 _eye;
 	ImVec3 _direction;
-	ImVec3 _rotation;
+	ImVec2 _rotation;
 	ImVec3 _up;
 	Eigen::Matrix4f _view;
 	Eigen::Matrix4f _projection;
@@ -33,7 +33,7 @@ public:
 	inline ImVec2& viewport() { return this->_viewport; }
 	inline ImVec3& eye() { return this->_eye; }
 	inline ImVec3& direction() { return this->_direction; }
-	inline ImVec3& rotation() { return this->_rotation; }
+	inline ImVec2& rotation() { return this->_rotation; }
 	inline ImVec3& up() { return this->_up; }
 	inline float& zFocus() { return this->_zFocus; }
 
@@ -47,7 +47,7 @@ public:
 		//this->_eye = ImVec3(0.f, 0.f, 150.f);
 		this->_eye = ImVec3(0.f, 0.f, 1.f);
 		this->_direction = ImVec3(0.f, 0.f, -1.f);
-		this->_rotation = ImVec3(0.f, 0.f, 0.f);
+		this->_rotation = ImVec2(-90.f, 0.f);
 		this->_up = ImVec3(0.f, 1.f, 0.f);
 		this->_view = Linal::lookAt(this->_eye, this->_eye + this->_direction, this->_up);
 		this->_projection = Affine::identity();

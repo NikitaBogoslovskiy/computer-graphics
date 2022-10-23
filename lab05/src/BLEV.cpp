@@ -165,19 +165,19 @@ void BLEV::ShowMenuBar()
 		ImGui::Text("Mode: %s", chosenPrimEditMode == (int)PrimEditMode::None ? modesList[chosenMode] : primEditModesList[chosenPrimEditMode]);
 
 		if (ImGui::Button("Add cube")) {
-			meshes.push_back(new Cube(ImVec3(0.f, 0.f, 0.f)));
+			meshes.push_back(new Cube(ImVec3(0.f, 30.f, 0.f)));
 		}
 		if (ImGui::Button("Add tetrahedr")) {
-			meshes.push_back(new Tetrahedron(ImVec3(10.f, 0.f, 0.f)));
+			meshes.push_back(new Tetrahedron(ImVec3(0.f, 30.f, 0.f)));
 		}
 		if (ImGui::Button("Add octahedr")) {
-			meshes.push_back(new Octahedron(ImVec3(20.f, 0.f, 0.f)));
+			meshes.push_back(new Octahedron(ImVec3(0.f, 30.f, 0.f)));
 		}
 		if (ImGui::Button("Add Dodecahedron")) {
-			meshes.push_back(new Dodecahedron(ImVec3(30.f, 0.f, 0.f)));
+			meshes.push_back(new Dodecahedron(ImVec3(0.f, 30.f, 0.f)));
 		}
 		if (ImGui::Button("Add Icosahedron")) {
-			meshes.push_back(new Icosahedron(ImVec3(40.f, 0.f, 0.f)));
+			meshes.push_back(new Icosahedron(ImVec3(0.f, 30.f, 0.f)));
 		}
 		ImGui::EndMainMenuBar();
 	}
@@ -304,8 +304,7 @@ void BLEV::ShowContent()
 			if (canvas_sz.y < 50.0f) canvas_sz.y = 50.0f;
 			ImVec2 canvas_p1 = ImVec2(canvas_p0.x + canvas_sz.x, canvas_p0.y + canvas_sz.y);
 			canvas_width = canvas_p1.x;
-			main_camera.lookAt(main_camera.eye() + main_camera.direction());
-
+			
 			// Draw border and background color
 			ImGuiIO& io = ImGui::GetIO();
 			ImDrawList* draw_list = ImGui::GetWindowDrawList();
@@ -340,6 +339,7 @@ void BLEV::ShowContent()
 				ProcessCamKeyboardInput(io, main_camera, deltaTime);
 				ProcessCamMouseInput(deltaMouse, main_camera);
 			}
+			main_camera.lookAt(main_camera.eye() + main_camera.direction());
 
 			if (chosenPrimEditMode != (int)PrimEditMode::None) {
 				switch ((PrimEditMode)chosenPrimEditMode) {
@@ -1381,15 +1381,15 @@ void BLEV::F_Classify() {
 }
 
 void BLEV::Draw3dGrid(ImDrawList* draw_list, Eigen::Matrix4f& vp, const float& DIST, const float& GRID_STEP, const ImVec2& offset, const VisualParams& vis_p) {
-	auto border = DIST * 0.5;
-	Line3d::draw(draw_list, ImVec3(0, -30.f, -border), ImVec3(0, -30.f, border), offset, vp, vis_p);
-	Line3d::draw(draw_list, ImVec3(-border, -30.f, 0), ImVec3(border, -30.f, 0), offset, vp, vis_p);
-	for (int i = 1; i < 0.5f * DIST / GRID_STEP; i++) {
+	auto border = DIST * 0.5f;
+	Line3d::draw(draw_list, ImVec3(0, 0.f, -border), ImVec3(0, 0.f, border), offset, vp, vis_p);
+	Line3d::draw(draw_list, ImVec3(-border, 0.f, 0), ImVec3(border, 0.f, 0), offset, vp, vis_p);
+	for (int i = 1; i < border / GRID_STEP; i++) {
 		auto next = i * GRID_STEP;
-		Line3d::draw(draw_list, ImVec3(next, -30.f, -border), ImVec3(next, -30.f, border), offset, vp, vis_p);
-		Line3d::draw(draw_list, ImVec3(-next, -30.f, -border), ImVec3(-next, -30.f, border), offset, vp, vis_p);
-		Line3d::draw(draw_list, ImVec3(-border, -30.f, next), ImVec3(border, -30.f, next), offset, vp, vis_p);
-		Line3d::draw(draw_list, ImVec3(-border, -30.f, -next), ImVec3(border, -30.f, -next), offset, vp, vis_p);
+		Line3d::draw(draw_list, ImVec3(next, 0.f, -border), ImVec3(next, 0.f, border), offset, vp, vis_p);
+		Line3d::draw(draw_list, ImVec3(-next, 0.f, -border), ImVec3(-next, 0.f, border), offset, vp, vis_p);
+		Line3d::draw(draw_list, ImVec3(-border, 0.f, next), ImVec3(border, 0.f, next), offset, vp, vis_p);
+		Line3d::draw(draw_list, ImVec3(-border, 0.f, -next), ImVec3(border, 0.f, -next), offset, vp, vis_p);
 	}
 }
 
