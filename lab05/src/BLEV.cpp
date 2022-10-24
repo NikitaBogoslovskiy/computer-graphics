@@ -747,12 +747,15 @@ void BLEV::ShowContent()
 						chosen_prims.clear();
 						chosen_prim_points.clear();
 						chosen_prim_edges.clear();
+						chosen_meshes.clear();
 						primitives.clear();
 						fractals.clear();
 						chosen_lsys.clear();
 						prev_displacement.clear();
 						curr_displacement.clear();
 						meshes.clear();
+						delete rotate_axis;
+						rotate_axis = nullptr;
 						chosenPrimEditMode = (int)PrimEditMode::None;
 					}
 					ImGui::EndPopup();
@@ -798,6 +801,8 @@ void BLEV::ShowContent()
 			for (auto mesh : meshes) {
 				mesh->draw(draw_list, origin, vp);
 			}
+			if (rotate_axis != nullptr)
+				rotate_axis->draw(draw_list, origin, vp);
 
 			static const VisualParams vis_p(IM_COL32(200, 200, 200, 40), 1.f, true);
 			float GRID_STEP3D = 10.f;
@@ -1136,10 +1141,13 @@ void BLEV::F_Rotate() {
 
 	if (ImGui::Button("U")) {
 		try {
-			char* nstr = console[0]->pseudo_console; float angle;
-			if (sscanf(nstr, "%f", &angle) != 1) throw std::invalid_argument("Incorrect arguments format for rotate N");
+			char* nstr = console[0]->pseudo_console; float x0, y0, z0, x1, y1, z1, angle;
+			if (sscanf(nstr, "%f%*c%f%*c%f%*c%f%*c%f%*c%f%*c%f%", &x0, &y0, &z0, &x1, &y1, &z1, &angle) != 7) throw std::invalid_argument("Incorrect arguments format for rotate N");
 			console[0]->feedback = "";
-			auto lammy = [&angle](Mesh* m) { m->rotateX(angle); };
+			auto p0 = ImVec3(x0, y0, z0);
+			auto p1 = ImVec3(x1, y1, z1);
+			rotate_axis = new Line3d(std::move(p0), std::move(p1), true);
+			auto lammy = [&p0, &p1, &angle](Mesh* m) { m->rotateU(p0, p1, angle); };
 			std::for_each(chosen_meshes.begin(), chosen_meshes.end(), lammy);
 		}
 		catch (std::exception& e) {

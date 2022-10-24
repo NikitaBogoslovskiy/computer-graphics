@@ -121,6 +121,7 @@ private:
 	Camera main_camera;
 
 	std::vector<Mesh*> meshes;
+	Line3d* rotate_axis = nullptr;
 	std::vector<Primitive*> primitives;
 	std::vector<Lsystem*> fractals;
 	std::set<Primitive*> chosen_prims;

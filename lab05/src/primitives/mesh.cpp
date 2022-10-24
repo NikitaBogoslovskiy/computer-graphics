@@ -81,16 +81,18 @@ void Mesh::rotateZ(float angle)
 void Mesh::rotateU(ImVec3 p1, ImVec3 p2, float angle)
 {
 	auto vec = p2 - p1;
+	float length = sqrt(vec.x * vec.x + vec.y * vec.y + vec.z * vec.z);
+	vec = vec / length;
 	float x = vec.x, y = vec.y, z = vec.z;
 	angle = angle * PI / 180;
 	float cosa = cos(-angle), sina = sin(-angle);
 	Eigen::Matrix<float, 4, 4> rmat{
-		{1 - cosa * x * x + cosa, 1 - cosa * x * y + sina * z, 1 - cosa * x * z - sina * y, 0},
-		{1 - cosa * x * y - sina * z, 1 - cosa * y * y + cosa, 1 - cosa * y * z + sina * x, 0},
-		{1 - cosa * x * z + sina * y, 1 - cosa * y * z - sina * x, 1 - cosa * z * z + cosa, 0},
-		{0, 0, 0, 1}
+		{cosa + x * x * (1 - cosa),      x * y * (1 - cosa) - z * sina,  x * z * (1 - cosa) + y * sina, 0},
+		{y * x * (1 - cosa) + z * sina,  cosa + y * y * (1 - cosa),      y * z * (1 - cosa) - x * sina, 0},
+		{z * x * (1 - cosa) - y * sina,  z * y * (1 - cosa) + x * sina,  cosa + z * z * (1 - cosa),     0},
+		{           0,                              0,                           0,                     1}
 	};
-	rotate_mat = rotate_mat * rmat;
+	rotate_mat = rmat * rotate_mat;
 	updatePoints();
 }
 
