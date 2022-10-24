@@ -124,6 +124,7 @@ private:
 	std::vector<Primitive*> primitives;
 	std::vector<Lsystem*> fractals;
 	std::set<Primitive*> chosen_prims;
+	std::set<Mesh*> chosen_meshes;
 	std::set<Lsystem*> chosen_lsys;
 
 	Primitive* new_prim;
@@ -268,12 +269,19 @@ private:
 	bool rotate_open = false;
 	bool translate_open = false;
 	bool scale_open = false;
+	bool reflect_open = false;
 	bool displace_open = false;
 	bool lsys_open = false;
 	bool classify_open = false;
+	char x_str[16], y_str[16], z_str[16], angle_str[16];
 
 public:
-	BLEV() {}
+	BLEV() {
+		strcpy(x_str, "");
+		strcpy(y_str, "");
+		strcpy(z_str, "");
+		strcpy(angle_str, "");
+	}
 
 	void ShowMenuBar();
 	void ShowAdditionalWindows();
@@ -295,6 +303,7 @@ private:
 	void F_Rotate();
 	void F_Translate();
 	void F_Scale();
+	void F_Reflect();
 	void F_Displace();
 	void F_Lsystem();
 	void F_Classify();

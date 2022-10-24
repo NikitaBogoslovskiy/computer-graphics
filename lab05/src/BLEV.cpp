@@ -95,6 +95,18 @@ void BLEV::ShowFuncs()
 
 		ImGui::EndMenu();
 	}
+	if (ImGui::BeginMenu("Reflect")) {
+
+		if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+			reflect_open = true;
+		}
+
+		//if (!scale_open) {
+		F_Reflect();
+		//}
+
+		ImGui::EndMenu();
+	}
 	if (ImGui::BeginMenu("Displace")) {
 
 		if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
@@ -179,6 +191,7 @@ void BLEV::ShowMenuBar()
 		if (ImGui::Button("Add Icosahedron")) {
 			meshes.push_back(new Icosahedron(ImVec3(0.f, 30.f, 0.f)));
 		}
+
 		ImGui::EndMainMenuBar();
 	}
 }
@@ -198,6 +211,11 @@ void BLEV::ShowAdditionalWindows()
 	if (scale_open) {
 		ImGui::Begin("Scale", &scale_open);
 		F_Scale();
+		ImGui::End();
+	}
+	if (reflect_open) {
+		ImGui::Begin("Reflect", &reflect_open);
+		F_Reflect();
 		ImGui::End();
 	}
 	if (displace_open) {
@@ -963,8 +981,21 @@ void BLEV::ShowMeshTableRow(Mesh* mesh, size_t idx)
 	bool node_open = ImGui::TreeNode("Prim", "prim%d", idx);
 	ImGui::TableSetColumnIndex(1);
 
-	ImGui::Text("%d-hedr figure", mesh->polygons_size());
+	if (chosen_meshes.find(mesh) != chosen_meshes.end()) {
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), "%d-hedr figure", mesh->polygons_size());
+	}
+	else {
+		ImGui::Text("%d-hedr figure", mesh->polygons_size());
+	}
 
+	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+		if (chosen_meshes.find(mesh) == chosen_meshes.end()) {
+			chosen_meshes.insert(mesh);
+		}
+		else {
+			chosen_meshes.erase(mesh);
+		}
+	}
 
 	ImGui::SameLine();
 
@@ -1010,7 +1041,7 @@ void BLEV::F_Rotate() {
 		ImGui::TextColored(console[0]->feedback_color, console[0]->feedback.c_str());
 	}
 	ImGui::EndGroup();
-	HelpPrevItem("anlge(degree)");
+	HelpPrevItem("Angle");
 
 	if (ImGui::Button("Rotate 90")) {
 		try {
@@ -1052,6 +1083,70 @@ void BLEV::F_Rotate() {
 			console[0]->feedback_color = ImVec4(255, 0, 0, 255);
 		}
 	}
+
+	ImGui::SameLine();
+
+	if (ImGui::Button("X")) {
+		try {
+			char* nstr = console[0]->pseudo_console; float angle;
+			if (sscanf(nstr, "%f", &angle) != 1) throw std::invalid_argument("Incorrect arguments format for rotate N");
+			console[0]->feedback = "";
+			auto lammy = [&angle](Mesh* m) { m->rotateX(angle); };
+			std::for_each(chosen_meshes.begin(), chosen_meshes.end(), lammy);
+		}
+		catch (std::exception& e) {
+			console[0]->feedback = e.what();
+			console[0]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+
+	ImGui::SameLine();
+
+	if (ImGui::Button("Y")) {
+		try {
+			char* nstr = console[0]->pseudo_console; float angle;
+			if (sscanf(nstr, "%f", &angle) != 1) throw std::invalid_argument("Incorrect arguments format for rotate N");
+			console[0]->feedback = "";
+			auto lammy = [&angle](Mesh* m) { m->rotateY(angle); };
+			std::for_each(chosen_meshes.begin(), chosen_meshes.end(), lammy);
+		}
+		catch (std::exception& e) {
+			console[0]->feedback = e.what();
+			console[0]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+
+	ImGui::SameLine();
+
+	if (ImGui::Button("Z")) {
+		try {
+			char* nstr = console[0]->pseudo_console; float angle;
+			if (sscanf(nstr, "%f", &angle) != 1) throw std::invalid_argument("Incorrect arguments format for rotate N");
+			console[0]->feedback = "";
+			auto lammy = [&angle](Mesh* m) { m->rotateZ(angle); };
+			std::for_each(chosen_meshes.begin(), chosen_meshes.end(), lammy);
+		}
+		catch (std::exception& e) {
+			console[0]->feedback = e.what();
+			console[0]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+
+	ImGui::SameLine();
+
+	if (ImGui::Button("U")) {
+		try {
+			char* nstr = console[0]->pseudo_console; float angle;
+			if (sscanf(nstr, "%f", &angle) != 1) throw std::invalid_argument("Incorrect arguments format for rotate N");
+			console[0]->feedback = "";
+			auto lammy = [&angle](Mesh* m) { m->rotateX(angle); };
+			std::for_each(chosen_meshes.begin(), chosen_meshes.end(), lammy);
+		}
+		catch (std::exception& e) {
+			console[0]->feedback = e.what();
+			console[0]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
 }
 
 void BLEV::F_Translate() {
@@ -1062,23 +1157,38 @@ void BLEV::F_Translate() {
 		ImGui::TextColored(console[1]->feedback_color, console[1]->feedback.c_str());
 	}
 	ImGui::EndGroup();
-	HelpPrevItem("dx;dy");
+	HelpPrevItem("dx dy [dz]");
 
 	if (ImGui::Button("Translate")) {
 		try {
-			char* nstr = console[1]->pseudo_console; float dx, dy;
-			if (sscanf(nstr, "%f%*c%f", &dx, &dy) != 2) throw std::invalid_argument("Incorrect arguments format for translate");
-			console[1]->feedback = "";
-			auto d = ImVec2(-1 * dx, -1 * dy);
-			auto lammy = [&dx, &dy, &d](Primitive* prim) { prim->translate(&d); };
+			char* nstr = console[1]->pseudo_console; float dx, dy, dz;
+			if (sscanf(nstr, "%f%*c%f%*c%f", &dx, &dy, &dz) == 3)
+			{
+				console[1]->feedback = "";
+				auto d = ImVec2(-1 * dx, -1 * dy);
+				auto lammy = [&dx, &dy, &dz](Mesh* m) { m->translate(dx, dy, dz); };
 
-			if (chosen_prims.size() + chosen_lsys.size() == 0) {
-				throw std::invalid_argument("The number of selected objects must be at least 1");
+				if (chosen_meshes.size() == 0) {
+					throw std::invalid_argument("The number of selected objects must be at least 1");
+				}
+				std::for_each(chosen_meshes.begin(), chosen_meshes.end(), lammy);
 			}
-			std::for_each(chosen_prims.begin(), chosen_prims.end(), lammy);
-			for (auto lsys : chosen_lsys) {
-				lsys->translate(&d);
+			else if (sscanf(nstr, "%f%*c%f", &dx, &dy) == 2)
+			{
+				console[1]->feedback = "";
+				auto d = ImVec2(-1 * dx, -1 * dy);
+				auto lammy = [&dx, &dy, &d](Primitive* prim) { prim->translate(&d); };
+
+				if (chosen_prims.size() + chosen_lsys.size() == 0) {
+					throw std::invalid_argument("The number of selected objects must be at least 1");
+				}
+				std::for_each(chosen_prims.begin(), chosen_prims.end(), lammy);
+				for (auto lsys : chosen_lsys) {
+					lsys->translate(&d);
+				}
 			}
+			else
+				throw std::invalid_argument("Incorrect arguments format for translate");
 		}
 		catch (std::exception& e) {
 			console[1]->feedback = e.what();
@@ -1095,37 +1205,71 @@ void BLEV::F_Scale() {
 		ImGui::TextColored(console[2]->feedback_color, console[2]->feedback.c_str());
 	}
 	ImGui::EndGroup();
-	HelpPrevItem("s_x;s_y (scale factors)");
+	HelpPrevItem("sX sY [sZ]");
 
 	if (ImGui::Button("Scale")) {
 		try {
-			char* nstr = console[2]->pseudo_console; float scaleX, scaleY;
-			if (sscanf(nstr, "%f%*c%f", &scaleX, &scaleY) != 2) throw std::invalid_argument("Incorrect arguments format for scale");
-			if (scaleX <= 0 || scaleY <= 0) throw std::invalid_argument("Incorrect arguments format for scale");
-			console[2]->feedback = "";
-
-			auto lammy = [&scaleX, &scaleY](Primitive* prim, ImVec2* origin) {
-				if (dynamic_cast<Point*>(prim) != NULL) return;
-				prim->scale(scaleX, scaleY, origin);
-			};
-
-			if (chosen_prims.size() + chosen_lsys.size() == 0) {
-				throw std::invalid_argument("The number of selected objects must be at least 1");
+			char* nstr = console[2]->pseudo_console; float scaleX, scaleY, scaleZ;
+			if (sscanf(nstr, "%f%*c%f%*c%f", &scaleX, &scaleY, &scaleZ) == 3)
+			{
+				if (scaleX <= 0 || scaleY <= 0 || scaleZ <= 0) throw std::invalid_argument("Incorrect arguments format for scale");
+				console[2]->feedback = "";
+				auto lammy = [&scaleX, &scaleY, &scaleZ](Mesh* m) { m->scale(scaleX, scaleY, scaleZ); };
+				std::for_each(chosen_meshes.begin(), chosen_meshes.end(), lammy);
 			}
+			else if (sscanf(nstr, "%f%*c%f", &scaleX, &scaleY) == 2)
+			{
+				if (scaleX <= 0 || scaleY <= 0) throw std::invalid_argument("Incorrect arguments format for scale");
+				console[2]->feedback = "";
 
-			if (chosen_prims.size() != 0) {
-				tr_chpr_rtp(chosen_prims, lammy);
-			}
+				auto lammy = [&scaleX, &scaleY](Primitive* prim, ImVec2* origin) {
+					if (dynamic_cast<Point*>(prim) != NULL) return;
+					prim->scale(scaleX, scaleY, origin);
+				};
 
-			for (auto lsys : chosen_lsys) {
-				lsys->scale(scaleX, scaleY, nullptr);
+				if (chosen_prims.size() + chosen_lsys.size() == 0) {
+					throw std::invalid_argument("The number of selected objects must be at least 1");
+				}
+
+				if (chosen_prims.size() != 0) {
+					tr_chpr_rtp(chosen_prims, lammy);
+				}
+
+				for (auto lsys : chosen_lsys) {
+					lsys->scale(scaleX, scaleY, nullptr);
+				}
 			}
+			else
+				throw std::invalid_argument("Incorrect arguments format for scale");
 		}
 		catch (std::exception& e) {
 			console[2]->feedback = e.what();
 			console[2]->feedback_color = ImVec4(255, 0, 0, 255);
 		}
 	}
+}
+
+void BLEV::F_Reflect() {
+	ImGui::BeginGroup();
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	if (ImGui::Button("YZ"))
+	{
+		auto lammy = [](Mesh* m) { m->reflectX(); };
+		std::for_each(chosen_meshes.begin(), chosen_meshes.end(), lammy);
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("XZ"))
+	{
+		auto lammy = [](Mesh* m) { m->reflectY(); };
+		std::for_each(chosen_meshes.begin(), chosen_meshes.end(), lammy);
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("XY"))
+	{
+		auto lammy = [](Mesh* m) { m->reflectZ(); };
+		std::for_each(chosen_meshes.begin(), chosen_meshes.end(), lammy);
+	}
+	ImGui::EndGroup();
 }
 
 void BLEV::F_Displace() {
