@@ -570,9 +570,10 @@ void BLEV::Interface::ShowContent()
 
 void BLEV::Interface::Menu::ShowModesMenu()
 {
+	static const char* shortcuts[6]{ "Ctrl+P", "Ctrl+E", "Ctrl+G", "Ctrl+B", "Ctrl+S", "Ctrl+M" };
 	if (ImGui::BeginMenu("Mode")) {
 		for (size_t i = 0; i < _data.modesSize; i++) {
-			if (ImGui::Selectable(_data.modesList[i], _data.chosenMode == (Mode)i)) {
+			if(ImGui::MenuItem(_data.modesList[i], shortcuts[i], _data.chosenMode == (Mode)i)) {
 				_data.chosenMode = (Mode)i;
 			}
 		}
@@ -581,31 +582,50 @@ void BLEV::Interface::Menu::ShowModesMenu()
 }
 void BLEV::Interface::Menu::ShowMethodsMenu(B_method_open& bmo)
 {
-	if (ImGui::BeginMenu("Edit")) {
-
-		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+	if (ImGui::BeginMenu("View"))
+	{
+		if (ImGui::MenuItem("Edit", NULL, bmo.b_edit_open)) {
 			bmo.b_edit_open = true;
 		}
-		ImGui::EndMenu();
-	}
-	if (ImGui::BeginMenu("Displace")) {
+		if (ImGui::MenuItem("Displace", NULL, bmo.b_displace_open)) {
 
-		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 			bmo.b_displace_open = true;
 		}
-		ImGui::EndMenu();
-	}
-	if (ImGui::BeginMenu("L-system")) {
-
-		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+		if (ImGui::MenuItem("L-system", NULL, bmo.b_lsys_open)) {
 			bmo.b_lsys_open = true;
+		}
+		if (ImGui::MenuItem("Classify", NULL, bmo.b_classify_open)) {
+
+			bmo.b_classify_open = true;
 		}
 		ImGui::EndMenu();
 	}
-	if (ImGui::BeginMenu("Classify")) {
+}
 
-		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-			bmo.b_classify_open = true;
+void BLEV::Interface::Menu::ShowAddingMenu()
+{
+	if (ImGui::BeginMenu("Add.."))
+	{
+		if (ImGui::MenuItem("Point", NULL, (bool*)0, false)) {
+			//_data.push_back(new Point3d(ImVec3(0.f, 30.f, 0.f)));
+		}
+		if (ImGui::MenuItem("Line", NULL, (bool*)0, false)) {
+			//_data.meshes.push_back(new Line3d(ImVec3(-35.f, 30.f, -35.f), ImVec3(35.f, 30.f, 35.f)));
+		}
+		if (ImGui::MenuItem("Cube")) {
+			_data.meshes.push_back(new Cube(ImVec3(0.f, 30.f, 0.f)));
+		}
+		if (ImGui::MenuItem("Tetrahedr")) {
+			_data.meshes.push_back(new Tetrahedron(ImVec3(0.f, 30.f, 0.f)));
+		}
+		if (ImGui::MenuItem("Octahedr")) {
+			_data.meshes.push_back(new Octahedron(ImVec3(0.f, 30.f, 0.f)));
+		}
+		if (ImGui::MenuItem("Dodecahedron")) {
+			_data.meshes.push_back(new Dodecahedron(ImVec3(0.f, 30.f, 0.f)));
+		}
+		if (ImGui::MenuItem("Icosahedron")) {
+			_data.meshes.push_back(new Icosahedron(ImVec3(0.f, 30.f, 0.f)));
 		}
 		ImGui::EndMenu();
 	}
@@ -615,45 +635,22 @@ void BLEV::Interface::Menu::Show(B_method_open& bmo, Global_visual_params& gvp)
 {
 	if (ImGui::BeginMainMenuBar())
 	{
-		HelpMarker("Hotkeys for multiple tools:\n> Select: P\n> Free move: M\n> Point: P\n> Edge: E\n> Polygon: G\n> Bezier cruve: B");
-
-		ImGui::SameLine();
-
 		ShowModesMenu();
 
 		ImGui::Separator();
+		ShowMethodsMenu(bmo);
 
-		if (ImGui::BeginMenu("View"))
-		{
-			ShowMethodsMenu(bmo);
-			ImGui::EndMenu();
-		}
+		ImGui::Separator();
+		ShowAddingMenu();
 
 		ImGui::SetNextItemWidth(200.f);
-
 		ImGui::DragFloat("##globalThickness", &gvp.vp.thickness, 0.05f, 1.f, 10.f, "thickness = %.1f", ImGuiSliderFlags_AlwaysClamp);
 
 		ImGui::ColorEdit4("Line color", gvp.color4f, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
 
 		ImGui::Separator();
-
 		ImGui::Text("Mode: %s", _data.chosenPrimEditMode == PrimEditMode::None ? _data.modesList[(uint32_t)_data.chosenMode] : _data.primEditModesList[(uint32_t)_data.chosenPrimEditMode]);
 
-		if (ImGui::Button("Add cube")) {
-			_data.meshes.push_back(new Cube(ImVec3(0.f, 30.f, 0.f)));
-		}
-		if (ImGui::Button("Add tetrahedr")) {
-			_data.meshes.push_back(new Tetrahedron(ImVec3(0.f, 30.f, 0.f)));
-		}
-		if (ImGui::Button("Add octahedr")) {
-			_data.meshes.push_back(new Octahedron(ImVec3(0.f, 30.f, 0.f)));
-		}
-		if (ImGui::Button("Add Dodecahedron")) {
-			_data.meshes.push_back(new Dodecahedron(ImVec3(0.f, 30.f, 0.f)));
-		}
-		if (ImGui::Button("Add Icosahedron")) {
-			_data.meshes.push_back(new Icosahedron(ImVec3(0.f, 30.f, 0.f)));
-		}
 		ImGui::EndMainMenuBar();
 	}
 }
@@ -1188,27 +1185,27 @@ void BLEV::Interface::Canvas::PollCallbacks() {
 			_data.chosenPrimEditMode = PrimEditMode::None;
 			break;
 		}
-		if (ImGui::IsKeyPressed(ImGuiKey_M)) {
+		if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_M)) {
 			_data.chosenMode = Mode::FreeMove;
 			break;
 		}
-		if (ImGui::IsKeyPressed(ImGuiKey_P)) {
+		if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_P)) {
 			_data.chosenMode = Mode::Point;
 			break;
 		}
-		if (ImGui::IsKeyPressed(ImGuiKey_E)) {
+		if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_E)) {
 			_data.chosenMode = Mode::Edge;
 			break;
 		}
-		if (ImGui::IsKeyPressed(ImGuiKey_G)) {
+		if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_G)) {
 			_data.chosenMode = Mode::Polygon;
 			break;
 		}
-		if (ImGui::IsKeyPressed(ImGuiKey_B)) {
+		if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_B)) {
 			_data.chosenMode = Mode::BezierCurve;
 			break;
 		}
-		if (ImGui::IsKeyPressed(ImGuiKey_P)) {
+		if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_S)) {
 			_data.chosenMode = Mode::Select;
 			break;
 		}

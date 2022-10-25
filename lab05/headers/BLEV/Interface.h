@@ -97,6 +97,7 @@ namespace BLEV {
 
 			void ShowModesMenu();
 			void ShowMethodsMenu(B_method_open&);
+			void ShowAddingMenu();
 
 			void Show(B_method_open&, Global_visual_params&);
 
