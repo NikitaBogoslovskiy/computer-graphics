@@ -627,6 +627,17 @@ void BLEV::Interface::Menu::ShowAddingMenu()
 		if (ImGui::MenuItem("Icosahedron")) {
 			_data.meshes.push_back(new Icosahedron(ImVec3(0.f, 30.f, 0.f)));
 		}
+#ifdef _DEBUG
+		if (ImGui::MenuItem("Bunny", NULL, (bool*)0, false)) {
+			static Mesh mesh = open("bunny.obj");
+			_data.meshes.push_back(&mesh);
+		}
+#else
+		if (ImGui::MenuItem("Bunny")) {
+			static Mesh mesh = open("bunny.obj");
+			_data.meshes.push_back(&mesh);
+		}
+#endif // DEBUG
 		ImGui::EndMenu();
 	}
 }

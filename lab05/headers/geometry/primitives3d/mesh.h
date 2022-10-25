@@ -33,7 +33,7 @@ public:
 	void open(const char* filename);
 };
 
-static Mesh&& open(const char* filename) {
+static Mesh open(const char* filename) {
 	Mesh t;
-	return (t.open(filename), std::move(t));
+	return (t.open(filename), t);
 }
