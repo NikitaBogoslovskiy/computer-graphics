@@ -148,7 +148,7 @@ namespace BLEV {
 			void Draw3dGrid();
 			void DrawAxis();
 
-			void Update();
+			//void Update();
 			void Body();
 
 			void Show();

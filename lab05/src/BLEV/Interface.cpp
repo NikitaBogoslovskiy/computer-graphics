@@ -563,7 +563,7 @@ void BLEV::Interface::ShowContent()
 
 		//obj_table.Show();
 
-		ImGui::SameLine();
+		//ImGui::SameLine();
 		canvas.Show();
 
 		ImGui::End();
@@ -1413,7 +1413,7 @@ void BLEV::Interface::Canvas::DrawAxis()
 	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(0.f, 0.f, GRID_STEP * 3.f), origin, vp, VisualParams(IM_COL32(255, 0, 0, 255), 3.f, true));
 }
 
-
+/*
 void BLEV::Interface::Canvas::Update() {
 	size = ImGui::GetContentRegionAvail();
 	if (size.x < MIN_WIDTH) size.x = MIN_WIDTH;
@@ -1471,41 +1471,34 @@ void BLEV::Interface::Canvas::Update() {
 
 	drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
 }
+*/
+
 void BLEV::Interface::Canvas::Body() {
 	if (ImGui::BeginChild("Canvas")) {
+
+		p[0] = ImGui::GetCursorScreenPos();
 		size = ImGui::GetContentRegionAvail();
 		if (size.x < MIN_WIDTH) size.x = MIN_WIDTH;
 		if (size.y < MIN_HEIGHT) size.y = MIN_HEIGHT;
+		p[1] = ImVec2(p[0].x + size.x, p[0].y + size.y);
 		
-		ImGui::InvisibleButton("canvas", size, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
-
 		ImGuiIO& io = ImGui::GetIO();
 		draw_list = ImGui::GetWindowDrawList();
-
-		vp = main_camera.viewProjecion(); //auto vp = main_camera.getProjection(); //auto vp = main_camera.getView();
-
+		draw_list->AddRectFilled(p[0], p[1], IM_COL32(50, 50, 50, 255));
+		draw_list->AddRect(p[0], p[1], IM_COL32(255, 255, 255, 255));
+		
+		ImGui::InvisibleButton("canvas", size, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
 		is_hovered = ImGui::IsItemHovered();
 		is_active = ImGui::IsItemActive();
-
-		p[0] = ImGui::GetCursorScreenPos();
-		p[1] = ImVec2(p[0].x + size.x, p[0].y + size.y);
-
-		if (is_active && ImGui::IsMouseDragging(ImGuiMouseButton_Right, b_context_menu_enabled ? -1.0f : 0.0f))
-		{
-			scrolling.x += io.MouseDelta.x;
-			scrolling.y += io.MouseDelta.y;
-		}
-
 		origin = ImVec2(p[0].x + scrolling.x, p[0].y + scrolling.y);
+		mouse_pos = ImVec2(io.MousePos.x - origin.x, io.MousePos.y - origin.y);
 
 		PollCallbacks();
 
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-
-		SwitchModes();
-
+		
 		if (is_hovered) {
 			if (ImGui::IsKeyPressed(ImGuiKey_R)) {
 				main_camera.resetFlightSettings();
@@ -1526,19 +1519,27 @@ void BLEV::Interface::Canvas::Body() {
 			main_camera.updateLook();
 		}
 
+		SwitchModes();
+
+		if (is_active && ImGui::IsMouseDragging(ImGuiMouseButton_Right, b_context_menu_enabled ? -1.0f : 0.0f))
+		{
+			scrolling.x += io.MouseDelta.x;
+			scrolling.y += io.MouseDelta.y;
+		}
+
 		drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
-
-
-		draw_list->AddRectFilled(p[0], p[1], IM_COL32(50, 50, 50, 255));
-		draw_list->AddRect(p[0], p[1], IM_COL32(255, 255, 255, 255));
-
-		if(b_grid_2d_enabled) Draw2dGrid();
-		if(b_grid_3d_enabled) Draw3dGrid();
-		if (b_grid_3d_enabled) DrawAxis();
-		DrawObjects();
+		
 		if (b_context_menu_enabled) ShowContextMenu();
 
 		draw_list->PushClipRect(p[0], p[1], true);
+
+		vp = main_camera.viewProjecion(); //auto vp = main_camera.getProjection(); //auto vp = main_camera.getView();
+		
+		if(b_grid_2d_enabled) Draw2dGrid();
+		if(b_grid_3d_enabled) Draw3dGrid();
+		DrawObjects();
+		if (b_grid_3d_enabled) DrawAxis();
+
 		/* intersections
 		if (chosen_prims.size() > 0) {
 				intersections = get_intersections(chosen_prims);
@@ -1564,11 +1565,5 @@ void BLEV::Interface::Canvas::Body() {
 
 void BLEV::Interface::Canvas::Show()
 {
-	if (ImGui::Begin("CringeCAD", (bool*)0, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBringToFrontOnFocus))
-	{
-		//Update();
-		Body();
-
-		ImGui::End();
-	}
+	Body();
 }
