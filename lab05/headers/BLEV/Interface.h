@@ -95,7 +95,7 @@ namespace BLEV {
 			void ShowMeshTable(Mesh* mesh, size_t idx);
 			void Show();
 
-			ObjectTable(BLEV::Data data) : _data(data) {}
+			ObjectTable(BLEV::Data& data) : _data(data) {}
 		} obj_table {_data};
 		struct Canvas {
 			const float MIN_WIDTH = 50.f;

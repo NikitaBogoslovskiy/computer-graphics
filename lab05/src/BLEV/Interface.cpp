@@ -561,9 +561,9 @@ void BLEV::Interface::ShowContent()
 	{
 		menu.Show(bmo, global_vp);
 
-		//obj_table.Show();
+		obj_table.Show();
 
-		//ImGui::SameLine();
+		ImGui::SameLine();
 		canvas.Show();
 
 		ImGui::End();
