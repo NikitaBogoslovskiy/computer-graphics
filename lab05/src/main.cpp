@@ -39,7 +39,7 @@ int main(void)
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		//app.body.ShowExternalWindows();
+		app.body.ShowExternalWindows();
 		app.body.ShowContent();
 		//ImGui::ShowDemoWindow();
 

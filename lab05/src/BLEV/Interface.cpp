@@ -131,12 +131,6 @@ const std::vector<BLEV::Interface::ready_l_system*> BLEV::Interface::ready_l_sys
 														"F"),
 };
 
-struct BLEV::Interface::ConsoleFields {
-	char pseudo_console[100] = { '\0' };
-	std::string feedback;
-	ImVec4 feedback_color;
-};
-
 void BLEV::Interface::F_Rotate() {
 	ImGui::BeginGroup();
 	ImGui::SetNextItemWidth(-FLT_MIN);
@@ -519,34 +513,40 @@ void BLEV::Interface::F_Classify() {
 void BLEV::Interface::ShowExternalWindows()
 {
 	if (bmo.b_rotate_open) {
-		ImGui::Begin("Rotate", &bmo.b_rotate_open);
-		F_Rotate();
-		ImGui::End();
+		if (ImGui::Begin("Rotate", &bmo.b_rotate_open)) {
+			F_Rotate();
+			ImGui::End();
+		}
 	}
 	if (bmo.b_translate_open) {
-		ImGui::Begin("Translate", &bmo.b_translate_open);
-		F_Translate();
-		ImGui::End();
+		if (ImGui::Begin("Translate", &bmo.b_translate_open)) {
+			F_Translate();
+			ImGui::End();
+		}
 	}
 	if (bmo.b_scale_open) {
-		ImGui::Begin("Scale", &bmo.b_scale_open);
-		F_Scale();
-		ImGui::End();
+		if (ImGui::Begin("Scale", &bmo.b_scale_open)) {
+			F_Scale();
+			ImGui::End();
+		}
 	}
 	if (bmo.b_displace_open) {
-		ImGui::Begin("Displace", &bmo.b_displace_open);
-		F_Displace();
-		ImGui::End();
+		if (ImGui::Begin("Displace", &bmo.b_displace_open)) {
+			F_Displace();
+			ImGui::End();
+		}
 	}
 	if (bmo.b_lsys_open) {
-		ImGui::Begin("Lsystem", &bmo.b_lsys_open);
-		F_Lsystem();
-		ImGui::End();
+		if (ImGui::Begin("Lsystem", &bmo.b_lsys_open)) {
+			F_Lsystem();
+			ImGui::End();
+		}
 	}
 	if (bmo.b_classify_open) {
-		ImGui::Begin("Classify", &bmo.b_classify_open);
-		F_Classify();
-		ImGui::End();
+		if (ImGui::Begin("Classify", &bmo.b_classify_open)){
+			F_Classify();
+			ImGui::End();
+		}
 	}
 }
 

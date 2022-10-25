@@ -35,8 +35,18 @@ namespace BLEV {
 		};
 		static const std::vector<ready_l_system*> ready_l_systems;
 
-		struct ConsoleFields;
-		std::vector<ConsoleFields*> console;
+		struct ConsoleFields {
+			char pseudo_console[100] = { '\0' };
+			std::string feedback;
+			ImVec4 feedback_color;
+		};
+
+		std::vector<ConsoleFields*> console{
+			new ConsoleFields(),
+			new ConsoleFields(),
+			new ConsoleFields(),
+			new ConsoleFields()
+		};
 
 		struct TextFilters{
 			static int FilterLetters(ImGuiInputTextCallbackData* data)
