@@ -19,6 +19,7 @@ namespace BLEV {
 		ImVector<ImVec2*> intersections;
 
 		std::vector<Mesh*> meshes;
+		std::set<Mesh*> chosen_meshes;
 
 		Mode chosenMode;
 		AddingLine adding_line;
@@ -27,6 +28,7 @@ namespace BLEV {
 
 		Primitive prev_displacement = Primitive(ImU32(1), 1);
 		Primitive curr_displacement = Primitive(ImU32(1), 1);
+		Line3d* rotate_axis;
 
 		static const uint8_t primEditModesSize = 5;
 		const char* primEditModesList[primEditModesSize]{ "None", "Select points", "Move points", "Select edges", "Move edges" };

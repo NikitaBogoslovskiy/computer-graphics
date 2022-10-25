@@ -65,6 +65,7 @@ namespace BLEV {
 		void F_Rotate();
 		void F_Translate();
 		void F_Scale();
+		void F_Reflect();
 
 		void F_Edit();
 
