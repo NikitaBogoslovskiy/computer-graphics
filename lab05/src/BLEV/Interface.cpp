@@ -723,7 +723,7 @@ void BLEV::Interface::Menu::ShowModesMenu()
 }
 void BLEV::Interface::Menu::ShowMethodsMenu(B_method_open& bmo)
 {
-	if (ImGui::BeginMenu("View"))
+	if (ImGui::BeginMenu("View..."))
 	{
 		if (ImGui::MenuItem("Edit", NULL, bmo.b_edit_open)) {
 			bmo.b_edit_open = true;
@@ -739,11 +739,7 @@ void BLEV::Interface::Menu::ShowMethodsMenu(B_method_open& bmo)
 
 			bmo.b_classify_open = true;
 		}
-		ImGui::EndMenu();
-	}
-	if (ImGui::BeginMenu("Camera")) {
-
-		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+		if (ImGui::MenuItem("Camera", NULL, bmo.b_camera_open)) {
 			bmo.b_camera_open = true;
 		}
 		ImGui::EndMenu();
