@@ -40,7 +40,6 @@ namespace BLEV {
 			std::string feedback;
 			ImVec4 feedback_color;
 		};
-
 		std::vector<ConsoleFields*> console{
 			new ConsoleFields(),
 			new ConsoleFields(),
@@ -66,14 +65,20 @@ namespace BLEV {
 		void F_Rotate();
 		void F_Translate();
 		void F_Scale();
+
+		void F_Edit();
+
 		void F_Displace();
 		void F_Lsystem();
 		void F_Classify();
 
 		struct B_method_open {
-			bool b_rotate_open = false;
-			bool b_translate_open = false;
-			bool b_scale_open = false;
+			//bool b_rotate_open = false;
+			//bool b_translate_open = false;
+			//bool b_scale_open = false;
+			
+			bool b_edit_open = false;
+
 			bool b_displace_open = false;
 			bool b_lsys_open = false;
 			bool b_classify_open = false;

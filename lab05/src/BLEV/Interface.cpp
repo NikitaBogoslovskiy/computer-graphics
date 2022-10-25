@@ -254,6 +254,15 @@ void BLEV::Interface::F_Scale() {
 		}
 	}
 }
+void BLEV::Interface::F_Edit()
+{
+	F_Rotate();
+	ImGui::Separator();
+	F_Translate();
+	ImGui::Separator();
+	F_Scale();
+}
+
 void BLEV::Interface::F_Displace() {
 	ImGui::BeginGroup();
 	ImGui::SetNextItemWidth(-FLT_MIN);
@@ -512,24 +521,13 @@ void BLEV::Interface::F_Classify() {
 
 void BLEV::Interface::ShowExternalWindows()
 {
-	if (bmo.b_rotate_open) {
-		if (ImGui::Begin("Rotate", &bmo.b_rotate_open)) {
-			F_Rotate();
+	if (bmo.b_edit_open) {
+		if (ImGui::Begin("Rotate", &bmo.b_edit_open)) {
+			F_Edit();
 			ImGui::End();
 		}
 	}
-	if (bmo.b_translate_open) {
-		if (ImGui::Begin("Translate", &bmo.b_translate_open)) {
-			F_Translate();
-			ImGui::End();
-		}
-	}
-	if (bmo.b_scale_open) {
-		if (ImGui::Begin("Scale", &bmo.b_scale_open)) {
-			F_Scale();
-			ImGui::End();
-		}
-	}
+	
 	if (bmo.b_displace_open) {
 		if (ImGui::Begin("Displace", &bmo.b_displace_open)) {
 			F_Displace();
@@ -583,44 +581,30 @@ void BLEV::Interface::Menu::ShowModesMenu()
 }
 void BLEV::Interface::Menu::ShowMethodsMenu(B_method_open& bmo)
 {
-	if (ImGui::BeginMenu("Rotate")) {
+	if (ImGui::BeginMenu("Edit")) {
 
 		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-			bmo.b_rotate_open = true;
-		}
-		ImGui::EndMenu();
-	}
-	if (ImGui::BeginMenu("Translate")) {
-
-		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
-			bmo.b_translate_open = true;
-		}
-		ImGui::EndMenu();
-	}
-	if (ImGui::BeginMenu("Scale")) {
-
-		if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
-			bmo.b_scale_open = true;
+			bmo.b_edit_open = true;
 		}
 		ImGui::EndMenu();
 	}
 	if (ImGui::BeginMenu("Displace")) {
 
-		if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 			bmo.b_displace_open = true;
 		}
 		ImGui::EndMenu();
 	}
 	if (ImGui::BeginMenu("L-system")) {
 
-		if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 			bmo.b_lsys_open = true;
 		}
 		ImGui::EndMenu();
 	}
 	if (ImGui::BeginMenu("Classify")) {
 
-		if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left)) {
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 			bmo.b_classify_open = true;
 		}
 		ImGui::EndMenu();
@@ -639,7 +623,7 @@ void BLEV::Interface::Menu::Show(B_method_open& bmo, Global_visual_params& gvp)
 
 		ImGui::Separator();
 
-		if (ImGui::BeginMenu("Edit"))
+		if (ImGui::BeginMenu("View"))
 		{
 			ShowMethodsMenu(bmo);
 			ImGui::EndMenu();
