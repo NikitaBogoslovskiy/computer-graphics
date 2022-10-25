@@ -2,8 +2,9 @@
 #ifndef _FUNCS_H_
 #define _FUNCS_H_
 
-#include <algorithm>    // std::min
 #include "pch.h"
+#include <algorithm>    // std::min
+#include "geometry/primitives2d/point.h"
 
 #define PI 3.14159265359f
 
@@ -65,17 +66,32 @@ inline float DegreesToRadians(const float& degrees) {
 	return degrees * (PI / 180);
 }
 
-inline bool intersected(const ImVec2& a, const ImVec2& b, const ImVec2& c, const ImVec2& d, ImVec2* out) {
-	ImVec2 n = (d - c);
-	n = ImVec2(-n.y, n.x);
-	float buf = (n * (b - a));
-	if (!buf) return false;
-	float t = -(n * (a - c)) / buf;
-	*out = a + (t * (b - a));
-	if ((a.x < b.x && a.x <= out->x && b.x >= out->x || a.x > b.x && b.x <= out->x && a.x >= out->x || a.y < b.y && a.y <= out->y && b.y >= out->y || a.y > b.y && b.y <= out->y && a.y >= out->y) &&
-		(c.x < d.x && c.x <= out->x && d.x >= out->x || c.x > d.x && d.x <= out->x && c.x >= out->x || c.y < d.y && c.y <= out->y && d.y >= out->y || c.y > d.y && d.y <= out->y && c.y >= out->y)) return true;
-	return false;
+template<typename _Container,
+	typename _Value = typename _Container::value_type,
+	typename = std::enable_if_t<std::is_convertible_v<_Value, Primitive*>>>
+	std::tuple<int, ImVec2*> detect_point(const _Container& primitives) {
+	auto originIt = std::find_if(primitives.begin(), primitives.end(), [](const auto& prim) { return dynamic_cast<Point*>(prim) != NULL; });
+	if (originIt == primitives.end()) return std::make_tuple(0, nullptr);
+	return std::make_tuple(1, &(dynamic_cast<Point*>(*originIt)->at(0)));
 }
+
+template<typename _Container,
+	typename _Value = typename _Container::value_type,
+	typename = std::enable_if_t<std::is_convertible_v<_Value, Primitive*>>>
+	int tr_chpr_rtp(const _Container& primitives, std::function<void(Primitive*, ImVec2*)> lammy) {
+	if (primitives.size() == 0) throw std::invalid_argument("No primitives picked");
+	int pointsCount; ImVec2* origin;
+	std::tie(pointsCount, origin) = detect_point(primitives);
+
+	std::for_each(primitives.begin(), primitives.end(), [&lammy, &origin](Primitive* prim) {
+		auto test = dynamic_cast<Point*>(prim);
+		if (test != NULL && &(test->at(0)) == origin) return;
+		lammy(prim, origin);
+		});
+	return 0;
+}
+
+Primitive midpointDisplacement(Primitive& displacement, Point* p1, Point* p2, int R, int I, int iter_num);
 
 #include "geometry/primitives3d/structers.h"
 

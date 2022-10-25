@@ -2,8 +2,8 @@
 #define __LSYSTEM__
 
 #include "pch.h"
-#include "geometry/primitives/primitive.h"
-#include "geometry/funcs.h"
+#include "primitive.h"
+#include "geometry/methods/funcs.h"
 #include <string>
 #include <vector>
 #include <set>

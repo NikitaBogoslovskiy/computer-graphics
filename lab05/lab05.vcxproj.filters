@@ -42,37 +42,40 @@
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_widgets.cpp">
       <Filter>Исходные файлы\imgui</Filter>
     </ClCompile>
-    <ClCompile Include="src\primitives\checks.cpp">
+    <ClCompile Include="src\BLEV\geometry\methods\checks.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\primitives\edge.cpp">
+    <ClCompile Include="src\BLEV\geometry\primitives2d\edge.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\primitives\Lsystem.cpp">
+    <ClCompile Include="src\BLEV\geometry\primitives2d\Lsystem.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\primitives\point.cpp">
+    <ClCompile Include="src\BLEV\geometry\primitives2d\point.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\primitives\primitive.cpp">
+    <ClCompile Include="src\BLEV\geometry\primitives2d\primitive.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\main.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\primitives\bezier_curve.cpp">
+    <ClCompile Include="src\BLEV\geometry\primitives2d\bezier_curve.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\BLEV.cpp">
+    <ClCompile Include="src\BLEV\geometry\primitives3d\polyhedrons.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\primitives\polyhedrons.cpp">
+    <ClCompile Include="src\BLEV\geometry\primitives3d\mesh.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\primitives\mesh.cpp">
+    <ClCompile Include="src\BLEV\geometry\primitives3d\structers.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\primitives\structers.cpp">
+    <ClCompile Include="src\BLEV\Interface.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BLEV\geometry\methods\funcs.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -101,43 +104,37 @@
     <ClInclude Include="..\dependencies\imgui\imgui\imstb_truetype.h">
       <Filter>Исходные файлы\imgui</Filter>
     </ClInclude>
-    <ClInclude Include="headers\geometry\primitives\edge.h">
+    <ClInclude Include="headers\geometry\primitives2d\edge.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="headers\geometry\primitives\Lsystem.h">
+    <ClInclude Include="headers\geometry\primitives2d\Lsystem.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="headers\geometry\primitives\point.h">
+    <ClInclude Include="headers\geometry\primitives2d\point.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="headers\geometry\primitives\primitive.h">
+    <ClInclude Include="headers\geometry\primitives2d\primitive.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="headers\geometry\affine.h">
+    <ClInclude Include="headers\geometry\methods\affine.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="headers\geometry\checks.h">
+    <ClInclude Include="headers\geometry\methods\checks.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="headers\geometry\funcs.h">
+    <ClInclude Include="headers\geometry\methods\funcs.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="headers\geometry\primitives.h">
+    <ClInclude Include="headers\geometry\primitives2d\primitives2d.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="headers\geometry.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\main.h">
+    <ClInclude Include="headers\geometry\geometry.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\pch.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="headers\geometry\primitives\bezier_curve.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
-    <ClInclude Include="headers\BLEV.h">
+    <ClInclude Include="headers\geometry\primitives2d\bezier_curve.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\geometry\primitives3d\structers.h">
@@ -149,14 +146,32 @@
     <ClInclude Include="headers\geometry\primitives3d\primitives3d.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="headers\geometry\camera.h">
+    <ClInclude Include="headers\geometry\primitives3d\camera.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="headers\geometry\linal.h">
+    <ClInclude Include="headers\geometry\methods\linal.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\geometry\primitives3d\mesh.h">
       <Filter>Исходные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\BLEV\Application.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\BLEV\Geometry.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\methods\methods.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\BLEV\Interface.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\BLEV\Data.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\BLEV\Enums.h">
+      <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

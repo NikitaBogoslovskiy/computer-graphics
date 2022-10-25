@@ -1,24 +1,14 @@
 #define _CRT_SECURE_NO_WARNINGS
 
-#include "main.h"
-#include <stdio.h>
-#include <vector>
-#include <set>
-#include <math.h>
-#include <time.h>  
-#include <iostream>
-#include <unordered_set>
-
-#include "BLEV.h"
+#include "BLEV/Application.h"
 
 int main(void)
 {
 	srand(time(NULL));
 	GLFWwindow* window;
+	
+	BLEV::Application app;
 
-	BLEV app;
-
-	ImVec2 canvas_sz;
 	/* Initialize the library */
 	if (!glfwInit())
 		return -1;
@@ -49,9 +39,8 @@ int main(void)
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
-		app.ShowMenuBar();
-		app.ShowAdditionalWindows();
-		app.ShowContent();
+		app.body.ShowExternalWindows();
+		app.body.ShowContent();
 		//ImGui::ShowDemoWindow();
 
 		ImGui::Render();
@@ -71,3 +60,16 @@ int main(void)
 	glfwTerminate();
 	return 0;
 }
+
+/*
+Mesh* mesh = new Mesh();
+
+		mesh->open("bunny.obj");
+		//mesh->open("__male.obj");
+		//mesh->open("boat.obj");
+		//mesh->open("__hand.obj");
+		//mesh->open("tree.obj");
+		//mesh->open("mill.obj");
+		meshes.push_back(mesh);
+		//mesh->save("mybunny.obj");
+*/

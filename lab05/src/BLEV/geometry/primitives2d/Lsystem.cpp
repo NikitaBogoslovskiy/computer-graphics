@@ -1,5 +1,5 @@
-#include "geometry/primitives/Lsystem.h"
-#include "geometry/affine.h"
+#include "geometry/primitives2d/Lsystem.h"
+#include "geometry/methods/affine.h"
 #include <time.h>
 #include <cstdlib>
 #include <tuple>
