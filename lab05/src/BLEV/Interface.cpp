@@ -519,6 +519,21 @@ void BLEV::Interface::F_Classify() {
 	}
 }
 
+void BLEV::Interface::F_Camera() {
+	if (ImGui::Combo("projection", &canvas.main_camera.mode(), _data.cameraModes, _data.cameraModesSize)) {}
+	switch ((Camera::CamMode)canvas.main_camera.mode()) {
+	case Camera::Perspective:
+		ImGui::DragFloat("zFocus", &canvas.main_camera.zFocus(), 1.f, 400.f, 1000.f, "%.0f");
+		break;
+	case Camera::Axonometry:
+		ImGui::DragFloat("angleX", &canvas.main_camera.angleX(), 1.f, 0.f, 180.f, "%.0f");
+		ImGui::DragFloat("angleY", &canvas.main_camera.angleY(), 1.f, 0.f, 180.f, "%.0f");
+		break;
+	default: 
+		break;
+	}
+}
+
 void BLEV::Interface::ShowExternalWindows()
 {
 	if (bmo.b_edit_open) {
@@ -543,6 +558,12 @@ void BLEV::Interface::ShowExternalWindows()
 	if (bmo.b_classify_open) {
 		if (ImGui::Begin("Classify", &bmo.b_classify_open)){
 			F_Classify();
+			ImGui::End();
+		}
+	}
+	if (bmo.b_camera_open) {
+		if (ImGui::Begin("Camera", &bmo.b_camera_open)) {
+			F_Camera();
 			ImGui::End();
 		}
 	}
@@ -606,6 +627,13 @@ void BLEV::Interface::Menu::ShowMethodsMenu(B_method_open& bmo)
 
 		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
 			bmo.b_classify_open = true;
+		}
+		ImGui::EndMenu();
+	}
+	if (ImGui::BeginMenu("Camera")) {
+
+		if (ImGui::IsMouseClicked(ImGuiMouseButton_Left)) {
+			bmo.b_camera_open = true;
 		}
 		ImGui::EndMenu();
 	}
@@ -871,12 +899,7 @@ void BLEV::Interface::ObjectTable::Show()
 	ImGui::PopStyleVar();
 }
 
-void BLEV::Interface::Canvas::ProcessCamKeyboardInput(ImGuiIO& io, Camera& cam, float& deltaTime) {
-	auto x = (float)io.MouseWheel;
-	if (x != 0.f) {
-		cam.altPerspectiveScale(x < 0 ? -0.5f : 0.5f);
-		//return;
-	}
+void BLEV::Interface::Canvas::ProcessCamKeyboardInput(Camera& cam, float& deltaTime) {
 	float speed = cam.speed() * deltaTime;
 	if (ImGui::IsKeyPressed(ImGuiKey_W)) {
 		cam.eye() += speed * Linal::normalize(cam.direction());
@@ -1487,10 +1510,9 @@ void BLEV::Interface::Canvas::Body() {
 			if (ImGui::IsKeyPressed(ImGuiKey_R)) {
 				main_camera.resetFlightSettings();
 				main_camera.resetCamPosition();
-				main_camera.setPerspective();
+				main_camera.resetProjectionSettings();
 			}
-			ProcessCamKeyboardInput(io, main_camera, deltaTime);
-
+			
 			if (!main_camera.dirtiness())
 			{
 				prev_point = mouse_pos;
@@ -1498,9 +1520,16 @@ void BLEV::Interface::Canvas::Body() {
 			}
 			deltaMouse = mouse_pos - prev_point;
 			prev_point = mouse_pos;
-			ProcessCamMouseInput(deltaMouse, main_camera);
 
-			main_camera.updateLook();
+			auto x = (float)io.MouseWheel;
+			if (x != 0.f) {
+				main_camera.altPerspectiveScale(x < 0 ? -0.5f : 0.5f);
+			}
+			if ((Camera::CamMode)main_camera.mode() == Camera::Perspective) {
+				ProcessCamKeyboardInput(main_camera, deltaTime);
+				ProcessCamMouseInput(deltaMouse, main_camera);
+				main_camera.updateLook();
+			}
 		}
 
 		SwitchModes();
@@ -1521,9 +1550,9 @@ void BLEV::Interface::Canvas::Body() {
 		
 		if(b_grid_2d_enabled) Draw2dGrid();
 		if(b_grid_3d_enabled) Draw3dGrid();
-		DrawObjects();
 		if (b_grid_3d_enabled) DrawAxis();
-
+		DrawObjects();
+		
 		/* intersections
 		if (chosen_prims.size() > 0) {
 				intersections = get_intersections(chosen_prims);

@@ -71,6 +71,7 @@ namespace BLEV {
 		void F_Displace();
 		void F_Lsystem();
 		void F_Classify();
+		void F_Camera();
 
 		struct B_method_open {
 			//bool b_rotate_open = false;
@@ -82,6 +83,7 @@ namespace BLEV {
 			bool b_displace_open = false;
 			bool b_lsys_open = false;
 			bool b_classify_open = false;
+			bool b_camera_open = false;
 		} bmo;
 	public:
 		void ShowExternalWindows();
@@ -153,7 +155,7 @@ namespace BLEV {
 			const float GRID_STEP = 64.0f;
 			const VisualParams vis_p{ IM_COL32(200, 200, 200, 40), 1.f, true };
 
-			void ProcessCamKeyboardInput(ImGuiIO& io, Camera& cam, float& deltaTime);
+			void ProcessCamKeyboardInput(Camera& cam, float& deltaTime);
 			void ProcessCamMouseInput(ImVec2& deltaMouse, Camera& cam);
 			void SwitchModes();
 			void DrawObjects();

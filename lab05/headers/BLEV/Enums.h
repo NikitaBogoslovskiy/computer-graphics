@@ -25,11 +25,6 @@ namespace BLEV {
 		ReleasedState,
 		FinalClick
 	};
-
-	enum class CamMode {
-		Perspective,
-		Axonometry,
-	};
 }
 
 #define __BLEV_ENUMS_H__

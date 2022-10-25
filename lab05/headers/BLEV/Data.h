@@ -23,7 +23,6 @@ namespace BLEV {
 		Mode chosenMode;
 		AddingLine adding_line;
 		PrimEditMode chosenPrimEditMode;
-		CamMode cam_mode;
 
 		Primitive prev_displacement = Primitive(ImU32(1), 1);
 		Primitive curr_displacement = Primitive(ImU32(1), 1);
@@ -36,6 +35,9 @@ namespace BLEV {
 
 		const uint8_t classificationTypeSize = 3;
 		const char* classificationType[3]{ "Point and Edge", "Point and Convex Polygon", "Point and Non-convex Polygon" };
+
+		const uint8_t cameraModesSize = 2;
+		const char* cameraModes[2]{ "Perspective", "Axonometric" };
 	};
 }
 
