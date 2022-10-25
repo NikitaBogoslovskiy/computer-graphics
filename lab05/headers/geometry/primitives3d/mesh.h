@@ -2,8 +2,8 @@
 
 #include "pch.h"
 #include "structers.h"
-#include "geometry/camera.h"
-#include "geometry/funcs.h"
+#include "camera.h"
+#include "geometry/methods/funcs.h"
 #include <deque>
 
 class Mesh : public VisualParams
@@ -28,7 +28,7 @@ public:
 		return polygons[idx];
 	}
 
-	void draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp);
+	void draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp);
 	void save(const char* filename);
 	void open(const char* filename);
 };

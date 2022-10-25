@@ -2,7 +2,7 @@
 #define _CAMERA_H_
 
 #include "pch.h"
-#include "linal.h"
+#include "geometry/methods/linal.h"
 
 class Camera
 {

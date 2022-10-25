@@ -2,7 +2,7 @@
 #define _AFFINE_H_
 
 #include "pch.h"
-#include "primitives3d/structers.h"
+#include "geometry/primitives3d/structers.h"
 #include "funcs.h"
 
 class Affine

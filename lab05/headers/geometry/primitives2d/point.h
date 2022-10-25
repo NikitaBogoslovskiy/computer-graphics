@@ -2,7 +2,7 @@
 #define _POINT_H_
 
 #include "pch.h"
-#include "geometry/primitives/primitive.h"
+#include "primitive.h"
 
 class Point : public Primitive
 {

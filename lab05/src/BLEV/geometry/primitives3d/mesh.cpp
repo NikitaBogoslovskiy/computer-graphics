@@ -5,7 +5,7 @@
 #include <string>
 
 //#include <iostream>
-void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp)
+void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp)
 {
 	if (show) {
 		for (auto& polygon : polygons) {

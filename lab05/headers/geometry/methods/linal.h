@@ -1,7 +1,7 @@
 #pragma once
 
 #include "pch.h"
-#include "primitives3d/structers.h"
+#include "geometry/primitives3d/structers.h"
 #include "funcs.h"
 #include "affine.h"
 #include <iostream>

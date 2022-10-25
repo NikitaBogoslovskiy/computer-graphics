@@ -55,7 +55,7 @@ struct VisualParams {
     VisualParams(VisualParams&& vp) noexcept : color(std::move(vp.color)), thickness(std::move(vp.thickness)), show(std::move(vp.show)) {};
 };
 
-#include "geometry/funcs.h"
+#include "geometry/methods/funcs.h"
 
 struct Point3d : public VisualParams {
     ImVec3 point;

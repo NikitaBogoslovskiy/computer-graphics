@@ -1,5 +1,5 @@
 #include "geometry/primitives3d/structers.h"
-#include "geometry/funcs.h"
+#include "geometry/methods/funcs.h"
 
 ImVec3 Polygon::center(const std::vector<ImVec3>& points)
 {

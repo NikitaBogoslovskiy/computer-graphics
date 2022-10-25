@@ -1,7 +1,6 @@
-#include "geometry.h"
-#include <stdio.h>
-#include <cstdlib>
-#include <iostream>
+#include "geometry/primitives2d/primitive.h"
+#include "geometry/methods/funcs.h"
+#include "geometry/methods/affine.h"
 
 void MyPolyline(ImDrawList* draw_list, const ImVec2* points, const size_t& points_count, const ImU32& col, const float& thickness, const ImVec2& offset) {
 	for (size_t i = 0; i < points_count - 1; i++) {
@@ -32,9 +31,6 @@ void Primitive::draw(ImDrawList* draw_list, const ImVec2& offset, const ImU32& c
 		if (size() > 2) {
 			draw_list->AddLine(front() + offset, back() + offset, col, thickness());
 		}
-		//if (connect_bounds && size() > 2) {
-		//	draw_list->AddLine(front() + offset, back() + offset, color(), thickness());
-		//}
 	}
 }
 

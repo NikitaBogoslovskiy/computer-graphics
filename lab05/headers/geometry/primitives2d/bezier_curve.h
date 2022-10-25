@@ -1,6 +1,8 @@
 #ifndef _BEZIER_CURVE_H_
 #define _BEZIER_CURVE_H_
+
 #include "pch.h"
+#include "primitive.h"
 #include <deque>
 
 class BezierCurve : public Primitive
