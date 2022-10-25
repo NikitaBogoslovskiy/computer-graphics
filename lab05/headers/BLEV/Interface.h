@@ -65,6 +65,7 @@ namespace BLEV {
 		void F_Rotate();
 		void F_Translate();
 		void F_Scale();
+		void F_Reflect();
 
 		void F_Edit();
 
@@ -99,6 +100,7 @@ namespace BLEV {
 
 			void ShowModesMenu();
 			void ShowMethodsMenu(B_method_open&);
+			void ShowAddingMenu();
 
 			void Show(B_method_open&, Global_visual_params&);
 
