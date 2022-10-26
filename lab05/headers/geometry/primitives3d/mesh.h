@@ -30,6 +30,9 @@ public:
 	inline ImVec3& getPoint(size_t idx) {
 		return points[idx];
 	}
+	inline ImVec3& getInitPoint(size_t idx) {
+		return init_points[idx];
+	}
 	inline Polygon& operator[](size_t idx) {
 		return polygons[idx];
 	}

@@ -1014,9 +1014,15 @@ void BLEV::Interface::ObjectTable::ShowMeshTable(Mesh* mesh, size_t idx)
 			ImGui::Text("Point %d", i);
 
 			ImGui::TableSetColumnIndex(1);
-			ImGui::DragFloat("x", &(mesh->getPoint(i).x), 1.f, -1000.f, 1000.f, "%.0f");
-			ImGui::DragFloat("y", &(mesh->getPoint(i).y), 1.f, -1000.f, 1000.f, "%.0f");
-			ImGui::DragFloat("z", &(mesh->getPoint(i).z), 1.f, -1000.f, 1000.f, "%.0f");
+			float x = mesh->getPoint(i).x;
+			float y = mesh->getPoint(i).y;
+			float z = mesh->getPoint(i).z;
+			if (ImGui::DragFloat("x", &(mesh->getPoint(i).x), 1.f, -1000.f, 1000.f, "%.0f"))
+				mesh->getInitPoint(i).x += mesh->getPoint(i).x - x;
+			if (ImGui::DragFloat("y", &(mesh->getPoint(i).y), 1.f, -1000.f, 1000.f, "%.0f"))
+				mesh->getInitPoint(i).y += mesh->getPoint(i).y - y;
+			if (ImGui::DragFloat("z", &(mesh->getPoint(i).z), 1.f, -1000.f, 1000.f, "%.0f"))
+				mesh->getInitPoint(i).z += mesh->getPoint(i).z - z;
 
 			ImGui::PopID();
 		}
