@@ -116,6 +116,7 @@ void Mesh::open(const char* filename)
 	infile.close();
 
 	this->points = std::move(m.points);
+	this->init_points = std::move(m.init_points);
 	this->polygons = std::move(m.polygons);
 }
 
@@ -196,6 +197,7 @@ void Mesh::updatePoints()
 	}
 
 	auto result_matrix = reflect_mat * translate_mat * rotate_mat * scale_mat * points_matrix;
+	auto num = result_matrix.cols();
 
 	for (size_t i = 0; i < points.size(); i++) {
 		points[i].x = result_matrix(0, i);

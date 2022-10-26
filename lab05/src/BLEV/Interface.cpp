@@ -776,12 +776,32 @@ void BLEV::Interface::Menu::ShowAddingMenu()
 			static Mesh mesh = open("bunny.obj");
 			_data.meshes.push_back(&mesh);
 		}
+		if (ImGui::MenuItem("Mill", NULL, (bool*)0, false)) {
+			static Mesh mesh = open("mill.obj");
+			_data.meshes.push_back(&mesh);
+		}
+		if (ImGui::MenuItem("Hand", NULL, (bool*)0, false)) {
+			static Mesh mesh = open("hand.obj");
+			_data.meshes.push_back(&mesh);
+		}
 #else
 		if (ImGui::MenuItem("Bunny")) {
 			static Mesh mesh = open("bunny.obj");
 			_data.meshes.push_back(&mesh);
 		}
+		if (ImGui::MenuItem("Mill")) {
+			static Mesh mesh = open("mill.obj");
+			_data.meshes.push_back(&mesh);
+		}
+		if (ImGui::MenuItem("Hand")) {
+			static Mesh mesh = open("hand.obj");
+			_data.meshes.push_back(&mesh);
+		}
 #endif // DEBUG
+		if (ImGui::MenuItem("Boat")) {
+			static Mesh mesh = open("boat.obj");
+			_data.meshes.push_back(&mesh);
+		}
 		ImGui::EndMenu();
 	}
 }
