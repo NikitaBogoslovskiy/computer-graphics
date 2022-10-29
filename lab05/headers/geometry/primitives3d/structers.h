@@ -18,12 +18,14 @@ struct ImVec3
     inline float& operator[] (size_t idx) { assert(idx <= 2); return (&x)[idx]; }
 
     ImVec3& operator+=(const ImVec3& rhs);
+    ImVec3& vector_product(const ImVec3& rhs);
 };
 
 struct Polygon
 {
     Polygon() = default;
     std::deque<uint32_t> indices;
+    ImVec3 normal;
     Polygon(const std::initializer_list<uint32_t>& _indices) : indices(_indices) { assert(_indices.size() >= 3); }
     Polygon(std::initializer_list<uint32_t>&& _indices) : indices(_indices) { assert(indices.size() >= 3); }
     Polygon(const Polygon& _polygon) noexcept : indices(_polygon.indices) {}
@@ -38,7 +40,7 @@ struct Polygon
     inline void pop_front() { assert(indices.size() > 3); indices.pop_front(); }
     inline void insert(size_t idx, uint32_t val) { assert(indices.size() > idx);  indices.insert(indices.begin() + idx, val); }
     ImVec3 center(const std::vector<ImVec3>& points);
-    
+
     void draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp) {
         
     }

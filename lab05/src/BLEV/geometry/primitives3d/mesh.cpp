@@ -3,6 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include "geometry/methods/funcs.h"
 
 Mesh::Mesh() : init_points(), points(), polygons() {
 	translate_mat.setIdentity();
@@ -14,29 +15,20 @@ Mesh::Mesh() : init_points(), points(), polygons() {
 void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp)
 {
 	if (show) {
+		std::vector<ImVec2> buf(10);
 		for (auto& polygon : polygons) {
-			for (size_t i = 1; i <= polygon.size(); i++)
-			{
-				auto ind0 = i % polygon.size();
-				auto ind1 = (ind0 + 1) % polygon.size();
-				auto point_ind0 = polygon[ind0];
-				auto point_ind1 = polygon[ind1];
-
-				Eigen::Vector4f v0{ points[point_ind0].x, points[point_ind0].y, points[point_ind0].z,  1.f }; // COLUMN-VEC
-				Eigen::Vector4f v1{ points[point_ind1].x, points[point_ind1].y, points[point_ind1].z,  1.f };
-
+			for (size_t i = 0; i < polygon.size(); i++) {
+				auto& point_indi = polygon[i];
+				Eigen::Vector4f v0{ points[point_indi].x, points[point_indi].y, points[point_indi].z,  1.f }; // COLUMN-VEC
 				Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
-				Eigen::Vector4f v1_2d = vp * v1;
-
-				auto start = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3));
-				auto end = ImVec2(v1_2d(0) / v1_2d(3), v1_2d(1) / v1_2d(3));
-
-				//start.x *= 512.f * 0.5f; start.y *= 512.f * 0.5f; //if we use fov perspective
-				//end.x *= 512.f * 0.5f; end.y *= 512.f * 0.5f;
-
-				draw_list->AddLine(start + offset, end + offset, color, thickness);
+				buf[i] = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3)) + offset;
+			}
+			//draw_list->AddConvexPolyFilled(buf.data(), polygon.size(), IM_COL32(155, 155, 155, 255));
+			for (size_t i = 1; i < polygon.size(); i++) {
+				draw_list->AddLine(buf[i], buf[i - 1], color, thickness);
 				//draw_list->AddCircleFilled(start + offset, 3.f, IM_COL32(255, 0, 0, 255), 10);
 			}
+			draw_list->AddLine(buf[0], buf[polygon.size() - 1], color, thickness);
 		}
 	}
 }
@@ -105,6 +97,8 @@ void Mesh::open(const char* filename)
 					return;
 				}
 				p.push_back(temp - 1);
+				//char slash;
+				//if (!(iss2 >> slash) || slash != '/') continue;
 			}
 			if (p.size() < 3) {
 				printf("File can't be read by our simple parser\n");
@@ -118,6 +112,22 @@ void Mesh::open(const char* filename)
 	this->points = std::move(m.points);
 	this->init_points = std::move(m.init_points);
 	this->polygons = std::move(m.polygons);
+}
+
+void Mesh::calculate_normal(Polygon& p)
+{
+	p.normal = points[p.indices[1]] - points[p.indices[0]];
+	for (size_t i = 2; i < p.size(); i++){
+		p.normal.vector_product(points[p.indices[i]] - points[p.indices[i - 1]]);
+	}
+	p.normal.vector_product(points[p.indices[0]] - points[p.indices[p.size() - 1]]);
+}
+
+void Mesh::recalculate_normals()
+{
+	for (auto& p : polygons) {
+		calculate_normal(p);
+	}
 }
 
 void Mesh::rotateX(float angle)

@@ -17,3 +17,14 @@ ImVec3& ImVec3::operator+=(const ImVec3& rhs)
     z += rhs.z;
     return *this;
 }
+
+ImVec3& ImVec3::vector_product(const ImVec3& rhs)
+{
+    auto _x = y * rhs.z + z * rhs.y;
+    auto _y = z * rhs.x + x * rhs.z;
+    auto _z = x * rhs.y + y * rhs.x;
+    x = _x;
+    y = _y;
+    z = _z;
+    return *this;
+}

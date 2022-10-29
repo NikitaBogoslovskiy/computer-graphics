@@ -90,6 +90,10 @@ inline ImVec3 operator*(const ImVec3& lhs, const float& rhs) { return rhs * lhs;
 inline bool operator==(const ImVec3& lhs, const ImVec3& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z; }
 inline ImVec3 operator/(const ImVec3& lhs, const float& rhs) { return ImVec3(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs); }
 
+inline ImVec3 vector_product(const ImVec3& lhs, const ImVec3& rhs) {
+	return ImVec3(lhs.y * rhs.z + lhs.z * rhs.y, lhs.z * rhs.x + lhs.x * rhs.z, lhs.x * rhs.y + lhs.y * rhs.x);
+}
+
 // sometime in future, but now just this
 template<class C>
 static C sum(std::vector<C> vT) {
