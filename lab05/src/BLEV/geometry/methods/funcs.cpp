@@ -1,34 +1,6 @@
 #include "geometry/methods/funcs.h"
 #include "geometry/primitives2d/point.h"
 
-/*
-template<typename _Container,
-	typename _Value,
-	typename>
-	std::tuple<int, ImVec2*> detect_point(const _Container& primitives) {
-	auto originIt = std::find_if(primitives.begin(), primitives.end(), [](const auto& prim) { return dynamic_cast<Point*>(prim) != NULL; });
-	if (originIt == primitives.end()) return std::make_tuple(0, nullptr);
-	return std::make_tuple(1, &(dynamic_cast<Point*>(*originIt)->at(0)));
-}
-
-//transforms chosen prims relatively to point
-template<typename _Container,
-	typename _Value,
-	typename>
-	int tr_chpr_rtp(const _Container& primitives, std::function<void(Primitive*, ImVec2*)> lammy) {
-	if (primitives.size() == 0) throw std::invalid_argument("No primitives picked");
-	int pointsCount; ImVec2* origin;
-	std::tie(pointsCount, origin) = detect_point(primitives);
-
-	std::for_each(primitives.begin(), primitives.end(), [&lammy, &origin](Primitive* prim) {
-		auto test = dynamic_cast<Point*>(prim);
-		if (test != NULL && &(test->at(0)) == origin) return;
-		lammy(prim, origin);
-		});
-	return 0;
-}
-*/
-
 Primitive midpointDisplacement(Primitive& displacement, Point* p1, Point* p2, int R, int I, int iter_num)
 {
 	auto color = p1->color();

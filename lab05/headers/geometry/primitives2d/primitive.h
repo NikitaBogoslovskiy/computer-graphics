@@ -3,6 +3,32 @@
 
 #include "pch.h"
 
+static bool pointPositionWithEdge(const ImVec2& e1, const ImVec2& e2, const ImVec2& point)
+{
+	float t = e1.y;
+	t = e2.y;
+	float x2 = e2.x - e1.x;
+	float y2 = -(e2.y - e1.y);
+	float px = point.x - e1.x;
+	float py = -(point.y - e1.y);
+	return (py * x2 - px * y2) > 0;
+}
+static bool foundOnEdge(const ImVec2* start, const ImVec2* end, const float& offset, const ImVec2& point) {
+	if (point.x < std::min(start->x, end->x) || point.x > std::max(start->x, end->x) || point.y < std::min(start->y, end->y) || point.y > std::max(start->y, end->y)) return false;
+
+	auto first = ImVec2(start->x - offset, start->y);
+	auto second = ImVec2(start->x + offset, start->y);
+	auto third = ImVec2(end->x + offset, end->y);
+	auto forth = ImVec2(end->x - offset, end->y);
+
+	bool firstSide = pointPositionWithEdge(first, second, point);
+	if (pointPositionWithEdge(second, third, point) != firstSide
+		|| pointPositionWithEdge(third, forth, point) != firstSide
+		|| pointPositionWithEdge(forth, first, point) != firstSide) return false;
+	return true;
+}
+
+
 class Primitive
 {
 protected:
@@ -13,32 +39,6 @@ private:
 	bool _show;
 	int _connect_bounds;
 
-	inline bool pointPositionWithEdge(const ImVec2& e1, const ImVec2& e2, const ImVec2& point)
-	{
-		float t = e1.y;
-		t = e2.y;
-		float x2 = e2.x - e1.x;
-		float y2 = -(e2.y - e1.y);
-		float px = point.x - e1.x;
-		float py = -(point.y - e1.y);
-		return (py * x2 - px * y2) > 0;
-	}
-
-	inline bool foundOnEdge(const ImVec2* start, const ImVec2* end, const float& offset, const ImVec2& point) {
-		if (point.x < std::min(start->x, end->x) || point.x > std::max(start->x, end->x) || point.y < std::min(start->y, end->y) || point.y > std::max(start->y, end->y)) return false;
-
-		auto first = ImVec2(start->x - offset, start->y);
-		auto second = ImVec2(start->x + offset, start->y);
-		auto third = ImVec2(end->x + offset, end->y);
-		auto forth = ImVec2(end->x - offset, end->y);
-
-		bool firstSide = pointPositionWithEdge(first, second, point);
-		if (pointPositionWithEdge(second, third, point) != firstSide
-			|| pointPositionWithEdge(third, forth, point) != firstSide
-			|| pointPositionWithEdge(forth, first, point) != firstSide) return false;
-		return true;
-	}
-
 public:
 	Primitive(const ImU32& color, const float& thickness) {
 		points = new ImVector<ImVec2>();
@@ -47,13 +47,26 @@ public:
 		_show = true;
 		_connect_bounds = 0; // _connect_bounds == 2 <==> DO NOT CONNECT;  
 	}
-
 	Primitive(ImVector<ImVec2>* points, const ImU32& color, const float& thickness) {
 		this->points = points;
 		_color = color;
 		_thickness = thickness;
 		_show = true;
 		_connect_bounds = 0;
+	}
+	Primitive(const Primitive& prim) {
+		points = prim.points;
+		_color = prim._color;
+		_thickness = prim._thickness;
+		_show = prim._show;
+		_connect_bounds = prim._connect_bounds;
+	}
+	Primitive(Primitive&& prim) noexcept{
+		points = std::move(prim.points);
+		_color = std::move(prim._color);
+		_thickness = std::move(prim._thickness);
+		_show = std::move(prim._show);
+		_connect_bounds = std::move(prim._connect_bounds);
 	}
 
 	inline size_t size() const { return points->size(); }
@@ -141,6 +154,15 @@ public:
 
 	//translate(const ImVec2& d = ImVec2(0.f, 0.f))
 	void translate(const ImVec2* d);
+
+	inline Primitive& operator=(const Primitive& prim) {
+		points = prim.points;
+		_color = prim._color;
+		_thickness = prim._thickness;
+		_show = prim._show;
+		_connect_bounds = prim._connect_bounds;
+		return *this;
+	}
 };
 
 #endif
