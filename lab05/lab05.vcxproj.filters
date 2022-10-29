@@ -78,6 +78,12 @@
     <ClCompile Include="src\BLEV\geometry\methods\funcs.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="headers\stuff\NFD\nfd_common.c">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="headers\stuff\NFD\nfd_win.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\dependencies\imgui\imgui\imconfig.h">
@@ -171,6 +177,12 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\BLEV\Enums.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\stuff\NFD\nfd.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\stuff\NFD\nfd_common.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

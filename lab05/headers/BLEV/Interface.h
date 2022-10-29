@@ -98,6 +98,7 @@ namespace BLEV {
 		struct Menu {
 			BLEV::Data& _data;
 
+			void ShowFileManagerMenu();
 			void ShowModesMenu();
 			void ShowMethodsMenu(B_method_open&);
 			void ShowAddingMenu();

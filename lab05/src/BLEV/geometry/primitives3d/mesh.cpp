@@ -60,7 +60,7 @@ void Mesh::save(const char* filename)
 	for (auto& p : polygons) {
 		out << 'f';
 		for (auto i : p.indices) {
-			out << ' ' << i;
+			out << ' ' << i + 1;
 		}
 		out << '\n';
 	}
@@ -92,7 +92,7 @@ void Mesh::open(const char* filename)
 				printf("File can't be read by our simple parser\n");
 				return;
 			}
-			m.add_point(std::move(vertex * 5.f));
+			m.add_point(std::move(vertex));
 		}
 		else if (type == "f") {
 			Polygon p;

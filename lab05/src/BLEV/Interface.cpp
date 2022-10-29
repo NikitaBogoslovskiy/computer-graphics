@@ -1,6 +1,9 @@
 #define _CRT_SECURE_NO_WARNINGS
 #include "BLEV/Interface.h"
 #include <unordered_set>
+#include <windows.h>
+#include <commdlg.h>
+#include "stuff/NFD/nfd.h"
 
 const std::vector<BLEV::Interface::ready_l_system*> BLEV::Interface::ready_l_systems{
 
@@ -709,6 +712,65 @@ void BLEV::Interface::ShowContent()
 	}
 }
 
+void BLEV::Interface::Menu::ShowFileManagerMenu()
+{
+	if (ImGui::BeginMenu("File")) {
+		if (ImGui::BeginMenu("Open")) {
+
+			if (ImGui::MenuItem("Scene...", NULL, (bool*)0, false)) {
+			}
+
+			if (ImGui::MenuItem("Mesh...")) {
+				nfdchar_t* outPath = NULL;
+				nfdresult_t result = NFD_OpenDialog("obj", NULL, &outPath);
+
+				if (result == NFD_OKAY) {
+					Mesh* m = new Mesh();
+					m->open(outPath);
+					_data.meshes.push_back(m);
+
+					free(outPath);
+				}
+				else if (result == NFD_CANCEL) {
+					puts("User pressed cancel.");
+				}
+				else {
+					printf("Error: %s\n", NFD_GetError());
+				}
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::BeginMenu("Save")) {
+
+			if (ImGui::MenuItem("Chosen meshes...")) {
+				nfdchar_t* outPath = NULL;
+				nfdresult_t result = NFD_SaveDialog("obj", NULL, &outPath);
+
+				if (result == NFD_OKAY) {
+					for (auto m : _data.chosen_meshes) {
+						m->save(outPath);
+					}
+					free(outPath);
+				}
+				else if (result == NFD_CANCEL) {
+					puts("User pressed cancel.");
+				}
+				else {
+					printf("Error: %s\n", NFD_GetError());
+				}
+			}
+			if (ImGui::MenuItem("All...", NULL, (bool*)0, false)) {
+
+			}
+
+			ImGui::EndMenu();
+		}
+
+		ImGui::EndMenu();
+	}
+}
+
+
 void BLEV::Interface::Menu::ShowModesMenu()
 {
 	static const char* shortcuts[6]{ "Ctrl+P", "Ctrl+E", "Ctrl+G", "Ctrl+B", "Ctrl+S", "Ctrl+M" };
@@ -810,6 +872,8 @@ void BLEV::Interface::Menu::Show(B_method_open& bmo, Global_visual_params& gvp)
 {
 	if (ImGui::BeginMainMenuBar())
 	{
+		ShowFileManagerMenu();
+
 		ShowModesMenu();
 
 		ImGui::Separator();
@@ -1087,8 +1151,8 @@ void BLEV::Interface::Canvas::ProcessCamMouseInput(ImVec2& deltaMouse, Camera& c
 		cam.rotation().x += offset.x; // yaw
 		cam.rotation().y -= offset.y; // pitch
 
-		cam.rotation().y = std::min(cam.rotation().y, 89.0f);
-		cam.rotation().y = std::max(cam.rotation().y, -89.0f);
+		cam.rotation().y = min(cam.rotation().y, 89.0f);
+		cam.rotation().y = max(cam.rotation().y, -89.0f);
 
 		cam.updateDirection();
 	}

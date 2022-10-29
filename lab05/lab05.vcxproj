@@ -162,6 +162,8 @@
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="headers\stuff\NFD\nfd_common.c" />
+    <ClCompile Include="headers\stuff\NFD\nfd_win.cpp" />
     <ClCompile Include="src\BLEV\geometry\methods\funcs.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\structers.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\mesh.cpp" />
@@ -181,6 +183,8 @@
     <ClCompile Include="src\BLEV\geometry\primitives2d\Lsystem.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives2d\point.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives2d\primitive.cpp" />
+    <ClInclude Include="headers\stuff\NFD\nfd.h" />
+    <ClInclude Include="headers\stuff\NFD\nfd_common.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\dependencies\imgui\imgui\imconfig.h" />
