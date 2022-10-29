@@ -66,7 +66,7 @@ namespace BLEV {
 		void F_Translate();
 		void F_Scale();
 		void F_Reflect();
-
+		// union
 		void F_Edit();
 
 		void F_Displace();
@@ -74,17 +74,25 @@ namespace BLEV {
 		void F_Classify();
 		void F_Camera();
 
+		void F_QuickHull();
+		// union
+		void F_Shells();
+
 		struct B_method_open {
 			//bool b_rotate_open = false;
 			//bool b_translate_open = false;
 			//bool b_scale_open = false;
-			
+			//bool b_reflect_open = false;
 			bool b_edit_open = false;
-
+			
 			bool b_displace_open = false;
 			bool b_lsys_open = false;
 			bool b_classify_open = false;
 			bool b_camera_open = false;
+
+			//bool b_quickhull_open = false;
+			//bool b_jarvis_open = false;
+			bool b_shells_open = false;
 		} bmo;
 	public:
 		void ShowExternalWindows();

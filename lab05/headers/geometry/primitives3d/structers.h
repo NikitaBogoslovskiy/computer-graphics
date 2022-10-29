@@ -48,7 +48,7 @@ struct VisualParams {
     ImU32 color;
     float thickness;
     bool show;
-    VisualParams() noexcept : color(IM_COL32(255, 255, 204, 255)), thickness(1.f), show(true) {};
+    constexpr VisualParams() noexcept : color(IM_COL32(255, 255, 204, 255)), thickness(1.f), show(true) {};
     VisualParams(const ImU32& _color, const float& _thickness, bool _show) : color(_color), thickness(_thickness), show(_show) {}
     VisualParams(ImU32&& _color, float&& _thickness, bool&& _show) : color(std::move(_color)), thickness(std::move(_thickness)), show(std::move(_show)) {}
     VisualParams(const VisualParams& vp) : color(vp.color), thickness(vp.thickness), show(vp.show) {};

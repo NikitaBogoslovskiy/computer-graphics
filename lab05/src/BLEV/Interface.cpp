@@ -4,6 +4,7 @@
 #include <windows.h>
 #include <commdlg.h>
 #include "stuff/NFD/nfd.h"
+#include <algorithm>
 
 const std::vector<BLEV::Interface::ready_l_system*> BLEV::Interface::ready_l_systems{
 
@@ -133,6 +134,30 @@ const std::vector<BLEV::Interface::ready_l_system*> BLEV::Interface::ready_l_sys
 														},
 														"F"),
 };
+
+static void HelpMarker(const char* desc)
+{
+	ImGui::TextDisabled("(?)");
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::BeginTooltip();
+		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+		ImGui::TextUnformatted(desc);
+		ImGui::PopTextWrapPos();
+		ImGui::EndTooltip();
+	}
+}
+static void HelpPrevItem(const char* desc)
+{
+	if (ImGui::IsItemHovered())
+	{
+		ImGui::BeginTooltip();
+		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
+		ImGui::TextUnformatted(desc);
+		ImGui::PopTextWrapPos();
+		ImGui::EndTooltip();
+	}
+}
 
 void BLEV::Interface::F_Rotate() {
 	ImGui::BeginGroup();
@@ -657,6 +682,76 @@ void BLEV::Interface::F_Camera() {
 	}
 }
 
+void _quickhull_rec(Primitive& out, const std::vector<ImVec2>& vecs, const std::pair<ImVec2, ImVec2>& mm) {
+	if (vecs.size() == 1) {
+		out.push_back(vecs[0]);
+		return;
+	}
+	ImVec2 m = vecs[0];
+	float dist = distance_from_line(mm.first, mm.second, m);
+	for (auto& vec : vecs) {
+		float temp = distance_from_line(mm.first, mm.second, vec);
+		if (temp > dist) {
+			m = vec;
+			dist = std::move(temp);
+		}
+	}
+	auto mm1 = std::make_pair(m, mm.second);
+	std::vector<ImVec2> rhs;
+	std::for_each(std::begin(vecs), std::end(vecs), [&](const ImVec2& p) { if(pointPositionWithEdge(mm1.first, mm1.second, p)) rhs.push_back(p); });
+	if (!rhs.empty()) _quickhull_rec(out, rhs, mm1);
+	out.push_back(mm1.first);
+	
+	auto mm2 = std::make_pair(mm.first, m);
+	std::vector<ImVec2> lhs;
+	std::for_each(std::begin(vecs), std::end(vecs), [&](const ImVec2& p) { if (pointPositionWithEdge(mm2.first, mm2.second, p)) lhs.push_back(p); });
+	if (!lhs.empty()) _quickhull_rec(out, lhs, mm2);
+	//out.push_back(mm2.first);
+}
+
+void BLEV::Interface::F_QuickHull()
+{
+	ImGui::Text("QuickHull");
+	if (ImGui::Button("Build a shell")) {
+		Primitive prim(VisualParams().color, VisualParams().thickness);
+		std::vector<Primitive*> points;
+		std::vector<ImVec2> vecs;
+		std::for_each(_data.chosen_prims.begin(), _data.chosen_prims.end(), [&](Primitive* pr) { 
+			if (dynamic_cast<Point*>(pr) != NULL) {
+				vecs.push_back(dynamic_cast<Point*>(pr)->get());
+			}
+		});
+
+		auto mm = std::make_pair(vecs[0], vecs[0]);
+		for (auto& vec : vecs) {
+			if (mm.first.x > vec.x) mm.first = vec;
+			if (mm.second.x < vec.x) mm.second = vec;
+		}
+
+		std::vector<ImVec2> lhs;
+		std::vector<ImVec2> rhs;
+		std::for_each(std::begin(vecs), std::end(vecs), [&](const ImVec2& p) { 
+			if (pointPositionWithEdge(mm.first, mm.second, p)) 
+				lhs.push_back(p);
+			else 
+				rhs.push_back(p);
+			});
+
+		prim.push_back(mm.second);
+		if(!lhs.empty()) _quickhull_rec(prim, lhs, mm);
+		prim.push_back(mm.first);
+		if (!rhs.empty()) _quickhull_rec(prim, rhs, mm);
+
+		_data.primitives.push_back(new Primitive(std::move(prim)));
+	}
+}
+
+void BLEV::Interface::F_Shells()
+{
+	F_QuickHull();
+	//ImGui::Separator();
+}
+
 void BLEV::Interface::ShowExternalWindows()
 {
 	if (bmo.b_edit_open) {
@@ -687,6 +782,12 @@ void BLEV::Interface::ShowExternalWindows()
 	if (bmo.b_camera_open) {
 		if (ImGui::Begin("Camera", &bmo.b_camera_open)) {
 			F_Camera();
+			ImGui::End();
+		}
+	}
+	if (bmo.b_shells_open) {
+		if (ImGui::Begin("Shells", &bmo.b_shells_open)) {
+			F_Shells();
 			ImGui::End();
 		}
 	}
@@ -803,6 +904,9 @@ void BLEV::Interface::Menu::ShowMethodsMenu(B_method_open& bmo)
 		}
 		if (ImGui::MenuItem("Camera", NULL, bmo.b_camera_open)) {
 			bmo.b_camera_open = true;
+		}
+		if (ImGui::MenuItem("Shells", NULL, bmo.b_shells_open)) {
+			bmo.b_shells_open = true;
 		}
 		ImGui::EndMenu();
 	}

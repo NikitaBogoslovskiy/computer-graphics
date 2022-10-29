@@ -8,7 +8,7 @@ class Point : public Primitive
 {
 public:
 	Point(const ImVec2& p, const ImU32& color, const float& thickness);
-
+	inline ImVec2& get() { return points->Data[0]; }
 	void draw(ImDrawList*, const ImVec2&);
 };
 

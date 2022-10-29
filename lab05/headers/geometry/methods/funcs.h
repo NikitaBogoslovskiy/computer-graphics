@@ -37,31 +37,6 @@ inline ImVec4 GetColorFlV4(const float* curr_color) {
 	return ImVec4((int)(curr_color[0] * 255), (int)(curr_color[1] * 255),(int)(curr_color[2] * 255), (int)(curr_color[3] * 255));
 }
 
-inline void HelpMarker(const char* desc)
-{
-	ImGui::TextDisabled("(?)");
-	if (ImGui::IsItemHovered())
-	{
-		ImGui::BeginTooltip();
-		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-		ImGui::TextUnformatted(desc);
-		ImGui::PopTextWrapPos();
-		ImGui::EndTooltip();
-	}
-}
-
-inline void HelpPrevItem(const char* desc)
-{
-	if (ImGui::IsItemHovered())
-	{
-		ImGui::BeginTooltip();
-		ImGui::PushTextWrapPos(ImGui::GetFontSize() * 35.0f);
-		ImGui::TextUnformatted(desc);
-		ImGui::PopTextWrapPos();
-		ImGui::EndTooltip();
-	}
-}
-
 inline float DegreesToRadians(const float& degrees) {
 	return degrees * (PI / 180);
 }
@@ -92,6 +67,18 @@ template<typename _Container,
 }
 
 Primitive midpointDisplacement(Primitive& displacement, Point* p1, Point* p2, int R, int I, int iter_num);
+
+static float distance(const ImVec2& a, const ImVec2& b) {
+	return sqrtf(powf(a.x - b.x, 2) + powf(a.y - b.y, 2));
+}
+static float distance_from_line(const ImVec2& e1, const ImVec2& e2, const ImVec2& point) {
+	float left = distance(e1, point),
+		base = distance(e1, e2),
+		right = distance(e2, point);
+	float p = 0.5 * (left + base + right);
+	float S = sqrtf(p * (p - left) * (p - base) * (p - right));
+	return 2 * S / base;
+}
 
 #include "geometry/primitives3d/structers.h"
 
