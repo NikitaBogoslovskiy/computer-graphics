@@ -5,6 +5,7 @@
 #include "pch.h"
 #include <algorithm>    // std::min
 #include "geometry/primitives2d/point.h"
+#include <set>
 
 #define PI 3.14159265359f
 
@@ -92,6 +93,7 @@ template<typename _Container,
 }
 
 Primitive midpointDisplacement(Primitive& displacement, Point* p1, Point* p2, int R, int I, int iter_num);
+Primitive* packPresent(Primitive* current_point, const std::set<Primitive*>& chosen_prims, const ImU32& color, const float& thickness);
 
 #include "geometry/primitives3d/structers.h"
 

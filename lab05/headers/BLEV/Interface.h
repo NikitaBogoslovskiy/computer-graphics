@@ -73,6 +73,7 @@ namespace BLEV {
 		void F_Lsystem();
 		void F_Classify();
 		void F_Camera();
+		void F_Present();
 
 		struct B_method_open {
 			//bool b_rotate_open = false;
@@ -85,6 +86,7 @@ namespace BLEV {
 			bool b_lsys_open = false;
 			bool b_classify_open = false;
 			bool b_camera_open = false;
+			bool b_present_open = false;
 		} bmo;
 	public:
 		void ShowExternalWindows();

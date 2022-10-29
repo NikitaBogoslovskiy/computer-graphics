@@ -380,7 +380,6 @@ void BLEV::Interface::F_Edit()
 	ImGui::Separator();
 	F_Reflect();
 	//ImGui::Separator();
-
 }
 
 void BLEV::Interface::F_Displace() {
@@ -647,10 +646,39 @@ void BLEV::Interface::F_Camera() {
 		break;
 	case Camera::Axonometry:
 		ImGui::DragFloat("angleX", &canvas.main_camera.angleX(), 1.f, 0.f, 180.f, "%.0f");
-		ImGui::DragFloat("angleY", &canvas.main_camera.angleY(), 1.f, 0.f, 180.f, "%.0f");
+		ImGui::DragFloat("angleY", &canvas.main_camera.angleY(), 1.f, 0.f, 360.f, "%.0f");
 		break;
 	default: 
 		break;
+	}
+}
+
+void BLEV::Interface::F_Present() {
+	if (ImGui::Button("Pack")) {
+		try {
+			if (_data.chosen_prims.size() < 2) throw std::invalid_argument("You should choose no less than 2 points");
+
+			if (dynamic_cast<Point*>(*_data.chosen_prims.begin()) == NULL)throw std::invalid_argument("You should only choose  points");
+			Primitive* current_point = *_data.chosen_prims.begin();
+
+			for (auto it = std::next(_data.chosen_prims.begin()); it != _data.chosen_prims.end(); ++it)
+			{
+				Primitive* prim = *it;
+				if (dynamic_cast<Point*>(prim) == NULL) throw std::invalid_argument("You should only choose points");
+
+				if ((prim->front().y > current_point->front().y) || (prim->front().y == current_point->front().y) && (prim->front().x >= current_point->front().x)) {
+					current_point = prim;
+				}
+			}
+			Primitive* present = packPresent(current_point, _data.chosen_prims, GetColorFlU32(canvas.curr_color), canvas.thickness);
+			_data.chosen_prims.clear();
+			_data.primitives.push_back(present);
+		}
+		catch (std::exception& e) {
+			//console[0]->feedback = e.what();
+			//console[0]->feedback_color = ImVec4(255, 0, 0, 255);
+			//best error output in the world.
+		}
 	}
 }
 
@@ -684,6 +712,12 @@ void BLEV::Interface::ShowExternalWindows()
 	if (bmo.b_camera_open) {
 		if (ImGui::Begin("Camera", &bmo.b_camera_open)) {
 			F_Camera();
+			ImGui::End();
+		}
+	}
+	if (bmo.b_present_open) {
+		if (ImGui::Begin("Camera", &bmo.b_present_open)) {
+			F_Present();
 			ImGui::End();
 		}
 	}
@@ -741,6 +775,9 @@ void BLEV::Interface::Menu::ShowMethodsMenu(B_method_open& bmo)
 		}
 		if (ImGui::MenuItem("Camera", NULL, bmo.b_camera_open)) {
 			bmo.b_camera_open = true;
+		}
+		if (ImGui::MenuItem("Pack present", NULL, bmo.b_present_open)) {
+			bmo.b_present_open = true;
 		}
 		ImGui::EndMenu();
 	}
@@ -1555,6 +1592,9 @@ void BLEV::Interface::Canvas::ShowContextMenu()
 				delete _data.rotate_axis;
 				_data.rotate_axis = nullptr;
 				_data.chosenPrimEditMode = PrimEditMode::None;
+			}
+			if (ImGui::MenuItem("Select all", NULL, false, _data.primitives.size() > 0)) {
+				std::copy(_data.primitives.begin(), _data.primitives.end(), std::inserter(_data.chosen_prims, _data.chosen_prims.end()));
 			}
 			ImGui::EndPopup();
 		}

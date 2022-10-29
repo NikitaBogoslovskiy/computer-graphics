@@ -1,33 +1,7 @@
 #include "geometry/methods/funcs.h"
+#include "geometry/methods/linal.h"
 #include "geometry/primitives2d/point.h"
-
-/*
-template<typename _Container,
-	typename _Value,
-	typename>
-	std::tuple<int, ImVec2*> detect_point(const _Container& primitives) {
-	auto originIt = std::find_if(primitives.begin(), primitives.end(), [](const auto& prim) { return dynamic_cast<Point*>(prim) != NULL; });
-	if (originIt == primitives.end()) return std::make_tuple(0, nullptr);
-	return std::make_tuple(1, &(dynamic_cast<Point*>(*originIt)->at(0)));
-}
-
-//transforms chosen prims relatively to point
-template<typename _Container,
-	typename _Value,
-	typename>
-	int tr_chpr_rtp(const _Container& primitives, std::function<void(Primitive*, ImVec2*)> lammy) {
-	if (primitives.size() == 0) throw std::invalid_argument("No primitives picked");
-	int pointsCount; ImVec2* origin;
-	std::tie(pointsCount, origin) = detect_point(primitives);
-
-	std::for_each(primitives.begin(), primitives.end(), [&lammy, &origin](Primitive* prim) {
-		auto test = dynamic_cast<Point*>(prim);
-		if (test != NULL && &(test->at(0)) == origin) return;
-		lammy(prim, origin);
-		});
-	return 0;
-}
-*/
+#include <set>
 
 Primitive midpointDisplacement(Primitive& displacement, Point* p1, Point* p2, int R, int I, int iter_num)
 {
@@ -88,4 +62,41 @@ Primitive midpointDisplacement(Primitive& displacement, Point* p1, Point* p2, in
 		result.push_back(*it);
 
 	return result;
+}
+
+Primitive* packPresent(Primitive* current_point, const std::set<Primitive*>& chosen_prims, const ImU32& color, const float& thickness) {
+	auto res = new Primitive(color, thickness);
+	res->push_back(current_point->front());
+
+	ImVec2 prev_point = ImVec2(current_point->front().x - 10, current_point->front().y); // just any straight horizontal line
+
+	Primitive* first_point = current_point;
+	while (true) {
+		float min_cos = 1;
+		float min_distance = std::numeric_limits<float>::max();
+
+		auto v1 = prev_point - current_point->front();
+		Primitive* next_point = nullptr;
+		for (auto it = chosen_prims.begin(); it != chosen_prims.end(); ++it)
+		{
+			Primitive* p = *it;
+			if (p == current_point) continue;
+			auto v2 = p->front() - current_point->front();
+			auto distance = Linal::len(v2);
+
+			auto cos = v1 * v2 / (Linal::len(v1) * distance);
+
+			if ((cos < min_cos) || (cos == min_cos) && (distance < min_distance)) {
+				min_cos = cos;
+				next_point = p;
+				min_distance = distance;
+			}
+		}
+		if (next_point == first_point) break;
+		prev_point = current_point->front();
+		current_point = next_point;
+		res->push_back(current_point->front());
+	}
+
+	return res;
 }
