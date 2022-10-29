@@ -303,7 +303,6 @@ void BLEV::Interface::F_Edit()
 	ImGui::Separator();
 	F_Reflect();
 	//ImGui::Separator();
-
 }
 
 void BLEV::Interface::F_Displace() {
@@ -570,7 +569,7 @@ void BLEV::Interface::F_Camera() {
 		break;
 	case Camera::Axonometry:
 		ImGui::DragFloat("angleX", &canvas.main_camera.angleX(), 1.f, 0.f, 180.f, "%.0f");
-		ImGui::DragFloat("angleY", &canvas.main_camera.angleY(), 1.f, 0.f, 180.f, "%.0f");
+		ImGui::DragFloat("angleY", &canvas.main_camera.angleY(), 1.f, 0.f, 360.f, "%.0f");
 		break;
 	default: 
 		break;
@@ -641,9 +640,41 @@ void BLEV::Interface::F_QuickHull()
 	}
 }
 
+void BLEV::Interface::F_Present() {
+	ImGui::Text("Jarvis (Present packing)");
+	if (ImGui::Button("Pack a present!")) {
+		try {
+			if (_data.chosen_prims.size() < 2) throw std::invalid_argument("You should choose no less than 2 points");
+
+			Primitive* current_point = *_data.chosen_prims.begin();
+			if (dynamic_cast<Point*>(current_point) == nullptr) throw std::invalid_argument("You should only choose points");
+			
+			for (auto it = std::next(_data.chosen_prims.begin()); it != _data.chosen_prims.end(); ++it)
+			{
+				Primitive* prim = *it;
+				if (dynamic_cast<Point*>(prim) == nullptr) throw std::invalid_argument("You should only choose points");
+
+				if ((prim->front().y > current_point->front().y) || (prim->front().y == current_point->front().y) && (prim->front().x >= current_point->front().x)) {
+					current_point = prim;
+				}
+			}
+			Primitive* present = packPresent(dynamic_cast<Point*>(current_point), _data.chosen_prims, VisualParams().color, VisualParams().thickness);
+			_data.chosen_prims.clear();
+			_data.primitives.push_back(present);
+		}
+		catch (std::exception& e) {
+			//console[0]->feedback = e.what();
+			//console[0]->feedback_color = ImVec4(255, 0, 0, 255);
+			//best error output in the world.
+		}
+	}
+}
+
 void BLEV::Interface::F_Shells()
 {
 	F_QuickHull();
+	ImGui::Separator();
+	F_Present();
 	//ImGui::Separator();
 }
 
@@ -1618,6 +1649,9 @@ void BLEV::Interface::Canvas::ShowContextMenu()
 				delete _data.rotate_axis;
 				_data.rotate_axis = nullptr;
 				_data.chosenPrimEditMode = PrimEditMode::None;
+			}
+			if (ImGui::MenuItem("Select all", NULL, false, _data.primitives.size() > 0)) {
+				std::copy(_data.primitives.begin(), _data.primitives.end(), std::inserter(_data.chosen_prims, _data.chosen_prims.end()));
 			}
 			ImGui::EndPopup();
 		}

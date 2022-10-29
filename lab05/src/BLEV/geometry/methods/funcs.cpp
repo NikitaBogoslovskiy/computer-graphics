@@ -1,5 +1,7 @@
 #include "geometry/methods/funcs.h"
 #include "geometry/primitives2d/point.h"
+#include "geometry/methods/linal.h"
+#include <set>
 
 Primitive midpointDisplacement(Primitive& displacement, Point* p1, Point* p2, int R, int I, int iter_num)
 {
@@ -60,4 +62,42 @@ Primitive midpointDisplacement(Primitive& displacement, Point* p1, Point* p2, in
 		result.push_back(*it);
 
 	return result;
+}
+
+Primitive* packPresent(Point* bottom_point, const std::set<Primitive*>& chosen_prims, const ImU32& color, const float& thickness) {
+	auto res = new Primitive(color, thickness);
+	Primitive* current_point = bottom_point;
+	ImVec2 prev_point = ImVec2(current_point->front().x - 10, current_point->front().y); // just any straight horizontal line
+
+	res->push_back(current_point->front());
+
+	Primitive* first_point = current_point;
+	while (true) {
+		float min_cos = 1;
+		float min_distance = std::numeric_limits<float>::max();
+
+		auto v1 = prev_point - current_point->front();
+		Primitive* next_point = nullptr;
+		for (auto it = chosen_prims.begin(); it != chosen_prims.end(); ++it)
+		{
+			Primitive* p = *it;
+			if (p == current_point) continue;
+			auto v2 = p->front() - current_point->front();
+			auto distance = Linal::len(v2);
+
+			auto cos = v1 * v2 / (Linal::len(v1) * distance);
+
+			if ((cos < min_cos) || (cos == min_cos) && (distance < min_distance)) {
+				min_cos = cos;
+				next_point = p;
+				min_distance = distance;
+			}
+		}
+		if (next_point == first_point) break;
+		prev_point = current_point->front();
+		current_point = next_point;
+		res->push_back(current_point->front());
+	}
+
+	return res;
 }

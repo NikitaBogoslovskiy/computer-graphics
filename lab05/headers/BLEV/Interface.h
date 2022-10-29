@@ -75,6 +75,8 @@ namespace BLEV {
 		void F_Camera();
 
 		void F_QuickHull();
+		void F_Present();
+
 		// union
 		void F_Shells();
 
@@ -90,8 +92,6 @@ namespace BLEV {
 			bool b_classify_open = false;
 			bool b_camera_open = false;
 
-			//bool b_quickhull_open = false;
-			//bool b_jarvis_open = false;
 			bool b_shells_open = false;
 		} bmo;
 	public:
