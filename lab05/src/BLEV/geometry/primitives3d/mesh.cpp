@@ -12,7 +12,7 @@ Mesh::Mesh() : init_points(), points(), polygons() {
 	reflect_mat.setIdentity();
 }
 
-void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp)
+void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp, const ImVec3& cam_dir)
 {
 	if (show) {
 		std::vector<ImVec2> buf(10);
@@ -23,12 +23,28 @@ void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix
 				Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
 				buf[i] = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3)) + offset;
 			}
-			//draw_list->AddConvexPolyFilled(buf.data(), polygon.size(), IM_COL32(155, 155, 155, 255));
 			for (size_t i = 1; i < polygon.size(); i++) {
 				draw_list->AddLine(buf[i], buf[i - 1], color, thickness);
 				//draw_list->AddCircleFilled(start + offset, 3.f, IM_COL32(255, 0, 0, 255), 10);
 			}
 			draw_list->AddLine(buf[0], buf[polygon.size() - 1], color, thickness);
+
+			if (polygon.normal * cam_dir < 0) {
+				draw_list->AddConvexPolyFilled(buf.data(), polygon.size(), IM_COL32(155, 155, 155, 255));
+			}
+
+			/*
+			// draw normals
+				auto c3 = polygon.center(points);
+				Eigen::Vector4f v0{ c3.x, c3.y, c3.z, 1.f }; // COLUMN-VEC
+				Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
+				auto c2 = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3)) + offset;
+			
+				Eigen::Vector4f v0_2{ c3.x + polygon.normal.x, c3.y + polygon.normal.y, c3.z + polygon.normal.z,  1.f }; // COLUMN-VEC
+				Eigen::Vector4f v0_2d_2 = vp * v0_2;// thus we projected v0 onto 2d canvas
+				auto t = ImVec2(v0_2d_2(0) / v0_2d_2(3), v0_2d_2(1) / v0_2d_2(3)) + offset;
+				draw_list->AddLine(c2, t, IM_COL32(255, 0, 0, 255), 1.f);
+			*/
 		}
 	}
 }
@@ -112,15 +128,6 @@ void Mesh::open(const char* filename)
 	this->points = std::move(m.points);
 	this->init_points = std::move(m.init_points);
 	this->polygons = std::move(m.polygons);
-}
-
-void Mesh::calculate_normal(Polygon& p)
-{
-	p.normal = points[p.indices[1]] - points[p.indices[0]];
-	for (size_t i = 2; i < p.size(); i++){
-		p.normal.vector_product(points[p.indices[i]] - points[p.indices[i - 1]]);
-	}
-	p.normal.vector_product(points[p.indices[0]] - points[p.indices[p.size() - 1]]);
 }
 
 void Mesh::recalculate_normals()

@@ -1416,7 +1416,7 @@ void BLEV::Interface::Canvas::DrawObjects() {
 	}
 
 	for (auto mesh : _data.meshes) {
-		mesh->draw(draw_list, origin, vp);
+		mesh->draw(draw_list, origin, vp, main_camera.direction());
 	}
 
 	if (_data.rotate_axis != nullptr)

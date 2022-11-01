@@ -90,8 +90,16 @@ inline ImVec3 operator*(const ImVec3& lhs, const float& rhs) { return rhs * lhs;
 inline bool operator==(const ImVec3& lhs, const ImVec3& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z; }
 inline ImVec3 operator/(const ImVec3& lhs, const float& rhs) { return ImVec3(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs); }
 
-inline ImVec3 vector_product(const ImVec3& lhs, const ImVec3& rhs) {
-	return ImVec3(lhs.y * rhs.z + lhs.z * rhs.y, lhs.z * rhs.x + lhs.x * rhs.z, lhs.x * rhs.y + lhs.y * rhs.x);
+inline ImVec3 cross_product(const ImVec3& lhs, const ImVec3& rhs) {
+	return ImVec3(lhs.y * rhs.z - lhs.z * rhs.y, lhs.z * rhs.x - lhs.x * rhs.z, lhs.x * rhs.y - lhs.y * rhs.x);
+}
+
+inline float length(const ImVec3& v3) {
+	return sqrtf(powf(v3.x, 2) + powf(v3.y, 2) + powf(v3.z, 2));
+}
+
+inline ImVec3 normilize(const ImVec3& v3) {
+	return v3 / length(v3);
 }
 
 // sometime in future, but now just this

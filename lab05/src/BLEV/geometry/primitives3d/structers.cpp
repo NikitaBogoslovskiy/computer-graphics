@@ -18,7 +18,7 @@ ImVec3& ImVec3::operator+=(const ImVec3& rhs)
     return *this;
 }
 
-ImVec3& ImVec3::vector_product(const ImVec3& rhs)
+ImVec3& ImVec3::cross_product(const ImVec3& rhs)
 {
     auto _x = y * rhs.z + z * rhs.y;
     auto _y = z * rhs.x + x * rhs.z;
