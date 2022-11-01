@@ -17,20 +17,20 @@ void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix
 	if (show) {
 		std::vector<ImVec2> buf(10);
 		for (auto& polygon : polygons) {
-			for (size_t i = 0; i < polygon.size(); i++) {
-				auto& point_indi = polygon[i];
-				Eigen::Vector4f v0{ points[point_indi].x, points[point_indi].y, points[point_indi].z,  1.f }; // COLUMN-VEC
-				Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
-				buf[i] = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3)) + offset;
-			}
-			for (size_t i = 1; i < polygon.size(); i++) {
-				draw_list->AddLine(buf[i], buf[i - 1], color, thickness);
-				//draw_list->AddCircleFilled(start + offset, 3.f, IM_COL32(255, 0, 0, 255), 10);
-			}
-			draw_list->AddLine(buf[0], buf[polygon.size() - 1], color, thickness);
-
 			if (polygon.normal * cam_dir < 0) {
-				draw_list->AddConvexPolyFilled(buf.data(), polygon.size(), IM_COL32(155, 155, 155, 255));
+				for (size_t i = 0; i < polygon.size(); i++) {
+					auto& point_indi = polygon[i];
+					Eigen::Vector4f v0{ points[point_indi].x, points[point_indi].y, points[point_indi].z,  1.f }; // COLUMN-VEC
+					Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
+					buf[i] = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3)) + offset;
+				}
+				for (size_t i = 1; i < polygon.size(); i++) {
+					draw_list->AddLine(buf[i], buf[i - 1], color, thickness);
+					//draw_list->AddCircleFilled(start + offset, 3.f, IM_COL32(255, 0, 0, 255), 10);
+				}
+				draw_list->AddLine(buf[0], buf[polygon.size() - 1], color, thickness);
+
+				//draw_list->AddConvexPolyFilled(buf.data(), polygon.size(), IM_COL32(155, 155, 155, 255));
 			}
 
 			/*
