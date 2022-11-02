@@ -24,20 +24,31 @@ struct ImVec3
 struct Polygon
 {
     Polygon() = default;
-    std::deque<uint32_t> indices;
+    std::vector<uint32_t> indices;
     ImVec3 normal;
     Polygon(const std::initializer_list<uint32_t>& _indices) : indices(_indices) { assert(_indices.size() >= 3); }
     Polygon(std::initializer_list<uint32_t>&& _indices) : indices(_indices) { assert(indices.size() >= 3); }
-    Polygon(const Polygon& _polygon) noexcept : indices(_polygon.indices) {}
-    Polygon(Polygon&& _polygon) noexcept : indices(std::move(_polygon.indices)) {}
+    Polygon(const Polygon& _polygon) noexcept : indices(_polygon.indices), normal(_polygon.normal) {}
+    Polygon(Polygon&& _polygon) noexcept : indices(std::move(_polygon.indices)), normal(std::move(_polygon.normal)) {}
+    inline Polygon& operator=(const Polygon& _polygon) {
+        indices = _polygon.indices;
+        normal = _polygon.normal;
+        return *this;
+    }
+    inline Polygon& operator=(Polygon&& _polygon) {
+        indices = std::move(_polygon.indices);
+        normal = std::move(_polygon.normal);
+        return *this;
+    }
     inline uint32_t  operator[] (size_t idx) const { return indices[idx]; }
+    inline uint32_t  atc (size_t idx) const { return indices[idx]; }
     inline uint32_t& operator[] (size_t idx) { return indices[idx]; }
     inline uint32_t& at(size_t idx) { return indices[idx]; }
     inline size_t size() const noexcept { return indices.size(); }
     inline void push_back(uint32_t val) { indices.push_back(val); }
     inline void pop_back() { assert(indices.size() > 3); indices.pop_back(); } 
-    inline void push_front(uint32_t val) { indices.push_front(val); }
-    inline void pop_front() { assert(indices.size() > 3); indices.pop_front(); }
+    inline void push_front(uint32_t val) { indices.insert(indices.begin(), val); }
+    inline void pop_front() { assert(indices.size() > 3); indices.erase(indices.begin()); }
     inline void insert(size_t idx, uint32_t val) { assert(indices.size() > idx);  indices.insert(indices.begin() + idx, val); }
     ImVec3 center(const std::vector<ImVec3>& points);
 

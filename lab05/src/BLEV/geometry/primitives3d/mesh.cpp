@@ -113,6 +113,15 @@ void Mesh::open(const char* filename)
 					return;
 				}
 				p.push_back(temp - 1);
+				/*
+					if (p.size() < 3) {
+				}
+				else {
+					m.add_polygon(p);
+					std::swap(p[1], p[2]);
+					p[2] = temp;
+				}
+				*/
 				//char slash;
 				//if (!(iss2 >> slash) || slash != '/') continue;
 			}
