@@ -28,7 +28,6 @@ static bool foundOnEdge(const ImVec2* start, const ImVec2* end, const float& off
 	return true;
 }
 
-
 class Primitive
 {
 protected:
@@ -97,6 +96,14 @@ public:
 
 	inline void push_back(const ImVec2& p1) {
 		points->push_back(p1);
+	}
+
+	inline void reverse() {
+		std::reverse(points->begin(), points->end());
+	}
+
+	inline ImVector<ImVec2>* getPoints() {
+		return points;
 	}
 
 	inline ImVec2& front() { return points->Data[0]; }

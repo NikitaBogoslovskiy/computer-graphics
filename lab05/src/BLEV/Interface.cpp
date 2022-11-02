@@ -355,6 +355,40 @@ void BLEV::Interface::F_Displace() {
 		}
 	}
 }
+
+void BLEV::Interface::F_Union() {
+	ImGui::Text("Convex Polygons Union");
+	if (ImGui::Button("Make union")) {
+		try {
+			if (_data.chosen_prims.size() != 2)
+				throw std::invalid_argument("You should choose 2 polygons");
+			std::vector<Primitive*> polygons;
+			for (auto it = _data.chosen_prims.begin(); it != _data.chosen_prims.end(); ++it)
+			{
+				if ((*it)->size() < 3)
+					throw std::invalid_argument("You can choose only polygons");
+				polygons.push_back(*it);
+			}
+			auto vec = unionPolygons(polygons[0], polygons[1]);
+			if (vec != nullptr)
+			{
+				Primitive* unionPrim = new Primitive(vec, polygons[0]->color(), polygons[0]->thickness());
+				for (auto poly : polygons)
+				{
+					_data.chosen_prims.erase(poly);
+					_data.primitives.erase(std::find(_data.primitives.begin(), _data.primitives.end(), poly));
+				}
+				_data.chosen_prims.insert(unionPrim);
+				_data.primitives.push_back(unionPrim);
+			}
+		}
+		catch (std::exception& e) {
+			console[3]->feedback = e.what();
+			console[3]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+}
+
 void BLEV::Interface::F_Lsystem() {
 	HelpMarker(
 		"An example:\n"
@@ -675,7 +709,8 @@ void BLEV::Interface::F_Shells()
 	F_QuickHull();
 	ImGui::Separator();
 	F_Present();
-	//ImGui::Separator();
+	ImGui::Separator();
+	F_Union();
 }
 
 void BLEV::Interface::ShowExternalWindows()
