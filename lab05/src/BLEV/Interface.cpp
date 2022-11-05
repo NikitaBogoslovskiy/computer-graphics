@@ -376,7 +376,7 @@ void BLEV::Interface::F_Union() {
 				for (auto poly : polygons)
 				{
 					_data.chosen_prims.erase(poly);
-					_data.primitives.erase(std::find(_data.primitives.begin(), _data.primitives.end(), poly));
+					//_data.primitives.erase(std::find(_data.primitives.begin(), _data.primitives.end(), poly));
 				}
 				_data.chosen_prims.insert(unionPrim);
 				_data.primitives.push_back(unionPrim);
