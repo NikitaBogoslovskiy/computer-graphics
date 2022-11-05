@@ -1,6 +1,8 @@
 #include "geometry/methods/funcs.h"
 #include "geometry/primitives2d/point.h"
+#include "geometry/primitives2d/edge.h"
 #include "geometry/methods/linal.h"
+#include "geometry/methods/checks.h"
 #include <set>
 
 Primitive midpointDisplacement(Primitive& displacement, Point* p1, Point* p2, int R, int I, int iter_num)
@@ -100,4 +102,171 @@ Primitive* packPresent(Point* bottom_point, const std::set<Primitive*>& chosen_p
 	}
 
 	return res;
+}
+
+static float dist(ImVec2& p1, ImVec2& p2)
+{
+	return sqrt((p1.x - p2.x) * (p1.x - p2.x) + (p1.y - p2.y) * (p1.y - p2.y));
+}
+
+static bool eq(ImVec2& p1, ImVec2& p2, float eps=0.0001)
+{
+	return abs(p1.x - p2.x) < eps &&  abs(p1.y - p2.y) < eps;
+}
+
+ImVector<ImVec2>* unionPolygons(Primitive* p1, Primitive* p2)
+{
+	auto edge = Edge(p1->at(0), p1->at(1), p1->color(), p1->thickness());
+	auto point = Point(p1->center(), p1->color(), p1->thickness());
+	bool onTheLeft;
+	pointPositionWithEdge(point, edge, onTheLeft);
+	if (!onTheLeft)
+		p1->reverse();
+	edge = Edge(p2->at(0), p2->at(1), p2->color(), p2->thickness());
+	point = Point(p2->center(), p2->color(), p2->thickness());
+	pointPositionWithEdge(point, edge, onTheLeft);
+	if (!onTheLeft)
+		p2->reverse();
+
+	ImVector<ImVec2>* result = new ImVector<ImVec2>();
+	std::unordered_map<int, std::vector<std::tuple<ImVec2, int>>>* currentMap;
+	std::unordered_map<int, std::vector<std::tuple<ImVec2, int>>> p1_to_p2;
+	std::unordered_map<int, std::vector<std::tuple<ImVec2, int>>> p2_to_p1;
+	bool now_p1;
+	float leftest_x = FLT_MAX;
+	int leftest_point_index = -1;
+	int p1_size = p1->size(), p2_size = p2->size();
+	ImVec2 out = ImVec2();
+	for (size_t i = 0; i < p1_size; i++) {
+		if (p1->at(i).x < leftest_x)
+		{
+			now_p1 = true;
+			leftest_x = p1->at(i).x;
+			leftest_point_index = i;
+		}
+		for (size_t j = 0; j < p2_size; j++) {
+			if (p2->at(j).x < leftest_x)
+			{
+				now_p1 = false;
+				leftest_x = p2->at(j).x;
+				leftest_point_index = j;
+			}
+			if (intersected(p1->at(i), p1->at((i + 1) % p1_size), p2->at(j), p2->at((j + 1) % p2_size), &out)) {
+				if (eq(p1->at((i + 1) % p1_size), out) || eq(p2->at((j + 1) % p2_size), out))
+					continue;
+				p1_to_p2[(i + 1) % p1_size].push_back(std::make_tuple(out, (j + 1) % p2_size));
+				p2_to_p1[(j + 1) % p2_size].push_back(std::make_tuple(out, (i + 1) % p1_size));
+			}
+		}
+	}
+
+	Primitive *currentPrimitive, *otherPrimitive, *finalPrimitive;
+	int currentSize, otherSize;
+	if (now_p1)
+	{
+		currentPrimitive = p1;
+		otherPrimitive = p2;
+		currentMap = &p1_to_p2;
+		currentSize = p1_size;
+		otherSize = p2_size;
+	}
+	else
+	{
+		currentPrimitive = p2;
+		otherPrimitive = p1;
+		currentMap = &p2_to_p1;
+		currentSize = p2_size;
+		otherSize = p1_size;
+	}
+
+	if (p1_to_p2.size() == 0)
+	{
+		bool isInside;
+		Point p = Point(otherPrimitive->at(0), p2->color(), p2->thickness());
+		pointPositionWithConvexPolygon(p, *currentPrimitive, isInside);
+		if (isInside)
+			return new ImVector<ImVec2>(*(currentPrimitive->getPoints()));
+		else
+			return nullptr;
+	}
+
+	bool almostDifferent = false;
+	if (currentMap->size() == 1)
+	{
+		bool isInside;
+		Point p = Point(otherPrimitive->at(std::get<1>(currentMap->begin()->second[0])), p2->color(), p2->thickness());
+		pointPositionWithConvexPolygon(p, *currentPrimitive, isInside);
+		if (!isInside)
+			almostDifferent = true;
+	}
+
+	finalPrimitive = currentPrimitive;
+	int currentIndex = (leftest_point_index + 1) % currentSize;
+	result->push_back(currentPrimitive->at(leftest_point_index));
+	while (true)
+	{
+		auto it = currentMap->find(currentIndex);
+		if (it == currentMap->end())
+		{
+			result->push_back(currentPrimitive->at(currentIndex));
+			if (currentPrimitive == finalPrimitive && currentIndex == leftest_point_index)
+				break;
+			currentIndex = (currentIndex + 1) % currentSize;
+		}
+		else
+		{
+			float minDist = FLT_MAX;
+			int chosenIndex = -1;
+			for (int k = 0; k < it->second.size(); ++k)
+			{
+				float d = dist(std::get<0>(it->second[k]), currentPrimitive->at((currentIndex + currentSize - 1) % currentSize));
+				if (d < minDist)
+				{
+					minDist = d;
+					chosenIndex = k;
+				}
+			}
+			auto interPoint = std::get<0>(it->second[chosenIndex]);
+			auto otherIndex = std::get<1>(it->second[chosenIndex]);
+			bool needsSwitch = true;
+			if (eq(otherPrimitive->at((otherIndex + otherSize - 1) % otherSize), interPoint) && !almostDifferent)
+			{
+				bool otherIsLeft;
+				auto edge = Edge(currentPrimitive->at((currentIndex + currentSize - 1) % currentSize), currentPrimitive->at(currentIndex), p1->color(), p1->thickness());
+				auto otherPoint = Point(otherPrimitive->at(otherIndex), p1->color(), p1->thickness());
+				pointPositionWithEdge(otherPoint, edge, otherIsLeft);
+				needsSwitch = !otherIsLeft;
+				std::cout << "Checked point\n";
+			}
+
+			if (needsSwitch)
+			{
+				result->push_back(interPoint);
+				currentIndex = otherIndex;
+				if (now_p1)
+				{
+					currentPrimitive = p2;
+					otherPrimitive = p1;
+					currentMap = &p2_to_p1;
+					currentSize = p2_size;
+					otherSize = p1_size;
+					now_p1 = false;
+				}
+				else
+				{
+					currentPrimitive = p1;
+					otherPrimitive = p2;
+					currentMap = &p1_to_p2;
+					currentSize = p1_size;
+					otherSize = p2_size;
+					now_p1 = true;
+				}
+			}
+			result->push_back(currentPrimitive->at(currentIndex));
+			if (currentPrimitive == finalPrimitive && currentIndex == leftest_point_index)
+				break;
+			currentIndex = (currentIndex + 1) % currentSize;
+		}
+	}
+	return result;
 }
