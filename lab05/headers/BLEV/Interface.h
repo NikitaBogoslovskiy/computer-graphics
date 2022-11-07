@@ -70,6 +70,7 @@ namespace BLEV {
 		void F_Edit();
 
 		void F_Displace();
+		void F_RotationBody();
 		void F_Union();
 		void F_Lsystem();
 		void F_Classify();
@@ -93,7 +94,7 @@ namespace BLEV {
 			bool b_lsys_open = false;
 			bool b_classify_open = false;
 			bool b_camera_open = false;
-
+			bool b_rotation_body_open = false;
 			bool b_shells_open = false;
 		} bmo;
 	public:

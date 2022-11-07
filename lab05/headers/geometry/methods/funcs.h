@@ -5,6 +5,7 @@
 #include "pch.h"
 #include <algorithm>    // std::min
 #include "geometry/primitives2d/point.h"
+//#include "geometry/primitives3d/mesh.h"
 #include <set>
 
 #define PI 3.14159265359f
@@ -70,6 +71,12 @@ template<typename _Container,
 Primitive midpointDisplacement(Primitive& displacement, Point* p1, Point* p2, int R, int I, int iter_num);
 Primitive* packPresent(Point* bottom_point, const std::set<Primitive*>& chosen_prims, const ImU32& color, const float& thickness);
 ImVector<ImVec2>* unionPolygons(Primitive* p1, Primitive* p2);
+/*
+Mesh* rotationBodyX(std::vector<Point>& points, int iterNumber);
+Mesh* rotationBodyY(std::vector<Point>& points, int iterNumber);
+Mesh* rotationBodyZ(std::vector<Point>& points, int iterNumber);
+Mesh* rotationBody(std::vector<Point>& points, int iterNumber, Eigen::Matrix<float, 4, 4>& rmat);
+*/
 
 static float distance(const ImVec2& a, const ImVec2& b) {
 	return sqrtf(powf(a.x - b.x, 2) + powf(a.y - b.y, 2));

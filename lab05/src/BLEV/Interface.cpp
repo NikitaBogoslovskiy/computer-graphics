@@ -713,6 +713,104 @@ void BLEV::Interface::F_Shells()
 	F_Union();
 }
 
+void BLEV::Interface::F_RotationBody() {
+	ImGui::BeginGroup();
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	ImGui::InputText("##ConsoleDisplace", console[3]->pseudo_console, 100);
+	if (!console[3]->feedback.empty()) {
+		ImGui::TextColored(console[3]->feedback_color, console[3]->feedback.c_str());
+	}
+	ImGui::EndGroup();
+	HelpPrevItem("Number of partitions");
+
+	if (ImGui::Button("X")) {
+		try {
+			if (_data.chosen_prims.size() < 2) 
+				throw std::invalid_argument("You should choose 2 or more points");
+			std::vector<Point*> points;
+			for (auto it = _data.chosen_prims.begin(); it != _data.chosen_prims.end(); ++it)
+			{
+				auto prim = dynamic_cast<Point*>(*it);
+				if (prim == nullptr)
+					throw std::invalid_argument("You can choose only points");
+				points.push_back(prim);
+			}
+			char* nstr = console[3]->pseudo_console;
+			int iterNumber;
+			if (sscanf(nstr, "%d", &iterNumber) != 1)
+				throw std::invalid_argument("Incorrect arguments format");
+			if (iterNumber < 1)
+				throw std::invalid_argument("Number of partitions must be positive");
+			console[3]->feedback = "";
+			Mesh* mesh = nullptr;
+			_data.meshes.push_back(mesh);
+			_data.chosen_meshes.insert(mesh);
+		}
+		catch (std::exception& e) {
+			console[3]->feedback = e.what();
+			console[3]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Y")) {
+		try {
+			if (_data.chosen_prims.size() < 2)
+				throw std::invalid_argument("You should choose 2 or more points");
+			std::vector<Point*> points;
+			for (auto it = _data.chosen_prims.begin(); it != _data.chosen_prims.end(); ++it)
+			{
+				auto prim = dynamic_cast<Point*>(*it);
+				if (prim == nullptr)
+					throw std::invalid_argument("You can choose only points");
+				points.push_back(prim);
+			}
+			char* nstr = console[3]->pseudo_console;
+			int iterNumber;
+			if (sscanf(nstr, "%d", &iterNumber) != 1)
+				throw std::invalid_argument("Incorrect arguments format");
+			if (iterNumber < 1)
+				throw std::invalid_argument("Number of partitions must be positive");
+			console[3]->feedback = "";
+			Mesh* mesh = nullptr;
+			_data.meshes.push_back(mesh);
+			_data.chosen_meshes.insert(mesh);
+		}
+		catch (std::exception& e) {
+			console[3]->feedback = e.what();
+			console[3]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+	ImGui::SameLine();
+	if (ImGui::Button("Z")) {
+		try {
+			if (_data.chosen_prims.size() < 2)
+				throw std::invalid_argument("You should choose 2 or more points");
+			std::vector<Point*> points;
+			for (auto it = _data.chosen_prims.begin(); it != _data.chosen_prims.end(); ++it)
+			{
+				auto prim = dynamic_cast<Point*>(*it);
+				if (prim == nullptr)
+					throw std::invalid_argument("You can choose only points");
+				points.push_back(prim);
+			}
+			char* nstr = console[3]->pseudo_console;
+			int iterNumber;
+			if (sscanf(nstr, "%d", &iterNumber) != 1)
+				throw std::invalid_argument("Incorrect arguments format");
+			if (iterNumber < 1)
+				throw std::invalid_argument("Number of partitions must be positive");
+			console[3]->feedback = "";
+			Mesh* mesh = nullptr;
+			_data.meshes.push_back(mesh);
+			_data.chosen_meshes.insert(mesh);
+		}
+		catch (std::exception& e) {
+			console[3]->feedback = e.what();
+			console[3]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+}
+
 void BLEV::Interface::ShowExternalWindows()
 {
 	if (bmo.b_edit_open) {
@@ -749,6 +847,12 @@ void BLEV::Interface::ShowExternalWindows()
 	if (bmo.b_shells_open) {
 		if (ImGui::Begin("Shells", &bmo.b_shells_open)) {
 			F_Shells();
+			ImGui::End();
+		}
+	}
+	if (bmo.b_rotation_body_open) {
+		if (ImGui::Begin("Rotation Body", &bmo.b_rotation_body_open)) {
+			F_RotationBody();
 			ImGui::End();
 		}
 	}
@@ -868,6 +972,9 @@ void BLEV::Interface::Menu::ShowMethodsMenu(B_method_open& bmo)
 		}
 		if (ImGui::MenuItem("Shells", NULL, bmo.b_shells_open)) {
 			bmo.b_shells_open = true;
+		}
+		if (ImGui::MenuItem("Rotation Body", NULL, bmo.b_rotation_body_open)) {
+			bmo.b_rotation_body_open = true;
 		}
 		ImGui::EndMenu();
 	}
