@@ -717,24 +717,16 @@ void BLEV::Interface::F_RotationBody() {
 	ImGui::BeginGroup();
 	ImGui::SetNextItemWidth(-FLT_MIN);
 	ImGui::InputText("##ConsoleDisplace", console[3]->pseudo_console, 100);
-	if (!console[3]->feedback.empty()) {
-		ImGui::TextColored(console[3]->feedback_color, console[3]->feedback.c_str());
-	}
 	ImGui::EndGroup();
 	HelpPrevItem("Number of partitions");
 
 	if (ImGui::Button("X")) {
 		try {
-			if (_data.chosen_prims.size() < 2) 
-				throw std::invalid_argument("You should choose 2 or more points");
-			std::vector<Point*> points;
-			for (auto it = _data.chosen_prims.begin(); it != _data.chosen_prims.end(); ++it)
-			{
-				auto prim = dynamic_cast<Point*>(*it);
-				if (prim == nullptr)
-					throw std::invalid_argument("You can choose only points");
-				points.push_back(prim);
-			}
+			if (_data.chosen_prims.size() != 1) 
+				throw std::invalid_argument("You should choose one polygon");
+			auto prim = *_data.chosen_prims.begin();
+			if (prim->size() < 2)
+				throw std::invalid_argument("Polygon should contain at least 2 points");
 			char* nstr = console[3]->pseudo_console;
 			int iterNumber;
 			if (sscanf(nstr, "%d", &iterNumber) != 1)
@@ -742,9 +734,10 @@ void BLEV::Interface::F_RotationBody() {
 			if (iterNumber < 1)
 				throw std::invalid_argument("Number of partitions must be positive");
 			console[3]->feedback = "";
-			Mesh* mesh = nullptr;
-			_data.meshes.push_back(mesh);
-			_data.chosen_meshes.insert(mesh);
+			auto body = new RotationBody(prim, iterNumber, Axis::X);
+			_data.chosen_prims.clear();
+			_data.meshes.push_back(body);
+			_data.chosen_meshes.insert(body);
 		}
 		catch (std::exception& e) {
 			console[3]->feedback = e.what();
@@ -754,16 +747,11 @@ void BLEV::Interface::F_RotationBody() {
 	ImGui::SameLine();
 	if (ImGui::Button("Y")) {
 		try {
-			if (_data.chosen_prims.size() < 2)
-				throw std::invalid_argument("You should choose 2 or more points");
-			std::vector<Point*> points;
-			for (auto it = _data.chosen_prims.begin(); it != _data.chosen_prims.end(); ++it)
-			{
-				auto prim = dynamic_cast<Point*>(*it);
-				if (prim == nullptr)
-					throw std::invalid_argument("You can choose only points");
-				points.push_back(prim);
-			}
+			if (_data.chosen_prims.size() != 1)
+				throw std::invalid_argument("You should choose one polygon");
+			auto prim = *_data.chosen_prims.begin();
+			if (prim->size() < 2)
+				throw std::invalid_argument("Polygon should contain at least 2 points");
 			char* nstr = console[3]->pseudo_console;
 			int iterNumber;
 			if (sscanf(nstr, "%d", &iterNumber) != 1)
@@ -771,9 +759,10 @@ void BLEV::Interface::F_RotationBody() {
 			if (iterNumber < 1)
 				throw std::invalid_argument("Number of partitions must be positive");
 			console[3]->feedback = "";
-			Mesh* mesh = nullptr;
-			_data.meshes.push_back(mesh);
-			_data.chosen_meshes.insert(mesh);
+			auto body = new RotationBody(prim, iterNumber, Axis::Y);
+			_data.chosen_prims.clear();
+			_data.meshes.push_back(body);
+			_data.chosen_meshes.insert(body);
 		}
 		catch (std::exception& e) {
 			console[3]->feedback = e.what();
@@ -783,16 +772,11 @@ void BLEV::Interface::F_RotationBody() {
 	ImGui::SameLine();
 	if (ImGui::Button("Z")) {
 		try {
-			if (_data.chosen_prims.size() < 2)
-				throw std::invalid_argument("You should choose 2 or more points");
-			std::vector<Point*> points;
-			for (auto it = _data.chosen_prims.begin(); it != _data.chosen_prims.end(); ++it)
-			{
-				auto prim = dynamic_cast<Point*>(*it);
-				if (prim == nullptr)
-					throw std::invalid_argument("You can choose only points");
-				points.push_back(prim);
-			}
+			if (_data.chosen_prims.size() != 1)
+				throw std::invalid_argument("You should choose one polygon");
+			auto prim = *_data.chosen_prims.begin();
+			if (prim->size() < 2)
+				throw std::invalid_argument("Polygon should contain at least 2 points");
 			char* nstr = console[3]->pseudo_console;
 			int iterNumber;
 			if (sscanf(nstr, "%d", &iterNumber) != 1)
@@ -800,14 +784,18 @@ void BLEV::Interface::F_RotationBody() {
 			if (iterNumber < 1)
 				throw std::invalid_argument("Number of partitions must be positive");
 			console[3]->feedback = "";
-			Mesh* mesh = nullptr;
-			_data.meshes.push_back(mesh);
-			_data.chosen_meshes.insert(mesh);
+			auto body = new RotationBody(prim, iterNumber, Axis::Z);
+			_data.chosen_prims.clear();
+			_data.meshes.push_back(body);
+			_data.chosen_meshes.insert(body);
 		}
 		catch (std::exception& e) {
 			console[3]->feedback = e.what();
 			console[3]->feedback_color = ImVec4(255, 0, 0, 255);
 		}
+	}
+	if (!console[3]->feedback.empty()) {
+		ImGui::TextColored(console[3]->feedback_color, console[3]->feedback.c_str());
 	}
 }
 
@@ -1482,6 +1470,20 @@ void BLEV::Interface::Canvas::SwitchModes() {
 				_data.adding_line = None;
 				_data.new_prim->pop_back();
 				_data.primitives.push_back(_data.new_prim->size() == 1 ? new Point(_data.new_prim->at(0), _data.new_prim->color(), _data.new_prim->thickness()) : _data.new_prim);
+				_data.new_prim = NULL;
+			}
+			if (_data.adding_line != None && ImGui::IsKeyPressed(ImGuiKey_Escape)) {
+				_data.adding_line = None;
+				_data.new_prim->pop_back();
+				if (_data.new_prim->size() == 1)
+				{
+					_data.primitives.push_back(new Point(_data.new_prim->at(0), _data.new_prim->color(), _data.new_prim->thickness()));
+				}
+				else
+				{
+					_data.new_prim->set_connect_bounds(2);
+					_data.primitives.push_back(_data.new_prim);
+				}
 				_data.new_prim = NULL;
 			}
 			break;

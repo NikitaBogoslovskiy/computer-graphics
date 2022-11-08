@@ -6,5 +6,6 @@
 #include "mesh.h"
 #include "polyhedrons.h"
 #include "camera.h"
+#include "rotation_body.h"
 
 #endif // !__PRIMITIVES_3D_H__
