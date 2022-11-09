@@ -44,6 +44,7 @@ namespace BLEV {
 			new ConsoleFields(),
 			new ConsoleFields(),
 			new ConsoleFields(),
+			new ConsoleFields(),
 			new ConsoleFields()
 		};
 
@@ -70,6 +71,10 @@ namespace BLEV {
 		void F_Edit();
 
 		void F_Displace();
+
+		void F_MeshGraph();
+		void parseMeshGraphArgs(char* nstr, float& x0, float& x1, float& z0, float& z1, int& i_x, int& i_z); // sorry
+
 		void F_RotationBody();
 		void F_Union();
 		void F_Lsystem();
@@ -81,6 +86,7 @@ namespace BLEV {
 
 		// union
 		void F_Shells();
+		
 
 		struct B_method_open {
 			//bool b_rotate_open = false;
@@ -95,6 +101,8 @@ namespace BLEV {
 			bool b_classify_open = false;
 			bool b_camera_open = false;
 			bool b_rotation_body_open = false;
+			bool b_mesh_graph_open = false;
+
 			bool b_shells_open = false;
 		} bmo;
 	public:
@@ -167,6 +175,7 @@ namespace BLEV {
 				b_context_menu_enabled = true;
 
 			const float GRID_STEP = 64.0f;
+			const float GRID_BORDER = 300.f;
 			const VisualParams vis_p{ IM_COL32(200, 200, 200, 40), 1.f, true };
 
 			void ProcessCamKeyboardInput(Camera& cam, float& deltaTime);

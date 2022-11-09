@@ -605,7 +605,7 @@ void BLEV::Interface::F_Camera() {
 		ImGui::DragFloat("angleX", &canvas.main_camera.angleX(), 1.f, 0.f, 180.f, "%.0f");
 		ImGui::DragFloat("angleY", &canvas.main_camera.angleY(), 1.f, 0.f, 360.f, "%.0f");
 		break;
-	default: 
+	default:
 		break;
 	}
 }
@@ -626,10 +626,10 @@ void _quickhull_rec(Primitive& out, const std::vector<ImVec2>& vecs, const std::
 	}
 	auto mm1 = std::make_pair(m, mm.second);
 	std::vector<ImVec2> rhs;
-	std::for_each(std::begin(vecs), std::end(vecs), [&](const ImVec2& p) { if(pointPositionWithEdge(mm1.first, mm1.second, p)) rhs.push_back(p); });
+	std::for_each(std::begin(vecs), std::end(vecs), [&](const ImVec2& p) { if (pointPositionWithEdge(mm1.first, mm1.second, p)) rhs.push_back(p); });
 	if (!rhs.empty()) _quickhull_rec(out, rhs, mm1);
 	out.push_back(mm1.first);
-	
+
 	auto mm2 = std::make_pair(mm.first, m);
 	std::vector<ImVec2> lhs;
 	std::for_each(std::begin(vecs), std::end(vecs), [&](const ImVec2& p) { if (pointPositionWithEdge(mm2.first, mm2.second, p)) lhs.push_back(p); });
@@ -644,11 +644,11 @@ void BLEV::Interface::F_QuickHull()
 		Primitive prim(VisualParams().color, VisualParams().thickness);
 		std::vector<Primitive*> points;
 		std::vector<ImVec2> vecs;
-		std::for_each(_data.chosen_prims.begin(), _data.chosen_prims.end(), [&](Primitive* pr) { 
+		std::for_each(_data.chosen_prims.begin(), _data.chosen_prims.end(), [&](Primitive* pr) {
 			if (dynamic_cast<Point*>(pr) != NULL) {
 				vecs.push_back(dynamic_cast<Point*>(pr)->get());
 			}
-		});
+			});
 
 		auto mm = std::make_pair(vecs[0], vecs[0]);
 		for (auto& vec : vecs) {
@@ -658,15 +658,15 @@ void BLEV::Interface::F_QuickHull()
 
 		std::vector<ImVec2> lhs;
 		std::vector<ImVec2> rhs;
-		std::for_each(std::begin(vecs), std::end(vecs), [&](const ImVec2& p) { 
-			if (pointPositionWithEdge(mm.first, mm.second, p)) 
+		std::for_each(std::begin(vecs), std::end(vecs), [&](const ImVec2& p) {
+			if (pointPositionWithEdge(mm.first, mm.second, p))
 				lhs.push_back(p);
-			else 
+			else
 				rhs.push_back(p);
 			});
 
 		prim.push_back(mm.second);
-		if(!lhs.empty()) _quickhull_rec(prim, lhs, mm);
+		if (!lhs.empty()) _quickhull_rec(prim, lhs, mm);
 		prim.push_back(mm.first);
 		if (!rhs.empty()) _quickhull_rec(prim, rhs, mm);
 
@@ -682,7 +682,7 @@ void BLEV::Interface::F_Present() {
 
 			Primitive* current_point = *_data.chosen_prims.begin();
 			if (dynamic_cast<Point*>(current_point) == nullptr) throw std::invalid_argument("You should only choose points");
-			
+
 			for (auto it = std::next(_data.chosen_prims.begin()); it != _data.chosen_prims.end(); ++it)
 			{
 				Primitive* prim = *it;
@@ -722,7 +722,7 @@ void BLEV::Interface::F_RotationBody() {
 
 	if (ImGui::Button("X")) {
 		try {
-			if (_data.chosen_prims.size() != 1) 
+			if (_data.chosen_prims.size() != 1)
 				throw std::invalid_argument("You should choose one polygon");
 			auto prim = *_data.chosen_prims.begin();
 			if (prim->size() < 2)
@@ -799,6 +799,98 @@ void BLEV::Interface::F_RotationBody() {
 	}
 }
 
+void BLEV::Interface::F_MeshGraph() {
+	float x0, x1, z0, z1;
+	int x_parts = 1, i_z = 1;
+	ImGui::BeginGroup();
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	ImGui::InputText("##ConsoleRanges", console[4]->pseudo_console, 100);
+	HelpPrevItem("<x0> <x1> <z0> <z1> <x_parts> <i_z>");
+
+	ImGui::EndGroup();
+	char* nstr = console[4]->pseudo_console;
+	if (ImGui::Button("sin(x) * cos(z)")) {
+		try
+		{
+			parseMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, i_z);
+			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, i_z, MeshGraph::SINX_MULT_COSZ));
+			//console[4]->feedback = ""; // commented it cuz have no willing to type the same sample data again and again
+		}
+		catch (const std::exception& e)
+		{
+			console[4]->feedback = e.what();
+			console[4]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+
+	if (ImGui::Button("sin(x) + cos(z)")) {
+		try
+		{
+			parseMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, i_z);
+			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, i_z, MeshGraph::SINX_PLUS_COSZ));
+			//console[4]->feedback = "";
+		}
+		catch (const std::exception& e)
+		{
+			console[4]->feedback = e.what();
+			console[4]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+
+	if (ImGui::Button("5 * (cos(r) / r + 0.1)")) {
+		try
+		{
+			parseMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, i_z);
+			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, i_z, MeshGraph::RIPPLES));
+			//console[4]->feedback = "";
+		}
+		catch (const std::exception& e)
+		{
+			console[4]->feedback = e.what();
+			console[4]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+
+	if (ImGui::Button("cos(r) / (r + 1)")) {
+		try
+		{
+			parseMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, i_z);
+			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, i_z, MeshGraph::RIPPLES2));
+			//console[4]->feedback = "";
+		}
+		catch (const std::exception& e)
+		{
+			console[4]->feedback = e.what();
+			console[4]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+
+	}
+	if (ImGui::Button("x^2 + z^2")) {
+		try
+		{
+			parseMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, i_z);
+			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, i_z, MeshGraph::SQUARES_SUM));
+			//console[4]->feedback = "";
+		}
+		catch (const std::exception& e)
+		{
+			console[4]->feedback = e.what();
+			console[4]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+	if (!console[4]->feedback.empty()) {
+		ImGui::TextColored(console[4]->feedback_color, console[4]->feedback.c_str());
+	}
+}
+
+void  BLEV::Interface::parseMeshGraphArgs(char* nstr, float& x0, float& x1, float& z0, float& z1, int& x_parts, int& i_z) {
+	if (sscanf(nstr, "%f %f %f %f %d %d", &x0, &x1, &z0, &z1, &x_parts, &i_z) != 6) throw std::invalid_argument("Incorrect arguments format for interval input");
+	if (x1 <= x0) throw std::invalid_argument("x1 shouldnt be lower than x0");
+	if (z1 <= z0) throw std::invalid_argument("z1 shouldnt be lower than z0");
+	if (x_parts <= 1) throw std::invalid_argument("x_parts shouldnt be lower than 1");
+	if (i_z <= 1) throw std::invalid_argument("i_z shouldnt be lower than 1");
+}
+
 void BLEV::Interface::ShowExternalWindows()
 {
 	if (bmo.b_edit_open) {
@@ -807,7 +899,7 @@ void BLEV::Interface::ShowExternalWindows()
 			ImGui::End();
 		}
 	}
-	
+
 	if (bmo.b_displace_open) {
 		if (ImGui::Begin("Displace", &bmo.b_displace_open)) {
 			F_Displace();
@@ -821,7 +913,7 @@ void BLEV::Interface::ShowExternalWindows()
 		}
 	}
 	if (bmo.b_classify_open) {
-		if (ImGui::Begin("Classify", &bmo.b_classify_open)){
+		if (ImGui::Begin("Classify", &bmo.b_classify_open)) {
 			F_Classify();
 			ImGui::End();
 		}
@@ -841,6 +933,12 @@ void BLEV::Interface::ShowExternalWindows()
 	if (bmo.b_rotation_body_open) {
 		if (ImGui::Begin("Rotation Body", &bmo.b_rotation_body_open)) {
 			F_RotationBody();
+			ImGui::End();
+		}
+	}
+	if (bmo.b_mesh_graph_open) {
+		if (ImGui::Begin("Mesh graph", &bmo.b_mesh_graph_open)) {
+			F_MeshGraph();
 			ImGui::End();
 		}
 	}
@@ -930,7 +1028,7 @@ void BLEV::Interface::Menu::ShowModesMenu()
 	static const char* shortcuts[6]{ "Ctrl+P", "Ctrl+E", "Ctrl+G", "Ctrl+B", "Ctrl+S", "Ctrl+M" };
 	if (ImGui::BeginMenu("Mode")) {
 		for (size_t i = 0; i < _data.modesSize; i++) {
-			if(ImGui::MenuItem(_data.modesList[i], shortcuts[i], _data.chosenMode == (Mode)i)) {
+			if (ImGui::MenuItem(_data.modesList[i], shortcuts[i], _data.chosenMode == (Mode)i)) {
 				_data.chosenMode = (Mode)i;
 			}
 		}
@@ -963,6 +1061,9 @@ void BLEV::Interface::Menu::ShowMethodsMenu(B_method_open& bmo)
 		}
 		if (ImGui::MenuItem("Rotation Body", NULL, bmo.b_rotation_body_open)) {
 			bmo.b_rotation_body_open = true;
+		}
+		if (ImGui::MenuItem("Mesh Graph", NULL, bmo.b_mesh_graph_open)) {
+			bmo.b_mesh_graph_open = true;
 		}
 		ImGui::EndMenu();
 	}
@@ -1811,22 +1912,20 @@ void BLEV::Interface::Canvas::Draw2dGrid()
 }
 void BLEV::Interface::Canvas::Draw3dGrid()
 {
-	auto border = 300.f;
-	Line3d::draw(draw_list, ImVec3(0, 0.f, -border), ImVec3(0, 0.f, border), origin, vp, vis_p);
-	Line3d::draw(draw_list, ImVec3(-border, 0.f, 0), ImVec3(border, 0.f, 0), origin, vp, vis_p);
-	for (int i = 1; i < border / GRID_STEP; i++) {
-		auto next = i * GRID_STEP;
-		Line3d::draw(draw_list, ImVec3(next, 0.f, -border), ImVec3(next, 0.f, border), origin, vp, vis_p);
-		Line3d::draw(draw_list, ImVec3(-next, 0.f, -border), ImVec3(-next, 0.f, border), origin, vp, vis_p);
-		Line3d::draw(draw_list, ImVec3(-border, 0.f, next), ImVec3(border, 0.f, next), origin, vp, vis_p);
-		Line3d::draw(draw_list, ImVec3(-border, 0.f, -next), ImVec3(border, 0.f, -next), origin, vp, vis_p);
+	Line3d::draw(draw_list, ImVec3(0, 0.f, -GRID_BORDER), ImVec3(0, 0.f, GRID_BORDER), origin, vp, vis_p);
+	Line3d::draw(draw_list, ImVec3(-GRID_BORDER, 0.f, 0), ImVec3(GRID_BORDER, 0.f, 0), origin, vp, vis_p);
+	for (int next = GRID_STEP; next <= GRID_BORDER; next+= GRID_STEP) {
+		Line3d::draw(draw_list, ImVec3(next, 0.f, -GRID_BORDER), ImVec3(next, 0.f, GRID_BORDER), origin, vp, vis_p);
+		Line3d::draw(draw_list, ImVec3(-next, 0.f, -GRID_BORDER), ImVec3(-next, 0.f, GRID_BORDER), origin, vp, vis_p);
+		Line3d::draw(draw_list, ImVec3(-GRID_BORDER, 0.f, next), ImVec3(GRID_BORDER, 0.f, next), origin, vp, vis_p);
+		Line3d::draw(draw_list, ImVec3(-GRID_BORDER, 0.f, -next), ImVec3(GRID_BORDER, 0.f, -next), origin, vp, vis_p);
 	}
 }
 void BLEV::Interface::Canvas::DrawAxis()
 {
-	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(GRID_STEP * 3.f, 0.f, 0.f), origin, vp, VisualParams(IM_COL32(0, 255, 0, 255), 3.f, true));
-	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(0.f, GRID_STEP * 3.f, 0.f), origin, vp, VisualParams(IM_COL32(0, 0, 255, 255), 3.f, true));
-	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(0.f, 0.f, GRID_STEP * 3.f), origin, vp, VisualParams(IM_COL32(255, 0, 0, 255), 3.f, true));
+	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(GRID_STEP , 0.f, 0.f), origin, vp, VisualParams(IM_COL32(0, 255, 0, 255), 1.f, true));
+	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(0.f, GRID_STEP, 0.f), origin, vp, VisualParams(IM_COL32(0, 0, 255, 255), 1.f, true));
+	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(0.f, 0.f, GRID_STEP), origin, vp, VisualParams(IM_COL32(255, 0, 0, 255), 1.f, true));
 }
 
 /*
@@ -1897,12 +1996,12 @@ void BLEV::Interface::Canvas::Body() {
 		if (size.x < MIN_WIDTH) size.x = MIN_WIDTH;
 		if (size.y < MIN_HEIGHT) size.y = MIN_HEIGHT;
 		p[1] = ImVec2(p[0].x + size.x, p[0].y + size.y);
-		
+
 		ImGuiIO& io = ImGui::GetIO();
 		draw_list = ImGui::GetWindowDrawList();
 		draw_list->AddRectFilled(p[0], p[1], IM_COL32(50, 50, 50, 255));
 		draw_list->AddRect(p[0], p[1], IM_COL32(255, 255, 255, 255));
-		
+
 		ImGui::InvisibleButton("canvas", size, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
 		is_hovered = ImGui::IsItemHovered();
 		is_active = ImGui::IsItemActive();
@@ -1914,14 +2013,14 @@ void BLEV::Interface::Canvas::Body() {
 		float currentFrame = glfwGetTime();
 		deltaTime = currentFrame - lastFrame;
 		lastFrame = currentFrame;
-		
+
 		if (is_hovered) {
 			if (ImGui::IsKeyPressed(ImGuiKey_R)) {
 				main_camera.resetFlightSettings();
 				main_camera.resetCamPosition();
 				main_camera.resetProjectionSettings();
 			}
-			
+
 			if (!main_camera.dirtiness())
 			{
 				prev_point = mouse_pos;
@@ -1950,18 +2049,18 @@ void BLEV::Interface::Canvas::Body() {
 		}
 
 		drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
-		
+
 		if (b_context_menu_enabled) ShowContextMenu();
 
 		draw_list->PushClipRect(p[0], p[1], true);
 
 		vp = main_camera.viewProjecion(); //auto vp = main_camera.getProjection(); //auto vp = main_camera.getView();
-		
-		if(b_grid_2d_enabled) Draw2dGrid();
-		if(b_grid_3d_enabled) Draw3dGrid();
+
+		if (b_grid_2d_enabled) Draw2dGrid();
+		if (b_grid_3d_enabled) Draw3dGrid();
 		if (b_grid_3d_enabled) DrawAxis();
 		DrawObjects();
-		
+
 		/* intersections
 		if (chosen_prims.size() > 0) {
 				intersections = get_intersections(chosen_prims);

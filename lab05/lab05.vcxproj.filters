@@ -87,6 +87,9 @@
     <ClCompile Include="src\BLEV\geometry\primitives3d\rotation_body.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\BLEV\geometry\primitives3d\mesh_graph.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\dependencies\imgui\imgui\imconfig.h">
@@ -189,6 +192,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\geometry\primitives3d\rotation_body.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\primitives3d\mesh_graph.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
