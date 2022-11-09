@@ -174,10 +174,13 @@
     <ClInclude Include="headers\BLEV\Enums.h" />
     <ClInclude Include="headers\BLEV\Geometry.h" />
     <ClInclude Include="headers\BLEV\Interface.h" />
+    <ClInclude Include="headers\BLEV\Validator.h" />
+    <ClInclude Include="headers\geometry\methods\blev_math.h" />
     <ClInclude Include="headers\geometry\methods\methods.h" />
     <ClInclude Include="headers\geometry\primitives3d\mesh.h" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\polyhedrons.cpp" />
     <ClCompile Include="src\BLEV\Interface.cpp" />
+    <ClCompile Include="src\BLEV\Validator.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives2d\bezier_curve.cpp" />
     <ClCompile Include="src\BLEV\geometry\methods\checks.cpp" />

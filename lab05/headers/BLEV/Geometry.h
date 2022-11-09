@@ -1,4 +1,3 @@
-#pragma once
 #ifndef __BLEV__GEOMETRY_H__
 #define __BLEV__GEOMETRY_H__
 

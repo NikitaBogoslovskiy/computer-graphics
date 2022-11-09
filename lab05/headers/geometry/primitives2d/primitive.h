@@ -5,8 +5,6 @@
 
 static bool pointPositionWithEdge(const ImVec2& e1, const ImVec2& e2, const ImVec2& point)
 {
-	float t = e1.y;
-	t = e2.y;
 	float x2 = e2.x - e1.x;
 	float y2 = -(e2.y - e1.y);
 	float px = point.x - e1.x;

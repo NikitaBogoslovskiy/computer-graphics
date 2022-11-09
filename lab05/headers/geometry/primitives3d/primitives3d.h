@@ -1,4 +1,3 @@
-#pragma once
 #ifndef __PRIMITIVES_3D_H__
 #define __PRIMITIVES_3D_H__
 

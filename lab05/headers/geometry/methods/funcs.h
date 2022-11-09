@@ -5,7 +5,6 @@
 #include "pch.h"
 #include <algorithm>    // std::min
 #include "geometry/primitives2d/point.h"
-//#include "geometry/primitives3d/mesh.h"
 #include <set>
 
 #define PI 3.14159265359f

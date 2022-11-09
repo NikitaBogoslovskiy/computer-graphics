@@ -800,77 +800,30 @@ void BLEV::Interface::F_RotationBody() {
 }
 
 void BLEV::Interface::F_MeshGraph() {
-	float x0, x1, z0, z1;
-	int x_parts = 1, i_z = 1;
+	float x0, x1, z0, z1; int x_parts, z_parts;
 	ImGui::BeginGroup();
 	ImGui::SetNextItemWidth(-FLT_MIN);
 	ImGui::InputText("##ConsoleRanges", console[4]->pseudo_console, 100);
-	HelpPrevItem("<x0> <x1> <z0> <z1> <x_parts> <i_z>");
+	HelpPrevItem("x0 x1 z0 z1 x_parts z_parts");
+
+	static Func3d meshGraphFuncs[5]{ &BLEVmath::ripples,
+									 &BLEVmath::ripples2,
+									 &BLEVmath::sinxMultCosz,
+									 &BLEVmath::sinxPlusCosz,
+									 &BLEVmath::squaresSum };
+	static int chosen3dFuncType = 0;
+	ImGui::Combo("##", &chosen3dFuncType, _data.funcs3dTypes, _data.funcs3dSize);
 
 	ImGui::EndGroup();
-	char* nstr = console[4]->pseudo_console;
-	if (ImGui::Button("sin(x) * cos(z)")) {
-		try
-		{
-			parseMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, i_z);
-			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, i_z, MeshGraph::SINX_MULT_COSZ));
-			//console[4]->feedback = ""; // commented it cuz have no willing to type the same sample data again and again
-		}
-		catch (const std::exception& e)
-		{
-			console[4]->feedback = e.what();
-			console[4]->feedback_color = ImVec4(255, 0, 0, 255);
-		}
-	}
 
-	if (ImGui::Button("sin(x) + cos(z)")) {
-		try
-		{
-			parseMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, i_z);
-			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, i_z, MeshGraph::SINX_PLUS_COSZ));
-			//console[4]->feedback = "";
-		}
-		catch (const std::exception& e)
-		{
-			console[4]->feedback = e.what();
-			console[4]->feedback_color = ImVec4(255, 0, 0, 255);
-		}
-	}
 
-	if (ImGui::Button("5 * (cos(r) / r + 0.1)")) {
+	if (ImGui::Button("Create mesh graph")) {
 		try
 		{
-			parseMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, i_z);
-			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, i_z, MeshGraph::RIPPLES));
-			//console[4]->feedback = "";
-		}
-		catch (const std::exception& e)
-		{
-			console[4]->feedback = e.what();
-			console[4]->feedback_color = ImVec4(255, 0, 0, 255);
-		}
-	}
-
-	if (ImGui::Button("cos(r) / (r + 1)")) {
-		try
-		{
-			parseMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, i_z);
-			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, i_z, MeshGraph::RIPPLES2));
-			//console[4]->feedback = "";
-		}
-		catch (const std::exception& e)
-		{
-			console[4]->feedback = e.what();
-			console[4]->feedback_color = ImVec4(255, 0, 0, 255);
-		}
-
-	}
-	if (ImGui::Button("x^2 + z^2")) {
-		try
-		{
-			parseMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, i_z);
-			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, i_z, MeshGraph::SQUARES_SUM));
-			//console[4]->feedback = "";
+			char* nstr = console[4]->pseudo_console;
+			Validator::ValidateMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, z_parts);
+			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, z_parts, meshGraphFuncs[chosen3dFuncType]));
+			//console[4]->feedback = ""; // left it be cuz dont wanna to retype the params over and over for multiple meshgraphs
 		}
 		catch (const std::exception& e)
 		{
@@ -881,14 +834,6 @@ void BLEV::Interface::F_MeshGraph() {
 	if (!console[4]->feedback.empty()) {
 		ImGui::TextColored(console[4]->feedback_color, console[4]->feedback.c_str());
 	}
-}
-
-void  BLEV::Interface::parseMeshGraphArgs(char* nstr, float& x0, float& x1, float& z0, float& z1, int& x_parts, int& i_z) {
-	if (sscanf(nstr, "%f %f %f %f %d %d", &x0, &x1, &z0, &z1, &x_parts, &i_z) != 6) throw std::invalid_argument("Incorrect arguments format for interval input");
-	if (x1 <= x0) throw std::invalid_argument("x1 shouldnt be lower than x0");
-	if (z1 <= z0) throw std::invalid_argument("z1 shouldnt be lower than z0");
-	if (x_parts <= 1) throw std::invalid_argument("x_parts shouldnt be lower than 1");
-	if (i_z <= 1) throw std::invalid_argument("i_z shouldnt be lower than 1");
 }
 
 void BLEV::Interface::ShowExternalWindows()
@@ -1914,7 +1859,7 @@ void BLEV::Interface::Canvas::Draw3dGrid()
 {
 	Line3d::draw(draw_list, ImVec3(0, 0.f, -GRID_BORDER), ImVec3(0, 0.f, GRID_BORDER), origin, vp, vis_p);
 	Line3d::draw(draw_list, ImVec3(-GRID_BORDER, 0.f, 0), ImVec3(GRID_BORDER, 0.f, 0), origin, vp, vis_p);
-	for (int next = GRID_STEP; next <= GRID_BORDER; next+= GRID_STEP) {
+	for (int next = GRID_STEP; next <= GRID_BORDER; next += GRID_STEP) {
 		Line3d::draw(draw_list, ImVec3(next, 0.f, -GRID_BORDER), ImVec3(next, 0.f, GRID_BORDER), origin, vp, vis_p);
 		Line3d::draw(draw_list, ImVec3(-next, 0.f, -GRID_BORDER), ImVec3(-next, 0.f, GRID_BORDER), origin, vp, vis_p);
 		Line3d::draw(draw_list, ImVec3(-GRID_BORDER, 0.f, next), ImVec3(GRID_BORDER, 0.f, next), origin, vp, vis_p);
@@ -1923,7 +1868,7 @@ void BLEV::Interface::Canvas::Draw3dGrid()
 }
 void BLEV::Interface::Canvas::DrawAxis()
 {
-	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(GRID_STEP , 0.f, 0.f), origin, vp, VisualParams(IM_COL32(0, 255, 0, 255), 1.f, true));
+	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(GRID_STEP, 0.f, 0.f), origin, vp, VisualParams(IM_COL32(0, 255, 0, 255), 1.f, true));
 	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(0.f, GRID_STEP, 0.f), origin, vp, VisualParams(IM_COL32(0, 0, 255, 255), 1.f, true));
 	Line3d::draw(draw_list, ImVec3(0.f, 0.f, 0.f), ImVec3(0.f, 0.f, GRID_STEP), origin, vp, VisualParams(IM_COL32(255, 0, 0, 255), 1.f, true));
 }

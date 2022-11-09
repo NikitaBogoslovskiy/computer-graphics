@@ -1,4 +1,3 @@
-#pragma once
 #ifndef __BLEV_INTERFACE_H__
 #define __BLEV_INTERFACE_H__
 
@@ -6,7 +5,7 @@
 #include "Geometry.h"
 #include "Enums.h"
 #include "Data.h"
-
+#include "Validator.h"
 
 namespace BLEV {
 	class Interface {
@@ -69,12 +68,8 @@ namespace BLEV {
 		void F_Reflect();
 		// union
 		void F_Edit();
-
 		void F_Displace();
-
 		void F_MeshGraph();
-		void parseMeshGraphArgs(char* nstr, float& x0, float& x1, float& z0, float& z1, int& i_x, int& i_z); // sorry
-
 		void F_RotationBody();
 		void F_Union();
 		void F_Lsystem();
