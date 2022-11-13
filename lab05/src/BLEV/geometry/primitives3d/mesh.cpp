@@ -32,11 +32,11 @@ void Mesh::_draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matri
 			//	#pragma omp critical
 			{
 				for (size_t i = 1; i < polygons[p1].size(); i++) {
-					const std::lock_guard<std::mutex> lock(g_l_draw_list);
+					//const std::lock_guard<std::mutex> lock(g_l_draw_list);
 					draw_list->AddLine(buf[i], buf[i - 1], color, thickness);
 					//draw_list->AddCircleFilled(start + offset, 3.f, IM_COL32(255, 0, 0, 255), 10);
 				}
-				const std::lock_guard<std::mutex> lock(g_l_draw_list);
+				//const std::lock_guard<std::mutex> lock(g_l_draw_list);
 				draw_list->AddLine(buf[0], buf[polygons[p1].size() - 1], color, thickness);
 				//draw_list->AddConvexPolyFilled(buf.data(), polygon.size(), IM_COL32(155, 155, 155, 255));
 			}
@@ -48,13 +48,17 @@ void Mesh::_draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matri
 void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp, const ImVec3& cam_dir)
 {
 	if (show) {
-		std::thread th1(&Mesh::_draw, this, draw_list, offset, vp, cam_dir, 0, polygons.size() / 3);
-		std::thread th2(&Mesh::_draw, this, draw_list, offset, vp, cam_dir, polygons.size() / 3, polygons.size() / 3 * 2);
-		std::thread th4(&Mesh::_draw, this, draw_list, offset, vp, cam_dir, polygons.size() / 3 * 2, polygons.size());
-
-		th1.join();
-		th2.join();
-		th4.join();
+		_draw(draw_list, offset, vp, cam_dir, 0, polygons.size());
+		//std::thread th1(&Mesh::_draw, this, draw_list, offset, vp, cam_dir, 0, polygons.size() / 4);
+		//std::thread th2(&Mesh::_draw, this, draw_list, offset, vp, cam_dir, polygons.size() / 4, polygons.size() / 2);
+		//std::thread th3(&Mesh::_draw, this, draw_list, offset, vp, cam_dir, polygons.size() / 2, polygons.size() / 4 * 3);
+		//std::thread th4(&Mesh::_draw, this, draw_list, offset, vp, cam_dir, polygons.size() / 4 * 3, polygons.size());
+		
+		//th1.join();
+		//th2.join();
+		//th3.join();
+		//th4.join();
+		//th4.join();
 		/*
 			// draw normals
 				auto c3 = polygon.center(points);

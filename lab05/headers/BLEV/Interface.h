@@ -137,6 +137,8 @@ namespace BLEV {
 			ImVec2 deltaMouse = ImVec2(0.f, 0.f);
 			float deltaTime = 0.0f;	// Time between current frame and last frame
 			float lastFrame = 0.0f; // Time of last frame
+			float deltaTimeSec = 0.0f; // Sigma deltaTime [0; 1)
+			size_t fps = 0;
 
 			ImDrawList* draw_list;
 

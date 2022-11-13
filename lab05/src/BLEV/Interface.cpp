@@ -1423,9 +1423,9 @@ void BLEV::Interface::Canvas::DrawObjects() {
 		_data.rotate_axis->draw(draw_list, origin, vp);
 
 	if (show_fps) {
-		char fps[10];
-		sprintf(fps, "%.0f", 1 / deltaTime);
-		draw_list->AddText(p[0], 0xFFFFFFFF, fps);
+		char fps_c[10];
+		sprintf(fps_c, "%.0f", ImGui::GetIO().Framerate);
+		draw_list->AddText(p[0], 0xFFFFFFFF, fps_c);
 		//ImGui::ShowDemoWindow
 	}
 }
