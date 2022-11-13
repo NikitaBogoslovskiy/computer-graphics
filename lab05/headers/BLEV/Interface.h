@@ -156,6 +156,8 @@ namespace BLEV {
 
 			ImVec2* point_of_transformation = nullptr;
 
+			bool show_fps = true;
+
 			bool is_hovered = false,
 				is_active = false;
 

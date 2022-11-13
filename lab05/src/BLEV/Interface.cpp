@@ -1421,6 +1421,13 @@ void BLEV::Interface::Canvas::DrawObjects() {
 
 	if (_data.rotate_axis != nullptr)
 		_data.rotate_axis->draw(draw_list, origin, vp);
+
+	if (show_fps) {
+		char fps[10];
+		sprintf(fps, "%.0f", 1 / deltaTime);
+		draw_list->AddText(p[0], 0xFFFFFFFF, fps);
+		//ImGui::ShowDemoWindow
+	}
 }
 void BLEV::Interface::Canvas::PollCallbacks() {
 	for (size_t i = 0; i < hotkeysSize; i++) {

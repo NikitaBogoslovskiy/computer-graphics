@@ -62,7 +62,9 @@ public:
 	void updatePoints();
 	void updateInitPoints();
 
-
+private:
+	void _draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp, const ImVec3& cam_dir, size_t start, size_t end);
+public:
 	void draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp, const ImVec3& cam_dir);
 	void save(const char* filename);
 	void open(const char* filename);

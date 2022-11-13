@@ -4,6 +4,9 @@
 #include <sstream>
 #include <string>
 #include "geometry/methods/funcs.h"
+//#include <omp.h>
+#include <thread>
+#include <mutex>
 
 Mesh::Mesh() : init_points(), points(), polygons() {
 	translate_mat.setIdentity();
@@ -12,28 +15,47 @@ Mesh::Mesh() : init_points(), points(), polygons() {
 	reflect_mat.setIdentity();
 }
 
-void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp, const ImVec3& cam_dir)
+std::mutex g_l_draw_list;
+
+void Mesh::_draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp, const ImVec3& cam_dir, size_t start, size_t end)
 {
-	if (show) {
-		std::vector<ImVec2> buf(10);
-		for (auto& polygon : polygons) {
-			if (polygon.normal * cam_dir < 0) {
-				for (size_t i = 0; i < polygon.size(); i++) {
-					auto& point_indi = polygon[i];
-					Eigen::Vector4f v0{ points[point_indi].x, points[point_indi].y, points[point_indi].z,  1.f }; // COLUMN-VEC
-					Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
-					buf[i] = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3)) + offset;
-				}
-				for (size_t i = 1; i < polygon.size(); i++) {
+	std::vector<ImVec2> buf(10);
+	for (size_t p1 = start; p1 < end; p1++) {
+		auto& pol = polygons[p1];
+		if (pol.normal * cam_dir < 0) {
+			for (size_t i = 0; i < pol.size(); i++) {
+				Eigen::Vector4f v0{ points[pol[i]].x, points[pol[i]].y, points[pol[i]].z,  1.f }; // COLUMN-VEC
+				Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
+				buf[i] = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3)) + offset;
+			}
+
+			//	#pragma omp critical
+			{
+				for (size_t i = 1; i < polygons[p1].size(); i++) {
+					const std::lock_guard<std::mutex> lock(g_l_draw_list);
 					draw_list->AddLine(buf[i], buf[i - 1], color, thickness);
 					//draw_list->AddCircleFilled(start + offset, 3.f, IM_COL32(255, 0, 0, 255), 10);
 				}
-				draw_list->AddLine(buf[0], buf[polygon.size() - 1], color, thickness);
-
+				const std::lock_guard<std::mutex> lock(g_l_draw_list);
+				draw_list->AddLine(buf[0], buf[polygons[p1].size() - 1], color, thickness);
 				//draw_list->AddConvexPolyFilled(buf.data(), polygon.size(), IM_COL32(155, 155, 155, 255));
 			}
+		}
 
-			/*
+	}
+}
+
+void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp, const ImVec3& cam_dir)
+{
+	if (show) {
+		std::thread th1(&Mesh::_draw, this, draw_list, offset, vp, cam_dir, 0, polygons.size() / 3);
+		std::thread th2(&Mesh::_draw, this, draw_list, offset, vp, cam_dir, polygons.size() / 3, polygons.size() / 3 * 2);
+		std::thread th4(&Mesh::_draw, this, draw_list, offset, vp, cam_dir, polygons.size() / 3 * 2, polygons.size());
+
+		th1.join();
+		th2.join();
+		th4.join();
+		/*
 			// draw normals
 				auto c3 = polygon.center(points);
 				Eigen::Vector4f v0{ c3.x, c3.y, c3.z, 1.f }; // COLUMN-VEC
@@ -45,7 +67,6 @@ void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix
 				auto t = ImVec2(v0_2d_2(0) / v0_2d_2(3), v0_2d_2(1) / v0_2d_2(3)) + offset;
 				draw_list->AddLine(c2, t, IM_COL32(255, 0, 0, 255), 1.f);
 			*/
-		}
 	}
 }
 

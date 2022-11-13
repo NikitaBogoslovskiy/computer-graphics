@@ -60,16 +60,3 @@ int main(void)
 	glfwTerminate();
 	return 0;
 }
-
-/*
-Mesh* mesh = new Mesh();
-
-		mesh->open("bunny.obj");
-		//mesh->open("__male.obj");
-		//mesh->open("boat.obj");
-		//mesh->open("__hand.obj");
-		//mesh->open("tree.obj");
-		//mesh->open("mill.obj");
-		meshes.push_back(mesh);
-		//mesh->save("mybunny.obj");
-*/
