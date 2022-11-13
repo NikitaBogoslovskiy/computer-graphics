@@ -1,4 +1,3 @@
-#pragma once
 #ifndef __BLEV_APPLICATION_H__
 #define __BLEV_APPLICATION_H__
 
