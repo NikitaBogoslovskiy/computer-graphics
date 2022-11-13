@@ -5,8 +5,6 @@
 
 static bool pointPositionWithEdge(const ImVec2& e1, const ImVec2& e2, const ImVec2& point)
 {
-	float t = e1.y;
-	t = e2.y;
 	float x2 = e2.x - e1.x;
 	float y2 = -(e2.y - e1.y);
 	float px = point.x - e1.x;
@@ -27,7 +25,6 @@ static bool foundOnEdge(const ImVec2* start, const ImVec2* end, const float& off
 		|| pointPositionWithEdge(forth, first, point) != firstSide) return false;
 	return true;
 }
-
 
 class Primitive
 {
@@ -97,6 +94,14 @@ public:
 
 	inline void push_back(const ImVec2& p1) {
 		points->push_back(p1);
+	}
+
+	inline void reverse() {
+		std::reverse(points->begin(), points->end());
+	}
+
+	inline ImVector<ImVec2>* getPoints() {
+		return points;
 	}
 
 	inline ImVec2& front() { return points->Data[0]; }

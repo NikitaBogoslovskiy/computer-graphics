@@ -1,4 +1,3 @@
-#pragma once
 #ifndef __PRIMITIVES_3D_H__
 #define __PRIMITIVES_3D_H__
 
@@ -6,5 +5,7 @@
 #include "mesh.h"
 #include "polyhedrons.h"
 #include "camera.h"
+#include "rotation_body.h"
+#include "mesh_graph.h"
 
 #endif // !__PRIMITIVES_3D_H__

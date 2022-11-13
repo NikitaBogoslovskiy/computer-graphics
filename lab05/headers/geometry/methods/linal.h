@@ -9,6 +9,10 @@
 class Linal
 {
 public:
+	static const float len(const ImVec2& v) {
+		return sqrt(v.x * v.x + v.y * v.y);
+	}
+
 	static const float len(const ImVec3& v) {
 		return sqrt(v.x * v.x + v.y * v.y + v.z * v.z);
 	}

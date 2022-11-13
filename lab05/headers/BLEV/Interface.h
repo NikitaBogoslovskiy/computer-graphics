@@ -1,4 +1,3 @@
-#pragma once
 #ifndef __BLEV_INTERFACE_H__
 #define __BLEV_INTERFACE_H__
 
@@ -6,7 +5,7 @@
 #include "Geometry.h"
 #include "Enums.h"
 #include "Data.h"
-
+#include "Validator.h"
 
 namespace BLEV {
 	class Interface {
@@ -44,6 +43,7 @@ namespace BLEV {
 			new ConsoleFields(),
 			new ConsoleFields(),
 			new ConsoleFields(),
+			new ConsoleFields(),
 			new ConsoleFields()
 		};
 
@@ -68,15 +68,20 @@ namespace BLEV {
 		void F_Reflect();
 		// union
 		void F_Edit();
-
 		void F_Displace();
+		void F_MeshGraph();
+		void F_RotationBody();
+		void F_Union();
 		void F_Lsystem();
 		void F_Classify();
 		void F_Camera();
 
 		void F_QuickHull();
+		void F_Present();
+
 		// union
 		void F_Shells();
+		
 
 		struct B_method_open {
 			//bool b_rotate_open = false;
@@ -86,12 +91,13 @@ namespace BLEV {
 			bool b_edit_open = false;
 			
 			bool b_displace_open = false;
+			bool b_union_open = false;
 			bool b_lsys_open = false;
 			bool b_classify_open = false;
 			bool b_camera_open = false;
+			bool b_rotation_body_open = false;
+			bool b_mesh_graph_open = false;
 
-			//bool b_quickhull_open = false;
-			//bool b_jarvis_open = false;
 			bool b_shells_open = false;
 		} bmo;
 	public:
@@ -166,6 +172,7 @@ namespace BLEV {
 				b_context_menu_enabled = true;
 
 			const float GRID_STEP = 64.0f;
+			const float GRID_BORDER = 300.f;
 			const VisualParams vis_p{ IM_COL32(200, 200, 200, 40), 1.f, true };
 
 			void ProcessCamKeyboardInput(Camera& cam, float& deltaTime);
