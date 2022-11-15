@@ -101,7 +101,7 @@ public:
 			return Affine::identity();
 		}
 	}
-	
+
 	inline void resetFlightSettings() {
 		this->_sensitivity = 0.1f;
 		this->_speed = 1000.f;
@@ -121,8 +121,8 @@ public:
 		}
 	}
 
-	inline void resetCamPosition() {
-		updatePosition();
+	inline void resetCamPosition(const ImVec3& eye = ImVec3(0.f, 0.f, 30.f), const ImVec2& rotation = ImVec2(-90.f, 0.f)) {
+		updatePosition(eye, rotation);
 		updateLook();
 
 		this->_scale = Affine::identity();
@@ -138,12 +138,7 @@ public:
 	inline void updateDirection() {
 		auto radYaw = DegreesToRadians(this->_rotation.x);
 		auto radPitch = DegreesToRadians(this->_rotation.y);
-
-		ImVec3 newDirection;
-		newDirection.x = cos(radYaw) * cos(radPitch);
-		newDirection.y = sin(radPitch);
-		newDirection.z = sin(radYaw) * cos(radPitch);
-		this->_direction = Linal::normalize(newDirection);
+		this->_direction = Linal::normalize(ImVec3(cos(radYaw) * cos(radPitch), sin(radPitch), sin(radYaw) * cos(radPitch)));
 	}
 
 	inline void updateLook() {

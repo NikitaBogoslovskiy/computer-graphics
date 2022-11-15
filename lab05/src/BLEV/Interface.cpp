@@ -1967,12 +1967,20 @@ void BLEV::Interface::Canvas::Body() {
 		lastFrame = currentFrame;
 
 		if (is_hovered) {
+			if (ImGui::IsKeyPressed(ImGuiKey_X)) {
+				main_camera.resetCamPosition(ImVec3(30.f, 0.f, 0.f), ImVec2(-180.f, 0.f));
+			}
+			if (ImGui::IsKeyPressed(ImGuiKey_Y)) {
+				main_camera.resetCamPosition(ImVec3(0.f, 30.f, 0.f), ImVec2(-90.f, -89.f));
+			}
+			if (ImGui::IsKeyPressed(ImGuiKey_Z)) {
+				main_camera.resetCamPosition();
+			}
 			if (ImGui::IsKeyPressed(ImGuiKey_R)) {
 				main_camera.resetFlightSettings();
 				main_camera.resetCamPosition();
 				main_camera.resetProjectionSettings();
 			}
-
 			if (!main_camera.dirtiness())
 			{
 				prev_point = mouse_pos;
