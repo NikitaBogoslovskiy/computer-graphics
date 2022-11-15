@@ -25,8 +25,10 @@ void Mesh::_draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matri
 		if (pol.normal * cam_dir < 0) {
 			for (size_t i = 0; i < pol.size(); i++) {
 				Eigen::Vector4f v0{ points[pol[i]].x, points[pol[i]].y, points[pol[i]].z,  1.f }; // COLUMN-VEC
-				Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
-				buf[i] = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3)) + offset;
+				Eigen::Vector4f v0_2d = vp * v0;
+
+				buf[i] = ImVec2(v0_2d(0) / std::max(v0_2d(3), ALMOST_NULL), v0_2d(1) / std::max(v0_2d(3), ALMOST_NULL)) + offset;
+				//buf[i] = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3)) + offset;
 			}
 
 			//	#pragma omp critical
@@ -61,7 +63,7 @@ void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix
 				Eigen::Vector4f v0{ c3.x, c3.y, c3.z, 1.f }; // COLUMN-VEC
 				Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
 				auto c2 = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3)) + offset;
-			
+
 				Eigen::Vector4f v0_2{ c3.x + polygon.normal.x, c3.y + polygon.normal.y, c3.z + polygon.normal.z,  1.f }; // COLUMN-VEC
 				Eigen::Vector4f v0_2d_2 = vp * v0_2;// thus we projected v0 onto 2d canvas
 				auto t = ImVec2(v0_2d_2(0) / v0_2d_2(3), v0_2d_2(1) / v0_2d_2(3)) + offset;
@@ -109,7 +111,7 @@ void Mesh::open(const char* filename)
 	while (std::getline(infile, line))
 	{
 		std::istringstream iss(line);
-			
+
 		std::string type;
 		if (iss >> type, infile.eof()) {
 			break;
