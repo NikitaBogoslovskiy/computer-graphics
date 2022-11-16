@@ -113,7 +113,7 @@ void ZBuffer::processPolygon(Mesh* mesh, Polygon& poly, Eigen::Matrix4f& vp)
 		Eigen::Vector4f p1{ origin_p1.x, origin_p1.y, origin_p1.z,  1.f };
 		Eigen::Vector4f p0_3d = vp * p0;
 		Eigen::Vector4f p1_3d = vp * p1;
-		interpolateLine(p0_3d, p1_3d, polygonRegion, size, faceColor);
+		interpolateLine(p0_3d, p1_3d, polygonRegion, size, edgeColor);
 	}
 	for (auto& it : polygonRegion)
 	{
