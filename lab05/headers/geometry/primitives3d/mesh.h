@@ -12,6 +12,8 @@ private:
 	std::vector<ImVec3> init_points;
 	std::vector<ImVec3> points;
 	std::deque<Polygon> polygons;
+	ImVec4 face_color;
+	ImVec4 edge_color;
 
 protected:
 	Eigen::Matrix<float, 4, 4> translate_mat;
@@ -34,6 +36,15 @@ public:
 	inline ImVec3& getInitPoint(size_t idx) {
 		return init_points[idx];
 	}
+	inline std::deque<Polygon> getPolygons() {
+		return polygons;
+	}
+	inline ImVec4& getFaceColor() {
+		return face_color;
+	}
+	inline ImVec4& getEdgeColor() {
+		return edge_color;
+	}
 	inline Polygon& operator[](size_t idx) {
 		return polygons[idx];
 	}
@@ -46,16 +57,16 @@ public:
 	void rotateY(float angle);
 	void rotateZ(float angle);
 	void rotateU(ImVec3 p1, ImVec3 p2, float angle);
-	inline void reflectX() { 
-		reflect_mat(0, 0) *= -1; 
+	inline void reflectX() {
+		reflect_mat(0, 0) *= 1;
 		updatePoints(); 
 	}
 	inline void reflectY() { 
-		reflect_mat(1, 1) *= -1; 
+		reflect_mat(1, 1) *= -1;
 		updatePoints(); 
 	}
 	inline void reflectZ() { 
-		reflect_mat(2, 2) *= -1; 
+		reflect_mat(2, 2) *= -1;
 		updatePoints(); 
 	}
 	void scale(float dx, float dy, float dz);

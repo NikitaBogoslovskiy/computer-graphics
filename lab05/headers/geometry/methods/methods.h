@@ -5,5 +5,6 @@
 #include "affine.h"
 #include "checks.h"
 #include "linal.h"
+#include "zbuffer.h"
 
 #endif // !__METHODS_H__

@@ -13,6 +13,8 @@ Mesh::Mesh() : init_points(), points(), polygons() {
 	rotate_mat.setIdentity();
 	scale_mat.setIdentity();
 	reflect_mat.setIdentity();
+	face_color = ImVec4(rand() % 256, rand() % 256, rand() % 256, 255);
+	edge_color = ImVec4(255, 255, 204, 255);
 }
 
 std::mutex g_l_draw_list;
@@ -22,7 +24,8 @@ void Mesh::_draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matri
 	std::vector<ImVec2> buf(10);
 	for (size_t p1 = start; p1 < end; p1++) {
 		auto& pol = polygons[p1];
-		if (pol.normal * cam_dir < 0) {
+		if (pol.normal * cam_dir < 0) 
+		{
 			for (size_t i = 0; i < pol.size(); i++) {
 				Eigen::Vector4f v0{ points[pol[i]].x, points[pol[i]].y, points[pol[i]].z,  1.f }; // COLUMN-VEC
 				Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
@@ -250,6 +253,10 @@ void Mesh::updatePoints()
 		points[i].x = result_matrix(0, i);
 		points[i].y = result_matrix(1, i);
 		points[i].z = result_matrix(2, i);
+	}
+
+	for (size_t i = 0; i < polygons.size(); i++) {
+		calculate_normal(polygons[i]);
 	}
 }
 

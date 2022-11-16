@@ -167,6 +167,7 @@
     <ClCompile Include="headers\stuff\NFD\nfd_common.c" />
     <ClCompile Include="headers\stuff\NFD\nfd_win.cpp" />
     <ClCompile Include="src\BLEV\geometry\methods\funcs.cpp" />
+    <ClCompile Include="src\BLEV\geometry\methods\zbuffer.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\mesh_graph.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\rotation_body.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\structers.cpp" />
@@ -179,6 +180,7 @@
     <ClInclude Include="headers\BLEV\Validator.h" />
     <ClInclude Include="headers\geometry\methods\blev_math.h" />
     <ClInclude Include="headers\geometry\methods\methods.h" />
+    <ClInclude Include="headers\geometry\methods\zbuffer.h" />
     <ClInclude Include="headers\geometry\primitives3d\mesh.h" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\polyhedrons.cpp" />
     <ClCompile Include="src\BLEV\Interface.cpp" />

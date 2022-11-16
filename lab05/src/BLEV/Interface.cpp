@@ -114,6 +114,7 @@ void BLEV::Interface::F_Rotate() {
 			console[0]->feedback = "";
 			auto lammy = [&angle](Mesh* m) { m->rotateX(angle); };
 			std::for_each(_data.chosen_meshes.begin(), _data.chosen_meshes.end(), lammy);
+			needRefresh = true;
 		}
 		catch (std::exception& e) {
 			console[0]->feedback = e.what();
@@ -130,6 +131,7 @@ void BLEV::Interface::F_Rotate() {
 			console[0]->feedback = "";
 			auto lammy = [&angle](Mesh* m) { m->rotateY(angle); };
 			std::for_each(_data.chosen_meshes.begin(), _data.chosen_meshes.end(), lammy);
+			needRefresh = true;
 		}
 		catch (std::exception& e) {
 			console[0]->feedback = e.what();
@@ -146,6 +148,7 @@ void BLEV::Interface::F_Rotate() {
 			console[0]->feedback = "";
 			auto lammy = [&angle](Mesh* m) { m->rotateZ(angle); };
 			std::for_each(_data.chosen_meshes.begin(), _data.chosen_meshes.end(), lammy);
+			needRefresh = true;
 		}
 		catch (std::exception& e) {
 			console[0]->feedback = e.what();
@@ -165,6 +168,7 @@ void BLEV::Interface::F_Rotate() {
 			_data.rotate_axis = new Line3d(std::move(p0), std::move(p1), true);
 			auto lammy = [&p0, &p1, &angle](Mesh* m) { m->rotateU(p0, p1, angle); };
 			std::for_each(_data.chosen_meshes.begin(), _data.chosen_meshes.end(), lammy);
+			needRefresh = true;
 		}
 		catch (std::exception& e) {
 			console[0]->feedback = e.what();
@@ -195,6 +199,7 @@ void BLEV::Interface::F_Translate() {
 					throw std::invalid_argument("The number of selected objects must be at least 1");
 				}
 				std::for_each(_data.chosen_meshes.begin(), _data.chosen_meshes.end(), lammy);
+				needRefresh = true;
 			}
 			else if (sscanf(nstr, "%f%*c%f", &dx, &dy) == 2)
 			{
@@ -238,6 +243,7 @@ void BLEV::Interface::F_Scale() {
 				console[2]->feedback = "";
 				auto lammy = [&scaleX, &scaleY, &scaleZ](Mesh* m) { m->scale(scaleX, scaleY, scaleZ); };
 				std::for_each(_data.chosen_meshes.begin(), _data.chosen_meshes.end(), lammy);
+				needRefresh = true;
 			}
 			else if (sscanf(nstr, "%f%*c%f", &scaleX, &scaleY) == 2)
 			{
@@ -277,18 +283,21 @@ void BLEV::Interface::F_Reflect() {
 	{
 		auto lammy = [](Mesh* m) { m->reflectX(); };
 		std::for_each(_data.chosen_meshes.begin(), _data.chosen_meshes.end(), lammy);
+		needRefresh = true;
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("XZ"))
 	{
 		auto lammy = [](Mesh* m) { m->reflectY(); };
 		std::for_each(_data.chosen_meshes.begin(), _data.chosen_meshes.end(), lammy);
+		needRefresh = true;
 	}
 	ImGui::SameLine();
 	if (ImGui::Button("XY"))
 	{
 		auto lammy = [](Mesh* m) { m->reflectZ(); };
 		std::for_each(_data.chosen_meshes.begin(), _data.chosen_meshes.end(), lammy);
+		needRefresh = true;
 	}
 	ImGui::EndGroup();
 }
@@ -736,8 +745,10 @@ void BLEV::Interface::F_RotationBody() {
 			console[3]->feedback = "";
 			auto body = new RotationBody(prim, iterNumber, Axis::X);
 			_data.chosen_prims.clear();
+			_data.primitives.erase(std::find(_data.primitives.begin(), _data.primitives.end(), prim));
 			_data.meshes.push_back(body);
 			_data.chosen_meshes.insert(body);
+			needRefresh = true;
 		}
 		catch (std::exception& e) {
 			console[3]->feedback = e.what();
@@ -761,8 +772,10 @@ void BLEV::Interface::F_RotationBody() {
 			console[3]->feedback = "";
 			auto body = new RotationBody(prim, iterNumber, Axis::Y);
 			_data.chosen_prims.clear();
+			_data.primitives.erase(std::find(_data.primitives.begin(), _data.primitives.end(), prim));
 			_data.meshes.push_back(body);
 			_data.chosen_meshes.insert(body);
+			needRefresh = true;
 		}
 		catch (std::exception& e) {
 			console[3]->feedback = e.what();
@@ -786,8 +799,10 @@ void BLEV::Interface::F_RotationBody() {
 			console[3]->feedback = "";
 			auto body = new RotationBody(prim, iterNumber, Axis::Z);
 			_data.chosen_prims.clear();
+			_data.primitives.erase(std::find(_data.primitives.begin(), _data.primitives.end(), prim));
 			_data.meshes.push_back(body);
 			_data.chosen_meshes.insert(body);
+			needRefresh = true;
 		}
 		catch (std::exception& e) {
 			console[3]->feedback = e.what();
@@ -1335,18 +1350,22 @@ void BLEV::Interface::Canvas::ProcessCamKeyboardInput(Camera& cam, float& deltaT
 	float speed = cam.speed() * deltaTime;
 	if (ImGui::IsKeyPressed(ImGuiKey_W)) {
 		cam.eye() += speed * Linal::normalize(cam.direction());
+		needRefresh = true;
 		//return;
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_S)) {
 		cam.eye() += -speed * Linal::normalize(cam.direction());
+		needRefresh = true;
 		//return;
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_A)) {
 		cam.eye() += -speed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
+		needRefresh = true;
 		//return;
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_D)) {
 		cam.eye() += speed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
+		needRefresh = true;
 		//return;
 	}
 }
@@ -1361,6 +1380,7 @@ void BLEV::Interface::Canvas::ProcessCamMouseInput(ImVec2& deltaMouse, Camera& c
 		cam.rotation().y = max(cam.rotation().y, -89.0f);
 
 		cam.updateDirection();
+		needRefresh = true;
 	}
 }
 
@@ -1635,11 +1655,29 @@ void BLEV::Interface::Canvas::DrawObjects() {
 		ImVec2* ch_p = *chp_it;
 		draw_list->AddCircleFilled(*ch_p + origin, (*_data.chosen_prims.begin())->thickness() + 2.f, IM_COL32(0, 255, 0, 255), 10);
 	}
-
+	
+	if (oldSize != _data.meshes.size())
+	{
+		needRefresh = true;
+		oldSize = _data.meshes.size();
+	}
+	if (needShift) {
+		zbuf.setOffset(scrolling);
+		needShift = false;
+	}
+	if (needResize) {
+		zbuf.resize(size.x, size.y);
+		needResize = false;
+	}
+	if (needRefresh) {
+		zbuf.clear();
+		zbuf.fillBuffers(_data.meshes, vp, main_camera.direction());
+		needRefresh = false;
+	}
+	zbuf.draw(draw_list, p[0]);
 	for (auto mesh : _data.meshes) {
 		mesh->draw(draw_list, origin, vp, main_camera.direction());
 	}
-
 	if (_data.rotate_axis != nullptr)
 		_data.rotate_axis->draw(draw_list, origin, vp);
 
@@ -1837,6 +1875,7 @@ void BLEV::Interface::Canvas::ShowContextMenu()
 				_data.chosen_prim_points.clear();
 				_data.chosen_prim_edges.clear();
 				_data.chosen_meshes.clear();
+				zbuf.clear();
 				_data.primitives.clear();
 				_data.fractals.clear();
 				_data.chosen_lsys.clear();
@@ -1944,7 +1983,12 @@ void BLEV::Interface::Canvas::Body() {
 	if (ImGui::BeginChild("Canvas")) {
 
 		p[0] = ImGui::GetCursorScreenPos();
-		size = ImGui::GetContentRegionAvail();
+		auto s = ImGui::GetContentRegionAvail();
+		if (s != size) {
+			needResize = true;
+			needRefresh = true;
+		}
+		size = s;
 		if (size.x < MIN_WIDTH) size.x = MIN_WIDTH;
 		if (size.y < MIN_HEIGHT) size.y = MIN_HEIGHT;
 		p[1] = ImVec2(p[0].x + size.x, p[0].y + size.y);
@@ -1984,6 +2028,7 @@ void BLEV::Interface::Canvas::Body() {
 			auto x = (float)io.MouseWheel;
 			if (x != 0.f) {
 				main_camera.altPerspectiveScale(x < 0 ? -0.5f : 0.5f);
+				needRefresh = true;
 			}
 			if ((Camera::CamMode)main_camera.mode() == Camera::Perspective) {
 				ProcessCamKeyboardInput(main_camera, deltaTime);
@@ -1998,6 +2043,8 @@ void BLEV::Interface::Canvas::Body() {
 		{
 			scrolling.x += io.MouseDelta.x;
 			scrolling.y += io.MouseDelta.y;
+			needShift = true;
+			needRefresh = true;
 		}
 
 		drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
