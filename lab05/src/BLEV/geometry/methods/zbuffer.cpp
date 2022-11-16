@@ -92,8 +92,9 @@ void ZBuffer::fillBuffers(std::vector<Mesh*>& meshes, Eigen::Matrix4f& vp, ImVec
 	for (size_t i = 0; i < meshes.size(); ++i) {
 		auto polygons = meshes[i]->getPolygons();
 		for (size_t j = 0; j < polygons.size(); ++j) {
-			if (polygons[j].normal * cam_dir >= 0)
-				continue;
+			if (dynamic_cast<RotationBody*>(meshes[i]) == nullptr && dynamic_cast<MeshGraph*>(meshes[i]) == nullptr)
+				if (polygons[j].normal * cam_dir >= 0)
+					continue;
 			processPolygon(meshes[i], polygons[j], vp);
 		}
 	}
@@ -147,7 +148,7 @@ void ZBuffer::interpolateLine(Eigen::Vector4f& p0_3d, Eigen::Vector4f& p1_3d, Re
 {
 	auto p0_2d = ImVec2((int)(p0_3d(0) / p0_3d(3)), (int)(p0_3d(1) / p0_3d(3))) + this->offset;
 	auto p1_2d = ImVec2((int)(p1_3d(0) / p1_3d(3)), (int)(p1_3d(1) / p1_3d(3))) + this->offset;
-	float p0_z = -p0_3d(2) / p0_3d(3), p1_z = -p1_3d(2) / p1_3d(3);
+	float p0_z = p0_3d(3), p1_z = p1_3d(3);
 	float alpha = 666;
 	if (p1_2d.x - p0_2d.x != 0)
 		alpha = abs((p1_2d.y - p0_2d.y) / (p1_2d.x - p0_2d.x));

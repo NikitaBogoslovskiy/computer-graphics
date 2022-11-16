@@ -2,6 +2,8 @@
 
 #include "geometry/primitives3d/structers.h"
 #include "geometry/primitives3d/mesh.h"
+#include "geometry/primitives3d/mesh_graph.h"
+#include "geometry/primitives3d/rotation_body.h"
 #include "pch.h"
 #include <array>
 #include <iostream>

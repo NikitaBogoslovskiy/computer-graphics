@@ -2017,6 +2017,7 @@ void BLEV::Interface::Canvas::Body() {
 				main_camera.resetFlightSettings();
 				main_camera.resetCamPosition();
 				main_camera.resetProjectionSettings();
+				needRefresh = true;
 			}
 
 			if (!main_camera.dirtiness())
