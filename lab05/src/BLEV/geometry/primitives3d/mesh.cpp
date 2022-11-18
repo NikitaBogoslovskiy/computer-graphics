@@ -28,14 +28,10 @@ void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix
 				Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
 				Eigen::Vector4f v1_2d = vp * v1;
 
-				auto start =  (1.0f / v0_2d(3)) * ImVec2(v0_2d(0), v0_2d(1));
-				auto end = (1.0f / v1_2d(3)) * ImVec2(v1_2d(0), v1_2d(1));
-
-				//start.x *= 512.f * 0.5f; start.y *= 512.f * 0.5f; //if we use fov perspective
-				//end.x *= 512.f * 0.5f; end.y *= 512.f * 0.5f;
+				ImVec2 start = ((1.0f / v0_2d(3)) * ImVec2(v0_2d(0), v0_2d(1))) * 512.f;
+				ImVec2 end = ((1.0f / v1_2d(3)) * ImVec2(v1_2d(0), v1_2d(1))) * 512.f;
 
 				draw_list->AddLine(start + offset, end + offset, color, thickness);
-				//draw_list->AddCircleFilled(start + offset, 3.f, IM_COL32(255, 0, 0, 255), 10);
 			}
 		}
 	}
@@ -80,7 +76,7 @@ void Mesh::open(const char* filename)
 	while (std::getline(infile, line))
 	{
 		std::istringstream iss(line);
-			
+
 		std::string type;
 		if (iss >> type, infile.eof()) {
 			break;

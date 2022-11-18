@@ -70,10 +70,10 @@ public:
 		float tanHalfVoV = tan(DegreesToRadians(FoV) / 2);
 
 		return Eigen::Matrix4f{
-			{ 1.f / (tanHalfVoV * ratio), 0.f,				 0.f,					   0.f						   },
-			{ 0.f,						  1.f / (tanHalfVoV),  0.f,					   0.f						   },
+			{ 1.f / (tanHalfVoV * ratio), 0.f,				 0.f,					  0.f						  },
+			{ 0.f,						  1.f / (tanHalfVoV),  0.f,					  0.f						  },
 			{ 0.f,						  0.f,			    (zNear + zFar) / zRange, -2.f * zFar * zNear / zRange },
-			{ 0.f,						  0.f,				1.f,					   0.f						   }
+			{ 0.f,						  0.f,				-1.f,					  0.f						  }
 		};
 
 		/*float s = 1.f / tan(DegreesToRadians(FoV) * 0.5f * PI * 180.f);
