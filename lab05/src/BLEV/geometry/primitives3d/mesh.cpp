@@ -28,8 +28,8 @@ void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix
 				Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
 				Eigen::Vector4f v1_2d = vp * v1;
 
-				auto start = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3));
-				auto end = ImVec2(v1_2d(0) / v1_2d(3), v1_2d(1) / v1_2d(3));
+				auto start =  (1.0f / v0_2d(3)) * ImVec2(v0_2d(0), v0_2d(1));
+				auto end = (1.0f / v1_2d(3)) * ImVec2(v1_2d(0), v1_2d(1));
 
 				//start.x *= 512.f * 0.5f; start.y *= 512.f * 0.5f; //if we use fov perspective
 				//end.x *= 512.f * 0.5f; end.y *= 512.f * 0.5f;

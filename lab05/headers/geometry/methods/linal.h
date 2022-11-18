@@ -46,9 +46,9 @@ public:
 		ImVec3 yaxis = cross(zaxis, xaxis); // y axis of the new coordinate system
 
 		return Eigen::Matrix4f{
-			{  -xaxis.x,	-xaxis.y, -xaxis.z,  dot(xaxis, eye) },
-			{  -yaxis.x,	-yaxis.y, -yaxis.z,  dot(yaxis, eye) },
-			{  -zaxis.x,	-zaxis.y, -zaxis.z,  dot(zaxis, eye) },
+			{  xaxis.x,	xaxis.y, xaxis.z,  -dot(xaxis, eye) },
+			{  yaxis.x,	yaxis.y, yaxis.z,  -dot(yaxis, eye) },
+			{  zaxis.x,	zaxis.y, zaxis.z,  -dot(zaxis, eye) },
 			{   0.f,		 0.f,	   0.f,	     1.f			   }
 		}; // = orientation * translation
 	}
@@ -72,8 +72,8 @@ public:
 		return Eigen::Matrix4f{
 			{ 1.f / (tanHalfVoV * ratio), 0.f,				 0.f,					   0.f						   },
 			{ 0.f,						  1.f / (tanHalfVoV),  0.f,					   0.f						   },
-			{ 0.f,						  0.f,			    -(zNear + zFar) / zRange, -2.f * zFar * zNear / zRange },
-			{ 0.f,						  0.f,				-1.f,					   0.f						   }
+			{ 0.f,						  0.f,			    (zNear + zFar) / zRange, -2.f * zFar * zNear / zRange },
+			{ 0.f,						  0.f,				1.f,					   0.f						   }
 		};
 
 		/*float s = 1.f / tan(DegreesToRadians(FoV) * 0.5f * PI * 180.f);
