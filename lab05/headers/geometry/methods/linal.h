@@ -65,27 +65,37 @@ public:
 		};
 	}
 
-	static const Eigen::Matrix4f perspectiveFoV(const float& FoV, const float& ratio, const float& zNear, const float& zFar) {
+	/* 
+		projects 3d coordinates of some point into NDC space. for right-handed system bounded by [-1, 1] at x and y axis and [-1, 0] at z axis
+		used in DirectX as you may assume from the name
+		sign of 1.f at last row, second to last col is based upon the coordinate system we use. usually its negative for right-handed systems and positive for left-handed. but we also have an option to flip axis at NDC -> window space stage
+	*/
+	static const Eigen::Matrix4f perspectiveFoVDirectX(const float& FoV, const float& ratio, const float& zNear, const float& zFar) {
 		float zRange = zFar - zNear;
 		float tanHalfVoV = tan(DegreesToRadians(FoV) / 2);
-
 		return Eigen::Matrix4f{
-			{ 1.f / (tanHalfVoV * ratio), 0.f,				 0.f,					  0.f						  },
-			{ 0.f,						  1.f / (tanHalfVoV),  0.f,					  0.f						  },
-			{ 0.f,						  0.f,			    (zNear + zFar) / zRange, -2.f * zFar * zNear / zRange },
-			{ 0.f,						  0.f,				-1.f,					  0.f						  }
+			{ 1.f / (tanHalfVoV * ratio), 0.f,				  0.f,			  0.f					},
+			{ 0.f,						  1.f / (tanHalfVoV), 0.f,			  0.f					},
+			{ 0.f,						  0.f,			      zFar / zRange, -zFar * zNear / zRange },
+			{ 0.f,						  0.f,				 -1.f,			  0.f					}
 		};
-
-		/*float s = 1.f / tan(DegreesToRadians(FoV) * 0.5f * PI * 180.f);
-
-		return Eigen::Matrix4f{
-			{ s,    0.f,  0.f,			  0.f					},
-			{ 0.f,	s,    0.f,			  0.f					},
-			{ 0.f,	0.f, -zFar / zRange, -zFar * zNear / zRange },
-			{ 0.f,	0.f,  -1.f,			  0.f					}
-		};*/
 	}
 
+	/*
+		projects 3d coordinates of some point into NDC space bounded by [-1, 1] at x and y axis and [-1, 1] at z axis
+		used in OpenGL as you may assume from the name
+		sign of 1.f at last row, second to last col is based upon the coordinate system we use. usually its negative for right-handed systems and positive for left-handed. but we also have an option to flip axis at NDC -> window space stage
+	*/
+	static const Eigen::Matrix4f perspectiveFoVOpenGL(const float& FoV, const float& ratio, const float& zNear, const float& zFar) {
+		float zRange = zFar - zNear;
+		float tanHalfVoV = tan(DegreesToRadians(FoV) / 2);
+		return Eigen::Matrix4f{
+			{ 1.f / (tanHalfVoV * ratio), 0.f,				  0.f,					    0.f						    },
+			{ 0.f,						  1.f / (tanHalfVoV), 0.f,					    0.f						    },
+			{ 0.f,						  0.f,			     -(zNear + zFar) / zRange, -2.f * zFar * zNear / zRange },
+			{ 0.f,						  0.f,				 -1.f,					    0.f						    }
+		};
+	}
 
 	/**
 		angleX - angle of xAxis rotation

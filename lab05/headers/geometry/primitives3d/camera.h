@@ -41,7 +41,7 @@ class Camera
 
 		this->_viewport = ImVec2(800.f, 800.f); // maybe we'll need it someday
 		this->_zNear = 1.f;
-		this->_zFar = 10.f;
+		this->_zFar = 100.f;
 		this->_aspectRatio = 1.f;
 		this->_FoV = 45.f;
 	}
@@ -93,7 +93,7 @@ public:
 		switch ((CamMode)this->_mode) {
 		case CamMode::Perspective:
 			//return Linal::perspective(this->_zFocus);
-			return Linal::perspectiveFoV(this->_FoV, this->_aspectRatio, this->_zNear, this->_zFar);
+			return Linal::perspectiveFoVDirectX(this->_FoV, this->_aspectRatio, this->_zNear, this->_zFar);
 		case CamMode::Axonometry:
 			return Linal::axonometry(this->_angleX, this->_angleY);
 		default:
