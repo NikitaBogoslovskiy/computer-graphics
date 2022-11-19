@@ -4,13 +4,15 @@
 #include <sstream>
 #include <string>
 #include "geometry/methods/funcs.h"
-//#include <omp.h>
 #include <thread>
 #include <mutex>
+
+extern bool needRefresh;
 
 Mesh::Mesh() : points(), polygons() {
 	face_color = ImVec4(rand() % 256, rand() % 256, rand() % 256, 255);
 	edge_color = ImVec4(255, 255, 204, 255);
+	needRefresh = true;
 }
 
 std::mutex g_l_draw_list;
@@ -269,7 +271,7 @@ void Mesh::scale(float dx, float dy, float dz)
 	updatePoints(mat);
 }
 
-void Mesh::updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool needsTranslsate)
+void Mesh::updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool needTranslsate)
 {
 	Eigen::MatrixXf points_matrix;
 	points_matrix.resize(4, points.size());
@@ -281,7 +283,7 @@ void Mesh::updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool needsTranslsate)
 	}
 
 	Eigen::MatrixXf result_matrix;
-	if (!needsTranslsate)
+	if (!needTranslsate)
 		result_matrix = mat * points_matrix;
 	else
 	{
@@ -306,5 +308,6 @@ void Mesh::updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool needsTranslsate)
 		points[i].y = result_matrix(1, i);
 		points[i].z = result_matrix(2, i);
 	}
+	needRefresh = true;
 }
 

@@ -9,20 +9,10 @@
 class Mesh : public VisualParams
 {
 private:
-	//std::vector<ImVec3> init_points;
 	std::vector<ImVec3> points;
 	std::deque<Polygon> polygons;
 	ImVec4 face_color;
 	ImVec4 edge_color;
-
-protected:
-	//Eigen::Matrix<float, 4, 4> translate_mat;
-	//Eigen::Matrix<float, 4, 4> rtranslate_mat;
-	//Eigen::Matrix<float, 4, 4> rtranslate_mat;
-	//Eigen::Matrix<float, 4, 4> rotate_mat;
-	//Eigen::Matrix<float, 4, 4> scale_mat;
-	//Eigen::Matrix<float, 4, 4> reflect_mat;
-	//Eigen::Matrix<float, 4, 4> transform_mat;
 public:
 	Mesh();
 	inline void add_point(const ImVec3& point) { points.push_back(point); /*init_points.push_back(point);*/ }
@@ -36,9 +26,7 @@ public:
 	inline ImVec3& getPoint(size_t idx) {
 		return points[idx];
 	}
-	//inline ImVec3& getInitPoint(size_t idx) {
-	//	return init_points[idx];
-	//}
+
 	inline std::deque<Polygon> getPolygons() {
 		return polygons;
 	}
@@ -61,7 +49,7 @@ public:
 	void reflectY();
 	void reflectZ();
 	void scale(float dx, float dy, float dz);
-	void updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool needsTranslsate = true);
+	void updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool needTranslsate = true);
 
 private:
 	void _draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp, const ImVec3& cam_dir, size_t start, size_t end);

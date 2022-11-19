@@ -8,7 +8,6 @@
 #include "Validator.h"
 
 namespace BLEV {
-	static bool needRefresh = false;
 	class Interface {
 		BLEV::Data& _data;
 	public:
@@ -143,8 +142,6 @@ namespace BLEV {
 			ImVec2 deltaMouse = ImVec2(0.f, 0.f);
 			float deltaTime = 0.0f;	// Time between current frame and last frame
 			float lastFrame = 0.0f; // Time of last frame
-			bool needResize = false;
-			bool needShift = false;
 			size_t oldSize = 0;
 			ZBuffer zbuf;
 

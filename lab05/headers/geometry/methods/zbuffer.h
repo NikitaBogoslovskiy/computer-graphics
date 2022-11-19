@@ -8,7 +8,6 @@
 #include <array>
 #include <iostream>
 
-//auto cmp = [](std::tuple<int, float>& t1, std::tuple<int, float>& t2) {return std::get<0>(t1) < std::get<0>(t2); };
 struct PointDepth
 {
 	int x;

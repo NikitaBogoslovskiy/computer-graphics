@@ -46,45 +46,6 @@ void ZBuffer::draw(ImDrawList* draw_list, ImVec2& canvasOffset)
 			draw_list->AddRectFilled(ImVec2(x, y) + canvasOffset, ImVec2(x + 1, y + 1) + canvasOffset, GetColorV4U32(colorBuffer[y][x]));
 		}
 	}
-	/*
-	if (height <= 0)
-		return;
-	unsigned char* data = new unsigned char[height * width * 4];
-	for (size_t y = 0; y < height; ++y) {
-		for (size_t x = 0; x < width; ++x) {
-			//if (colorBuffer[y][x].w == 0)
-				//continue;
-			//draw_list->AddRectFilled(ImVec2(x, y) + canvasOffset, ImVec2(x + 1, y + 1) + canvasOffset, colorBuffer[y][x]);
-			data[y * width * 3 + x * 3] = (unsigned char)colorBuffer[y][x].x;
-			data[y * width * 3 + x * 3 + 1] = (unsigned char)colorBuffer[y][x].y;
-			data[y * width * 3 + x * 3 + 2] = (unsigned char)colorBuffer[y][x].z;
-			//data[y * width * 4 + x * 4 + 3] = (unsigned char)colorBuffer[y][x].w;
-		}
-	}
-	GLuint tex_handle;
-	glGenTextures(1, &tex_handle);
-	glBindTexture(GL_TEXTURE_2D, tex_handle);
-	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexEnvf(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, false, GL_RGB, GL_UNSIGNED_BYTE, data);
-	glEnable(GL_TEXTURE_2D);
-	glBindTexture(GL_TEXTURE_2D, tex_handle);
-	glBegin(GL_QUADS);
-	glTexCoord2d(0, 0);
-	glVertex2i(canvasOffset.x, canvasOffset.y);
-	glTexCoord2d(1, 0);
-	glVertex2i(canvasOffset.x + width, canvasOffset.y);
-	glTexCoord2d(1, 1);
-	glVertex2i(canvasOffset.x + width, canvasOffset.y + height);
-	glTexCoord2d(0, 1);
-	glVertex2i(canvasOffset.x, canvasOffset.y + height);
-	glEnd();
-	glDisable(GL_TEXTURE_2D);
-	*/
 }
 
 void ZBuffer::fillBuffers(std::vector<Mesh*>& meshes, Eigen::Matrix4f& vp, ImVec3& cam_dir)
@@ -92,9 +53,9 @@ void ZBuffer::fillBuffers(std::vector<Mesh*>& meshes, Eigen::Matrix4f& vp, ImVec
 	for (size_t i = 0; i < meshes.size(); ++i) {
 		auto polygons = meshes[i]->getPolygons();
 		for (size_t j = 0; j < polygons.size(); ++j) {
-			if (dynamic_cast<RotationBody*>(meshes[i]) == nullptr && dynamic_cast<MeshGraph*>(meshes[i]) == nullptr)
-				if (polygons[j].normal * cam_dir >= 0)
-					continue;
+			//if (dynamic_cast<RotationBody*>(meshes[i]) == nullptr && dynamic_cast<MeshGraph*>(meshes[i]) == nullptr)
+			//	if (polygons[j].normal * cam_dir >= 0)
+			//		continue;
 			processPolygon(meshes[i], polygons[j], vp);
 		}
 	}

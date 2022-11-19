@@ -212,6 +212,9 @@
     <ClInclude Include="headers\geometry\methods\zbuffer.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="headers\BLEV\Display.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\dependencies\Eigen\Eigen\Cholesky">
