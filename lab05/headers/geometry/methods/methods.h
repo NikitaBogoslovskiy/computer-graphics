@@ -1,4 +1,3 @@
-#pragma once
 #ifndef __METHODS_H__
 #define __METHODS_H__
 
@@ -6,6 +5,6 @@
 #include "affine.h"
 #include "checks.h"
 #include "linal.h"
+#include "zbuffer.h"
 
 #endif // !__METHODS_H__
-

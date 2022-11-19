@@ -1,4 +1,3 @@
-#pragma once
 #ifndef __BLEV_DATA_H__
 #define __BLEV_DATA_H__
 
@@ -40,6 +39,13 @@ namespace BLEV {
 
 		const uint8_t cameraModesSize = 2;
 		const char* cameraModes[2]{ "Perspective", "Axonometric" };
+
+		const uint8_t funcs3dSize = 5;
+		const char* funcs3dTypes[5]{ "5 * (cos(x^2 + z^2 + 1)/(x^2 + z^2 + 1) + 0.1)", 
+									"cos(x^2 + z^2)/(x^2 + z^2 + 1)", 
+									"sin(x) * cos(z)", 
+									"sin(x) + cos(z)",
+									"x^2 + z^2" };
 	};
 }
 
