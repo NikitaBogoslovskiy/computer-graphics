@@ -41,8 +41,6 @@ public:
 			add_polygon(Polygon({ 0, 1, 3 }));
 			add_polygon(Polygon({ 1, 2, 3 }));
 		}
-
-		updateRTranslate();
 	}
 };
 
@@ -59,8 +57,6 @@ public:
 		add_point(center + ImVec3(-hlife, hlife, -hlife));
 		add_point(center + ImVec3(-hlife, -hlife, hlife));
 		add_point(center + ImVec3(-hlife, -hlife, -hlife));
-
-		updateRTranslate();
 
 		add_polygon(Polygon({ 2, 3, 1, 0 }));
 		add_polygon(Polygon({ 4, 5, 7, 6 }));
@@ -82,8 +78,6 @@ public:
 		add_point(center + ImVec3(-hlife, 0, 0));
 		add_point(center + ImVec3(0, -hlife, 0));
 		add_point(center + ImVec3(0, 0, -hlife));
-
-		updateRTranslate();
 
 		add_polygon(Polygon({ 0, 1, 2 }));
 		add_polygon(Polygon({ 0, 2, 3 }));
@@ -117,8 +111,6 @@ public:
 		add_point(center + ImVec3(-hlife, 0, phiMhl)); // J 9
 		add_point(center + ImVec3(hlife, 0, -phiMhl)); // K 10
 		add_point(center + ImVec3(-hlife, 0, -phiMhl)); // L 11
-
-		updateRTranslate();
 
 		add_polygon({9, 8, 0});
 		add_polygon({5, 9, 0});
@@ -174,8 +166,6 @@ public:
 		add_point(center + ImVec3(-hlife, hlife, -hlife)); // R 17
 		add_point(center + ImVec3(-hlife, -hlife, hlife)); // S 18
 		add_point(center + ImVec3(-hlife, -hlife, -hlife)); // T 19
-
-		updateRTranslate();
 
 		add_polygon({ 0, 1, 14, 8, 12 });
 		add_polygon({ 16, 9, 18, 1, 0 });

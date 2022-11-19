@@ -53,7 +53,6 @@ void RotationBody::performRotation(Primitive* prim, int iterNumber, Axis ax)
 		if (i != iterNumber - 1)
 			pointsMatrix = rmat * pointsMatrix;
 	}
-	updateRTranslate();
 }
 
 Eigen::Matrix<float, 4, 4> RotationBody::prepareDataX(Primitive* prim, float angle, float alpha, float beta, Eigen::MatrixXf& pointsMatrix)

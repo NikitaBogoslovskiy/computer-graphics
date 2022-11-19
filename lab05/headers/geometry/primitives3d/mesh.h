@@ -16,12 +16,12 @@ private:
 	ImVec4 edge_color;
 
 protected:
-	Eigen::Matrix<float, 4, 4> translate_mat;
-	Eigen::Matrix<float, 4, 4> rtranslate_mat;
+	//Eigen::Matrix<float, 4, 4> translate_mat;
+	//Eigen::Matrix<float, 4, 4> rtranslate_mat;
 	//Eigen::Matrix<float, 4, 4> rtranslate_mat;
 	//Eigen::Matrix<float, 4, 4> rotate_mat;
 	//Eigen::Matrix<float, 4, 4> scale_mat;
-	Eigen::Matrix<float, 4, 4> reflect_mat;
+	//Eigen::Matrix<float, 4, 4> reflect_mat;
 	//Eigen::Matrix<float, 4, 4> transform_mat;
 public:
 	Mesh();
@@ -60,10 +60,8 @@ public:
 	void reflectX();
 	void reflectY();
 	void reflectZ();
-	//void reflect();
 	void scale(float dx, float dy, float dz);
-	void updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool isTranslsate = false, bool isReflect = false);
-	void updateRTranslate();
+	void updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool needsTranslsate = true);
 
 private:
 	void _draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp, const ImVec3& cam_dir, size_t start, size_t end);

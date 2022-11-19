@@ -8,13 +8,7 @@
 #include <thread>
 #include <mutex>
 
-Mesh::Mesh() : /*init_points(), */points(), polygons() {
-	translate_mat.setIdentity();
-	rtranslate_mat.setIdentity();
-	//transform_mat.setIdentity();
-	//rotate_mat.setIdentity();
-	//scale_mat.setIdentity();
-	reflect_mat.setIdentity();
+Mesh::Mesh() : points(), polygons() {
 	face_color = ImVec4(rand() % 256, rand() % 256, rand() % 256, 255);
 	edge_color = ImVec4(255, 255, 204, 255);
 }
@@ -161,9 +155,7 @@ void Mesh::open(const char* filename)
 	infile.close();
 
 	this->points = std::move(m.points);
-	//this->init_points = std::move(m.init_points);
 	this->polygons = std::move(m.polygons);
-	updateRTranslate();
 }
 
 void Mesh::recalculate_normals()
@@ -182,7 +174,6 @@ void Mesh::rotateX(float angle)
 		{0, -sin(-angle), cos(-angle), 0},
 		{0, 0, 0, 1}
 	};
-	//rotate_mat = rmat * rotate_mat;
 	updatePoints(mat);
 }
 
@@ -195,7 +186,6 @@ void Mesh::rotateY(float angle)
 		{sin(-angle), 0, cos(-angle), 0},
 		{0, 0, 0, 1}
 	};
-	//rotate_mat = rmat * rotate_mat;
 	updatePoints(mat);
 }
 
@@ -208,7 +198,6 @@ void Mesh::rotateZ(float angle)
 		{0, 0, 1, 0},
 		{0, 0, 0, 1}
 	};
-	//rotate_mat = rmat * rotate_mat;
 	updatePoints(mat);
 }
 
@@ -226,7 +215,6 @@ void Mesh::rotateU(ImVec3 p1, ImVec3 p2, float angle)
 		{z * x * (1 - cosa) - y * sina,  z * y * (1 - cosa) + x * sina,  cosa + z * z * (1 - cosa),     0},
 		{           0,                              0,                           0,                     1}
 	};
-	//rotate_mat = rmat * rotate_mat;
 	updatePoints(mat);
 }
 
@@ -237,9 +225,7 @@ void Mesh::reflectX() {
 		{0, 0, 1, 0},
 		{0, 0, 0, 1}
 	};
-	//reflect_mat(0, 0) *= -1;
-	//reflect();
-	updatePoints(mat, false, true);
+	updatePoints(mat, false);
 }
 
 void Mesh::reflectY() {
@@ -249,9 +235,7 @@ void Mesh::reflectY() {
 		{0, 0, 1, 0},
 		{0, 0, 0, 1}
 	};
-	//reflect_mat(1, 1) *= -1;
-	//reflect();
-	updatePoints(mat, false, true);
+	updatePoints(mat, false);
 }
 
 void Mesh::reflectZ() {
@@ -261,9 +245,7 @@ void Mesh::reflectZ() {
 		{0, 0, -1, 0},
 		{0, 0, 0, 1}
 	};
-	//reflect_mat(2, 2) *= -1;
-	//reflect();
-	updatePoints(mat, false, true);
+	updatePoints(mat, false);
 }
 
 void Mesh::translate(float dx, float dy, float dz) {
@@ -273,14 +255,11 @@ void Mesh::translate(float dx, float dy, float dz) {
 		{0, 0, 1, dz},
 		{0, 0, 0, 1}
 	};
-	updatePoints(mat, true, false);
+	updatePoints(mat, false);
 }
 
 void Mesh::scale(float dx, float dy, float dz)
 {
-	//scale_mat(0, 0) *= dx;
-	//scale_mat(1, 1) *= dy;
-	//scale_mat(2, 2) *= dz;
 	Eigen::Matrix<float, 4, 4> mat{
 		{dx, 0, 0, 0},
 		{0, dy, 0, 0},
@@ -290,7 +269,7 @@ void Mesh::scale(float dx, float dy, float dz)
 	updatePoints(mat);
 }
 
-void Mesh::updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool isTranslsate, bool isReflect)
+void Mesh::updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool needsTranslsate)
 {
 	Eigen::MatrixXf points_matrix;
 	points_matrix.resize(4, points.size());
@@ -300,82 +279,32 @@ void Mesh::updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool isTranslsate, bool
 		points_matrix(2, i) = points[i].z;
 		points_matrix(3, i) = 1;
 	}
-	
-	auto result_matrix = reflect_mat * translate_mat * mat * rtranslate_mat * reflect_mat * points_matrix;
-	if (isTranslsate)
-	{
-		translate_mat(0, 3) += mat(0, 3);
-		translate_mat(1, 3) += mat(1, 3);
-		translate_mat(2, 3) += mat(2, 3);
-		rtranslate_mat(0, 3) -= mat(0, 3);
-		rtranslate_mat(1, 3) -= mat(1, 3);
-		rtranslate_mat(2, 3) -= mat(2, 3);
-	}
-	if (isReflect)
-	{
-		reflect_mat(0, 0) *= mat(0, 0);
-		reflect_mat(1, 1) *= mat(1, 1);
-		reflect_mat(2, 2) *= mat(2, 2);
-		auto res = mat * points_matrix;
-		for (size_t i = 0; i < points.size(); i++) {
-			points[i].x = res(0, i);
-			points[i].y = res(1, i);
-			points[i].z = res(2, i);
-		}
-	}
+
+	Eigen::MatrixXf result_matrix;
+	if (!needsTranslsate)
+		result_matrix = mat * points_matrix;
 	else
 	{
-		for (size_t i = 0; i < points.size(); i++) {
-			points[i].x = result_matrix(0, i);
-			points[i].y = result_matrix(1, i);
-			points[i].z = result_matrix(2, i);
-		}
+		auto c = center();
+		Eigen::Matrix<float, 4, 4> to_center{
+			{1, 0, 0, -c.x},
+			{0, 1, 0, -c.y},
+			{0, 0, 1, -c.z},
+			{0, 0, 0, 1}
+		};
+		Eigen::Matrix<float, 4, 4> from_center{
+			{1, 0, 0, c.x},
+			{0, 1, 0, c.y},
+			{0, 0, 1, c.z},
+			{0, 0, 0, 1}
+		};
+		result_matrix = from_center * mat * to_center * points_matrix;
 	}
-
-	for (size_t i = 0; i < polygons.size(); i++) {
-		calculate_normal(polygons[i]);
-	}
-}
-/*
-void Mesh::reflect()
-{
-	Eigen::MatrixXf points_matrix;
-	points_matrix.resize(4, points.size());
-	for (size_t i = 0; i < points.size(); i++) {
-		points_matrix(0, i) = points[i].x;
-		points_matrix(1, i) = points[i].y;
-		points_matrix(2, i) = points[i].z;
-		points_matrix(3, i) = 1;
-	}
-
-	//auto result_matrix = reflect_mat * points_matrix;
-	auto num = result_matrix.cols();
 
 	for (size_t i = 0; i < points.size(); i++) {
 		points[i].x = result_matrix(0, i);
 		points[i].y = result_matrix(1, i);
 		points[i].z = result_matrix(2, i);
 	}
+}
 
-	for (size_t i = 0; i < polygons.size(); i++) {
-		calculate_normal(polygons[i]);
-	}
-}
-*/
-void Mesh::updateRTranslate()
-{
-	auto c = center();
-	/*
-	for (size_t i = 0; i < init_points.size(); i++) {
-		init_points[i].x -= c.x;
-		init_points[i].y -= c.y;
-		init_points[i].z -= c.z;
-	}
-	*/
-	translate_mat(0, 3) = c.x;
-	translate_mat(1, 3) = c.y;
-	translate_mat(2, 3) = c.z;
-	rtranslate_mat(0, 3) = -c.x;
-	rtranslate_mat(1, 3) = -c.y;
-	rtranslate_mat(2, 3) = -c.z;
-}
