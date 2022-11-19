@@ -66,9 +66,9 @@ public:
 	}
 
 	/* 
-		projects 3d coordinates of some point into NDC space. for right-handed system bounded by [-1, 1] at x and y axis and [-1, 0] at z axis
+		projects 3d coordinates of some point into NDC space. for right-handed system bounded by [-1, 1] at x and y axis and [0, 1] at z axis
 		used in DirectX as you may assume from the name
-		sign of 1.f at last row, second to last col is based upon the coordinate system we use. usually its negative for right-handed systems and positive for left-handed. but we also have an option to flip axis at NDC -> window space stage
+		for left-handed systems
 	*/
 	static const Eigen::Matrix4f perspectiveFoVDirectX(const float& FoV, const float& ratio, const float& zNear, const float& zFar) {
 		float zRange = zFar - zNear;
@@ -77,14 +77,14 @@ public:
 			{ 1.f / (tanHalfVoV * ratio), 0.f,				  0.f,			  0.f					},
 			{ 0.f,						  1.f / (tanHalfVoV), 0.f,			  0.f					},
 			{ 0.f,						  0.f,			      zFar / zRange, -zFar * zNear / zRange },
-			{ 0.f,						  0.f,				 -1.f,			  0.f					}
+			{ 0.f,						  0.f,				  1.f,			  0.f					}
 		};
 	}
 
 	/*
 		projects 3d coordinates of some point into NDC space bounded by [-1, 1] at x and y axis and [-1, 1] at z axis
 		used in OpenGL as you may assume from the name
-		sign of 1.f at last row, second to last col is based upon the coordinate system we use. usually its negative for right-handed systems and positive for left-handed. but we also have an option to flip axis at NDC -> window space stage
+		for right-handed systems (?)
 	*/
 	static const Eigen::Matrix4f perspectiveFoVOpenGL(const float& FoV, const float& ratio, const float& zNear, const float& zFar) {
 		float zRange = zFar - zNear;

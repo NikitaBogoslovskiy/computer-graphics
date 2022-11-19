@@ -41,9 +41,9 @@ class Camera
 
 		this->_viewport = ImVec2(800.f, 800.f); // maybe we'll need it someday
 		this->_zNear = 1.f;
-		this->_zFar = 100.f;
+		this->_zFar = 10000.f;
 		this->_aspectRatio = 1.f;
-		this->_FoV = 45.f;
+		this->_FoV = 100.f;
 	}
 
 	inline void resetAxonometrySettings() {
@@ -87,7 +87,7 @@ public:
 	inline float& angleY() { return this->_angleY; }
 
 	inline Eigen::Matrix4f& scale() { return this->_scale; }
-	inline Eigen::Matrix4f& view() { return this->_view; }
+	inline Eigen::Matrix4f& view() { return this->_view; } 
 
 	inline Eigen::Matrix4f projection() {
 		switch ((CamMode)this->_mode) {
