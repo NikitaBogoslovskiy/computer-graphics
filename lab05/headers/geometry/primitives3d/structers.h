@@ -108,7 +108,8 @@ struct Line3d : public VisualParams {
         std::cout << "BEFORE vp *: " << v0(0) << " " << v0(1) << " " << v0(2) << " | " << v1(0) << " " << v1(1) << " " << v1(2) << ";\n"
             << "AFTER: " << v0_2d(0) << " " << v0_2d(1) << " " << v0_2d(2) << " " << v0_2d(3) << " | " << v1_2d(0) << " " << v1_2d(1) << " " << v1_2d(2) << " " << v1_2d(3) << std::endl << std::endl;
         
-        //Clipper::clipLineSegment(v0_2d, v1_2d);
+        auto drawLine = Clipper::clipLineSegment(v0_2d, v1_2d);
+        if (!drawLine) return;
 
         ImVec2 start = ((1.0f / v0_2d(3)) * ImVec2(-v0_2d(0), -v0_2d(1))) * 512.f;
         ImVec2 end = ((1.0f / v1_2d(3)) * ImVec2(-v1_2d(0), -v1_2d(1))) * 512.f;

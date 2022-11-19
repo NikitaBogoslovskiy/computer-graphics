@@ -28,6 +28,9 @@ void Mesh::draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix
 				Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
 				Eigen::Vector4f v1_2d = vp * v1;
 
+				auto drawLine = Clipper::clipLineSegment(v0_2d, v1_2d);
+				if (!drawLine) return;
+
 				ImVec2 start = ((1.0f / v0_2d(3)) * ImVec2(-v0_2d(0), -v0_2d(1))) * 512.f;
 				ImVec2 end = ((1.0f / v1_2d(3)) * ImVec2(-v1_2d(0), -v1_2d(1))) * 512.f;
 
