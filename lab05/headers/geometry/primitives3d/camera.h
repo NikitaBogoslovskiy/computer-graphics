@@ -139,7 +139,7 @@ public:
 		this->_scale = Affine::identity();
 	}
 
-	inline void updatePosition(const ImVec3& eye = ImVec3(0.f, 0.f, 3.f), const ImVec2& rotation = ImVec2(-90.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
+	inline void updatePosition(const ImVec3& eye = ImVec3(0.f, 0.f, 10.f), const ImVec2& rotation = ImVec2(-90.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
 		this->_eye = eye;
 		this->_rotation = rotation;
 		this->_up = up;
