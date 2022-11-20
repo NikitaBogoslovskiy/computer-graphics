@@ -8,17 +8,17 @@
 
 class Mesh : public VisualParams
 {
-private:
+protected:
 	std::vector<ImVec3> points;
 	std::deque<Polygon> polygons;
 	ImVec4 face_color;
 	ImVec4 edge_color;
 public:
 	Mesh();
-	inline void add_point(const ImVec3& point) { points.push_back(point); /*init_points.push_back(point);*/ }
-	inline void add_point(ImVec3&& point) { points.push_back(std::move(point)); /*init_points.push_back(points.back());*/ }
-	inline void add_polygon(const Polygon& polygon) { polygons.push_back(polygon); calculate_normal(polygons.back()); }
-	inline void add_polygon(Polygon&& polygon) { polygons.push_back(std::move(polygon)); calculate_normal(polygons.back()); }
+	inline void add_point(const ImVec3& point) { points.push_back(point); }
+	inline void add_point(ImVec3&& point) { points.push_back(std::move(point)); }
+	virtual inline void add_polygon(const Polygon& polygon) { polygons.push_back(polygon); calculate_normal(polygons.back()); }
+	virtual inline void add_polygon(Polygon&& polygon) { polygons.push_back(std::move(polygon)); calculate_normal(polygons.back()); }
 	inline ImVec3 center() { return sum(points) / points.size(); }
 	inline size_t polygons_size() { return polygons.size(); }
 	inline size_t points_size() { return points.size(); }
@@ -30,8 +30,14 @@ public:
 	inline std::deque<Polygon> getPolygons() {
 		return polygons;
 	}
+	inline Polygon& getPolygon(size_t idx) {
+		return polygons[idx];
+	}
 	inline ImVec4& getFaceColor() {
 		return face_color;
+	}
+	inline void setFaceColor(ImVec4& _color) {
+		face_color = _color;
 	}
 	inline ImVec4& getEdgeColor() {
 		return edge_color;
@@ -57,11 +63,11 @@ public:
 	void draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp, const ImVec3& cam_dir);
 	void save(const char* filename);
 	void open(const char* filename);
-private:
+protected:
 	inline void calculate_normal(Polygon& p) {
 		p.normal = normilize(cross_product(points[p.indices[2]] - points[p.indices[1]], points[p.indices[0]] - points[p.indices[1]]));
 	}
-	void recalculate_normals();
+	virtual void recalculate_normals();
 };
 
 static Mesh open(const char* filename) {

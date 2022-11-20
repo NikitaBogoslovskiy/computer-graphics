@@ -23,10 +23,12 @@ namespace BLEV {
 		Mode chosenMode;
 		AddingLine adding_line;
 		PrimEditMode chosenPrimEditMode;
+		ViewMode chosenView;
 
 		Primitive prev_displacement = Primitive(ImU32(1), 1);
 		Primitive curr_displacement = Primitive(ImU32(1), 1);
 		Line3d* rotate_axis;
+		Torch* torch;
 
 		static const uint8_t primEditModesSize = 5;
 		const char* primEditModesList[primEditModesSize]{ "None", "Select points", "Move points", "Select edges", "Move edges" };
@@ -36,6 +38,9 @@ namespace BLEV {
 
 		const uint8_t classificationTypeSize = 3;
 		const char* classificationType[3]{ "Point and Edge", "Point and Convex Polygon", "Point and Non-convex Polygon" };
+
+		static const uint8_t viewModesSize = 3;
+		const char* viewModes[viewModesSize]{ "Wireframe", "Flat Color", "Gouraud Shading" };
 
 		const uint8_t cameraModesSize = 2;
 		const char* cameraModes[2]{ "Perspective", "Axonometric" };

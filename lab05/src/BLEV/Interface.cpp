@@ -1043,6 +1043,10 @@ void BLEV::Interface::Menu::ShowAddingMenu()
 		if (ImGui::MenuItem("Icosahedron")) {
 			_data.meshes.push_back(new Icosahedron(ImVec3(0.f, 30.f, 0.f)));
 		}
+		if (ImGui::MenuItem("Torch", "", false, _data.torch == nullptr)) {
+			_data.torch = new Torch();
+			_data.meshes.push_back(_data.torch);
+		}
 #ifdef _DEBUG
 		if (ImGui::MenuItem("Bunny", NULL, (bool*)0, false)) {
 			static Mesh mesh = open("bunny.obj");
@@ -1252,11 +1256,16 @@ void BLEV::Interface::ObjectTable::ShowMeshTable(Mesh* mesh, size_t idx)
 	bool node_open = ImGui::TreeNode("Prim", "prim%d", idx);
 	ImGui::TableSetColumnIndex(1);
 
+	auto t = dynamic_cast<Torch*>(mesh);
+	char primName[32];
+	strcpy(primName, "%d-hedr figure");
+	if (t != nullptr)
+		strcpy(primName, "torch");
 	if (_data.chosen_meshes.find(mesh) != _data.chosen_meshes.end()) {
-		ImGui::TextColored(ImVec4(255, 0, 0, 255), "%d-hedr figure", mesh->polygons_size());
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), primName, mesh->polygons_size());
 	}
 	else {
-		ImGui::Text("%d-hedr figure", mesh->polygons_size());
+		ImGui::Text(primName, mesh->polygons_size());
 	}
 
 	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
@@ -1271,29 +1280,55 @@ void BLEV::Interface::ObjectTable::ShowMeshTable(Mesh* mesh, size_t idx)
 
 	if (node_open)
 	{
-		//ImGui::TableNextRow();
-		//ImGui::TableSetColumnIndex(0);
-		//ImGui::SetNextItemWidth(-FLT_MAX);
-		//ImGui::DragFloat(" ", &(mesh->thickness), 0.05f, 1.f, 10.f, "th %.2f");
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		if (t == nullptr)
+		{
+			auto normColor = mesh->getFaceColor() / 255.;
+			bool hasChanged = ImGui::ColorEdit4("", (float*)&normColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+			auto result = normColor * 255;
+			if (hasChanged)
+			{
+				mesh->setFaceColor(result);
+				needRefresh = true;
+			}
 
-		for (size_t i = 0; i < mesh->points_size(); i++) {
-			ImGui::PushID(&(mesh->getPoint(i)));
+			for (size_t i = 0; i < mesh->points_size(); i++) {
+				ImGui::PushID(&(mesh->getPoint(i)));
 
-			ImGui::TableNextRow();
+				ImGui::TableNextRow();
 
-			ImGui::TableSetColumnIndex(0);
+				ImGui::TableSetColumnIndex(0);
 
-			ImGui::AlignTextToFramePadding();
-			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
-			ImGui::Text("Point %d", i);
+				ImGui::AlignTextToFramePadding();
+				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
+				ImGui::Text("Point %d", i);
 
-			ImGui::TableSetColumnIndex(1);
-			float x = mesh->getPoint(i).x;
-			float y = mesh->getPoint(i).y;
-			float z = mesh->getPoint(i).z;
-			ImGui::PopID();
+				ImGui::TableSetColumnIndex(1);
+				float x = mesh->getPoint(i).x;
+				float y = mesh->getPoint(i).y;
+				float z = mesh->getPoint(i).z;
+				ImGui::PopID();
+			}
 		}
-
+		else
+		{
+			auto normColor = t->getColor() / 255.;
+			bool hasChanged = ImGui::ColorEdit4("", (float*)&normColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+			auto result = normColor * 255;
+			if (hasChanged)
+			{
+				t->setColor(result);
+				needRefresh = true;
+			}
+			ImGui::TableSetColumnIndex(1);
+			auto intensity = t->getIntensity();
+			if (ImGui::DragFloat("##", &(intensity), 0.005f, 0.f, 1.f, "%.3f"))
+			{
+				t->setIntensity(intensity);
+				needRefresh = true;
+			}
+		}
 		ImGui::TreePop();
 	}
 
@@ -1638,25 +1673,47 @@ void BLEV::Interface::Canvas::DrawObjects() {
 		draw_list->AddCircleFilled(*ch_p + origin, (*_data.chosen_prims.begin())->thickness() + 2.f, IM_COL32(0, 255, 0, 255), 10);
 	}
 	
-	if (needShift) {
-		zbuf.setOffset(scrolling);
-		needShift = false;
+	if (_data.chosenView == ViewMode::Wireframe)
+	{
+		for (auto mesh : _data.meshes) {
+			mesh->draw(draw_list, origin, vp, main_camera.direction());
+		}
 	}
-	if (needResize) {
-		zbuf.resize(size.x, size.y);
-		needResize = false;
+	else if (_data.chosenView == ViewMode::FlatColor)
+	{
+		if (needShift) {
+			zbuf.setOffset(scrolling);
+			needShift = false;
+		}
+		if (needResize) {
+			zbuf.resize(size.x, size.y);
+			needResize = false;
+		}
+		if (needRefresh) {
+			zbuf.clear();
+			zbuf.fillBuffers(_data.meshes, vp, main_camera.direction());
+			needRefresh = false;
+		}
+		zbuf.draw(draw_list, p[0]);
 	}
-	if (needRefresh) {
-		zbuf.clear();
-		zbuf.fillBuffers(_data.meshes, vp, main_camera.direction());
-		needRefresh = false;
+	else if (_data.chosenView == ViewMode::GouraudShading)
+	{
+		if (needShift) {
+			lbuf.setOffset(scrolling);
+			needShift = false;
+		}
+		if (needResize) {
+			lbuf.resize(size.x, size.y);
+			needResize = false;
+		}
+		if (needRefresh) {
+			lbuf.clear();
+			lbuf.fillBuffers(_data.meshes, _data.torch, vp, main_camera.direction());
+			needRefresh = false;
+		}
+		lbuf.draw(draw_list, p[0]);
 	}
-	zbuf.draw(draw_list, p[0]);
-	/*
-	for (auto mesh : _data.meshes) {
-		mesh->draw(draw_list, origin, vp, main_camera.direction());
-	}
-	*/
+
 	if (_data.rotate_axis != nullptr)
 		_data.rotate_axis->draw(draw_list, origin, vp);
 
@@ -1831,6 +1888,20 @@ void BLEV::Interface::Canvas::ShowContextMenu()
 				ImGui::Separator();
 			}
 
+
+			if (ImGui::BeginMenu("View Mode")) {
+
+				for (size_t i = 0; i < _data.viewModesSize; ++i) {
+					if (ImGui::MenuItem(_data.viewModes[i], "", _data.chosenView == (ViewMode)i)) {
+						_data.chosenView = (ViewMode)i;
+						needRefresh = true;
+						needResize = true;
+						needShift = true;
+					}
+				}
+				ImGui::EndMenu();
+			}
+
 			if (ImGui::MenuItem("Remove last prim", NULL, false, _data.primitives.size() > 0)) {
 				_data.chosen_prims.erase(_data.primitives.back());
 				if (_data.primitives.back() == &_data.prev_displacement)
@@ -1855,12 +1926,14 @@ void BLEV::Interface::Canvas::ShowContextMenu()
 				_data.chosen_prim_edges.clear();
 				_data.chosen_meshes.clear();
 				zbuf.clear();
+				lbuf.clear();
 				_data.primitives.clear();
 				_data.fractals.clear();
 				_data.chosen_lsys.clear();
 				_data.prev_displacement.clear();
 				_data.curr_displacement.clear();
 				_data.meshes.clear();
+				_data.torch = nullptr;
 				delete _data.rotate_axis;
 				_data.rotate_axis = nullptr;
 				_data.chosenPrimEditMode = PrimEditMode::None;
@@ -1974,7 +2047,10 @@ void BLEV::Interface::Canvas::Body() {
 
 		ImGuiIO& io = ImGui::GetIO();
 		draw_list = ImGui::GetWindowDrawList();
-		draw_list->AddRectFilled(p[0], p[1], IM_COL32(50, 50, 50, 255));
+		if (_data.chosenView != GouraudShading)
+			draw_list->AddRectFilled(p[0], p[1], IM_COL32(50, 50, 50, 255));
+		else
+			draw_list->AddRectFilled(p[0], p[1], IM_COL32(10, 10, 10, 255));
 		draw_list->AddRect(p[0], p[1], IM_COL32(255, 255, 255, 255));
 
 		ImGui::InvisibleButton("canvas", size, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
@@ -2035,9 +2111,12 @@ void BLEV::Interface::Canvas::Body() {
 
 		vp = main_camera.viewProjecion(); //auto vp = main_camera.getProjection(); //auto vp = main_camera.getView();
 
-		if (b_grid_2d_enabled) Draw2dGrid();
-		if (b_grid_3d_enabled) Draw3dGrid();
-		if (b_grid_3d_enabled) DrawAxis();
+		//if (_data.chosenView != GouraudShading)
+		{
+			if (b_grid_2d_enabled) Draw2dGrid();
+			if (b_grid_3d_enabled) Draw3dGrid();
+			if (b_grid_3d_enabled) DrawAxis();
+		}
 		DrawObjects();
 
 		/* intersections

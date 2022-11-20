@@ -18,6 +18,22 @@ ImVec3& ImVec3::operator+=(const ImVec3& rhs)
     return *this;
 }
 
+ImVec3& ImVec3::operator/=(const ImVec3& rhs)
+{
+    x /= rhs.x;
+    y /= rhs.y;
+    z /= rhs.z;
+    return *this;
+}
+
+ImVec3& ImVec3::operator/=(const float rhs)
+{
+    x /= rhs;
+    y /= rhs;
+    z /= rhs;
+    return *this;
+}
+
 ImVec3& ImVec3::cross_product(const ImVec3& rhs)
 {
     auto _x = y * rhs.z + z * rhs.y;

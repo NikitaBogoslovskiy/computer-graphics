@@ -18,6 +18,8 @@ struct ImVec3
     inline float& operator[] (size_t idx) { assert(idx <= 2); return (&x)[idx]; }
 
     ImVec3& operator+=(const ImVec3& rhs);
+    ImVec3& operator/=(const ImVec3& rhs);
+    ImVec3& operator/=(const float rhs);
     ImVec3& cross_product(const ImVec3& rhs);
 };
 

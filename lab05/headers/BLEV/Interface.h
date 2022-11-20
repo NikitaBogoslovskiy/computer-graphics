@@ -146,6 +146,7 @@ namespace BLEV {
 			size_t fps = 0;
 			size_t oldSize = 0;
 			ZBuffer zbuf;
+			LightBuffer lbuf;
 
 			ImDrawList* draw_list;
 

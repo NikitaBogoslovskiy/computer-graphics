@@ -7,5 +7,6 @@
 #include "camera.h"
 #include "rotation_body.h"
 #include "mesh_graph.h"
+#include "torch.h"
 
 #endif // !__PRIMITIVES_3D_H__

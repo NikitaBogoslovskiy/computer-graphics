@@ -25,6 +25,12 @@ namespace BLEV {
 		ReleasedState,
 		FinalClick
 	};
+
+	enum ViewMode {
+		Wireframe,
+		FlatColor,
+		GouraudShading
+	};
 }
 
 #define __BLEV_ENUMS_H__

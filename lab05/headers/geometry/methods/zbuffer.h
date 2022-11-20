@@ -24,6 +24,7 @@ using Region = std::unordered_map<int, std::array<PointDepth, 2>>;
 
 class ZBuffer
 {
+protected:
 	ColorMatrix colorBuffer;
 	DepthMatrix depthBuffer;
 	ImVec2 offset;
@@ -35,7 +36,7 @@ public:
 	void setOffset(ImVec2& new_offset);
 	void fillBuffers(std::vector<Mesh*>& meshes, Eigen::Matrix4f& vp, ImVec3& cam_dir);
 	void draw(ImDrawList* draw_list, ImVec2& offset);
-private:
+protected:
 	void processPolygon(Mesh* mesh, Polygon& poly, Eigen::Matrix4f& vp);
 	void interpolateLine(Eigen::Vector4f& p0_3d, Eigen::Vector4f& p1_3d, Region& polygonRegion, ImVec2& size, ImVec4& color);
 

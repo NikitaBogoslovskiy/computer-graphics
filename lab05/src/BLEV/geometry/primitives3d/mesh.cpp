@@ -22,7 +22,7 @@ void Mesh::_draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matri
 	std::vector<ImVec2> buf(10);
 	for (size_t p1 = start; p1 < end; p1++) {
 		auto& pol = polygons[p1];
-		if (pol.normal * cam_dir < 0) 
+		//if (pol.normal * cam_dir < 0) 
 		{
 			for (size_t i = 0; i < pol.size(); i++) {
 				Eigen::Vector4f v0{ points[pol[i]].x, points[pol[i]].y, points[pol[i]].z,  1.f }; // COLUMN-VEC
@@ -313,5 +313,6 @@ void Mesh::updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool needTranslsate)
 		points[i].z = result_matrix(2, i);
 	}
 	needRefresh = true;
+	recalculate_normals();
 }
 
