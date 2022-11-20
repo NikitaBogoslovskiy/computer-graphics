@@ -231,6 +231,8 @@ void Mesh::reflectX() {
 		{0, 0, 1, 0},
 		{0, 0, 0, 1}
 	};
+	for (size_t i = 0; i < polygons.size(); ++i)
+		std::reverse(polygons[i].indices.begin(), polygons[i].indices.end());
 	updatePoints(mat, false);
 }
 
@@ -241,6 +243,8 @@ void Mesh::reflectY() {
 		{0, 0, 1, 0},
 		{0, 0, 0, 1}
 	};
+	for (size_t i = 0; i < polygons.size(); ++i)
+		std::reverse(polygons[i].indices.begin(), polygons[i].indices.end());
 	updatePoints(mat, false);
 }
 
@@ -251,6 +255,8 @@ void Mesh::reflectZ() {
 		{0, 0, -1, 0},
 		{0, 0, 0, 1}
 	};
+	for (size_t i = 0; i < polygons.size(); ++i)
+		std::reverse(polygons[i].indices.begin(), polygons[i].indices.end());
 	updatePoints(mat, false);
 }
 
