@@ -34,7 +34,7 @@ public:
 
 	inline ImVec3& getNormal() { return normal; }
 	inline ImVec4& getColor() { return color; }
-	inline void setColor(ImVec4& _color) { color = _color; }
+	inline void setColor(ImVec4& _color) { color = _color; face_color = _color; }
 	inline float& getIntensity() { return intensity; }
 	inline void setIntensity(float intens) { intensity = intens; }
 	virtual void recalculate_normals() override

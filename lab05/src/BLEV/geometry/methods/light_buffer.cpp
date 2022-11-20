@@ -47,6 +47,7 @@ void LightBuffer::calculateColors(Mesh* mesh, Torch* torch, std::vector<ImVec4>&
 	auto meshColor = mesh->getFaceColor();
 	auto torchColor = torch->getColor();
 	auto intensity = torch->getIntensity();
+	auto albedo = mesh->getAlbedo();
 	auto torchNormal = torch->getNormal();
 	auto reverseTorchNormal = ImVec3(-torchNormal.x, -torchNormal.y, -torchNormal.z);
 	ImVec4 mixedColor = { (meshColor.x / 255.f) * (torchColor.x / 255.f), (meshColor.y / 255.f) * (torchColor.y / 255.f), (meshColor.z / 255.f) * (torchColor.z / 255.f), 1.f };
@@ -57,7 +58,7 @@ void LightBuffer::calculateColors(Mesh* mesh, Torch* torch, std::vector<ImVec4>&
 			finalNormal += mesh->getPolygon(incidentFaces[j][i]).normal;
 		}
 		finalNormal = normilize(finalNormal);
-		auto coef = 1.0 * intensity * std::max(0.f, dot_product(finalNormal, reverseTorchNormal));
+		auto coef = albedo * intensity * std::max(0.f, dot_product(finalNormal, reverseTorchNormal));
 		ImVec4 finalColor;
 		finalColor.x = mixedColor.x * coef * 255;
 		finalColor.y = mixedColor.y * coef * 255;

@@ -13,6 +13,7 @@ protected:
 	std::deque<Polygon> polygons;
 	ImVec4 face_color;
 	ImVec4 edge_color;
+	float albedo = 0.18;
 public:
 	Mesh();
 	inline void add_point(const ImVec3& point) { points.push_back(point); }
@@ -41,6 +42,9 @@ public:
 	}
 	inline ImVec4& getEdgeColor() {
 		return edge_color;
+	}
+	inline float& getAlbedo() {
+		return albedo;
 	}
 	inline Polygon& operator[](size_t idx) {
 		return polygons[idx];
