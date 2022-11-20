@@ -48,7 +48,8 @@ void RotationBody::performRotation(Primitive* prim, int iterNumber, Axis ax)
 		for (unsigned int j = 0; j < pointsNumber; ++j) {
 			add_point(ImVec3(pointsMatrix(0, j), pointsMatrix(1, j), pointsMatrix(2, j)));
 			if (j != pointsNumber - 1)
-				add_polygon(Polygon{ j + i * pointsNumber, j + 1 + i * pointsNumber, j + 1 + ((i + 1) % iterNumber) * pointsNumber, j + ((i + 1) % iterNumber) * pointsNumber });
+				//add_polygon(Polygon{ j + i * pointsNumber, j + 1 + i * pointsNumber, j + 1 + ((i + 1) % iterNumber) * pointsNumber, j + ((i + 1) % iterNumber) * pointsNumber });
+				add_polygon(Polygon{ j + ((i + 1) % iterNumber) * pointsNumber, j + 1 + ((i + 1) % iterNumber) * pointsNumber, j + 1 + i * pointsNumber, j + i * pointsNumber });
 		}
 		if (i != iterNumber - 1)
 			pointsMatrix = rmat * pointsMatrix;

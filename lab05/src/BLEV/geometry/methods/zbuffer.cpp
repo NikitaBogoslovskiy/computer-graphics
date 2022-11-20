@@ -54,8 +54,8 @@ void ZBuffer::fillBuffers(std::vector<Mesh*>& meshes, Eigen::Matrix4f& vp, ImVec
 		auto polygons = meshes[i]->getPolygons();
 		for (size_t j = 0; j < polygons.size(); ++j) {
 			//if (dynamic_cast<RotationBody*>(meshes[i]) == nullptr && dynamic_cast<MeshGraph*>(meshes[i]) == nullptr)
-			//	if (polygons[j].normal * cam_dir >= 0)
-			//		continue;
+			//if (polygons[j].normal * cam_dir >= 0)
+				//continue;
 			processPolygon(meshes[i], polygons[j], vp);
 		}
 	}
