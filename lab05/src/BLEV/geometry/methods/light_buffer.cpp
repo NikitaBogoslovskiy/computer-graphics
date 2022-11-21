@@ -14,7 +14,7 @@ void LightBuffer::draw(ImDrawList* draw_list, ImVec2& canvasOffset)
 	}
 }
 
-void LightBuffer::fillBuffers(std::vector<Mesh*>& meshes, Torch* torch, Eigen::Matrix4f& vp, ImVec3& cam_dir)
+void LightBuffer::fillBuffers(std::vector<Mesh*>& meshes, Torch* torch, Eigen::Matrix4f& vp, ImVec3& cam_pos, ImVec3& cam_dir)
 {
 	if (torch == nullptr)
 		return;
@@ -25,7 +25,7 @@ void LightBuffer::fillBuffers(std::vector<Mesh*>& meshes, Torch* torch, Eigen::M
 		calculateColors(meshes[i], torch, colors);
 		auto polygons = meshes[i]->getPolygons();
 		for (size_t j = 0; j < polygons.size(); ++j) {
-			processPolygon(meshes[i], polygons[j], colors, vp);
+			processPolygon(meshes[i], polygons[j], colors, vp, cam_pos);
 		}
 	}
 
@@ -68,7 +68,7 @@ void LightBuffer::calculateColors(Mesh* mesh, Torch* torch, std::vector<ImVec4>&
 	}
 }
 
-void LightBuffer::processPolygon(Mesh* mesh, Polygon& poly, std::vector<ImVec4>& colors, Eigen::Matrix4f& vp)
+void LightBuffer::processPolygon(Mesh* mesh, Polygon& poly, std::vector<ImVec4>& colors, Eigen::Matrix4f& vp, ImVec3& cam_pos)
 {
 	LightRegion polygonRegion;
 	ImVec2 size = ImVec2(colorBuffer[0].size(), colorBuffer.size());
@@ -80,7 +80,9 @@ void LightBuffer::processPolygon(Mesh* mesh, Polygon& poly, std::vector<ImVec4>&
 		Eigen::Vector4f p1{ origin_p1.x, origin_p1.y, origin_p1.z,  1.f };
 		Eigen::Vector4f p0_3d = vp * p0;
 		Eigen::Vector4f p1_3d = vp * p1;
-		interpolateLine(p0_3d, p1_3d, polygonRegion, size, colors[poly[i]], colors[poly[(i + 1) % poly.size()]]);
+		float p0_depth = p0_3d(3); // distance(origin_p0, cam_pos);
+		float p1_depth = p1_3d(3); // distance(origin_p1, cam_pos);
+		interpolateLine(p0_3d, p1_3d, polygonRegion, size, colors[poly[i]], colors[poly[(i + 1) % poly.size()]], p0_depth, p1_depth);
 	}
 	for (auto& it : polygonRegion)
 	{
@@ -113,11 +115,11 @@ void LightBuffer::processPolygon(Mesh* mesh, Polygon& poly, std::vector<ImVec4>&
 	}
 }
 
-void LightBuffer::interpolateLine(Eigen::Vector4f& p0_3d, Eigen::Vector4f& p1_3d, LightRegion& polygonRegion, ImVec2& size, ImVec4 p0_color, ImVec4 p1_color)
+void LightBuffer::interpolateLine(Eigen::Vector4f& p0_3d, Eigen::Vector4f& p1_3d, LightRegion& polygonRegion, ImVec2& size, ImVec4 p0_color, ImVec4 p1_color, float p0_depth, float p1_depth)
 {
 	auto p0_2d = ImVec2((int)(p0_3d(0) / p0_3d(3)), (int)(p0_3d(1) / p0_3d(3))) + this->offset;
 	auto p1_2d = ImVec2((int)(p1_3d(0) / p1_3d(3)), (int)(p1_3d(1) / p1_3d(3))) + this->offset;
-	float p0_z = p0_3d(3), p1_z = p1_3d(3);
+	float p0_z = p0_depth, p1_z = p1_depth;
 	float alpha = 666;
 	if (p1_2d.x - p0_2d.x != 0)
 		alpha = abs((p1_2d.y - p0_2d.y) / (p1_2d.x - p0_2d.x));

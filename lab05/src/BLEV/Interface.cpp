@@ -1722,7 +1722,7 @@ void BLEV::Interface::Canvas::DrawObjects() {
 		}
 		if (needRefresh) {
 			lbuf.clear();
-			lbuf.fillBuffers(_data.meshes, _data.torch, vp, main_camera.direction());
+			lbuf.fillBuffers(_data.meshes, _data.torch, vp, main_camera.eye(), main_camera.direction());
 			needRefresh = false;
 		}
 		lbuf.draw(draw_list, p[0]);

@@ -79,6 +79,7 @@ ImVector<ImVec2>* unionPolygons(Primitive* p1, Primitive* p2);
 static float distance(const ImVec2& a, const ImVec2& b) {
 	return sqrtf(powf(a.x - b.x, 2) + powf(a.y - b.y, 2));
 }
+
 static float distance_from_line(const ImVec2& e1, const ImVec2& e2, const ImVec2& point) {
 	float left = distance(e1, point),
 		base = distance(e1, e2),
@@ -112,6 +113,10 @@ inline float length(const ImVec3& v3) {
 
 inline ImVec3 normilize(const ImVec3& v3) {
 	return v3 / length(v3);
+}
+
+static float distance(ImVec3& a, ImVec3& b) {
+	return sqrtf(powf(a.x - b.x, 2) + powf(a.y - b.y, 2) + powf(a.z - b.z, 2));
 }
 
 // sometime in future, but now just this
