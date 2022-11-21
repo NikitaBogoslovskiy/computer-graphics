@@ -92,8 +92,8 @@ public:
 	inline Eigen::Matrix4f projection() {
 		switch ((CamMode)this->_mode) {
 		case CamMode::Perspective:
-			//return Linal::perspective(this->_zFocus);
-			return Linal::perspectiveFoVDirectX(this->_FoV, this->_aspectRatio, this->_zNear, this->_zFar);
+			return Linal::perspective(this->_zFocus);
+			//return Linal::perspectiveFoVDirectX(this->_FoV, this->_aspectRatio, this->_zNear, this->_zFar);
 		case CamMode::Axonometry:
 			return Linal::axonometry(this->_angleX, this->_angleY);
 		default:
@@ -139,7 +139,7 @@ public:
 		this->_scale = Affine::identity();
 	}
 
-	inline void updatePosition(const ImVec3& eye = ImVec3(0.f, 0.f, 10.f), const ImVec2& rotation = ImVec2(-90.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
+	inline void updatePosition(const ImVec3& eye = ImVec3(0.f, 0.f, 500.f), const ImVec2& rotation = ImVec2(-90.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
 		this->_eye = eye;
 		this->_rotation = rotation;
 		this->_up = up;
@@ -159,10 +159,15 @@ public:
 
 	inline void updateLook() {
 		lookAt(this->_eye + this->_direction);
+		//lookAtFPS(); // the same thing lol
 	}
 
 	inline void lookAt(const ImVec3& target) {
 		this->_view = Linal::lookAt(this->_eye, target, this->_up);
+	}
+
+	inline void lookAtFPS() {
+		this->_view = Linal::lookAtFPS(this->_rotation.y, this->_rotation.x, this->_eye);
 	}
 
 	inline void altPerspectiveScale(const float& d = 1.f) {

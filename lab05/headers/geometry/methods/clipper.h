@@ -70,7 +70,7 @@ public:
 				accept = true;
 				break;
 			}
-			if (code[0] & code[1]) {
+			else if (code[0] & code[1]) {
 				break;
 			}
 			if (code[0]) { pointToAdjust = 0; }

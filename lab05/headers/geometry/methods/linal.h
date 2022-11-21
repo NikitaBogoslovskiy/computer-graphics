@@ -40,10 +40,31 @@ public:
 		target - the point camera targeted on
 		up - up direction
 	*/
-	static const Eigen::Matrix4f lookAt(const ImVec3& eye = ImVec3(0.f, 0.f, 0.f), const ImVec3& target = ImVec3(0.f, 0.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
-		ImVec3 zaxis = normalize(target - eye);		// "ray" from the eye to the target
+	static const Eigen::Matrix4f lookAt(const ImVec3& eye = ImVec3(0.f, 0.f, 1.f), const ImVec3& target = ImVec3(0.f, 0.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
+		ImVec3 zaxis = normalize(eye - target);		// "ray" from the eye to the target
 		ImVec3 xaxis = normalize(cross(up, zaxis)); // x axis of the new coordinate system
 		ImVec3 yaxis = cross(zaxis, xaxis); // y axis of the new coordinate system
+
+		return Eigen::Matrix4f{
+			{  xaxis.x,	xaxis.y, xaxis.z,  -dot(xaxis, eye) },
+			{  yaxis.x,	yaxis.y, yaxis.z,  -dot(yaxis, eye) },
+			{  zaxis.x,	zaxis.y, zaxis.z,  -dot(zaxis, eye) },
+			{   0.f,		 0.f,	   0.f,	     1.f			   }
+		}; // = orientation * translation
+	}
+
+	static const Eigen::Matrix4f lookAtFPS(const float& pitch, const float& yaw, const ImVec3& eye = ImVec3(0.f, 0.f, 0.f)) {
+		const float pitchRad = DegreesToRadians(pitch);
+		const float yawRad = DegreesToRadians(yaw);
+
+		const float cosPitch = cos(pitchRad);
+		const float sinPitch = sin(pitchRad);
+		const float cosYaw = cos(yawRad);
+		const float sinYaw = sin(yawRad);
+
+		ImVec3 xaxis = { cosYaw, 0, -sinYaw };
+		ImVec3 yaxis = { sinYaw * sinPitch, cosPitch, cosYaw * sinPitch };
+		ImVec3 zaxis = { sinYaw * cosPitch, -sinPitch, cosPitch * cosYaw };
 
 		return Eigen::Matrix4f{
 			{  xaxis.x,	xaxis.y, xaxis.z,  -dot(xaxis, eye) },
