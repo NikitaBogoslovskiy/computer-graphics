@@ -107,8 +107,16 @@ void ZBuffer::processPolygon(Mesh* mesh, Polygon& poly, Eigen::Matrix4f& vp)
 
 void ZBuffer::interpolateLine(Eigen::Vector4f& p0_3d, Eigen::Vector4f& p1_3d, Region& polygonRegion, ImVec2& size, ImVec4& color)
 {
-	auto p0_2d = ImVec2((int)(p0_3d(0) / p0_3d(3)), (int)(p0_3d(1) / p0_3d(3))) + this->offset;
-	auto p1_2d = ImVec2((int)(p1_3d(0) / p1_3d(3)), (int)(p1_3d(1) / p1_3d(3))) + this->offset;
+	auto p0_2dt = ((1.0f / p0_3d(3)) * ImVec2(-p0_3d(0), -p0_3d(1))) + this->offset;
+	ImVec2 p0_2d;
+	p0_2d.x = (int)p0_2dt.x;
+	p0_2d.y = (int)p0_2dt.y;
+	auto p1_2dt = ((1.0f / p1_3d(3)) * ImVec2(-p1_3d(0), -p1_3d(1))) + this->offset;
+	ImVec2 p1_2d;
+	p1_2d.x = (int)p1_2dt.x;
+	p1_2d.y = (int)p1_2dt.y;
+	//auto p1_2d = ImVec2((int)(p1_3d(0) / p1_3d(3)), (int)(p1_3d(1) / p1_3d(3))) + this->offset;
+	//auto p0_2d = ImVec2((int)(p0_3d(0) / p0_3d(3)), (int)(p0_3d(1) / p0_3d(3))) + this->offset;
 	float p0_z = p0_3d(3), p1_z = p1_3d(3);
 	float alpha = 666;
 	if (p1_2d.x - p0_2d.x != 0)
