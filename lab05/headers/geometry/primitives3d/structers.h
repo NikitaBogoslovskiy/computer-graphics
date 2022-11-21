@@ -3,7 +3,9 @@
 // #define NDEBUG
 #include <cassert>
 #include <deque>
+#include <iostream>
 #include "pch.h"
+#include "../methods/clipper.h"
 
 struct ImVec3
 {
@@ -104,11 +106,12 @@ struct Line3d : public VisualParams {
             Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
             Eigen::Vector4f v1_2d = vp * v1;
 
-            auto start = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3));
-            auto end = ImVec2(v1_2d(0) / v1_2d(3), v1_2d(1) / v1_2d(3));
+            /*ImVec2 start = ((1.0f / v0_2d(3)) * ImVec2(-v0_2d(0), -v0_2d(1))) * 512.f;
+            ImVec2 end = ((1.0f / v1_2d(3)) * ImVec2(-v1_2d(0), -v1_2d(1))) * 512.f;*/
 
-            //start.x *= 512.f * 0.5f; start.y *= 512.f * 0.5f; //if we use fov perspective
-            //end.x *= 512.f * 0.5f; end.y *= 512.f * 0.5f;
+            ImVec2 start = ((1.0f / v0_2d(3)) * ImVec2(-v0_2d(0), -v0_2d(1)));
+            ImVec2 end = ((1.0f / v1_2d(3)) * ImVec2(-v1_2d(0), -v1_2d(1)));
+
             draw_list->AddLine(start + offset, end + offset, color, thickness);
         }
     }
@@ -120,11 +123,18 @@ struct Line3d : public VisualParams {
         Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
         Eigen::Vector4f v1_2d = vp * v1;
 
-        auto start = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3));
-        auto end = ImVec2(v1_2d(0) / v1_2d(3), v1_2d(1) / v1_2d(3));
+        std::cout << "BEFORE vp *: " << v0(0) << " " << v0(1) << " " << v0(2) << " | " << v1(0) << " " << v1(1) << " " << v1(2) << ";\n"
+            << "AFTER: " << v0_2d(0) << " " << v0_2d(1) << " " << v0_2d(2) << " " << v0_2d(3) << " | " << v1_2d(0) << " " << v1_2d(1) << " " << v1_2d(2) << " " << v1_2d(3) << std::endl << std::endl;
+        
+        //auto drawLine = Clipper::clipLineSegment(v0_2d, v1_2d);
+        //if (!drawLine) return;
 
-        //start.x *= 512.f * 0.5f; start.y *= 512.f * 0.5f; //if we use fov perspective
-        //end.x *= 512.f * 0.5f; end.y *= 512.f * 0.5f;
+        //ImVec2 start = ((1.0f / v0_2d(3)) * ImVec2(-v0_2d(0), -v0_2d(1))) * 512.f;
+        //ImVec2 end = ((1.0f / v1_2d(3)) * ImVec2(-v1_2d(0), -v1_2d(1))) * 512.f;
+
+        ImVec2 start = ((1.0f / v0_2d(3)) * ImVec2(-v0_2d(0), -v0_2d(1)));
+        ImVec2 end = ((1.0f / v1_2d(3)) * ImVec2(-v1_2d(0), -v1_2d(1)));
+
         draw_list->AddLine(start + offset , end + offset, _vp.color, _vp.thickness);
     }
 };

@@ -224,6 +224,9 @@
     <ClInclude Include="headers\geometry\primitives3d\torch.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="headers\geometry\methods\clipper.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\dependencies\Eigen\Eigen\Cholesky">

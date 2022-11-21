@@ -27,7 +27,7 @@ void Mesh::_draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matri
 			for (size_t i = 0; i < pol.size(); i++) {
 				Eigen::Vector4f v0{ points[pol[i]].x, points[pol[i]].y, points[pol[i]].z,  1.f }; // COLUMN-VEC
 				Eigen::Vector4f v0_2d = vp * v0;// thus we projected v0 onto 2d canvas
-				buf[i] = ImVec2(v0_2d(0) / v0_2d(3), v0_2d(1) / v0_2d(3)) + offset;
+				buf[i] = ((1.0f / v0_2d(3)) * ImVec2(-v0_2d(0), -v0_2d(1))) + offset;
 			}
 
 			//	#pragma omp critical
@@ -114,7 +114,7 @@ void Mesh::open(const char* filename)
 	while (std::getline(infile, line))
 	{
 		std::istringstream iss(line);
-			
+
 		std::string type;
 		if (iss >> type, infile.eof()) {
 			break;

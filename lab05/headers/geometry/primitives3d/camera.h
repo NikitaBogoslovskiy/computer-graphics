@@ -22,6 +22,11 @@ class Camera
 
 	/* perspective */
 	float _zFocus;
+
+	float _zNear;
+	float _zFar;
+	float _aspectRatio;
+	float _FoV;
 	ImVec2 _viewport; /*width, height of screen we project picture on! used in FoV perspective*/
 
 	/* axonometry */
@@ -32,8 +37,13 @@ class Camera
 	int _mode;
 
 	inline void resetPerspectiveSettings() {
-		this->_viewport = ImVec2(800.f, 800.f); // maybe we'll need it someday
 		this->_zFocus = 1000.f;
+
+		this->_viewport = ImVec2(800.f, 800.f); // maybe we'll need it someday
+		this->_zNear = 1.f;
+		this->_zFar = 10000.f;
+		this->_aspectRatio = 1.f;
+		this->_FoV = 100.f;
 	}
 
 	inline void resetAxonometrySettings() {
@@ -77,12 +87,13 @@ public:
 	inline float& angleY() { return this->_angleY; }
 
 	inline Eigen::Matrix4f& scale() { return this->_scale; }
-	inline Eigen::Matrix4f& view() { return this->_view; }
+	inline Eigen::Matrix4f& view() { return this->_view; } 
 
 	inline Eigen::Matrix4f projection() {
 		switch ((CamMode)this->_mode) {
 		case CamMode::Perspective:
 			return Linal::perspective(this->_zFocus);
+			//return Linal::perspectiveFoVDirectX(this->_FoV, this->_aspectRatio, this->_zNear, this->_zFar);
 		case CamMode::Axonometry:
 			return Linal::axonometry(this->_angleX, this->_angleY);
 		default:
@@ -128,7 +139,7 @@ public:
 		this->_scale = Affine::identity();
 	}
 
-	inline void updatePosition(const ImVec3& eye = ImVec3(0.f, 0.f, 1.f), const ImVec2& rotation = ImVec2(-90.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
+	inline void updatePosition(const ImVec3& eye = ImVec3(0.f, 0.f, 500.f), const ImVec2& rotation = ImVec2(-90.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
 		this->_eye = eye;
 		this->_rotation = rotation;
 		this->_up = up;
@@ -148,24 +159,16 @@ public:
 
 	inline void updateLook() {
 		lookAt(this->_eye + this->_direction);
+		//lookAtFPS(); // the same thing lol
 	}
 
 	inline void lookAt(const ImVec3& target) {
 		this->_view = Linal::lookAt(this->_eye, target, this->_up);
 	}
 
-	// PROJECTIONS
-
-	// PERSPECTIVE
-
-	/* idk what to use it for now */
-	//inline void setPerspectiveFoVProjection(const float& FoV, const float& ratio, const float& zNear, const float& zFar) {
-		//this->_projection = Linal::perspectiveFoV(FoV, ratio, zNear, zFar);
-	//}
-
-	//inline void setPerspectiveProjection(const float& zFocus) {
-		//this->_projection = Linal::perspective(this->_zFocus);
-	//}
+	inline void lookAtFPS() {
+		this->_view = Linal::lookAtFPS(this->_rotation.y, this->_rotation.x, this->_eye);
+	}
 
 	inline void altPerspectiveScale(const float& d = 1.f) {
 		for (int i = 0; i < 3; i++) {
@@ -173,12 +176,6 @@ public:
 			this->_scale(i, i) += d;
 		}
 	}
-
-	// AXONOMETRY
-
-	//inline void setAxonometryProjection(const float& angleX, const float& angleY) {
-		//this->_projection = Linal::axonometry(angleX, angleY);
-	//}
 };
 
 #endif

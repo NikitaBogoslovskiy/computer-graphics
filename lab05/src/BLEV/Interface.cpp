@@ -1390,13 +1390,13 @@ void BLEV::Interface::Canvas::ProcessCamKeyboardInput(Camera& cam, float& deltaT
 		//return;
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_A)) {
-		cam.eye() += -speed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
 		needRefresh = true;
+		cam.eye() += speed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
 		//return;
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_D)) {
-		cam.eye() += speed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
 		needRefresh = true;
+		cam.eye() += -speed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
 		//return;
 	}
 }
@@ -1404,7 +1404,7 @@ void BLEV::Interface::Canvas::ProcessCamMouseInput(ImVec2& deltaMouse, Camera& c
 	if (ImGui::IsKeyDown(ImGuiKey_C)) {
 		ImVec2 offset = cam.sensitivity() * deltaMouse;
 
-		cam.rotation().x += offset.x; // yaw
+		cam.rotation().x -= offset.x; // yaw
 		cam.rotation().y -= offset.y; // pitch
 
 		cam.rotation().y = min(cam.rotation().y, 89.0f);
