@@ -22,6 +22,12 @@ using ColorMatrix = std::vector<std::vector<ImVec4>>;
 using DepthMatrix = std::vector<std::vector<float>>;
 using Region = std::unordered_map<int, std::array<PointDepth, 2>>;
 
+struct PDUV : PointDepth {
+	ImVec2 uv;
+};
+
+using RegionUV = std::unordered_map<int, PDUV[2]>;
+
 class ZBuffer
 {
 protected:
@@ -38,6 +44,6 @@ public:
 	void draw(ImDrawList* draw_list, ImVec2& offset);
 protected:
 	void processPolygon(Mesh* mesh, Polygon& poly, Eigen::Matrix4f& vp);
-	void interpolateLine(Eigen::Vector4f& p0_3d, Eigen::Vector4f& p1_3d, Region& polygonRegion, ImVec2& size, ImVec4& color);
+	void interpolateLine(Eigen::Vector4f& p0_3d, Eigen::Vector4f& p1_3d, RegionUV& polygonRegion, ImVec2& size, ImVec4& color, ImVec2 uv0 = {0, 0}, ImVec2 uv1 = {1, 1});
 
 };

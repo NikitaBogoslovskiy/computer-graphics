@@ -26,15 +26,15 @@ public:
 		add_point(ImVec3(1, 0, 1));
 		add_point(ImVec3(-1, 0, 1));
 		add_point(ImVec3(-1, 0, -1));
-		auto s = points_size();
-		auto poly = Polygon({ s - 3, s - 2, s - 1 });
+		size_t s = points_size();
+		auto poly = Polygon({ (uint32_t)s - 3, (uint32_t)s - 2, (uint32_t)s - 1 });
 		add_polygon(poly);
 		translate(0, 80, 0);
 	}
 
 	inline ImVec3& getNormal() { return normal; }
 	inline ImVec4& getColor() { return color; }
-	inline void setColor(ImVec4& _color) { color = _color; }
+	inline void setColor(ImVec4& _color) { color = _color; face_color = _color; }
 	inline float& getIntensity() { return intensity; }
 	inline void setIntensity(float intens) { intensity = intens; }
 	virtual void recalculate_normals() override

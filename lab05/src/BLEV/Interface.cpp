@@ -996,6 +996,26 @@ void BLEV::Interface::Menu::ShowFileManagerMenu()
 
 			ImGui::EndMenu();
 		}
+		if (ImGui::MenuItem("Load texture", NULL, (bool*)0, !_data.chosen_meshes.empty())) {
+			nfdchar_t* outPath = NULL;
+			nfdresult_t result = NFD_OpenDialog("jpg", NULL, &outPath);
+
+			if (result == NFD_OKAY) {
+				for (auto m : _data.chosen_meshes) {
+					m->loadImage(outPath);
+				}
+
+				free(outPath);
+			}
+			else if (result == NFD_CANCEL) {
+				puts("User pressed cancel.");
+			}
+			else {
+				printf("Error: %s\n", NFD_GetError());
+			}
+			
+			//ImGui::EndMenu();
+		}
 
 		ImGui::EndMenu();
 	}
@@ -1314,6 +1334,8 @@ void BLEV::Interface::ObjectTable::ShowMeshTable(Mesh* mesh, size_t idx)
 		ImGui::TableSetColumnIndex(0);
 		if (t == nullptr)
 		{
+			ImGui::Text("Color");
+			ImGui::TableSetColumnIndex(1);
 			auto normColor = mesh->getFaceColor() / 255.;
 			bool hasChanged = ImGui::ColorEdit4("", (float*)&normColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
 			auto result = normColor * 255;
@@ -1322,6 +1344,13 @@ void BLEV::Interface::ObjectTable::ShowMeshTable(Mesh* mesh, size_t idx)
 				mesh->setFaceColor(result);
 				needRefresh = true;
 			}
+
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Albedo");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::DragFloat("##", &(mesh->getAlbedo()), 0.005f, 0.f, 1.f, "%.3f"))
+				needRefresh = true;
 
 			for (size_t i = 0; i < mesh->points_size(); i++) {
 				ImGui::PushID(&(mesh->getPoint(i)));
@@ -1343,6 +1372,8 @@ void BLEV::Interface::ObjectTable::ShowMeshTable(Mesh* mesh, size_t idx)
 		}
 		else
 		{
+			ImGui::Text("Color");
+			ImGui::TableSetColumnIndex(1);
 			auto normColor = t->getColor() / 255.;
 			bool hasChanged = ImGui::ColorEdit4("", (float*)&normColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
 			auto result = normColor * 255;
@@ -1351,11 +1382,14 @@ void BLEV::Interface::ObjectTable::ShowMeshTable(Mesh* mesh, size_t idx)
 				t->setColor(result);
 				needRefresh = true;
 			}
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Intensity");
 			ImGui::TableSetColumnIndex(1);
-			auto intensity = t->getIntensity();
-			if (ImGui::DragFloat("##", &(intensity), 0.005f, 0.f, 1.f, "%.3f"))
+			//auto intensity = t->getIntensity();
+			if (ImGui::DragFloat("##", &(t->getIntensity()), 0.005f, 0.f, 1.f, "%.3f"))
 			{
-				t->setIntensity(intensity);
+				//t->setIntensity(intensity);
 				needRefresh = true;
 			}
 		}
@@ -1931,6 +1965,23 @@ void BLEV::Interface::Canvas::ShowContextMenu()
 				_data.chosen_lsys.erase(_data.fractals.back());
 				_data.fractals.pop_back();
 			}
+			if (ImGui::MenuItem("Remove selected", NULL, false, _data.chosen_prims.size() + _data.chosen_meshes.size() > 0)) {
+				for (auto it = _data.chosen_prims.begin(); it != _data.chosen_prims.end();)
+				{
+					Primitive* prim = *it;
+					it = _data.chosen_prims.erase(it);
+					_data.primitives.erase(std::find(_data.primitives.begin(), _data.primitives.end(), prim));
+				}
+				for (auto it = _data.chosen_meshes.begin(); it != _data.chosen_meshes.end();)
+				{
+					Mesh* m = *it;
+					if (dynamic_cast<Torch*>(m) != nullptr)
+						_data.torch = nullptr;
+					it = _data.chosen_meshes.erase(it);
+					_data.meshes.erase(std::find(_data.meshes.begin(), _data.meshes.end(), m));
+				}
+				needRefresh = true;
+			}
 			if (ImGui::MenuItem("Remove all", NULL, false, _data.primitives.size() + _data.fractals.size() + _data.meshes.size() > 0)) {
 				_data.chosen_prims.clear();
 				_data.chosen_prim_points.clear();
@@ -2061,7 +2112,7 @@ void BLEV::Interface::Canvas::Body() {
 		if (_data.chosenView != GouraudShading)
 			draw_list->AddRectFilled(p[0], p[1], IM_COL32(50, 50, 50, 255));
 		else
-			draw_list->AddRectFilled(p[0], p[1], IM_COL32(10, 10, 10, 255));
+			draw_list->AddRectFilled(p[0], p[1], IM_COL32(13, 13, 13, 255));
 		draw_list->AddRect(p[0], p[1], IM_COL32(255, 255, 255, 255));
 
 		ImGui::InvisibleButton("canvas", size, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
@@ -2134,7 +2185,7 @@ void BLEV::Interface::Canvas::Body() {
 
 		vp = main_camera.viewProjecion(); //auto vp = main_camera.getProjection(); //auto vp = main_camera.getView();
 
-		//if (_data.chosenView != GouraudShading)
+		if (_data.chosenView != GouraudShading || (_data.torch != nullptr))
 		{
 			if (b_grid_2d_enabled) Draw2dGrid();
 			if (b_grid_3d_enabled) Draw3dGrid();

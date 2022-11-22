@@ -56,14 +56,16 @@ void ZBuffer::fillBuffers(std::vector<Mesh*>& meshes, Eigen::Matrix4f& vp, const
 			//if (dynamic_cast<RotationBody*>(meshes[i]) == nullptr && dynamic_cast<MeshGraph*>(meshes[i]) == nullptr)
 			//if (polygons[j].normal * cam_dir >= 0)
 				//continue;
-			processPolygon(meshes[i], polygons[j], vp);
+			if (meshes[i]->getUseNormals() && polygons[j].normal * cam_dir < 0) {
+				processPolygon(meshes[i], polygons[j], vp);
+			}
 		}
 	}
 }
 
 void ZBuffer::processPolygon(Mesh* mesh, Polygon& poly, Eigen::Matrix4f& vp)
 {
-	Region polygonRegion;
+	RegionUV polygonRegion;
 	ImVec2 size = ImVec2(colorBuffer[0].size(), colorBuffer.size());
 	auto faceColor = mesh->getFaceColor();
 	auto edgeColor = mesh->getEdgeColor();
@@ -75,22 +77,31 @@ void ZBuffer::processPolygon(Mesh* mesh, Polygon& poly, Eigen::Matrix4f& vp)
 		Eigen::Vector4f p1{ origin_p1.x, origin_p1.y, origin_p1.z,  1.f };
 		Eigen::Vector4f p0_3d = vp * p0;
 		Eigen::Vector4f p1_3d = vp * p1;
-		interpolateLine(p0_3d, p1_3d, polygonRegion, size, edgeColor);
+		if (mesh->hasVT() && mesh->loadedImage()) {
+			interpolateLine(p0_3d, p1_3d, polygonRegion, size, edgeColor, mesh->getUV(poly.uv_ind[i]), mesh->getUV(poly.uv_ind[(i + 1) % poly.size()]));
+		}
+		else {
+			interpolateLine(p0_3d, p1_3d, polygonRegion, size, edgeColor);
+		}
 	}
 	for (auto& it : polygonRegion)
 	{
 		int y = it.first;
 		if (it.second[0].x == it.second[1].x && it.second[0].x >= 0 && y >= 0 && it.second[0].x < size.x && y < size.y)
 		{
-			this->depthBuffer[y][it.second[1].x] = it.second[1].depth;
-			this->colorBuffer[y][it.second[1].x] = faceColor;
+			if (it.second[1].depth < this->depthBuffer[y][it.second[1].x]) {
+				this->depthBuffer[y][it.second[1].x] = it.second[1].depth;
+				this->colorBuffer[y][it.second[1].x] = faceColor;
+			}
 			continue;
 		}
 		int left_x = it.second[0].x, right_x = it.second[1].x;
 		float left_d = it.second[0].depth, right_d = it.second[1].depth;
 		int line_length = right_x - left_x;
 		float depth_diff = right_d - left_d;
-		for (int x = left_x; x <= right_x; ++x)
+		auto duv = (it.second[1].uv - it.second[0].uv) / line_length;
+		auto _uv = it.second[0].uv;
+		for (int x = left_x; x <= right_x; _uv += duv, ++x)
 		{
 			if (x < 0 || y < 0 || x >= size.x || y >= size.y)
 				continue;
@@ -99,13 +110,13 @@ void ZBuffer::processPolygon(Mesh* mesh, Polygon& poly, Eigen::Matrix4f& vp)
 			if (d < this->depthBuffer[y][x])
 			{
 				this->depthBuffer[y][x] = d;
-				this->colorBuffer[y][x] = faceColor;
+				this->colorBuffer[y][x] = mesh->hasVT() && mesh->loadedImage() ? mesh->getImagePixelV4(_uv) : faceColor;
 			}
 		}
-	}
+	} 
 }
 
-void ZBuffer::interpolateLine(Eigen::Vector4f& p0_3d, Eigen::Vector4f& p1_3d, Region& polygonRegion, ImVec2& size, ImVec4& color)
+void ZBuffer::interpolateLine(Eigen::Vector4f& p0_3d, Eigen::Vector4f& p1_3d, RegionUV& polygonRegion, ImVec2& size, ImVec4& color, ImVec2 uv0, ImVec2 uv1)
 {
 	auto p0_2d = ImVec2((int)(p0_3d(0) / p0_3d(3)), (int)(p0_3d(1) / p0_3d(3))) + this->offset;
 	auto p1_2d = ImVec2((int)(p1_3d(0) / p1_3d(3)), (int)(p1_3d(1) / p1_3d(3))) + this->offset;
@@ -123,6 +134,7 @@ void ZBuffer::interpolateLine(Eigen::Vector4f& p0_3d, Eigen::Vector4f& p1_3d, Re
 	{
 		std::swap(p0_2d, p1_2d);
 		std::swap(p0_z, p1_z);
+		std::swap(uv0, uv1);
 		dx = abs(dx);
 	}
 	int dy = p1_2d.y - p0_2d.y;
@@ -131,7 +143,10 @@ void ZBuffer::interpolateLine(Eigen::Vector4f& p0_3d, Eigen::Vector4f& p1_3d, Re
 	int yi = 0;
 	float line_length = distance(p0_2d, p1_2d);
 	float dc = p1_z - p0_z;
-	for (int xi = 0; xi <= dx; ++xi)
+
+	auto duv = (uv1 - uv0) / dx;
+
+	for (int xi = 0; xi <= dx; uv0 += duv, ++xi)
 	{
 		float c = distance(p0_2d, ImVec2(p0_2d.x + xi, p0_2d.y + yi)) / line_length;
 		float new_depth = p0_z + c * dc;
@@ -151,17 +166,20 @@ void ZBuffer::interpolateLine(Eigen::Vector4f& p0_3d, Eigen::Vector4f& p1_3d, Re
 			this->depthBuffer[new_y][new_x] = new_depth;
 			this->colorBuffer[new_y][new_x] = color;
 		}
-		PointDepth newPD { new_x, new_depth };
+		PDUV newPD{ new_x, new_depth, uv0 };
 		if (polygonRegion.find(new_y) != polygonRegion.end())
 		{
-			if (new_x < polygonRegion[new_y][0].x)
+			if (new_x < polygonRegion[new_y][0].x) {
 				polygonRegion[new_y][0] = newPD;
-			if (new_x > polygonRegion[new_y][1].x)
+			}
+			if (new_x > polygonRegion[new_y][1].x) {
 				polygonRegion[new_y][1] = newPD;
+			}
 		}
 		else
 		{
-			polygonRegion[new_y] = std::array<PointDepth, 2> {newPD, newPD};
+			polygonRegion[new_y][0] = newPD;
+			polygonRegion[new_y][1] = newPD;
 		}
 		if (di > 0)
 		{

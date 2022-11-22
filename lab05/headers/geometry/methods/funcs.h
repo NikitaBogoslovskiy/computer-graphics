@@ -20,6 +20,9 @@ inline float operator*(const ImVec2& lhs, const ImVec2& rhs) { return lhs.x * rh
 inline ImVec2 operator*(const float& lhs, const ImVec2& rhs) { return ImVec2(lhs * rhs.x, lhs * rhs.y); }
 inline bool operator==(const ImVec2& lhs, const ImVec2& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y; }
 inline bool operator!=(const ImVec2& lhs, const ImVec2& rhs) { return !(lhs == rhs); }
+inline ImVec2 operator/(const ImVec2& lhs, const float& rhs) { return ImVec2(lhs.x / rhs, lhs.y / rhs); }
+inline ImVec2& operator+=(ImVec2& lhs, const ImVec2& rhs) { return lhs = lhs + rhs; }
+
 
 inline ImVec4 operator+(const ImVec4& lhs, const ImVec4& rhs) { return ImVec4(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w); }
 inline ImVec4 operator-(const ImVec4& lhs, const ImVec4& rhs) { return ImVec4(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w); }
@@ -41,6 +44,10 @@ inline ImU32 GetColorFlU32(const float* curr_color) {
 
 inline ImVec4 GetColorFlV4(const float* curr_color) {
 	return ImVec4((int)(curr_color[0] * 255), (int)(curr_color[1] * 255),(int)(curr_color[2] * 255), (int)(curr_color[3] * 255));
+}
+
+inline ImVec4 GetColorU32V4(const ImU32& curr_color) {
+	return { (float)(curr_color & 0x000000FF), (float)(curr_color & 0x0000FF00), (float)(curr_color & 0x00FF0000), (float)(curr_color & 0xFF000000) };
 }
 
 inline float DegreesToRadians(const float& degrees) {
