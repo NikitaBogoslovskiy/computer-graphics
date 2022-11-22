@@ -4,7 +4,7 @@
 
 int main(void)
 {
-	srand(time(NULL));
+	srand(time(0));
 	GLFWwindow* window;
 	
 	BLEV::Application app;

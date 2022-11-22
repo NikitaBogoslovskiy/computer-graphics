@@ -966,6 +966,26 @@ void BLEV::Interface::Menu::ShowFileManagerMenu()
 
 			ImGui::EndMenu();
 		}
+		if (ImGui::MenuItem("Load texture", NULL, (bool*)0, !_data.chosen_meshes.empty())) {
+			nfdchar_t* outPath = NULL;
+			nfdresult_t result = NFD_OpenDialog("jpg", NULL, &outPath);
+
+			if (result == NFD_OKAY) {
+				for (auto m : _data.chosen_meshes) {
+					m->loadImage(outPath);
+				}
+
+				free(outPath);
+			}
+			else if (result == NFD_CANCEL) {
+				puts("User pressed cancel.");
+			}
+			else {
+				printf("Error: %s\n", NFD_GetError());
+			}
+			
+			//ImGui::EndMenu();
+		}
 
 		ImGui::EndMenu();
 	}

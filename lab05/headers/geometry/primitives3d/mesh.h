@@ -10,9 +10,12 @@ class Mesh : public VisualParams
 {
 protected:
 	std::vector<ImVec3> points;
-	std::deque<Polygon> polygons;
+	std::vector<Polygon> polygons;
+	std::vector<ImVec2> vt; // vertex texture
 	ImVec4 face_color;
 	ImVec4 edge_color;
+	bool use_normals = true;
+	CringeImage image;
 	float albedo = 0.18;
 public:
 	Mesh();
@@ -28,7 +31,7 @@ public:
 		return points[idx];
 	}
 
-	inline std::deque<Polygon> getPolygons() {
+	inline std::vector<Polygon>& getPolygons() {
 		return polygons;
 	}
 	inline Polygon& getPolygon(size_t idx) {
@@ -49,6 +52,19 @@ public:
 	inline Polygon& operator[](size_t idx) {
 		return polygons[idx];
 	}
+	inline bool getUseNormals() { return use_normals; }
+	inline void setUseNormals(bool value) { use_normals = value; }
+	inline ImU32 getImagePixelU32(ImVec2 uv) { 
+		return image.loaded() ? image.get_pixelU32(uv) : color;
+	}
+	inline ImVec4 getImagePixelV4(ImVec2 uv) {
+		return image.loaded() ? image.get_pixelV4(uv) : face_color;
+	}
+	inline void loadImage(const char* path) { return image.load(path); }
+	inline bool loadedImage() { return image.loaded(); }
+	inline bool hasVT() { return !vt.empty(); }
+	inline const CringeImage& img() { return image; }
+	inline const ImVec2& getUV(size_t idx) { return vt[idx]; }
 
 	void translate(float dx, float dy, float dz);
 	void rotateX(float angle);

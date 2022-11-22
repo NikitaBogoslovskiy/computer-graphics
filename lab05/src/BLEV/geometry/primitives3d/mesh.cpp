@@ -6,6 +6,7 @@
 #include "geometry/methods/funcs.h"
 #include <thread>
 #include <mutex>
+#include <regex>
 
 extern bool needRefresh;
 
@@ -22,7 +23,7 @@ void Mesh::_draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matri
 	std::vector<ImVec2> buf(10);
 	for (size_t p1 = start; p1 < end; p1++) {
 		auto& pol = polygons[p1];
-		//if (pol.normal * cam_dir < 0) 
+		if (use_normals && pol.normal * cam_dir < 0)
 		{
 			for (size_t i = 0; i < pol.size(); i++) {
 				Eigen::Vector4f v0{ points[pol[i]].x, points[pol[i]].y, points[pol[i]].z,  1.f }; // COLUMN-VEC
@@ -110,6 +111,10 @@ void Mesh::open(const char* filename)
 		return;
 	}
 
+	const std::regex fr1("^\\d+(/\\d+)?$");
+	const std::regex fr2("^\\d+/(\\d+)?/\\d+$");
+	char slash;
+
 	std::string line;
 	while (std::getline(infile, line))
 	{
@@ -122,34 +127,50 @@ void Mesh::open(const char* filename)
 
 		if (type == "v") {
 			ImVec3 vertex;
-			if (!(iss >> vertex.x >> vertex.y >> vertex.z)) {
-				printf("File can't be read by our simple parser\n");
-				return;
-			}
+			iss >> vertex.x >> vertex.y >> vertex.z;
 			m.add_point(std::move(vertex));
+		}
+		else if (type == "vt") {
+			ImVec2 vertex;
+			iss >> vertex.x >> vertex.y;
+			if (vertex.x < 0) vertex.x += 1;
+			if (vertex.y < 0) vertex.y += 1;
+			if (vertex.x > 1) vertex.x -= 1;
+			if (vertex.y > 1) vertex.y -= 1;
+			vt.push_back(std::move(vertex));
 		}
 		else if (type == "f") {
 			Polygon p;
 			uint32_t temp;
 			std::string buf;
 			while (iss >> buf) {
-				std::istringstream iss2(buf);
-				if (!(iss2 >> temp)) {
+				// всего 4 варината 
+				// f v1 v2 v3 ....
+				// f v1/vt1 v2/vt2 v3/vt3 ...
+				// f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...
+				// f v1//vn1 v2//vn2 v3//vn3 ...
+				// fr1 покрывает первые два, fr2 - оставшиеся два
+
+				if (std::regex_match(buf, fr1)) {
+					std::stringstream ss(buf);
+					ss >> temp;	p.push_back(temp - 1);
+					if (!ss.eof()) {
+						ss >> slash >> temp;
+						p.push_back_uv(temp - 1);
+					}
+				}
+				else if(std::regex_match(buf, fr2)) {
+					std::stringstream ss(buf);
+					ss >> temp;	p.push_back(temp - 1);
+					ss >> slash >> temp;
+					if (temp == 0) continue;// v//vn
+					ss >> slash >> temp;			
+					p.push_back_uv(temp - 1);
+				}
+				else {
 					printf("File can't be read by our simple parser\n");
 					return;
 				}
-				p.push_back(temp - 1);
-				/*
-					if (p.size() < 3) {
-				}
-				else {
-					m.add_polygon(p);
-					std::swap(p[1], p[2]);
-					p[2] = temp;
-				}
-				*/
-				//char slash;
-				//if (!(iss2 >> slash) || slash != '/') continue;
 			}
 			if (p.size() < 3) {
 				printf("File can't be read by our simple parser\n");

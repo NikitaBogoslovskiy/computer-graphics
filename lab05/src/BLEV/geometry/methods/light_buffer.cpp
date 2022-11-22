@@ -25,12 +25,16 @@ void LightBuffer::fillBuffers(std::vector<Mesh*>& meshes, Torch* torch, Eigen::M
 		calculateColors(meshes[i], torch, colors);
 		auto polygons = meshes[i]->getPolygons();
 		for (size_t j = 0; j < polygons.size(); ++j) {
-			processPolygon(meshes[i], polygons[j], colors, vp);
+			if (meshes[i]->getUseNormals() && polygons[j].normal * cam_dir < 0) {
+				processPolygon(meshes[i], polygons[j], colors, vp);
+			}
 		}
 	}
 
 	for (size_t j = 0; j < torch->polygons_size(); ++j) {
-		ZBuffer::processPolygon(torch, torch->getPolygon(j), vp);
+		if (torch->getUseNormals() && torch->getPolygon(j).normal * cam_dir < 0) {
+			ZBuffer::processPolygon(torch, torch->getPolygon(j), vp);
+		}
 	}
 }
 
@@ -87,8 +91,10 @@ void LightBuffer::processPolygon(Mesh* mesh, Polygon& poly, std::vector<ImVec4>&
 		int y = it.first;
 		if (it.second[0].x == it.second[1].x && it.second[0].x >= 0 && y >= 0 && it.second[0].x < size.x && y < size.y)
 		{
-			this->depthBuffer[y][it.second[1].x] = it.second[1].depth;
-			this->colorBuffer[y][it.second[1].x] = it.second[1].color;
+			if (it.second[1].depth < this->depthBuffer[y][it.second[1].x]) {
+				this->depthBuffer[y][it.second[1].x] = it.second[1].depth;
+				this->colorBuffer[y][it.second[1].x] = it.second[1].color;
+			}
 			continue;
 		}
 		int left_x = it.second[0].x, right_x = it.second[1].x;

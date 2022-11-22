@@ -44,3 +44,12 @@ ImVec3& ImVec3::cross_product(const ImVec3& rhs)
     z = _z;
     return *this;
 }
+
+
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+void CringeImage::load(const char* path)
+{
+    data = (unsigned char*)stbi_load(path, &width, &height, &nrChannels, 0); 
+}
