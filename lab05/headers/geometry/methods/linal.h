@@ -40,7 +40,7 @@ public:
 		target - the point camera targeted on
 		up - up direction
 	*/
-	static const Eigen::Matrix4f lookAt(const ImVec3& eye = ImVec3(0.f, 0.f, 0.f), const ImVec3& target = ImVec3(0.f, 0.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
+	static const Eigen::Matrix4f lookAt(const ImVec3& eye = ImVec3(0.f, 0.f, 1.f), const ImVec3& target = ImVec3(0.f, 0.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
 		ImVec3 zaxis = normalize(target - eye);		// "ray" from the eye to the target
 		ImVec3 xaxis = normalize(cross(up, zaxis)); // x axis of the new coordinate system
 		ImVec3 yaxis = cross(zaxis, xaxis); // y axis of the new coordinate system

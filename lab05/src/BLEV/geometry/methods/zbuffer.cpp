@@ -48,7 +48,7 @@ void ZBuffer::draw(ImDrawList* draw_list, ImVec2& canvasOffset)
 	}
 }
 
-void ZBuffer::fillBuffers(std::vector<Mesh*>& meshes, Eigen::Matrix4f& vp, ImVec3& cam_dir)
+void ZBuffer::fillBuffers(std::vector<Mesh*>& meshes, Eigen::Matrix4f& vp, const ImVec3& cam_dir)
 {
 	for (size_t i = 0; i < meshes.size(); ++i) {
 		auto polygons = meshes[i]->getPolygons();

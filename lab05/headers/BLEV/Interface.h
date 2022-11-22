@@ -179,8 +179,8 @@ namespace BLEV {
 			const float GRID_BORDER = 300.f;
 			const VisualParams vis_p{ IM_COL32(200, 200, 200, 40), 1.f, true };
 
-			void ProcessCamKeyboardInput(Camera& cam, float& deltaTime);
-			void ProcessCamMouseInput(ImVec2& deltaMouse, Camera& cam);
+			void ProcessCamKeyboardInput(Camera& cam, const float& deltaTime);
+			void ProcessCamMouseInput(Camera& cam, const ImVec2& deltaMouse);
 			void SwitchModes();
 			void DrawObjects();
 			void PollCallbacks();

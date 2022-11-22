@@ -597,6 +597,36 @@ void BLEV::Interface::F_Classify() {
 }
 
 void BLEV::Interface::F_Camera() {
+	if (ImGui::BeginTable("MainCamera##info_table", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit, ImVec2(400.f, 0.f)))
+	{
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Camera position");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text("Camera rotation");
+		ImGui::TableSetColumnIndex(2);
+		ImGui::Text("Camera target");
+
+		ImGui::TableNextRow();
+
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("X: %f", canvas.main_camera.eye().x);
+		ImGui::Text("Y: %f", canvas.main_camera.eye().y);
+		ImGui::Text("Z: %f", canvas.main_camera.eye().z);
+
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text("Pitch: %f", canvas.main_camera.pitchYawRoll().x);
+		ImGui::Text("Yaw: %f", canvas.main_camera.pitchYawRoll().y);
+		ImGui::Text("Roll: %f", canvas.main_camera.pitchYawRoll().z);
+
+		ImGui::TableSetColumnIndex(2);
+		ImGui::Text("X: %f", canvas.main_camera.target().x);
+		ImGui::Text("Y: %f", canvas.main_camera.target().y);
+		ImGui::Text("Z: %f", canvas.main_camera.target().z);
+
+		ImGui::EndTable();
+	}
+
 	if (ImGui::Combo("projection", &canvas.main_camera.mode(), _data.cameraModes, _data.cameraModesSize)) {}
 	switch ((Camera::CamMode)canvas.main_camera.mode()) {
 	case Camera::Perspective:
@@ -1363,40 +1393,21 @@ void BLEV::Interface::ObjectTable::Show()
 	ImGui::PopStyleVar();
 }
 
-void BLEV::Interface::Canvas::ProcessCamKeyboardInput(Camera& cam, float& deltaTime) {
+void BLEV::Interface::Canvas::ProcessCamKeyboardInput(Camera& cam, const float& deltaTime) {
 	float speed = cam.speed() * deltaTime;
 	if (ImGui::IsKeyPressed(ImGuiKey_W)) {
-		cam.eye() += speed * Linal::normalize(cam.direction());
+		main_camera.setEye(cam.eye() + speed * Linal::normalize(cam.direction()));
 		needRefresh = true;
-		//return;
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_S)) {
-		cam.eye() += -speed * Linal::normalize(cam.direction());
+		main_camera.setEye(cam.eye() - speed * Linal::normalize(cam.direction()));
 		needRefresh = true;
-		//return;
-	}
-	if (ImGui::IsKeyPressed(ImGuiKey_A)) {
-		cam.eye() += -speed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
-		needRefresh = true;
-		//return;
-	}
-	if (ImGui::IsKeyPressed(ImGuiKey_D)) {
-		cam.eye() += speed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
-		needRefresh = true;
-		//return;
 	}
 }
-void BLEV::Interface::Canvas::ProcessCamMouseInput(ImVec2& deltaMouse, Camera& cam) {
+
+void BLEV::Interface::Canvas::ProcessCamMouseInput(Camera& cam, const ImVec2& deltaMouse) {
 	if (ImGui::IsKeyDown(ImGuiKey_C)) {
-		ImVec2 offset = cam.sensitivity() * deltaMouse;
-
-		cam.rotation().x += offset.x; // yaw
-		cam.rotation().y -= offset.y; // pitch
-
-		cam.rotation().y = min(cam.rotation().y, 89.0f);
-		cam.rotation().y = max(cam.rotation().y, -89.0f);
-
-		cam.updateDirection();
+		main_camera.setPitchYawRoll(deltaMouse);
 		needRefresh = true;
 	}
 }
@@ -1672,7 +1683,7 @@ void BLEV::Interface::Canvas::DrawObjects() {
 		ImVec2* ch_p = *chp_it;
 		draw_list->AddCircleFilled(*ch_p + origin, (*_data.chosen_prims.begin())->thickness() + 2.f, IM_COL32(0, 255, 0, 255), 10);
 	}
-	
+
 	if (_data.chosenView == ViewMode::Wireframe)
 	{
 		for (auto mesh : _data.meshes) {
@@ -2072,7 +2083,15 @@ void BLEV::Interface::Canvas::Body() {
 				main_camera.resetProjectionSettings();
 				needRefresh = true;
 			}
-
+			if (ImGui::IsKeyPressed(ImGuiKey_X)) {
+				main_camera.setEyeAndPYR(ImVec3(400.f, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
+			}
+			if (ImGui::IsKeyPressed(ImGuiKey_Y)) {
+				main_camera.setEyeAndPYR(ImVec3(0.f, 400.f, 0.f), ImVec3(89.f, 0.f, 0.f));
+			}
+			if (ImGui::IsKeyPressed(ImGuiKey_Z)) {
+				main_camera.setEyeAndPYR();
+			}
 			if (!main_camera.dirtiness())
 			{
 				prev_point = mouse_pos;
@@ -2087,8 +2106,12 @@ void BLEV::Interface::Canvas::Body() {
 				needRefresh = true;
 			}
 			if ((Camera::CamMode)main_camera.mode() == Camera::Perspective) {
+				ProcessCamMouseInput(main_camera, deltaMouse);
 				ProcessCamKeyboardInput(main_camera, deltaTime);
-				ProcessCamMouseInput(deltaMouse, main_camera);
+				if (main_camera.pitchYawRollChanged()) {
+					main_camera.updateEyeRotation();
+					needRefresh = true;
+				}
 				main_camera.updateLook();
 			}
 		}

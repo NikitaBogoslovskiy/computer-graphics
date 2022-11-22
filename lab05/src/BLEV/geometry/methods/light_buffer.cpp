@@ -14,7 +14,7 @@ void LightBuffer::draw(ImDrawList* draw_list, ImVec2& canvasOffset)
 	}
 }
 
-void LightBuffer::fillBuffers(std::vector<Mesh*>& meshes, Torch* torch, Eigen::Matrix4f& vp, ImVec3& cam_dir)
+void LightBuffer::fillBuffers(std::vector<Mesh*>& meshes, Torch* torch, Eigen::Matrix4f& vp, const ImVec3& cam_dir)
 {
 	if (torch == nullptr)
 		return;

@@ -22,7 +22,7 @@ class LightBuffer : public ZBuffer
 public:
 	LightBuffer() {}
 	LightBuffer(size_t width, size_t height, ImVec2& offset): ZBuffer(width, height, offset) {}
-	void fillBuffers(std::vector<Mesh*>& meshes, Torch* torch, Eigen::Matrix4f& vp, ImVec3& cam_dir);
+	void fillBuffers(std::vector<Mesh*>& meshes, Torch* torch, Eigen::Matrix4f& vp, const ImVec3& cam_dir);
 	void draw(ImDrawList* draw_list, ImVec2& offset);
 protected:
 	void calculateColors(Mesh* mesh, Torch* torch, std::vector<ImVec4>& colors);

@@ -34,7 +34,7 @@ public:
 	void clear();
 	void resize(size_t width, size_t height);
 	void setOffset(ImVec2& new_offset);
-	void fillBuffers(std::vector<Mesh*>& meshes, Eigen::Matrix4f& vp, ImVec3& cam_dir);
+	void fillBuffers(std::vector<Mesh*>& meshes, Eigen::Matrix4f& vp, const ImVec3& cam_dir);
 	void draw(ImDrawList* draw_list, ImVec2& offset);
 protected:
 	void processPolygon(Mesh* mesh, Polygon& poly, Eigen::Matrix4f& vp);
