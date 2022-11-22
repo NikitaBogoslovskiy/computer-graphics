@@ -25,4 +25,7 @@ public:
 	inline static const float squaresSum(const float& x, const float& z) {
 		return x * x + z * z;
 	}
+	inline static const float cone(const float& x, const float& z) {
+		return sqrt(x * x / 225.f + z * z / 64.f);
+	}
 };

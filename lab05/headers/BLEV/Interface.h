@@ -44,6 +44,7 @@ namespace BLEV {
 			new ConsoleFields(),
 			new ConsoleFields(),
 			new ConsoleFields(),
+			new ConsoleFields(),
 			new ConsoleFields()
 		};
 
@@ -70,6 +71,7 @@ namespace BLEV {
 		void F_Edit();
 		void F_Displace();
 		void F_MeshGraph();
+		void F_FloatingHorizon();
 		void F_RotationBody();
 		void F_Union();
 		void F_Lsystem();
@@ -97,6 +99,7 @@ namespace BLEV {
 			bool b_camera_open = false;
 			bool b_rotation_body_open = false;
 			bool b_mesh_graph_open = false;
+			bool b_floating_horizon_open = false;
 
 			bool b_shells_open = false;
 		} bmo;
@@ -126,6 +129,7 @@ namespace BLEV {
 			void ShowPrimTable(Primitive* prim, size_t idx);
 			void ShowLsysTable(Lsystem* lsys, size_t idx);
 			void ShowMeshTable(Mesh* mesh, size_t idx);
+			void ShowHorizonTable(FloatingHorizon* horizon, size_t idx);
 			void Show();
 
 			ObjectTable(BLEV::Data& data) : _data(data) {}

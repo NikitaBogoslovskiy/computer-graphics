@@ -171,6 +171,7 @@
     <ClCompile Include="src\BLEV\geometry\methods\funcs.cpp" />
     <ClCompile Include="src\BLEV\geometry\methods\light_buffer.cpp" />
     <ClCompile Include="src\BLEV\geometry\methods\zbuffer.cpp" />
+    <ClCompile Include="src\BLEV\geometry\primitives3d\floating_horizon.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\mesh_graph.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\rotation_body.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\structers.cpp" />
@@ -183,6 +184,7 @@
     <ClInclude Include="headers\BLEV\Interface.h" />
     <ClInclude Include="headers\BLEV\Validator.h" />
     <ClInclude Include="headers\geometry\methods\blev_math.h" />
+    <ClInclude Include="headers\geometry\primitives3d\floating_horizon.h" />
     <ClInclude Include="headers\geometry\methods\light_buffer.h" />
     <ClInclude Include="headers\geometry\methods\methods.h" />
     <ClInclude Include="headers\geometry\methods\zbuffer.h" />

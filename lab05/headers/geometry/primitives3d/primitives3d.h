@@ -8,5 +8,6 @@
 #include "rotation_body.h"
 #include "mesh_graph.h"
 #include "torch.h"
+#include "floating_horizon.h"
 
 #endif // !__PRIMITIVES_3D_H__

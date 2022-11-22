@@ -70,7 +70,7 @@ public:
 	inline float& angleY() { return this->_angleY; }
 	inline ImVec3& target() { return this->_target; }
 
-	inline ImVec3& pitchYawRoll() { return this->_pyr; }
+	inline const ImVec3& pitchYawRoll() { return this->_pyr; }
 	inline void setPitchYawRoll(const ImVec2& deltaMouse) {
 		ImVec2 offset = this->_sensitivity * deltaMouse;
 

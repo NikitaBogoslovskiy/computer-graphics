@@ -840,11 +840,6 @@ void BLEV::Interface::F_MeshGraph() {
 	ImGui::InputText("##ConsoleRanges", console[4]->pseudo_console, 100);
 	HelpPrevItem("x0 x1 z0 z1 x_parts z_parts");
 
-	static Func3d meshGraphFuncs[5]{ &BLEVmath::ripples,
-									 &BLEVmath::ripples2,
-									 &BLEVmath::sinxMultCosz,
-									 &BLEVmath::sinxPlusCosz,
-									 &BLEVmath::squaresSum };
 	static int chosen3dFuncType = 0;
 	ImGui::Combo("##", &chosen3dFuncType, _data.funcs3dTypes, _data.funcs3dSize);
 
@@ -856,7 +851,7 @@ void BLEV::Interface::F_MeshGraph() {
 		{
 			char* nstr = console[4]->pseudo_console;
 			Validator::ValidateMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, z_parts);
-			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, z_parts, meshGraphFuncs[chosen3dFuncType]));
+			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, z_parts, _data.meshGraphFuncs[chosen3dFuncType]));
 			//console[4]->feedback = ""; // left it be cuz dont wanna to retype the params over and over for multiple meshgraphs
 		}
 		catch (const std::exception& e)
@@ -867,6 +862,37 @@ void BLEV::Interface::F_MeshGraph() {
 	}
 	if (!console[4]->feedback.empty()) {
 		ImGui::TextColored(console[4]->feedback_color, console[4]->feedback.c_str());
+	}
+}
+
+void BLEV::Interface::F_FloatingHorizon() {
+	float x0, x1, z0, z1; int x_parts, z_parts;
+	ImGui::BeginGroup();
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	ImGui::InputText("##ConsoleRanges", console[5]->pseudo_console, 100);
+	HelpPrevItem("x0 x1 z0 z1 x_parts z_parts");
+
+	static int chosenHorizonType = 0;
+	ImGui::Combo("##", &chosenHorizonType, _data.funcs3dTypes, _data.funcs3dSize);
+
+	ImGui::EndGroup();
+
+
+	if (ImGui::Button("Create horizon")) {
+		try
+		{
+			char* nstr = console[5]->pseudo_console;
+			Validator::ValidateMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, z_parts);
+			_data.horizons.push_back(new FloatingHorizon(x0, x1, z0, z1, x_parts, z_parts, _data.meshGraphFuncs[chosenHorizonType]));
+		}
+		catch (const std::exception& e)
+		{
+			console[5]->feedback = e.what();
+			console[5]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+	if (!console[5]->feedback.empty()) {
+		ImGui::TextColored(console[5]->feedback_color, console[5]->feedback.c_str());
 	}
 }
 
@@ -918,6 +944,12 @@ void BLEV::Interface::ShowExternalWindows()
 	if (bmo.b_mesh_graph_open) {
 		if (ImGui::Begin("Mesh graph", &bmo.b_mesh_graph_open)) {
 			F_MeshGraph();
+			ImGui::End();
+		}
+	}
+	if (bmo.b_floating_horizon_open) {
+		if (ImGui::Begin("Floating Horizon", &bmo.b_floating_horizon_open)) {
+			F_FloatingHorizon();
 			ImGui::End();
 		}
 	}
@@ -1004,7 +1036,7 @@ void BLEV::Interface::Menu::ShowFileManagerMenu()
 				for (auto m : _data.chosen_meshes) {
 					m->loadImage(outPath);
 				}
-
+				needRefresh = true;
 				free(outPath);
 			}
 			else if (result == NFD_CANCEL) {
@@ -1013,7 +1045,7 @@ void BLEV::Interface::Menu::ShowFileManagerMenu()
 			else {
 				printf("Error: %s\n", NFD_GetError());
 			}
-			
+
 			//ImGui::EndMenu();
 		}
 
@@ -1063,6 +1095,9 @@ void BLEV::Interface::Menu::ShowMethodsMenu(B_method_open& bmo)
 		}
 		if (ImGui::MenuItem("Mesh Graph", NULL, bmo.b_mesh_graph_open)) {
 			bmo.b_mesh_graph_open = true;
+		}
+		if (ImGui::MenuItem("Floating Horizon", NULL, bmo.b_floating_horizon_open)) {
+			bmo.b_floating_horizon_open = true;
 		}
 		ImGui::EndMenu();
 	}
@@ -1399,6 +1434,69 @@ void BLEV::Interface::ObjectTable::ShowMeshTable(Mesh* mesh, size_t idx)
 	ImGui::PopID();
 }
 
+void BLEV::Interface::ObjectTable::ShowHorizonTable(FloatingHorizon* horizon, size_t idx)
+{
+	ImGui::PushID(horizon);
+
+	ImGui::TableNextRow();
+	ImGui::TableSetColumnIndex(0);
+	ImGui::AlignTextToFramePadding();
+	bool node_open = ImGui::TreeNode("Horizon", "horizon%d", idx);
+	ImGui::TableSetColumnIndex(1);
+
+	char primName[32];
+	strcpy(primName, "Horizon %d");
+	if (_data.chosen_horizons.find(horizon) != _data.chosen_horizons.end()) {
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), primName, idx);
+	}
+	else {
+		ImGui::Text(primName, idx);
+	}
+
+	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+		if (_data.chosen_horizons.find(horizon) == _data.chosen_horizons.end()) {
+			_data.chosen_horizons.insert(horizon);
+		}
+		else {
+			_data.chosen_horizons.erase(horizon);
+		}
+	}
+	ImGui::SameLine();
+
+	if (node_open)
+	{
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+
+		ImGui::Text("Upper Color");
+		ImGui::TableSetColumnIndex(1);
+		auto upperColor =  horizon->upperColor / 255.;
+		bool hasChanged = ImGui::ColorEdit4("", (float*)&upperColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+		auto upperResult = upperColor * 255;
+		if (hasChanged)
+		{
+			horizon->upperColor = upperResult;
+			//needRefresh = true;
+		}
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Lower Color");
+		ImGui::TableSetColumnIndex(1);
+		auto lowerColor = horizon->lowerColor / 255.;
+		bool lowerHasChanged = ImGui::ColorEdit4("", (float*)&lowerColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+		auto lowerResult = lowerColor * 255;
+		if (lowerHasChanged)
+		{
+			horizon->lowerColor = lowerResult;
+			//needRefresh = true;
+		}
+
+		ImGui::TreePop();
+	}
+
+	ImGui::PopID();
+}
+
 void BLEV::Interface::ObjectTable::Show()
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
@@ -1420,6 +1518,12 @@ void BLEV::Interface::ObjectTable::Show()
 		for (size_t i = 0; i < _data.meshes.size(); i++)
 		{
 			ShowMeshTable(_data.meshes[i], i);
+			//ImGui::Separator();
+		}
+
+		for (size_t i = 0; i < _data.horizons.size(); i++)
+		{
+			ShowHorizonTable(_data.horizons[i], i);
 			//ImGui::Separator();
 		}
 		ImGui::EndTable();
@@ -1723,6 +1827,9 @@ void BLEV::Interface::Canvas::DrawObjects() {
 		for (auto mesh : _data.meshes) {
 			mesh->draw(draw_list, origin, vp, main_camera.direction());
 		}
+		for (auto& horizon : _data.horizons) {
+			horizon->draw(draw_list, origin, main_camera);
+		}
 	}
 	else if (_data.chosenView == ViewMode::FlatColor)
 	{
@@ -1965,7 +2072,7 @@ void BLEV::Interface::Canvas::ShowContextMenu()
 				_data.chosen_lsys.erase(_data.fractals.back());
 				_data.fractals.pop_back();
 			}
-			if (ImGui::MenuItem("Remove selected", NULL, false, _data.chosen_prims.size() + _data.chosen_meshes.size() > 0)) {
+			if (ImGui::MenuItem("Remove selected", NULL, false, _data.chosen_prims.size() + _data.chosen_meshes.size() + _data.chosen_horizons.size() > 0)) {
 				for (auto it = _data.chosen_prims.begin(); it != _data.chosen_prims.end();)
 				{
 					Primitive* prim = *it;
@@ -1982,7 +2089,7 @@ void BLEV::Interface::Canvas::ShowContextMenu()
 				}
 				needRefresh = true;
 			}
-			if (ImGui::MenuItem("Remove all", NULL, false, _data.primitives.size() + _data.fractals.size() + _data.meshes.size() > 0)) {
+			if (ImGui::MenuItem("Remove all", NULL, false, _data.primitives.size() + _data.fractals.size() + _data.meshes.size() + _data.horizons.size() > 0)) {
 				_data.chosen_prims.clear();
 				_data.chosen_prim_points.clear();
 				_data.chosen_prim_edges.clear();
@@ -1995,6 +2102,9 @@ void BLEV::Interface::Canvas::ShowContextMenu()
 				_data.prev_displacement.clear();
 				_data.curr_displacement.clear();
 				_data.meshes.clear();
+				_data.horizons.clear();
+				_data.chosen_horizons.clear();
+
 				_data.torch = nullptr;
 				delete _data.rotate_axis;
 				_data.rotate_axis = nullptr;

@@ -99,6 +99,9 @@
     <ClCompile Include="src\BLEV\geometry\methods\light_buffer.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\BLEV\geometry\primitives3d\floating_horizon.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\dependencies\imgui\imgui\imconfig.h">
@@ -225,6 +228,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\stuff\NFD\common.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\primitives3d\floating_horizon.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
