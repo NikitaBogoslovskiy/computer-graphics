@@ -1833,7 +1833,7 @@ void BLEV::Interface::Canvas::DrawObjects() {
 			mesh->draw(draw_list, origin, vp, main_camera.direction());
 		}
 		for (auto& horizon : _data.horizons) {
-			horizon->draw(draw_list, main_camera, size.x, origin, p[0]);
+			horizon->draw(draw_list, main_camera, size, origin, p[0]);
 		}
 	}
 	else if (_data.chosenView == ViewMode::FlatColor)

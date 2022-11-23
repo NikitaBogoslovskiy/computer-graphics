@@ -21,7 +21,7 @@ class FloatingHorizon
 	size_t _z_parts;
 	Func3d _func;
 
-	void _interpolateLine(ImDrawList* draw_list, const ImVec2& p0, const ImVec2& p1);
+	void _interpolateLine(ImDrawList* draw_list, const ImVec2& p0, const ImVec2& p1, const float& h);
 public:
 	ImVec4 lowerColor;
 	ImVec4 upperColor;
@@ -47,5 +47,5 @@ public:
 	}
 	inline void resize(const size_t& width);
 	inline void clear();
-	void draw(ImDrawList* draw_list, Camera& cam, const float& width, const ImVec2& origin, const ImVec2& canvasOffset);
+	void draw(ImDrawList* draw_list, Camera& cam, const ImVec2& wh, const ImVec2& origin, const ImVec2& canvasOffset);
 };
