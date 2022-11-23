@@ -1465,19 +1465,23 @@ void BLEV::Interface::ObjectTable::ShowHorizonTable(FloatingHorizon* horizon, si
 
 	if (node_open)
 	{
+		ImGui::PushID(&(horizon->upperColor));
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
 
 		ImGui::Text("Upper Color");
 		ImGui::TableSetColumnIndex(1);
-		auto upperColor =  horizon->upperColor / 255.;
-		bool hasChanged = ImGui::ColorEdit4("", (float*)&upperColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+		auto upperColor = horizon->upperColor / 255.;
+		bool upperHasChanged = ImGui::ColorEdit4("", (float*)&upperColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
 		auto upperResult = upperColor * 255;
-		if (hasChanged)
+		if (upperHasChanged)
 		{
 			horizon->upperColor = upperResult;
 			//needRefresh = true;
 		}
+		ImGui::PopID();
+
+		ImGui::PushID(&(horizon->lowerColor));
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text("Lower Color");
@@ -1490,6 +1494,7 @@ void BLEV::Interface::ObjectTable::ShowHorizonTable(FloatingHorizon* horizon, si
 			horizon->lowerColor = lowerResult;
 			//needRefresh = true;
 		}
+		ImGui::PopID();
 
 		ImGui::TreePop();
 	}
@@ -1828,7 +1833,7 @@ void BLEV::Interface::Canvas::DrawObjects() {
 			mesh->draw(draw_list, origin, vp, main_camera.direction());
 		}
 		for (auto& horizon : _data.horizons) {
-			horizon->draw(draw_list, origin, main_camera);
+			horizon->draw(draw_list, main_camera, size.x, origin, p[0]);
 		}
 	}
 	else if (_data.chosenView == ViewMode::FlatColor)
