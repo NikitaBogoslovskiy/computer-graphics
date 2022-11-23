@@ -14,6 +14,7 @@ public:
 		intensity = _intensity;
 		face_color = color;
 		edge_color = ImVec4(20, 20, 20, 255);
+		use_normals = false;
 		ImVector<ImVec2>* v = new ImVector<ImVec2>();
 		v->push_back(ImVec2(0, 0));
 		v->push_back(ImVec2(2, 0));

@@ -11,6 +11,7 @@ public:
 	RotationBody(Primitive* prim, int iterNumber, Axis ax) {
 		performRotation(prim, iterNumber, ax);
 		recalculate_normals();
+		use_normals = false;
 	}
 	void performRotation(Primitive* prim, int iterNumber, Axis ax);
 	virtual inline void add_polygon(const Polygon& polygon) override { polygons.push_back(polygon); }

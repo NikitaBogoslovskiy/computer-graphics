@@ -56,7 +56,7 @@ void ZBuffer::fillBuffers(std::vector<Mesh*>& meshes, Eigen::Matrix4f& vp, const
 			//if (dynamic_cast<RotationBody*>(meshes[i]) == nullptr && dynamic_cast<MeshGraph*>(meshes[i]) == nullptr)
 			//if (polygons[j].normal * cam_dir >= 0)
 				//continue;
-			if (meshes[i]->getUseNormals() && polygons[j].normal * cam_dir < 0) {
+			if (!meshes[i]->getUseNormals() || polygons[j].normal * cam_dir < 0) {
 				processPolygon(meshes[i], polygons[j], vp);
 			}
 		}

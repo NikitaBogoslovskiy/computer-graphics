@@ -32,7 +32,7 @@ void LightBuffer::fillBuffers(std::vector<Mesh*>& meshes, Torch* torch, Eigen::M
 	}
 
 	for (size_t j = 0; j < torch->polygons_size(); ++j) {
-		if (torch->getUseNormals() && torch->getPolygon(j).normal * cam_dir < 0) {
+		if (!torch->getUseNormals() || torch->getPolygon(j).normal * cam_dir < 0) {  
 			ZBuffer::processPolygon(torch, torch->getPolygon(j), vp);
 		}
 	}
