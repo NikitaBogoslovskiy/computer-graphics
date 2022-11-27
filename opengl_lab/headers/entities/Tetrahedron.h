@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include "entity.h"
-#include "shader_loader.h"
+#include "../../headers/shader_loader.h"
 
 class Tetrahedron : public Entity {
 	GLuint Attrib_vertex;

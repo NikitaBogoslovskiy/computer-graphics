@@ -7,8 +7,8 @@
 #include <SFML/Graphics.hpp>
 #include <iostream>
 #include "shader_loader.h"
-#include "Entity.h"
-#include "Tetrahedron.h"
+#include "../headers/entities/Entity.h"
+#include "../headers/entities/Tetrahedron.h"
 
 class App {
 private:

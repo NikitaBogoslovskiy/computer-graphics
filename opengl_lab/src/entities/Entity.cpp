@@ -1,4 +1,4 @@
-#include "../headers/Entity.h"
+#include "../../headers/entities/Entity.h"
 
 void Entity::ReleaseShader() {
 	// Передавая ноль, мы отключаем шейдерную программу

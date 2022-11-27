@@ -1,4 +1,4 @@
-#include "../headers/Tetrahedron.h"
+#include "../../headers/entities/Tetrahedron.h"
 
 Tetrahedron::Tetrahedron() {
 	velocity = 0.0001f;
