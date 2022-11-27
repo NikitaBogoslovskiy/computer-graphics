@@ -26,7 +26,7 @@ out vec4 vcolor;
 uniform vec2 offset;
 
 void main() {
-    gl_Position = vec4(coord.xy + offset, -coord.z, 0.8);
+    gl_Position = vec4(coord.xy + offset, coord.z, 1.2);
     vcolor = color;
 }
 )";
@@ -43,6 +43,7 @@ void main() {
 }
 )";
 
+
 GLuint Program;
 
 GLuint Attrib_vertex;
@@ -50,10 +51,14 @@ GLuint Attrib_color;
 GLuint Attrib_texture;
 
 GLuint VBO1;
-GLuint VAO1;
 GLuint IBO1;
+GLuint VAO1;
+
+GLuint VBO2;
+GLuint VAO2;
 
 GLfloat offset[2] = {0, 0};
+GLfloat scale[2] = {1, 1};
 bool is_left = false, 
     is_right = false,
     is_up = false,
@@ -140,21 +145,18 @@ int width, height, nrChannels;
 unsigned char* data;
 
 void InitVBO1() {
-    static const float PI = 3.14f;
-    static const float DPI = 6.28f;
-
-    Vertex tetrahedron[] = {
-{{ 10.2606 / 55.f, 45.9957 / 55.f - 0.5f, -31.4461 / 55.f }, { white }},
+    Vertex tetrahedron[4] = {
 {{ -28.1908 / 55.f, 7.32734 / 55.f - 0.5f, -6.42109 / 55.f }, { green }},
 {{ -10.2606 / 55.f, 55.7862 / 55.f - 0.5f, 24.0789 / 55.f }, { blue }},
-{{ 28.1908 / 55.f, 10.8908 / 55.f - 0.5f, 13.7884 / 55.f }, { red }}
+{{ 28.1908 / 55.f, 10.8908 / 55.f - 0.5f, 13.7884 / 55.f }, { red }},
+{{ 10.2606 / 55.f, 45.9957 / 55.f - 0.5f, -31.4461 / 55.f }, { white }},
     };
 
     glGenBuffers(1, &VBO1);
     glBindBuffer(GL_ARRAY_BUFFER, VBO1);
     glBufferData(GL_ARRAY_BUFFER, sizeof(tetrahedron), tetrahedron, GL_STATIC_DRAW);
 
-    GLuint indices[] = {
+    GLuint indices[12] = {
         0, 1, 2,
         0, 1, 3,
         0, 2, 3,
@@ -168,41 +170,119 @@ void InitVBO1() {
     checkOpenGLerror(); 
 }
 
+static constexpr float PI = 3.14159265359f;
+static constexpr float DPI = PI * 2;
+
+static constexpr float a60 = PI / 3;
+static constexpr float a120 = a60 * 2;
+static constexpr float a180 = PI;
+static constexpr float a240 = PI + a60;
+static constexpr float a300 = PI + a120;
+static constexpr float a360 = DPI;
+
+
+float __r(float phi) {
+    if (phi <= a60 || phi >= a300) return 1.f;
+    if (phi >= a120 && phi <= a240) return 0.f;
+    if (phi < a120) return 1.f - (phi - a60) / a60;
+    if (phi > a240) return (phi - a240) / a60;
+}
+
+float __g(float phi) {
+    if (phi >= a60 && phi <= a180) return 1.f;
+    if (phi >= a240) return 0.f;
+    if (phi < a60) return phi / a60;
+    if (phi > a180) return 1.f - (phi - a180) / a60;
+}
+
+float __b(float phi) {
+    return __g(DPI - phi);
+}
+
+void InitVBO2() {
+
+    Vertex ellipse[361];
+
+    ellipse[0] = {{0.f, 0.f, 0.f}, {white}};
+    
+    float ddpi = DPI / 360;
+    float sphi = 0.f;
+    for (size_t i = 1; i <= 360; sphi += ddpi, i++)
+    {
+        ellipse[i] = { { cosf(sphi), sinf(sphi), 0.f}, { __r(sphi), __g(sphi), __b(sphi), 1.f } };        
+    }
+
+    glGenBuffers(1, &VBO2);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO2);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(ellipse), ellipse, GL_STATIC_DRAW);
+
+    checkOpenGLerror();
+}
+
 void InitVAO1() {
     glGenBuffers(1, &VAO1);
 
     glBindVertexArray(VAO1);
-    glBindBuffer(GL_ARRAY_BUFFER, VBO1);
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO1);
-    glEnableVertexAttribArray(Attrib_vertex);
-    glEnableVertexAttribArray(Attrib_color);
+    InitVBO1();
     
+
     glVertexAttribPointer(Attrib_vertex, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)0);
     glEnableVertexAttribArray(Attrib_vertex);
-    glVertexAttribPointer(Attrib_color, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glVertexAttribPointer(Attrib_color, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))); //7 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat))
     glEnableVertexAttribArray(Attrib_color);
-
 
     glEnableVertexAttribArray(0);
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glBindVertexArray(0);
 }
 
+void InitVAO2() {
+    glGenBuffers(1, &VAO2);
+
+    glBindVertexArray(VAO2);
+    InitVBO2();
+
+
+    glVertexAttribPointer(Attrib_vertex, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)0);
+    glEnableVertexAttribArray(Attrib_vertex);
+    glVertexAttribPointer(Attrib_color, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+    glEnableVertexAttribArray(Attrib_color);
+
+    glEnableVertexAttribArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glBindVertexArray(0);
+}
 
 void Init() {
     InitShader();
-    InitVBO1();
     InitVAO1();
+    InitVAO2();
 }
 
 void Draw() {
     glUseProgram(Program);
-    
+
     glUniform2f(glGetUniformLocation(Program, "offset"), offset[0], offset[1]);
-    glBindVertexArray(VAO1);
-    //glDrawArrays(GL_TRIANGLES, 0, 12);
-    glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
-    glBindVertexArray(0);
+
+    switch (current_task)
+    {
+    case 1:
+        glBindVertexArray(VAO1);
+        glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+        glBindVertexArray(0);
+        break;
+    case 2:
+        glBindVertexArray(VAO2);
+        glDrawArrays(GL_TRIANGLE_FAN, 0, 361);
+        glBindVertexArray(0);
+        break;
+    case 3:
+        break;
+    case 4:
+        break;
+    default:
+        break;
+    }
 
     glUseProgram(0);
     checkOpenGLerror();
@@ -219,6 +299,10 @@ void ReleaseShader() {
 void ReleaseVBO() {
     glBindBuffer(GL_ARRAY_BUFFER, 0);
     glDeleteBuffers(1, &VBO1);
+    glDeleteBuffers(1, &VBO2);
+    glDeleteBuffers(1, &VAO1);
+    glDeleteBuffers(1, &VAO2);
+    glDeleteBuffers(1, &IBO1);
 }
 
 void Release() {
