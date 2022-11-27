@@ -28,13 +28,12 @@ const char* ShaderLoader::loadShader(const GLchar* shaderPath) {
 	{
 		std::cout << "ERROR::SHADER::FILE_NOT_SUCCESFULLY_READ: " << e.what() << std::endl;
 	}
+
+	// god forgive me for that
 	const char* temp = shaderCode.c_str();
 	char* dst = new char[strlen(temp) + 1];
 	std::strcpy(dst, temp);
 	return dst;
-
-	//std::cout << "BEFORE: " << shaderCode << std::endl;
-	//return shaderCode;
 }
 
 void ShaderLoader::checkCompileErrors(const GLuint& shader, const std::string& type)
@@ -75,7 +74,7 @@ const std::string ShaderLoader::shaderEnumToStr(GLenum type) {
 	}
 }
 
-GLuint ShaderLoader::compileShader(const char* const* shaderCode, const GLenum& type) {
+GLuint ShaderLoader::compileShader(const GLchar* const* shaderCode, const GLenum& type) {
 	GLuint shaderID = glCreateShader(type);
 	glShaderSource(shaderID, 1, shaderCode, NULL);
 	glCompileShader(shaderID);
@@ -95,13 +94,9 @@ GLuint ShaderLoader::createProgram(const GLuint& vShader, const GLuint& fShader)
 
 GLuint ShaderLoader::initProgram(const char* vertexPath, const char* fragmentPath) {
 	auto VertexShaderSource = ShaderLoader::loadShader(vertexPath);
-	std::cout << "AFTER: "  << VertexShaderSource << std::endl;
-
-	//const char* aaa = VertexShaderSource.c_str();
 	GLuint vShader = ShaderLoader::compileShader(&VertexShaderSource, GL_VERTEX_SHADER);
 
 	auto FragShaderSource = ShaderLoader::loadShader(fragmentPath);
-	//const char* bbb = FragShaderSource.c_str();
 	GLuint fShader = ShaderLoader::compileShader(&FragShaderSource, GL_FRAGMENT_SHADER);
 
 	GLuint Program = ShaderLoader::createProgram(vShader, fShader);

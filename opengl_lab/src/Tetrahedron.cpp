@@ -1,6 +1,8 @@
 #include "../headers/Tetrahedron.h"
 
 Tetrahedron::Tetrahedron() {
+	velocity = 0.0001f;
+	offset[0] = offset[1] = 0.0f;
 	InitShader();
 	InitVBO1();
 	InitVAO1();

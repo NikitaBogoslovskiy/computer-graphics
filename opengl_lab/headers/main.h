@@ -24,16 +24,14 @@ private:
 	}
 
 	GLuint Program;
-
-
-public:
-	std::vector<Entity*> entities;
-	int cur_task = 0;
 	bool is_left = false,
 		is_right = false,
 		is_up = false,
 		is_down = false;
+	int cur_task = 0;
+	std::vector<Entity*> entities;
 
+public:
 	App() {}
 	void Init() {
 		entities.push_back(new Tetrahedron());
@@ -45,6 +43,86 @@ public:
 	void Release() {
 		if (cur_task >= entities.size()) return;
 		entities[cur_task]->Release();
+	}
+	void PollEvents(sf::Window& window) {
+		sf::Event event;
+		while (window.pollEvent(event)) {
+			if (event.type == sf::Event::Closed) {
+				window.close();
+			}
+			else if (event.type == sf::Event::KeyPressed) {
+				switch (event.key.code)
+				{
+				case sf::Keyboard::Left:
+					is_left = true;
+					break;
+
+				case sf::Keyboard::Right:
+					is_right = true;
+					break;
+
+				case sf::Keyboard::Up:
+					is_up = true;
+					break;
+
+				case sf::Keyboard::Down:
+					is_down = true;
+					break;
+
+				case sf::Keyboard::Num1:
+					cur_task = 0;
+					break;
+
+				case sf::Keyboard::Num2:
+					cur_task = 1;
+					break;
+
+				case sf::Keyboard::Num3:
+					cur_task = 2;
+					break;
+
+				case sf::Keyboard::Num4:
+					cur_task = 3;
+					break;
+
+				default:
+					break;
+				}
+			}
+			else if (event.type == sf::Event::KeyReleased) {
+				switch (event.key.code)
+				{
+				case sf::Keyboard::Left:
+					is_left = false;
+					break;
+
+				case sf::Keyboard::Right:
+					is_right = false;
+					break;
+
+				case sf::Keyboard::Up:
+					is_up = false;
+					break;
+
+				case sf::Keyboard::Down:
+					is_down = false;
+					break;
+
+				default:
+					break;
+				}
+			}
+			else if (event.type == sf::Event::Resized) {
+				glViewport(0, 0, event.size.width, event.size.height);
+			}
+		}
+
+		if (cur_task >= entities.size()) return;
+		auto velocity = entities[cur_task]->velocity;
+		if (is_left)  entities[cur_task]->offset[0] = std::max(-1.f, entities[cur_task]->offset[0] - velocity);
+		if (is_right) entities[cur_task]->offset[0] = std::min(1.f, entities[cur_task]->offset[0] + velocity);
+		if (is_up)    entities[cur_task]->offset[1] = std::min(1.f, entities[cur_task]->offset[1] + velocity);
+		if (is_down)  entities[cur_task]->offset[1] = std::max(-1.f, entities[cur_task]->offset[1] - velocity);
 	}
 };
 
