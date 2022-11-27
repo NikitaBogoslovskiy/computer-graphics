@@ -149,8 +149,10 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\shader_loader.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="headers\shader_loader.h" />
     <ClInclude Include="src\main.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
