@@ -1,72 +1,12 @@
-#pragma once
-#ifndef __MAIN_H__
-#define __MAIN_H__
+#include "../headers/Tetrahedron.h"
 
-#include "gl/glew.h"
-#include <SFML/OpenGL.hpp>
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
-#include <iostream>
-#include "../headers/shader_loader.h"
-#define red 1.0,0.0,0.0,1.0
-#define green 0.0,1.0,0.0,1.0
-#define blue 0.0,0.0,1.0,1.0
-#define yellow 1.0,1.0,0.3,1.0
-#define white 1.0,1.0,1.0,1.0
-
-GLuint Program;
-
-GLuint Attrib_vertex;
-GLuint Attrib_color;
-GLuint Attrib_texture;
-
-GLuint VBO1;
-GLuint VAO1;
-GLuint IBO1;
-
-GLfloat offset[2] = { 0, 0 };
-bool is_left = false,
-is_right = false,
-is_up = false,
-is_down = false;
-
-struct Vertex {
-	struct Coord {
-		GLfloat x;
-		GLfloat y;
-		GLfloat z;
-	} coord;
-	struct Color {
-		GLfloat r;
-		GLfloat g;
-		GLfloat b;
-		GLfloat a;
-	} color;
-};
-
-sf::Shader shader;
-
-void checkOpenGLerror() {
-
+Tetrahedron::Tetrahedron() {
+	InitShader();
+	InitVBO1();
+	InitVAO1();
 }
 
-int current_task = 1;
-
-void ShaderLog(unsigned int shader)
-{
-	int infologLen = 0;
-	glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &infologLen);
-	if (infologLen > 1)
-	{
-		int charsWritten = 0;
-		std::vector<char> infoLog(infologLen);
-		glGetShaderInfoLog(shader, infologLen, &charsWritten, infoLog.data());
-		std::cout << "InfoLog: " << infoLog.data() << std::endl;
-	}
-}
-
-void InitShader() {
-
+void Tetrahedron::InitShader() {
 	Program = ShaderLoader::initProgram("shaders/task1/tetrahedron.vert", "shaders/task1/tetrahedron.frag");
 
 	// Вытягиваем ID атрибута из собранной программы
@@ -83,17 +23,10 @@ void InitShader() {
 		std::cout << "could not bind attrib " << attr_name2 << std::endl;
 		return;
 	}
-
-	checkOpenGLerror();
+	//checkOpenGLerror();
 }
 
-#define STB_IMAGE_IMPLEMENTATION
-#include "stb_image.h"
-
-int width, height, nrChannels;
-unsigned char* data;
-
-void InitVBO1() {
+void Tetrahedron::InitVBO1() {
 	static const float PI = 3.14f;
 	static const float DPI = 6.28f;
 
@@ -119,10 +52,10 @@ void InitVBO1() {
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO1);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-	checkOpenGLerror();
+	//checkOpenGLerror();
 }
 
-void InitVAO1() {
+void Tetrahedron::InitVAO1() {
 	glGenBuffers(1, &VAO1);
 
 	glBindVertexArray(VAO1);
@@ -143,56 +76,26 @@ void InitVAO1() {
 }
 
 
-void Init() {
-	InitShader();
+
+void Tetrahedron::InitVO() {
 	InitVBO1();
 	InitVAO1();
 }
 
-void Draw() {
-	glUseProgram(Program);
-
-	glUniform2f(glGetUniformLocation(Program, "offset"), offset[0], offset[1]);
-	glBindVertexArray(VAO1);
-	//glDrawArrays(GL_TRIANGLES, 0, 12);
-	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
-	glBindVertexArray(0);
-
-	glUseProgram(0);
-	checkOpenGLerror();
-}
-
-void ReleaseShader() {
-	// Передавая ноль, мы отключаем шейдерную программу
-	glUseProgram(0);
-	// Удаляем шейдерную программу
-	glDeleteProgram(Program);
-
-}
-
-void ReleaseVBO() {
+void Tetrahedron::ReleaseVO() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDeleteBuffers(1, &VBO1);
 }
 
-void Release() {
-	// Шейдеры
-	ReleaseShader();
-	// Вершинный буфер
-	ReleaseVBO();
+void Tetrahedron::Draw() {
+	glUseProgram(Program);
+
+	glUniform2f(glGetUniformLocation(Program, "offset"), offset[0], offset[1]);
+	glBindVertexArray(VAO1);
+
+	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+	glBindVertexArray(0);
+
+	glUseProgram(0);
+	//checkOpenGLerror();
 }
-
-
-void SetIcon(sf::Window& wnd)
-{
-	sf::Image image;
-	// Вместо рисования пикселей, можно загрузить иконку из файла (image.loadFromFile("icon.png"))
-	image.create(16, 16);
-	for (int i = 0; i < 16; ++i)
-		for (int j = 0; j < 16; ++j)
-			image.setPixel(i, j, { (uint8_t)(i * 16), (uint8_t)(j * 16), 0 });
-
-	wnd.setIcon(image.getSize().x, image.getSize().y, image.getPixelsPtr());
-}
-
-#endif // !__MAIN_H__

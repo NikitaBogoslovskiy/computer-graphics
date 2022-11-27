@@ -1,106 +1,116 @@
-#include "main.h"
+#include "../headers/main.h"
+
+void pollEvents(sf::Window& window, App& app);
 
 int main() {
-    // Создаём окно
-    sf::Window window(sf::VideoMode(600, 600), "My OpenGL window", sf::Style::Default, sf::ContextSettings(24));
-    window.setVerticalSyncEnabled(true);
-    if (!window.setActive(true)) {
-        return 0;
-    }
-    SetIcon(window);
-    glewInit();
-    Init();
+	sf::Window window(sf::VideoMode(600, 600), "My OpenGL window", sf::Style::Default, sf::ContextSettings(24));
+	App app = App();
 
-    glEnable(GL_DEPTH_TEST);
-    
-    while (window.isOpen()) {
-        sf::Event event;
-       
-        while (window.pollEvent(event)) {
-            if (event.type == sf::Event::Closed) {
-                window.close();
-            }
-            else if (event.type == sf::Event::KeyPressed) {
-                switch (event.key.code)
-                {
-                case sf::Keyboard::Left:
-                    is_left = true;
-                    break;
+	GLenum errorcode = glewInit();
+	if (errorcode != GLEW_OK) {
+		std::cout << glewGetErrorString(errorcode) << std::endl;
+		throw std::runtime_error("Err");
+	}
 
-                case sf::Keyboard::Right:
-                    is_right = true;
-                    break;
+	if (!window.setActive(true)) {
+		return 0;
+	}
 
-                case sf::Keyboard::Up:
-                    is_up = true;
-                    break;
+    //Tetrahedron* tetr = new Tetrahedron();
+	app.Init();
 
-                case sf::Keyboard::Down:
-                    is_down = true;
-                    break;
+	glEnable(GL_DEPTH_TEST);
 
-                case sf::Keyboard::Num1:
-                    current_task = 1;
-                    break;
+	while (window.isOpen()) {
+        pollEvents(window, app);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        //tetr->Draw();
+		app.Draw();
+		window.display();
+	}
+    //tetr->Release();
+	app.Release();
 
-                case sf::Keyboard::Num2:
-                    current_task = 2;
-                    break;
+	return 0;
+}
 
-                case sf::Keyboard::Num3:
-                    current_task = 3;
-                    break;
+void pollEvents(sf::Window& window, App& app) {
+    sf::Event event;
+    while (window.pollEvent(event)) {
+        if (event.type == sf::Event::Closed) {
+            window.close();
+        }
+        else if (event.type == sf::Event::KeyPressed) {
+            switch (event.key.code)
+            {
+            case sf::Keyboard::Left:
+                app.is_left = true;
+                break;
 
-                case sf::Keyboard::Num4:
-                    current_task = 4;
-                    break;
+            case sf::Keyboard::Right:
+                app.is_right = true;
+                break;
 
-                default:
-                    break;
-                }
-            }
-            else if (event.type == sf::Event::KeyReleased) {
-                switch (event.key.code)
-                {
-                case sf::Keyboard::Left:
-                    is_left = false;
-                    break;
+            case sf::Keyboard::Up:
+                app.is_up = true;
+                break;
 
-                case sf::Keyboard::Right:
-                    is_right = false;
-                    break;
+            case sf::Keyboard::Down:
+                app.is_down = true;
+                break;
 
-                case sf::Keyboard::Up:
-                    is_up = false;
-                    break;
+            case sf::Keyboard::Num1:
+                app.cur_task = 0;
+                break;
 
-                case sf::Keyboard::Down:
-                    is_down = false;
-                    break;
+            case sf::Keyboard::Num2:
+                app.cur_task = 1;
+                break;
 
-                default:
-                    break;
-                }
-            }
-            else if (event.type == sf::Event::Resized) {
-                glViewport(0, 0, event.size.width, event.size.height);
+            case sf::Keyboard::Num3:
+                app.cur_task = 2;
+                break;
+
+            case sf::Keyboard::Num4:
+                app.cur_task = 3;
+                break;
+
+            default:
+                break;
             }
         }
-        if (current_task == 1) {
-            if (is_left) offset[0] = std::max(-1.f, offset[0] - 0.01f);
-            if (is_right) offset[0] = std::min(1.f, offset[0] + 0.01f);
-            if (is_up) offset[1] = std::min(1.f, offset[1] + 0.01f);
-            if (is_down) offset[1] = std::max(-1.f, offset[1] - 0.01f);
+        else if (event.type == sf::Event::KeyReleased) {
+            switch (event.key.code)
+            {
+            case sf::Keyboard::Left:
+                app.is_left = false;
+                break;
+
+            case sf::Keyboard::Right:
+                app.is_right = false;
+                break;
+
+            case sf::Keyboard::Up:
+                app.is_up = false;
+                break;
+
+            case sf::Keyboard::Down:
+                app.is_down = false;
+                break;
+
+            default:
+                break;
+            }
         }
-
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        
-        Draw();
-
-        window.display();
+        else if (event.type == sf::Event::Resized) {
+            glViewport(0, 0, event.size.width, event.size.height);
+        }
     }
 
-    Release();
+	if (app.cur_task >= app.entities.size()) return;
 
-    return 0;
+	if (app.is_left) app.entities[app.cur_task]->offset[0] = std::max(-1.f, app.entities[app.cur_task]->offset[0] - 0.01f);
+	if (app.is_right) app.entities[app.cur_task]->offset[0] = std::min(1.f, app.entities[app.cur_task]->offset[0] + 0.01f);
+	if (app.is_up) app.entities[app.cur_task]->offset[1] = std::min(1.f, app.entities[app.cur_task]->offset[1] + 0.01f);
+	if (app.is_down) app.entities[app.cur_task]->offset[1] = std::max(-1.f, app.entities[app.cur_task]->offset[1] - 0.01f);
 }
