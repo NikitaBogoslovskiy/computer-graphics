@@ -1,6 +1,6 @@
-#include "../../headers/entities/Tetrahedron.h"
+#include "../../headers/entities/Cube2Tex.h"
 
-Tetrahedron::Tetrahedron() {
+Cube2Tex::Cube2Tex() {
 	velocity = 0.0001f;
 	offset[0] = offset[1] = 0.0f;
 	//InitShader();
@@ -8,7 +8,7 @@ Tetrahedron::Tetrahedron() {
 	//InitVAO1();
 }
 
-void Tetrahedron::InitShader() {
+void Cube2Tex::InitShader() {
 	Program = ShaderLoader::initProgram("shaders/task1/tetrahedron.vert", "shaders/task1/tetrahedron.frag");
 
 	// Вытягиваем ID атрибута из собранной программы
@@ -28,26 +28,33 @@ void Tetrahedron::InitShader() {
 	//checkOpenGLerror();
 }
 
-void Tetrahedron::InitVBO1() {
+void Cube2Tex::InitVBO1() {
 	static const float PI = 3.14f;
 	static const float DPI = 6.28f;
 
-	Vertex tetrahedron[] = {
-{{ 10.2606 / 55.f, 45.9957 / 55.f - 0.5f, -31.4461 / 55.f }, { white }},
-{{ -28.1908 / 55.f, 7.32734 / 55.f - 0.5f, -6.42109 / 55.f }, { green }},
-{{ -10.2606 / 55.f, 55.7862 / 55.f - 0.5f, 24.0789 / 55.f }, { blue }},
-{{ 28.1908 / 55.f, 10.8908 / 55.f - 0.5f, 13.7884 / 55.f }, { red }}
+	const float hside = 0.5f;
+	Vertex Cube2Tex[] = {
+		{{ -hside, hside, -hside }, { white }},
+		{{ -hside, -hside, -hside }, { green }},
+		{{  hside, -hside, -hside }, { blue }},
+		{{  hside, hside, -hside }, { red }},
+		{{ -hside, hside, hside }, { white }},
+		{{ -hside, -hside, hside }, { green }},
+		{{  hside, -hside, hside }, { blue }},
+		{{  hside, hside, hside }, { red }},
 	};
 
 	glGenBuffers(1, &VBO1);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO1);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(tetrahedron), tetrahedron, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(Cube2Tex), Cube2Tex, GL_STATIC_DRAW);
 
 	GLuint indices[] = {
-		0, 1, 2,
-		0, 1, 3,
-		0, 2, 3,
-		1, 2, 3,
+		0, 1, 2, 3,
+		3, 2, 6, 7,
+		7, 6, 5, 4,
+		4, 5, 1, 0,
+		4, 0, 3, 7,
+		1, 5, 6, 2,
 	};
 
 	glGenBuffers(1, &IBO1);
@@ -57,7 +64,7 @@ void Tetrahedron::InitVBO1() {
 	//checkOpenGLerror();
 }
 
-void Tetrahedron::InitVAO1() {
+void Cube2Tex::InitVAO1() {
 	glGenBuffers(1, &VAO1);
 
 	glBindVertexArray(VAO1);
@@ -66,9 +73,9 @@ void Tetrahedron::InitVAO1() {
 	glEnableVertexAttribArray(Attrib_vertex);
 	glEnableVertexAttribArray(Attrib_color);
 
-	glVertexAttribPointer(Attrib_vertex, 3, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)0);
+	glVertexAttribPointer(Attrib_vertex, 3, GL_FLOAT, GL_TRUE, 7 * sizeof(GLfloat), (GLvoid*)0);
 	glEnableVertexAttribArray(Attrib_vertex);
-	glVertexAttribPointer(Attrib_color, 4, GL_FLOAT, GL_FALSE, 7 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
+	glVertexAttribPointer(Attrib_color, 4, GL_FLOAT, GL_TRUE, 7 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(Attrib_color);
 
 
@@ -79,23 +86,23 @@ void Tetrahedron::InitVAO1() {
 
 
 
-void Tetrahedron::InitVO() {
+void Cube2Tex::InitVO() {
 	InitVBO1();
 	InitVAO1();
 }
 
-void Tetrahedron::ReleaseVO() {
+void Cube2Tex::ReleaseVO() {
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDeleteBuffers(1, &VBO1);
 }
 
-void Tetrahedron::Draw() {
+void Cube2Tex::Draw() {
 	glUseProgram(Program);
 
 	glUniform2f(glGetUniformLocation(Program, "offset"), offset[0], offset[1]);
 	glBindVertexArray(VAO1);
 
-	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
+	glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 
 	glUseProgram(0);

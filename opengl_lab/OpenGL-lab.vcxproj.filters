@@ -27,6 +27,9 @@
     <ClCompile Include="src\entities\Tetrahedron.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\entities\Cube2Tex.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\entities\Entity.h">
@@ -39,6 +42,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\entities\Tetrahedron.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\entities\Cube2Tex.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

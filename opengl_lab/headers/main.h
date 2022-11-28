@@ -9,6 +9,7 @@
 #include "shader_loader.h"
 #include "../headers/entities/Entity.h"
 #include "../headers/entities/Tetrahedron.h"
+#include "../headers/entities/Cube2Tex.h"
 
 class App {
 private:
@@ -28,6 +29,7 @@ private:
 		is_right = false,
 		is_up = false,
 		is_down = false;
+
 	int cur_task = 0;
 	std::vector<Entity*> entities;
 
@@ -35,6 +37,8 @@ public:
 	App() {}
 	void Init() {
 		entities.push_back(new Tetrahedron());
+		entities.push_back(new Cube2Tex());
+		entities[0]->Init();
 	}
 	void Draw() {
 		if (cur_task >= entities.size()) return;
@@ -46,6 +50,7 @@ public:
 	}
 	void PollEvents(sf::Window& window) {
 		sf::Event event;
+		bool task_changed = false;
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed) {
 				window.close();
@@ -71,18 +76,22 @@ public:
 
 				case sf::Keyboard::Num1:
 					cur_task = 0;
+					task_changed = true;
 					break;
 
 				case sf::Keyboard::Num2:
 					cur_task = 1;
+					task_changed = true;
 					break;
 
 				case sf::Keyboard::Num3:
 					cur_task = 2;
+					task_changed = true;
 					break;
 
 				case sf::Keyboard::Num4:
 					cur_task = 3;
+					task_changed = true;
 					break;
 
 				default:
@@ -118,6 +127,11 @@ public:
 		}
 
 		if (cur_task >= entities.size()) return;
+		if (task_changed) {
+			Release();
+			entities[cur_task]->Init();
+			return;
+		}
 		auto velocity = entities[cur_task]->velocity;
 		if (is_left)  entities[cur_task]->offset[0] = std::max(-1.f, entities[cur_task]->offset[0] - velocity);
 		if (is_right) entities[cur_task]->offset[0] = std::min(1.f, entities[cur_task]->offset[0] + velocity);

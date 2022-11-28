@@ -148,12 +148,14 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="src\entities\Cube2Tex.cpp" />
     <ClCompile Include="src\entities\Entity.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\shader_loader.cpp" />
     <ClCompile Include="src\entities\Tetrahedron.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="headers\entities\Cube2Tex.h" />
     <ClInclude Include="headers\entities\Entity.h" />
     <ClInclude Include="headers\main.h" />
     <ClInclude Include="headers\shader_loader.h" />
