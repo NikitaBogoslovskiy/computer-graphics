@@ -1,19 +1,17 @@
-#include "../../headers/entities/Cube2Tex.h"
+#include "../../headers/entities/Cube3Tex.h"
 #include "stb_image.h"
-Cube2Tex::Cube2Tex() {
+Cube3Tex::Cube3Tex() {
 }
 
-void Cube2Tex::InitShader() {
-	Program = ShaderLoader::initProgram("shaders/task2/nr_cube.vert", "shaders/task2/nr_cube.frag");
-
+void Cube3Tex::InitShader() {
+	Program = ShaderLoader::initProgram("shaders/task3/tt_cube.vert", "shaders/task3/tt_cube.frag");
+	//Program = ShaderLoader::initProgram("shaders/task2/nr_cube.vert", "shaders/task2/nr_cube.frag");
 	Attrib_vertex = 0;
 	Attrib_color = 1;
 	Attrib_texture = 2;
-
-	//checkOpenGLerror();
 }
 
-void Cube2Tex::InitVBO1() {
+void Cube3Tex::InitVBO1() {
 
 	const float hside = 0.5f;
 	Vertex vertices[] = {
@@ -77,7 +75,7 @@ void Cube2Tex::InitVBO1() {
 	//checkOpenGLerror();
 }
 
-void Cube2Tex::InitVAO1() {
+void Cube3Tex::InitVAO1() {
 	glGenBuffers(1, &VAO);
 
 	glBindVertexArray(VAO);
@@ -97,7 +95,7 @@ void Cube2Tex::InitVAO1() {
 	glBindVertexArray(0);
 }
 
-void Cube2Tex::InitVO() {
+void Cube3Tex::InitVO() {
 	//InitVBO1();
 	//InitVAO1();
 
@@ -108,7 +106,7 @@ void Cube2Tex::InitVO() {
 		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
 		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
 	};
-	
+
 	//vartices = vertices;
 	unsigned int indices[] = {
 		0, 1, 3, // first triangle
@@ -138,21 +136,22 @@ void Cube2Tex::InitVO() {
 	glEnableVertexAttribArray(2);
 
 	// load and create a texture 
-   // -------------------------
+	// -------------------------
+	// texture 1
+	// ---------
 	glGenTextures(1, &texture1);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture1); // all upcoming GL_TEXTURE_2D operations now have effect on this texture object
+	glBindTexture(GL_TEXTURE_2D, texture1);
 	// set the texture wrapping parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	// set texture filtering parameters
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// load image, create texture and generate mipmaps
 	int width, height, nrChannels;
+	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
 	// The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
-	stbi_set_flip_vertically_on_load(true);
-	unsigned char* data = stbi_load("shaders/task2/kroshy.jpg", &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load("shaders/task3/ccad.jpg", &width, &height, &nrChannels, 0);
 	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -163,9 +162,39 @@ void Cube2Tex::InitVO() {
 		std::cout << "Failed to load texture" << std::endl;
 	}
 	stbi_image_free(data);
+	// texture 2
+	// ---------
+	glGenTextures(1, &texture2);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+	// set the texture wrapping parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	// set texture filtering parameters
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	// load image, create texture and generate mipmaps
+	data = stbi_load("shaders/task3/lena.jpg", &width, &height, &nrChannels, 0);
+	if (data)
+	{
+		// or GL_RGBA if picture has alpha channel
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		std::cout << "Failed to load texture" << std::endl;
+	}
+	stbi_image_free(data);
+
+	// tell opengl for each sampler to which texture unit it belongs to (only has to be done once)
+	// -------------------------------------------------------------------------------------------
+	glUseProgram(Program);
+	// either set it manually like so:
+	glUniform1i(glGetUniformLocation(Program, "texture1"), 0);
+	glUniform1i(glGetUniformLocation(Program, "texture2"), 1);
 }
 
-void Cube2Tex::ReleaseVO() {
+void Cube3Tex::ReleaseVO() {
 	//glBindBuffer(GL_ARRAY_BUFFER, 0);
 	//glDeleteBuffers(1, &VBO1);
 	glDeleteVertexArrays(1, &VAO);
@@ -173,10 +202,15 @@ void Cube2Tex::ReleaseVO() {
 	glDeleteBuffers(1, &EBO);
 }
 
-void Cube2Tex::Draw() {
+void Cube3Tex::Draw() {
 	glUseProgram(Program);
+
+	// bind textures on corresponding texture units
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture1);
+	glActiveTexture(GL_TEXTURE1);
+	glBindTexture(GL_TEXTURE_2D, texture2);
+
 	glUniform2f(glGetUniformLocation(Program, "offset"), offset[0], offset[1]);
 	glUniform1f(glGetUniformLocation(Program, "mixRatio"), mixRatio);
 

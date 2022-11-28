@@ -30,6 +30,12 @@
     <ClCompile Include="src\entities\Cube2Tex.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\entities\Cube3Tex.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\stb_image_impl.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\entities\Entity.h">
@@ -47,5 +53,15 @@
     <ClInclude Include="headers\entities\Cube2Tex.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="headers\entities\MixedCube.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\entities\Cube3Tex.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="shaders\task3\tt_cube.frag" />
+    <None Include="shaders\task3\tt_cube.vert" />
   </ItemGroup>
 </Project>

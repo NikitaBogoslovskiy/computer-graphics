@@ -4,7 +4,7 @@
 #include "../../headers/shader_loader.h"
 #include "../../headers/entities/MixedCube.h"
 
-class Cube2Tex : public MixedCube {
+class Cube3Tex : public MixedCube {
 	GLuint Attrib_vertex;
 	GLuint Attrib_color;
 	GLuint Attrib_texture;
@@ -14,6 +14,7 @@ class Cube2Tex : public MixedCube {
 	GLuint EBO;
 
 	GLuint texture1;
+	GLuint texture2;
 
 	float vertices;
 	void InitVBO1();
@@ -25,7 +26,7 @@ class Cube2Tex : public MixedCube {
 
 public:
 
-	Cube2Tex();
+	Cube3Tex();
 
 	void Draw() override;
 };

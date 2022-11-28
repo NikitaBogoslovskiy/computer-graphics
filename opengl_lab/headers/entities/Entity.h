@@ -32,8 +32,8 @@ protected:
 	GLuint Program;
 
 public:
-	float velocity;
-	GLfloat offset[2];
+	float velocity = 0.0001f;
+	GLfloat offset[2] = { 0.0f, 0.0f };
 
 	virtual void Draw() = 0;
 

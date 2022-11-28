@@ -10,6 +10,7 @@
 #include "../headers/entities/Entity.h"
 #include "../headers/entities/Tetrahedron.h"
 #include "../headers/entities/Cube2Tex.h"
+#include "../headers/entities/Cube3Tex.h"
 
 class App {
 private:
@@ -28,7 +29,10 @@ private:
 	bool is_left = false,
 		is_right = false,
 		is_up = false,
-		is_down = false;
+		is_down = false,
+
+		decrease_ratio = false,
+		increase_ratio = false;
 
 	int cur_task = 0;
 	std::vector<Entity*> entities;
@@ -38,6 +42,7 @@ public:
 	void Init() {
 		entities.push_back(new Tetrahedron());
 		entities.push_back(new Cube2Tex());
+		entities.push_back(new Cube3Tex());
 		entities[0]->Init();
 	}
 	void Draw() {
@@ -51,6 +56,7 @@ public:
 	void PollEvents(sf::Window& window) {
 		sf::Event event;
 		bool task_changed = false;
+		auto test = dynamic_cast<MixedCube*>(entities[cur_task]);
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed) {
 				window.close();
@@ -94,6 +100,14 @@ public:
 					task_changed = true;
 					break;
 
+				case sf::Keyboard::A:
+					decrease_ratio = true;
+					break;
+
+				case sf::Keyboard::D:
+					increase_ratio = true;
+					break;
+
 				default:
 					break;
 				}
@@ -117,6 +131,13 @@ public:
 					is_down = false;
 					break;
 
+				case sf::Keyboard::A:
+					decrease_ratio = false;
+					break;
+
+				case sf::Keyboard::D:
+					increase_ratio = false;
+					break;
 				default:
 					break;
 				}
@@ -137,15 +158,10 @@ public:
 		if (is_right) entities[cur_task]->offset[0] = std::min(1.f, entities[cur_task]->offset[0] + velocity);
 		if (is_up)    entities[cur_task]->offset[1] = std::min(1.f, entities[cur_task]->offset[1] + velocity);
 		if (is_down)  entities[cur_task]->offset[1] = std::max(-1.f, entities[cur_task]->offset[1] - velocity);
+		if (test == NULL) return;
+		if (decrease_ratio)  test->AltMixRatio(-test->mixRatioStep);
+		if (increase_ratio)  test->AltMixRatio(test->mixRatioStep);
 	}
 };
-
-//sf::Shader shader;
-//
-//#define STB_IMAGE_IMPLEMENTATION
-//#include "stb_image.h"
-//
-//int width, height, nrChannels;
-//unsigned char* data;
 
 #endif // !__MAIN_H__

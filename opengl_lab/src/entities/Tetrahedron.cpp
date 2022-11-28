@@ -1,11 +1,6 @@
 #include "../../headers/entities/Tetrahedron.h"
 
 Tetrahedron::Tetrahedron() {
-	velocity = 0.0001f;
-	offset[0] = offset[1] = 0.0f;
-	//InitShader();
-	//InitVBO1();
-	//InitVAO1();
 }
 
 void Tetrahedron::InitShader() {
@@ -77,8 +72,6 @@ void Tetrahedron::InitVAO1() {
 	glBindVertexArray(0);
 }
 
-
-
 void Tetrahedron::InitVO() {
 	InitVBO1();
 	InitVAO1();
@@ -91,12 +84,16 @@ void Tetrahedron::ReleaseVO() {
 
 void Tetrahedron::Draw() {
 	glUseProgram(Program);
-
 	glUniform2f(glGetUniformLocation(Program, "offset"), offset[0], offset[1]);
+	
 	glBindVertexArray(VAO1);
+	glBindBuffer(GL_ARRAY_BUFFER, VBO1);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO1);
 
 	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
 
 	glUseProgram(0);
 	//checkOpenGLerror();

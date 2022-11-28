@@ -1,7 +1,7 @@
 #include "../headers/main.h"
 
 int main() {
-	sf::Window window(sf::VideoMode(600, 600), "My OpenGL window", sf::Style::Default, sf::ContextSettings(24));
+	sf::Window window(sf::VideoMode(600, 600), "CringeCAD2", sf::Style::Default, sf::ContextSettings(24));
 	App app = App();
 
 	GLenum errorcode = glewInit();
@@ -16,7 +16,9 @@ int main() {
 	app.Init();
 
 	glEnable(GL_DEPTH_TEST);
+	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
+	sf::Clock clock;
 	while (window.isOpen()) {
         app.PollEvents(window);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
