@@ -43,6 +43,18 @@ void main() {
 }
 )";
 
+const char* FragShaderSource2 = R"(
+#version 330 core
+
+in vec4 vcolor;
+
+out vec4 FragColor;
+
+void main() {
+    FragColor = vcolor;
+}
+)";
+
 
 const char* VertexShaderSource2 = R"(
 #version 330 core
@@ -125,10 +137,10 @@ void InitShader() {
 	ShaderLog(vShader);
 
 	GLuint vShader2 = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vShader, 1, &VertexShaderSource2, NULL);
-	glCompileShader(vShader);
+	glShaderSource(vShader2, 1, &VertexShaderSource2, NULL);
+	glCompileShader(vShader2);
 	std::cout << "vertex shader \n";
-	ShaderLog(vShader);
+	ShaderLog(vShader2);
 
 	GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fShader, 1, &FragShaderSource, NULL);
@@ -164,7 +176,7 @@ void InitShader() {
 	}
 
 	Program2 = glCreateProgram();
-	glAttachShader(Program2, vShader);
+	glAttachShader(Program2, vShader2);
 	glAttachShader(Program2, fShader);
 	glLinkProgram(Program2);
 
