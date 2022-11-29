@@ -3,11 +3,12 @@
 #define red 1.0,0.0,0.0,1.0
 #define green 0.0,1.0,0.0,1.0
 #define blue 0.0,0.0,1.0,1.0
-#define yellow 1.0,1.0,0.3,1.0
 #define white 1.0,1.0,1.0,1.0
-#define aqua 0.0,1.0,1.0,1.0
-#define bluet 0.56,0.58,1.0,1.0
-#define bisquit 0.7,0.89,0.77,1.0
+
+#define cyan 0.0,1.0,1.0,1.0
+#define magenta 1.0,0.0,1.0,1.0
+#define yellow 1.0,1.0,0.0,1.0
+#define black 0.0,0.0,0.0,1.0
 
 struct Vertex {
 	struct Coord {

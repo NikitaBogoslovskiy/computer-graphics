@@ -12,66 +12,50 @@ void Cube3Tex::InitShader() {
 }
 
 void Cube3Tex::InitVO() {
-	//InitVBO1();
-	//InitVAO1();
-
-	/*float vertices[] = {
-		// positions          // colors           // texture coords
-		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
-	};*/
 
 	float vertices[] = {
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+		left_bottom_near, lb,
+		right_bottom_near, rb,
+		right_top_near, rt,
+		right_top_near, rt,
+		left_top_near, lt,
+		left_bottom_near, lb,
 
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+		right_bottom_near, lb,
+		right_bottom_far, rb,
+		right_top_far, rt,
+		right_top_far, rt,
+		right_top_near, lt,
+		right_bottom_near, lb,
 
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		right_bottom_far, lb,
+		left_bottom_far, rb,
+		left_top_far, rt,
+		left_top_far, rt,
+		right_top_far, lt,
+		right_bottom_far, lb,
 
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+		left_bottom_far, lb,
+		left_bottom_near, rb,
+		left_top_near, rt,
+		left_top_near, rt,
+		left_top_far, lt,
+		left_bottom_far, lb,
 
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+		left_top_near, lb,
+		right_top_near, rb,
+		right_top_far, rt,
+		right_top_far, rt,
+		left_top_far, lt,
+		left_top_near, lb,
 
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
-		 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
-		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
-		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
+		left_bottom_far, lb,
+		right_bottom_far, rb,
+		right_bottom_near, rt,
+		right_bottom_near, rt,
+		left_bottom_near, lt,
+		left_bottom_far, lb,
 	};
-
-	//vartices = vertices;
-	//unsigned int indices[] = {
-	//	0, 1, 3, // first triangle
-	//	1, 2, 3  // second triangle
-	//};
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
@@ -106,7 +90,7 @@ void Cube3Tex::InitVO() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// load image, create texture and generate mipmaps
 	int width, height, nrChannels;
-	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
+	//stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis.
 	unsigned char* data = stbi_load("shaders/task3/ccad.jpg", &width, &height, &nrChannels, 0);
 	if (data)
 	{
@@ -151,8 +135,7 @@ void Cube3Tex::InitVO() {
 }
 
 void Cube3Tex::ReleaseVO() {
-	//glBindBuffer(GL_ARRAY_BUFFER, 0);
-	//glDeleteBuffers(1, &VBO1);
+	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
 	//glDeleteBuffers(1, &EBO);
@@ -171,7 +154,7 @@ void Cube3Tex::Draw(const float& time) {
 	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
-	model = glm::rotate(model, glm::radians(time * 100.f), glm::vec3(0.5f, 1.0f, 0.0f));
+	model = glm::rotate(model, glm::radians(time * 30.f), glm::vec3(0.5f, 1.0f, 0.0f));
 	view = glm::translate(view, glm::vec3(0.0f, 0.0f, zOffset));
 	projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 	// retrieve the matrix uniform locations
