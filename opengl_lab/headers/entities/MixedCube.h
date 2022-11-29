@@ -27,24 +27,15 @@ so ill have to beg god for forgiveness once again
 #define lt 1.0f,1.0f
 
 class MixedCube : public Entity {
-	GLuint Attrib_vertex;
-	GLuint Attrib_color;
+
+protected:
+
 	GLuint Attrib_texture;
 
-	GLuint VBO;
-	GLuint VAO;
-	GLuint EBO;
-
-	float vertices;
-	//void InitVBO1();
-	//void InitVAO1();
-
-	//void InitShader() override;
-	//void InitVO() override;
-	//void ReleaseVO() override;
-
-
 public:
+	MixedCube() {
+		velocity = 0.001f;
+	}
 	// god forgive me for this
 	void AltMixRatio(const float& alt) {
 		mixRatio += alt;
@@ -55,7 +46,4 @@ public:
 	float mixRatioStep = 0.0001f;
 	float zOffset = -3.f;
 
-	MixedCube() {}
-
-	//void Draw() override;
 };

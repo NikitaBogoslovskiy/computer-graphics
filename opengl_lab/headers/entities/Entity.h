@@ -25,6 +25,7 @@ struct Vertex {
 };
 
 class Entity {
+
 	virtual void InitShader() = 0;
 	virtual void InitVO() = 0;
 	virtual void ReleaseVO() = 0;
@@ -34,14 +35,16 @@ class Entity {
 
 protected:
 	GLuint Program;
+	GLuint Attrib_vertex;
+	
+	GLuint VBO;
+	GLuint VAO;
 
 public:
 	float velocity = 0.0001f;
 	GLfloat offset[2] = { 0.0f, 0.0f };
 
 	virtual void Draw(const float& time) = 0;
-
-	void Init();
 
 	void Release();
 };

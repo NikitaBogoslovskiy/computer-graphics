@@ -11,6 +11,7 @@
 #include "../headers/entities/Tetrahedron.h"
 #include "../headers/entities/Cube2Tex.h"
 #include "../headers/entities/Cube3Tex.h"
+#include "../headers/entities/ColoredEllipse.h"
 
 class App {
 private:
@@ -47,7 +48,7 @@ public:
 		entities.push_back(new Tetrahedron());
 		entities.push_back(new Cube2Tex());
 		entities.push_back(new Cube3Tex());
-		entities[0]->Init();
+		entities.push_back(new ColoredEllipse());
 	}
 	void Draw() {
 		if (cur_task >= entities.size()) return;
@@ -56,12 +57,18 @@ public:
 	}
 	void Release() {
 		if (cur_task >= entities.size()) return;
-		entities[cur_task]->Release();
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
+		for (auto& ent : entities) {
+			ent->Release();
+		}
 	}
 	void PollEvents(sf::Window& window) {
 		sf::Event event;
-		bool task_changed = false;
-		auto test = dynamic_cast<MixedCube*>(entities[cur_task]);
+
+		// We could have just check for cur_task. But in this case we must rely on order of entities - sad
+		auto testT = dynamic_cast<Tetrahedron*>(entities[cur_task]);
+		auto testMC = dynamic_cast<MixedCube*>(entities[cur_task]);
+		auto testCE = dynamic_cast<ColoredEllipse*>(entities[cur_task]);
 		while (window.pollEvent(event)) {
 			if (event.type == sf::Event::Closed) {
 				window.close();
@@ -87,22 +94,18 @@ public:
 
 				case sf::Keyboard::Num1:
 					cur_task = 0;
-					task_changed = true;
 					break;
 
 				case sf::Keyboard::Num2:
 					cur_task = 1;
-					task_changed = true;
 					break;
 
 				case sf::Keyboard::Num3:
 					cur_task = 2;
-					task_changed = true;
 					break;
 
 				case sf::Keyboard::Num4:
 					cur_task = 3;
-					task_changed = true;
 					break;
 
 				case sf::Keyboard::A:
@@ -169,25 +172,33 @@ public:
 		}
 
 		if (cur_task >= entities.size()) return;
-		if (task_changed) {
-			Release();
-			entities[cur_task]->Init();
+		
+		auto velocity = entities[cur_task]->velocity;
+		if (testT != nullptr) {
+			if (is_left)  entities[cur_task]->offset[0] = std::max(-1.f, entities[cur_task]->offset[0] - velocity);
+			if (is_right) entities[cur_task]->offset[0] = std::min(1.f, entities[cur_task]->offset[0] + velocity);
+			if (is_up)    entities[cur_task]->offset[1] = std::min(1.f, entities[cur_task]->offset[1] + velocity);
+			if (is_down)  entities[cur_task]->offset[1] = std::max(-1.f, entities[cur_task]->offset[1] - velocity);
 			return;
 		}
-		auto velocity = entities[cur_task]->velocity;
-		if (is_left)  entities[cur_task]->offset[0] = std::max(-1.f, entities[cur_task]->offset[0] - velocity);
-		if (is_right) entities[cur_task]->offset[0] = std::min(1.f, entities[cur_task]->offset[0] + velocity);
-		if (is_up)    entities[cur_task]->offset[1] = std::min(1.f, entities[cur_task]->offset[1] + velocity);
-		if (is_down)  entities[cur_task]->offset[1] = std::max(-1.f, entities[cur_task]->offset[1] - velocity);
-		if (test == NULL) return;
-		if (decrease_ratio)  test->AltMixRatio(-test->mixRatioStep);
-		if (increase_ratio)  test->AltMixRatio(test->mixRatioStep);
-		if (increase_zOffset) {
-			test->zOffset -= velocity * 10.f;
+		if (testMC != nullptr) {
+			if (decrease_ratio)  testMC->AltMixRatio(-testMC->mixRatioStep);
+			if (increase_ratio)  testMC->AltMixRatio(testMC->mixRatioStep);
+			if (increase_zOffset) {
+				testMC->zOffset -= velocity;
+			}
+			if (decrease_zOffset) {
+				testMC->zOffset += velocity;
+				testMC->zOffset = std::min(-1.f, testMC->zOffset);
+			}
+			return;
 		}
-		if (decrease_zOffset) {
-			test->zOffset += velocity * 10.f;
-			test->zOffset = std::min(-1.f, test->zOffset);
+		if (testCE != nullptr) {
+			if (is_left)  testCE->scale[0] = std::max(-1.f, testCE->scale[0] - velocity);
+			if (is_right) testCE->scale[0] = std::min(1.f, testCE->scale[0] + velocity);
+			if (is_up)    testCE->scale[1] = std::min(1.f, testCE->scale[1] + velocity);
+			if (is_down)  testCE->scale[1] = std::max(-1.f, testCE->scale[1] - velocity);
+			return;
 		}
 	}
 };

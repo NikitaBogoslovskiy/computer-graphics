@@ -7,11 +7,6 @@ void Entity::ReleaseShader() {
 	glDeleteProgram(Program);
 }
 
-void Entity::Init() {
-	InitShader();
-	InitVO();
-}
-
 void Entity::Release() {
 	// Шейдеры
 	ReleaseShader();

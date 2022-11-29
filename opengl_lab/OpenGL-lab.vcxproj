@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClCompile Include="src\entities\Cube2Tex.cpp" />
     <ClCompile Include="src\entities\Cube3Tex.cpp" />
+    <ClCompile Include="src\entities\ColoredEllipse.cpp" />
     <ClCompile Include="src\entities\Entity.cpp" />
     <ClCompile Include="src\stb_image_impl.cpp" />
     <ClCompile Include="src\main.cpp" />
@@ -161,6 +162,7 @@
   <ItemGroup>
     <ClInclude Include="headers\entities\Cube2Tex.h" />
     <ClInclude Include="headers\entities\Cube3Tex.h" />
+    <ClInclude Include="headers\entities\ColoredEllipse.h" />
     <ClInclude Include="headers\entities\Entity.h" />
     <ClInclude Include="headers\entities\MixedCube.h" />
     <ClInclude Include="headers\main.h" />
@@ -170,6 +172,8 @@
   <ItemGroup>
     <None Include="shaders\task3\tt_cube.frag" />
     <None Include="shaders\task3\tt_cube.vert" />
+    <None Include="shaders\task4\ellipse.frag" />
+    <None Include="shaders\task4\ellipse.vert" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
