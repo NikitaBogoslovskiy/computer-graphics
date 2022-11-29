@@ -93,7 +93,7 @@ int main() {
             if (is_down) offset[1] = std::max(-1.f, offset[1] - 0.01f);
         }
 
-        if (current_task == 1) {
+        if (current_task == 2) {
             if (is_left) scale[0] = std::max(-1.f, scale[0] - 0.01f);
             if (is_right) scale[0] = std::min(1.f, scale[0] + 0.01f);
             if (is_up) scale[1] = std::min(1.f, scale[1] + 0.01f);

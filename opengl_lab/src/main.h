@@ -44,7 +44,25 @@ void main() {
 )";
 
 
+const char* VertexShaderSource2 = R"(
+#version 330 core
+
+in vec3 coord;
+in vec4 color;
+
+out vec4 vcolor;
+
+uniform vec2 scale;
+
+void main() {
+    gl_Position = vec4(coord.xy * scale, coord.z, 1.2);
+    vcolor = color;
+}
+)";
+
 GLuint Program;
+
+GLuint Program2;
 
 GLuint Attrib_vertex;
 GLuint Attrib_color;
@@ -105,31 +123,64 @@ void InitShader() {
 	glCompileShader(vShader);
 	std::cout << "vertex shader \n";
 	ShaderLog(vShader);
+
+	GLuint vShader2 = glCreateShader(GL_VERTEX_SHADER);
+	glShaderSource(vShader, 1, &VertexShaderSource2, NULL);
+	glCompileShader(vShader);
+	std::cout << "vertex shader \n";
+	ShaderLog(vShader);
+
 	GLuint fShader = glCreateShader(GL_FRAGMENT_SHADER);
 	glShaderSource(fShader, 1, &FragShaderSource, NULL);
 	glCompileShader(fShader);
 	std::cout << "fragment shader \n";
 	ShaderLog(fShader);
+
 	Program = glCreateProgram();
 	glAttachShader(Program, vShader);
 	glAttachShader(Program, fShader);
 	glLinkProgram(Program);
+	
 	int link_ok;
 	glGetProgramiv(Program, GL_LINK_STATUS, &link_ok);
 	if (!link_ok) {
 		std::cout << "error attach shaders \n";
 		return;
 	}
-	// Вытягиваем ID атрибута из собранной программы
+
 	const char* attr_name = "coord"; //имя в шейдере
+	const char* attr_name2 = "color"; //имя в шейдере
+
 	Attrib_vertex = glGetAttribLocation(Program, attr_name);
 	if (Attrib_vertex == -1) {
 		std::cout << "could not bind attrib " << attr_name << std::endl;
 		return;
 	}
 
-	const char* attr_name2 = "color"; //имя в шейдере
 	Attrib_color = glGetAttribLocation(Program, attr_name2);
+	if (Attrib_color == -1) {
+		std::cout << "could not bind attrib " << attr_name2 << std::endl;
+		return;
+	}
+
+	Program2 = glCreateProgram();
+	glAttachShader(Program2, vShader);
+	glAttachShader(Program2, fShader);
+	glLinkProgram(Program2);
+
+	glGetProgramiv(Program2, GL_LINK_STATUS, &link_ok);
+	if (!link_ok) {
+		std::cout << "error attach shaders \n";
+		return;
+	}
+
+	Attrib_vertex = glGetAttribLocation(Program2, attr_name);
+	if (Attrib_vertex == -1) {
+		std::cout << "could not bind attrib " << attr_name << std::endl;
+		return;
+	}
+
+	Attrib_color = glGetAttribLocation(Program2, attr_name2);
 	if (Attrib_color == -1) {
 		std::cout << "could not bind attrib " << attr_name2 << std::endl;
 		return;
@@ -213,13 +264,13 @@ void InitVAO1() {
 }
 
 void InitVBO2() {
-	Vertex ellipse[360];
+	Vertex ellipse[362];
 
 	ellipse[0] = { {0.f, 0.f, 0.f}, {white} };
 
 	float ddpi = DPI / 360;
 	float sphi = 0.f;
-	for (size_t i = 1; i <= 359; sphi += ddpi, i++)
+	for (size_t i = 1; i < 362; sphi += ddpi, i++)
 	{
 		ellipse[i] = { { cosf(sphi), sinf(sphi), 0.f}, { __r(sphi), __g(sphi), __b(sphi), 1.f } };
 	}
@@ -251,21 +302,24 @@ void Init() {
 }
 
 void Draw() {
-	glUseProgram(Program);
-
-	glUniform2f(glGetUniformLocation(Program, "offset"), offset[0], offset[1]);
 
 	switch (current_task)
 	{
 	case 1:
+		glUseProgram(Program);
+		glUniform2f(glGetUniformLocation(Program, "offset"), offset[0], offset[1]);
 		glBindVertexArray(VAO1);
 		glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 		glBindVertexArray(0);
+		glUseProgram(0);
 		break;
 	case 2:
+		glUseProgram(Program2);
+		glUniform2f(glGetUniformLocation(Program2, "scale"), scale[0], scale[1]);
 		glBindVertexArray(VAO2);
-		glDrawArrays(GL_TRIANGLE_FAN, 0, 360);
+		glDrawArrays(GL_TRIANGLE_FAN, 0, 362);
 		glBindVertexArray(0);
+		glUseProgram(0);
 		break;
 	case 3:
 		break;
@@ -275,7 +329,6 @@ void Draw() {
 		break;
 	}
 
-	glUseProgram(0);
 	checkOpenGLerror();
 }
 
@@ -284,6 +337,7 @@ void ReleaseShader() {
 	glUseProgram(0);
 	// Удаляем шейдерную программу
 	glDeleteProgram(Program);
+	glDeleteProgram(Program2);
 
 }
 
