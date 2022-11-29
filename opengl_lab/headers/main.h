@@ -172,25 +172,24 @@ public:
 		}
 
 		if (cur_task >= entities.size()) return;
-		
+
 		auto velocity = entities[cur_task]->velocity;
-		if (testT != nullptr) {
+		if (testT != nullptr || testMC != nullptr) {
 			if (is_left)  entities[cur_task]->offset[0] = std::max(-1.f, entities[cur_task]->offset[0] - velocity);
 			if (is_right) entities[cur_task]->offset[0] = std::min(1.f, entities[cur_task]->offset[0] + velocity);
 			if (is_up)    entities[cur_task]->offset[1] = std::min(1.f, entities[cur_task]->offset[1] + velocity);
 			if (is_down)  entities[cur_task]->offset[1] = std::max(-1.f, entities[cur_task]->offset[1] - velocity);
-			return;
+			if (increase_zOffset) {
+				entities[cur_task]->zOffset -= velocity;
+			}
+			if (decrease_zOffset) {
+				entities[cur_task]->zOffset += velocity;
+				entities[cur_task]->zOffset = std::min(-1.f, entities[cur_task]->zOffset);
+			}
 		}
 		if (testMC != nullptr) {
 			if (decrease_ratio)  testMC->AltMixRatio(-testMC->mixRatioStep);
 			if (increase_ratio)  testMC->AltMixRatio(testMC->mixRatioStep);
-			if (increase_zOffset) {
-				testMC->zOffset -= velocity;
-			}
-			if (decrease_zOffset) {
-				testMC->zOffset += velocity;
-				testMC->zOffset = std::min(-1.f, testMC->zOffset);
-			}
 			return;
 		}
 		if (testCE != nullptr) {

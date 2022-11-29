@@ -123,10 +123,10 @@ void Cube2Tex::Draw(const float& time) {
 	// create transformations
 	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 	glm::mat4 view = glm::mat4(1.0f);
-	glm::mat4 projection = glm::mat4(1.0f);
+	
 	model = glm::rotate(model, glm::radians(time * 30.f), glm::vec3(0.5f, 1.0f, 0.0f));
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, zOffset));
-	projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+	view = glm::translate(view, glm::vec3(offset[0], offset[1], zOffset));
+
 	// retrieve the matrix uniform locations
 	unsigned int modelLoc = glGetUniformLocation(Program, "model");
 	unsigned int viewLoc = glGetUniformLocation(Program, "view");
@@ -135,8 +135,6 @@ void Cube2Tex::Draw(const float& time) {
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-	// note: currently we set the projection matrix each frame, but since the projection matrix rarely changes it's often best practice to set it outside the main loop only once !!!!!!!! todo
 
 	glUniform1f(glGetUniformLocation(Program, "mixRatio"), mixRatio);
 

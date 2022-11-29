@@ -16,6 +16,7 @@ class Tetrahedron : public Entity {
 	void ReleaseVO() override;
 
 public:
+
 	Tetrahedron();
 
 	void Draw(const float& time) override;

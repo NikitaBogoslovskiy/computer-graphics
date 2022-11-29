@@ -33,8 +33,8 @@ protected:
 	GLuint Attrib_texture;
 
 public:
-	MixedCube() {
-		velocity = 0.001f;
+	MixedCube() : Entity() {
+		//velocity = 0.001f;
 	}
 	// god forgive me for this
 	void AltMixRatio(const float& alt) {
@@ -44,6 +44,5 @@ public:
 	}
 	float mixRatio = 0.5f;
 	float mixRatioStep = 0.0001f;
-	float zOffset = -3.f;
 
 };

@@ -1,6 +1,7 @@
 #include "../../headers/entities/ColoredEllipse.h"
 
 ColoredEllipse::ColoredEllipse() {
+	velocity = 0.0001;
 	InitShader();
 	InitVO();
 }

@@ -1,6 +1,6 @@
 #include "../../headers/entities/Tetrahedron.h"
 
-Tetrahedron::Tetrahedron() {
+Tetrahedron::Tetrahedron() : Entity() {
 	InitShader();
 	InitVO();
 }
@@ -73,9 +73,24 @@ void Tetrahedron::ReleaseVO() {
 }
 
 void Tetrahedron::Draw(const float& time) {
-
 	glUseProgram(Program);
-	glUniform2f(glGetUniformLocation(Program, "offset"), offset[0], offset[1]);
+
+	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+	glm::mat4 view = glm::mat4(1.0f);
+	
+	model = glm::rotate(model, glm::radians(time * 30.f), glm::vec3(0.5f, 1.0f, 0.0f));
+	view = glm::translate(view, glm::vec3(offset[0], offset[1], zOffset));
+	
+	// retrieve the matrix uniform locations
+	unsigned int modelLoc = glGetUniformLocation(Program, "model");
+	unsigned int viewLoc = glGetUniformLocation(Program, "view");
+	unsigned int projectionLoc = glGetUniformLocation(Program, "projection");
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+
+	//glUniform2f(glGetUniformLocation(Program, "offset"), offset[0], offset[1]);
 	glBindVertexArray(VAO);
 	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
