@@ -14,6 +14,8 @@
 
 class App {
 private:
+	sf::Clock clock;
+
 	void SetIcon(sf::Window* wnd)
 	{
 		sf::Image image;
@@ -32,7 +34,9 @@ private:
 		is_down = false,
 
 		decrease_ratio = false,
-		increase_ratio = false;
+		increase_ratio = false,
+		increase_zOffset = false,
+		decrease_zOffset = false;
 
 	int cur_task = 0;
 	std::vector<Entity*> entities;
@@ -47,7 +51,8 @@ public:
 	}
 	void Draw() {
 		if (cur_task >= entities.size()) return;
-		entities[cur_task]->Draw();
+		float time = clock.getElapsedTime().asSeconds();
+		entities[cur_task]->Draw(time);
 	}
 	void Release() {
 		if (cur_task >= entities.size()) return;
@@ -108,6 +113,13 @@ public:
 					increase_ratio = true;
 					break;
 
+				case sf::Keyboard::W:
+					increase_zOffset = true;
+					break;
+
+				case sf::Keyboard::S:
+					decrease_zOffset = true;
+					break;
 				default:
 					break;
 				}
@@ -138,6 +150,15 @@ public:
 				case sf::Keyboard::D:
 					increase_ratio = false;
 					break;
+
+				case sf::Keyboard::W:
+					increase_zOffset = false;
+					break;
+
+				case sf::Keyboard::S:
+					decrease_zOffset = false;
+					break;
+
 				default:
 					break;
 				}
@@ -161,6 +182,13 @@ public:
 		if (test == NULL) return;
 		if (decrease_ratio)  test->AltMixRatio(-test->mixRatioStep);
 		if (increase_ratio)  test->AltMixRatio(test->mixRatioStep);
+		if (increase_zOffset) {
+			test->zOffset -= velocity * 10.f;
+		}
+		if (decrease_zOffset) {
+			test->zOffset += velocity * 10.f;
+			test->zOffset = std::min(-1.f, test->zOffset);
+		}
 	}
 };
 

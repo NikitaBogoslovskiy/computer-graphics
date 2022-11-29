@@ -5,6 +5,9 @@
 #define blue 0.0,0.0,1.0,1.0
 #define yellow 1.0,1.0,0.3,1.0
 #define white 1.0,1.0,1.0,1.0
+#define aqua 0.0,1.0,1.0,1.0
+#define bluet 0.56,0.58,1.0,1.0
+#define bisquit 0.7,0.89,0.77,1.0
 
 struct Vertex {
 	struct Coord {
@@ -35,7 +38,7 @@ public:
 	float velocity = 0.0001f;
 	GLfloat offset[2] = { 0.0f, 0.0f };
 
-	virtual void Draw() = 0;
+	virtual void Draw(const float& time) = 0;
 
 	void Init();
 

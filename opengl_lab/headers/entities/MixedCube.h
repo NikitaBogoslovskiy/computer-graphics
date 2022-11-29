@@ -32,6 +32,7 @@ public:
 	}
 	float mixRatio = 0.5f;
 	float mixRatioStep = 0.0001f;
+	float zOffset = -3.f;
 
 	MixedCube() {}
 

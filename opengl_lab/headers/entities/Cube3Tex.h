@@ -26,5 +26,5 @@ public:
 
 	Cube3Tex();
 
-	void Draw() override;
+	void Draw(const float& time) override;
 };

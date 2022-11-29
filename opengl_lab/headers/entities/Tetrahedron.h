@@ -23,5 +23,5 @@ class Tetrahedron : public Entity {
 public:
 	Tetrahedron();
 
-	void Draw() override;
+	void Draw(const float& time) override;
 };

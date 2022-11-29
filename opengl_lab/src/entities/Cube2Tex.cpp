@@ -17,40 +17,83 @@ void Cube2Tex::InitVO() {
 	//InitVBO1();
 	//InitVAO1();
 
+	//float vertices[] = {
+	//	// positions          // colors           // texture coords
+	//	 0.5f,  0.5f, 0.0f, red,    1.0f, 1.0f, // top right
+	//	 0.5f, -0.5f, 0.0f, green,  1.0f, 0.0f, // bottom right
+	//	-0.5f, -0.5f, 0.0f, blue,   0.0f, 0.0f, // bottom left
+	//	-0.5f,  0.5f, 0.0f, yellow, 0.0f, 1.0f  // top left
+	//};
 	float vertices[] = {
-		// positions          // colors           // texture coords
-		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f, // top right
-		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f, // bottom right
-		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f, // bottom left
-		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f  // top left 
+		-0.5f, -0.5f, -0.5f, red, 0.0f, 0.0f,
+		 0.5f, -0.5f, -0.5f, green, 1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f, blue, 1.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f, blue, 1.0f, 1.0f,
+		-0.5f,  0.5f, -0.5f, yellow, 0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, red, 0.0f, 0.0f,
+
+		-0.5f, -0.5f,  0.5f, white, 0.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f, aqua, 1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f, bluet, 1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f, bluet, 1.0f, 1.0f,
+		-0.5f,  0.5f,  0.5f, bisquit, 0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f, white, 0.0f, 0.0f,
+
+		-0.5f,  0.5f,  0.5f, bisquit, 1.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f, yellow, 1.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, red, 0.0f, 1.0f,
+		-0.5f, -0.5f, -0.5f, red, 0.0f, 1.0f,
+		-0.5f, -0.5f,  0.5f, white, 0.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f, bisquit, 1.0f, 0.0f,
+
+		 0.5f,  0.5f,  0.5f, bluet, 1.0f, 0.0f,
+		 0.5f,  0.5f, -0.5f, blue, 1.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f, green, 0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f, green, 0.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f, aqua, 0.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f, bluet, 1.0f, 0.0f,
+
+		-0.5f, -0.5f, -0.5f, red, 0.0f, 1.0f,
+		 0.5f, -0.5f, -0.5f, green, 1.0f, 1.0f,
+		 0.5f, -0.5f,  0.5f, aqua,  1.0f, 0.0f,
+		 0.5f, -0.5f,  0.5f, aqua, 1.0f, 0.0f,
+		-0.5f, -0.5f,  0.5f, white,  0.0f, 0.0f,
+		-0.5f, -0.5f, -0.5f, red, 0.0f, 1.0f,
+
+		-0.5f,  0.5f, -0.5f, yellow, 0.0f, 1.0f,
+		 0.5f,  0.5f, -0.5f, blue, 1.0f, 1.0f,
+		 0.5f,  0.5f,  0.5f, bluet, 1.0f, 0.0f,
+		 0.5f,  0.5f,  0.5f, bluet, 1.0f, 0.0f,
+		-0.5f,  0.5f,  0.5f, bisquit, 0.0f, 0.0f,
+		-0.5f,  0.5f, -0.5f, yellow, 0.0f, 1.0f
 	};
-	
+
 	//vartices = vertices;
-	unsigned int indices[] = {
-		0, 1, 3, // first triangle
-		1, 2, 3  // second triangle
-	};
+	//unsigned int indices[] = {
+	//	0, 1, 3, // first triangle
+	//	1, 2, 3  // second triangle
+	//};
 
 	glGenVertexArrays(1, &VAO);
 	glGenBuffers(1, &VBO);
-	glGenBuffers(1, &EBO);
+	//glGenBuffers(1, &EBO);
 
 	glBindVertexArray(VAO);
 
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
 	// position attribute
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
 	// color attribute
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 4, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
 	// texture coord attribute
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 9 * sizeof(float), (void*)(7 * sizeof(float)));
 	glEnableVertexAttribArray(2);
 
 	// load and create a texture 
@@ -66,7 +109,6 @@ void Cube2Tex::InitVO() {
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// load image, create texture and generate mipmaps
 	int width, height, nrChannels;
-	// The FileSystem::getPath(...) is part of the GitHub repository so we can find files on any IDE/platform; replace it with your own image path.
 	stbi_set_flip_vertically_on_load(true);
 	unsigned char* data = stbi_load("shaders/task2/kroshy.jpg", &width, &height, &nrChannels, 0);
 	if (data)
@@ -86,10 +128,10 @@ void Cube2Tex::ReleaseVO() {
 	//glDeleteBuffers(1, &VBO1);
 	glDeleteVertexArrays(1, &VAO);
 	glDeleteBuffers(1, &VBO);
-	glDeleteBuffers(1, &EBO);
+	//glDeleteBuffers(1, &EBO);
 }
 
-void Cube2Tex::Draw() {
+void Cube2Tex::Draw(const float & time) {
 	glUseProgram(Program);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture1);
@@ -98,8 +140,8 @@ void Cube2Tex::Draw() {
 	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 	glm::mat4 view = glm::mat4(1.0f);
 	glm::mat4 projection = glm::mat4(1.0f);
-	model = glm::rotate(model, glm::radians(-55.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-	view = glm::translate(view, glm::vec3(0.0f, 0.0f, -3.0f));
+	model = glm::rotate(model, glm::radians(time * 100.f) , glm::vec3(0.5f, 1.0f, 0.0f));
+	view = glm::translate(view, glm::vec3(0.0f, 0.0f, zOffset));
 	projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
 	// retrieve the matrix uniform locations
 	unsigned int modelLoc = glGetUniformLocation(Program, "model");
@@ -116,8 +158,9 @@ void Cube2Tex::Draw() {
 
 	glBindVertexArray(VAO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-	glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	//glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
+	//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+	glDrawArrays(GL_TRIANGLES, 0, 36);
 
 	//glDrawElements(GL_QUADS, 24, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);

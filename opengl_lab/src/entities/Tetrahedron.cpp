@@ -82,7 +82,7 @@ void Tetrahedron::ReleaseVO() {
 	glDeleteBuffers(1, &VBO1);
 }
 
-void Tetrahedron::Draw() {
+void Tetrahedron::Draw(const float& time) {
 	glUseProgram(Program);
 	glUniform2f(glGetUniformLocation(Program, "offset"), offset[0], offset[1]);
 	
