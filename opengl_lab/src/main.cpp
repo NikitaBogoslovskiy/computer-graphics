@@ -1,7 +1,7 @@
 #include "../headers/main.h"
 
 int main() {
-	sf::Window window(sf::VideoMode(600, 600), "CringeCAD2", sf::Style::Default, sf::ContextSettings(24));
+	sf::Window window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "CringeCAD2", sf::Style::Default, sf::ContextSettings(24));
 	App app = App();
 
 	GLenum errorcode = glewInit();

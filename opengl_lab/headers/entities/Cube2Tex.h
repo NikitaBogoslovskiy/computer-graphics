@@ -16,8 +16,6 @@ class Cube2Tex : public MixedCube {
 	GLuint texture1;
 
 	float vertices;
-	void InitVBO1();
-	void InitVAO1();
 
 	void InitShader() override;
 	void InitVO() override;
