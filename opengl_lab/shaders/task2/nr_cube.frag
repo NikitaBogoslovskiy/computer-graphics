@@ -9,6 +9,5 @@ uniform float mixRatio;
 
 void main()
 {
-	//FragColor = texture(texture1, TexCoord) * vec4(ourColor, 1.0);  
-	FragColor = ourColor + mixRatio * (texture(texture1, TexCoord) - ourColor);
+	FragColor = mix(texture(texture1, TexCoord), ourColor, mixRatio);
 }
