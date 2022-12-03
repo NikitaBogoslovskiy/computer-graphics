@@ -11,18 +11,21 @@
 #define yellow 1.0,1.0,0.0,1.0
 #define black 0.0,0.0,0.0,1.0
 
+struct Coord {
+	GLfloat x;
+	GLfloat y;
+	GLfloat z;
+};
+struct Color {
+	GLfloat r;
+	GLfloat g;
+	GLfloat b;
+	GLfloat a;
+};
+
 struct Vertex {
-	struct Coord {
-		GLfloat x;
-		GLfloat y;
-		GLfloat z;
-	} coord;
-	struct Color {
-		GLfloat r;
-		GLfloat g;
-		GLfloat b;
-		GLfloat a;
-	} color;
+	Coord coord;
+	Color color;
 };
 
 class Entity {
@@ -40,6 +43,7 @@ protected:
 	
 	GLuint VBO;
 	GLuint VAO;
+	GLuint IBO;
 
 	glm::mat4 projection;
 

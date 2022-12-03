@@ -7,7 +7,6 @@
 class Tetrahedron : public Entity {
 
 	GLuint Attrib_color;
-	GLuint IBO;
 
 	void InitVBO();
 

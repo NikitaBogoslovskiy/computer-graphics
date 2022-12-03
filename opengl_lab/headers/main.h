@@ -12,7 +12,7 @@
 #include "../headers/entities/Cube2Tex.h"
 #include "../headers/entities/Cube3Tex.h"
 #include "../headers/entities/ColoredEllipse.h"
-
+#include "meshes/Mesh.h"
 class App {
 private:
 	sf::Clock clock;
@@ -49,6 +49,7 @@ public:
 		entities.push_back(new Cube2Tex());
 		entities.push_back(new Cube3Tex());
 		entities.push_back(new ColoredEllipse());
+		entities.push_back(new Mesh("tree.obj"));
 	}
 	void Draw() {
 		if (cur_task >= entities.size()) return;
@@ -107,6 +108,11 @@ public:
 				case sf::Keyboard::Num4:
 					cur_task = 3;
 					break;
+
+				case sf::Keyboard::Num5:
+					cur_task = 4;
+					break;
+
 
 				case sf::Keyboard::A:
 					decrease_ratio = true;

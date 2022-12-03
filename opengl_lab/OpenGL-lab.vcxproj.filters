@@ -36,6 +36,12 @@
     <ClCompile Include="src\stb_image_impl.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\entities\ColoredEllipse.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meshes\mesh.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\entities\Entity.h">
@@ -59,9 +65,20 @@
     <ClInclude Include="headers\entities\Cube3Tex.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="headers\entities\ColoredEllipse.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\meshes\Mesh.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\stuff.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\task3\tt_cube.frag" />
     <None Include="shaders\task3\tt_cube.vert" />
+    <None Include="shaders\task4\ellipse.frag" />
+    <None Include="shaders\task4\ellipse.vert" />
   </ItemGroup>
 </Project>

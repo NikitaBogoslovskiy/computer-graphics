@@ -154,6 +154,7 @@
     <ClCompile Include="src\entities\Cube3Tex.cpp" />
     <ClCompile Include="src\entities\ColoredEllipse.cpp" />
     <ClCompile Include="src\entities\Entity.cpp" />
+    <ClCompile Include="src\meshes\mesh.cpp" />
     <ClCompile Include="src\stb_image_impl.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\shader_loader.cpp" />
@@ -166,8 +167,10 @@
     <ClInclude Include="headers\entities\Entity.h" />
     <ClInclude Include="headers\entities\MixedCube.h" />
     <ClInclude Include="headers\main.h" />
+    <ClInclude Include="headers\meshes\Mesh.h" />
     <ClInclude Include="headers\shader_loader.h" />
     <ClInclude Include="headers\entities\Tetrahedron.h" />
+    <ClInclude Include="headers\stuff.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\task3\tt_cube.frag" />
