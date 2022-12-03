@@ -13,9 +13,22 @@
 #include "../headers/entities/Cube3Tex.h"
 #include "../headers/entities/ColoredEllipse.h"
 #include "meshes/Mesh.h"
+#include "meshes/DynamicMesh.h"
+#include "Camera.h"
+
+#include "pch.h"
+
 class App {
 private:
 	sf::Clock clock;
+	Camera camera;
+
+	float elapsedTime;
+	float deltaTime;
+
+	bool isCamDirty = false;
+	glm::vec2 mousePos;
+	glm::vec2 mouseDelta;
 
 	void SetIcon(sf::Window* wnd)
 	{
@@ -33,6 +46,7 @@ private:
 		is_right = false,
 		is_up = false,
 		is_down = false,
+		is_cam_active = false,
 
 		decrease_ratio = false,
 		increase_ratio = false,
@@ -42,7 +56,16 @@ private:
 	int cur_task = 0;
 	std::vector<Entity*> entities;
 
+
 public:
+	void ResetClock() {
+		deltaTime = clock.getElapsedTime().asSeconds();
+		elapsedTime += deltaTime;
+		clock.restart();
+	}
+	const float getDeltaTime() {
+		return deltaTime;
+	}
 	App() {}
 	void Init() {
 		entities.push_back(new Tetrahedron());
@@ -54,8 +77,9 @@ public:
 	}
 	void Draw() {
 		if (cur_task >= entities.size()) return;
-		float time = clock.getElapsedTime().asSeconds();
-		entities[cur_task]->Draw(time);
+		//auto model = glm::rotate(glm::mat4(1.0f), glm::radians(elapsedTime * 50.f), glm::vec3(0.0f, 1.0f, 0.f));
+		auto model = glm::mat4(1.0f);
+		entities[cur_task]->Draw(model, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	}
 	void Release() {
 		if (cur_task >= entities.size()) return;
@@ -66,6 +90,8 @@ public:
 	}
 	void PollEvents(sf::Window& window) {
 		sf::Event event;
+		mouseDelta.x = 0;
+		mouseDelta.y = 0;
 
 		// We could have just check for cur_task. But in this case we must rely on order of entities - sad
 		auto testT = dynamic_cast<Tetrahedron*>(entities[cur_task]);
@@ -78,21 +104,6 @@ public:
 			else if (event.type == sf::Event::KeyPressed) {
 				switch (event.key.code)
 				{
-				case sf::Keyboard::Left:
-					is_left = true;
-					break;
-
-				case sf::Keyboard::Right:
-					is_right = true;
-					break;
-
-				case sf::Keyboard::Up:
-					is_up = true;
-					break;
-
-				case sf::Keyboard::Down:
-					is_down = true;
-					break;
 
 				case sf::Keyboard::Num1:
 					cur_task = 0;
@@ -118,21 +129,26 @@ public:
 					cur_task = 5;
 					break;
 
-				case sf::Keyboard::A:
-					decrease_ratio = true;
-					break;
-
-				case sf::Keyboard::D:
-					increase_ratio = true;
-					break;
-
 				case sf::Keyboard::W:
-					increase_zOffset = true;
+					is_up = true;
+					break;
+
+				case sf::Keyboard::A:
+					is_left = true;
 					break;
 
 				case sf::Keyboard::S:
-					decrease_zOffset = true;
+					is_down = true;
 					break;
+
+				case sf::Keyboard::D:
+					is_right = true;
+					break;
+
+				case sf::Keyboard::C:
+					is_cam_active = true;
+					break;
+
 				default:
 					break;
 				}
@@ -140,55 +156,61 @@ public:
 			else if (event.type == sf::Event::KeyReleased) {
 				switch (event.key.code)
 				{
-				case sf::Keyboard::Left:
-					is_left = false;
-					break;
-
-				case sf::Keyboard::Right:
-					is_right = false;
-					break;
-
-				case sf::Keyboard::Up:
+				case sf::Keyboard::W:
 					is_up = false;
 					break;
 
-				case sf::Keyboard::Down:
-					is_down = false;
-					break;
-
 				case sf::Keyboard::A:
-					decrease_ratio = false;
-					break;
-
-				case sf::Keyboard::D:
-					increase_ratio = false;
-					break;
-
-				case sf::Keyboard::W:
-					increase_zOffset = false;
+					is_left = false;
 					break;
 
 				case sf::Keyboard::S:
-					decrease_zOffset = false;
+					is_down = false;
+					break;
+
+				case sf::Keyboard::D:
+					is_right = false;
+					break;
+
+				case sf::Keyboard::C:
+					is_cam_active = false;
 					break;
 
 				default:
 					break;
 				}
 			}
+			else if (event.type == sf::Event::MouseWheelMoved)
+			{
+				camera.ProcessMouseScroll(event.mouseWheel.delta);
+			}
+			else if (event.type == sf::Event::MouseMoved)
+			{
+				if (!isCamDirty) {
+					mousePos.x = event.mouseMove.x;
+					mousePos.y = event.mouseMove.y;
+					isCamDirty = true;
+				}
+				mouseDelta.x = event.mouseMove.x - mousePos.x;
+				mouseDelta.y = event.mouseMove.y - mousePos.y;
+				mousePos.x = event.mouseMove.x;
+				mousePos.y = event.mouseMove.y;
+			}
 			else if (event.type == sf::Event::Resized) {
 				glViewport(0, 0, event.size.width, event.size.height);
 			}
 		}
 
+		if (is_left)  camera.ProcessKeyboard(Camera::LEFT, deltaTime);
+		if (is_right) camera.ProcessKeyboard(Camera::RIGHT, deltaTime);
+		if (is_up)    camera.ProcessKeyboard(Camera::FORWARD, deltaTime);
+		if (is_down)  camera.ProcessKeyboard(Camera::BACKWARD, deltaTime);
+		if (is_cam_active) camera.ProcessMouseMovement(mouseDelta);
+
 		if (cur_task >= entities.size()) return;
 
 		auto velocity = entities[cur_task]->velocity;
 		if (testT != nullptr || testMC != nullptr) {
-			if (is_left)  entities[cur_task]->offset[0] = std::max(-1.f, entities[cur_task]->offset[0] - velocity);
-			if (is_right) entities[cur_task]->offset[0] = std::min(1.f, entities[cur_task]->offset[0] + velocity);
-			if (is_up)    entities[cur_task]->offset[1] = std::min(1.f, entities[cur_task]->offset[1] + velocity);
-			if (is_down)  entities[cur_task]->offset[1] = std::max(-1.f, entities[cur_task]->offset[1] - velocity);
 			if (increase_zOffset) {
 				entities[cur_task]->offset.z -= velocity;
 			}

@@ -39,7 +39,7 @@ protected:
 
 	void InitTextures();
 	
-	virtual void UpdateUniforms(const float& time);
+	virtual void UpdateUniforms(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
 public:
 
 	Mesh(); 
@@ -50,18 +50,9 @@ public:
 	void AddTexture(const char* path);
 	void ChangeShaders(const char* vertex_path, const char* fragment_path);
 
-	void Draw(const float& time) final;
+	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) final;
 
 	~Mesh();
-};
-
-class DynamicMesh : public Mesh {
-protected:
-	virtual void InitShader() override;
-	virtual void UpdateUniforms(const float& time) override;
-public:
-	DynamicMesh();
-	DynamicMesh(const char* obj_path);
 };
 
 #endif // !MESH_H

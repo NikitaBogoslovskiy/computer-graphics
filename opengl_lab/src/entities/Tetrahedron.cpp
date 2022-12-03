@@ -72,14 +72,14 @@ void Tetrahedron::ReleaseVO() {
 	glDeleteBuffers(1, &IBO);
 }
 
-void Tetrahedron::Draw(const float& time) {
+void Tetrahedron::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) {
 	glUseProgram(Program);
 
-	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-	glm::mat4 view = glm::mat4(1.0f);
+	//glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
+	//glm::mat4 view = glm::mat4(1.0f);
 	
-	model = glm::rotate(model, glm::radians(time * 30.f), glm::vec3(0.5f, 1.0f, 0.0f));
-	view = glm::translate(view, glm::vec3(offset.x, offset.y, offset.z));
+	//model = glm::rotate(model, glm::radians(time), glm::vec3(0.5f, 1.0f, 0.0f));
+	//view = glm::translate(view, glm::vec3(offset.x, offset.y, offset.z));
 	
 	// retrieve the matrix uniform locations
 	unsigned int modelLoc = glGetUniformLocation(Program, "model");

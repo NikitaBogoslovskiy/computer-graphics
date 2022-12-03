@@ -20,22 +20,18 @@ class Entity {
 protected:
 	GLuint Program;
 	GLuint Attrib_vertex;
-	
+
 	GLuint VBO;
 	GLuint VAO;
 	GLuint IBO;
 
-	glm::mat4 projection;
-
 public:
-	Entity() {
-		projection = glm::mat4(1.0f);
-		projection = glm::perspective(glm::radians(45.0f), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
-	}
-	float velocity = 0.01f;
+	Entity() {}
+
+	float velocity = 0.1f;
 	coord offset = { 0.0f, 0.0f, -3.f };
 
-	virtual void Draw(const float& time) = 0;
+	virtual void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) = 0;
 
 	void Release();
 };
