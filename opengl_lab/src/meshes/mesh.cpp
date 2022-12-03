@@ -144,7 +144,7 @@ void Mesh::Draw(const float& time)
 {
 	glUseProgram(Program);
 
-	UpdateUniforms(time);
+	this->UpdateUniforms(time);
 
 	glBindVertexArray(VAO);
 	glMultiDrawElements(GL_TRIANGLE_FAN, count.data(), GL_UNSIGNED_INT, void_indices.data(), count.size());
@@ -347,8 +347,12 @@ void DynamicMesh::InitShader()
 
 void DynamicMesh::UpdateUniforms(const float& time)
 {
-	Mesh::UpdateUniforms(time);
-	model = glm::rotate(model, glm::radians(time * 30.f), glm::vec3(0.5f, 1.0f, 0.f));
+	Mesh::UpdateUniforms(time);	
+
+	model = glm::mat4(1.0f);
+	view = glm::mat4(1.0f);
+	
+	model = glm::rotate(model, glm::radians(time * 30.f), glm::vec3(0.0f, 1.0f, 0.f));
 	view = glm::translate(view, glm::vec3(offset.x, offset.y, offset.z));
 
 	// retrieve the matrix uniform locations
