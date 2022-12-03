@@ -5,8 +5,12 @@ in vec2 texCoord;
 in vec3 cc_normal;
 out vec2 TexCoord;
 
+uniform mat4 model;
+uniform mat4 view;
+uniform mat4 projection;
+
 void main()
 {
-	gl_Position = vec4(coord, 25.0);
+	gl_Position = projection * view * model * vec4(coord, 25.0);
 	TexCoord = texCoord;
 }

@@ -86,5 +86,7 @@
     <None Include="shaders\task3\tt_cube.vert" />
     <None Include="shaders\task4\ellipse.frag" />
     <None Include="shaders\task4\ellipse.vert" />
+    <None Include="shaders\mesh\default_s.frag" />
+    <None Include="shaders\mesh\default_s.vert" />
   </ItemGroup>
 </Project>

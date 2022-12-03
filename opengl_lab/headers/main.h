@@ -50,6 +50,7 @@ public:
 		entities.push_back(new Cube3Tex());
 		entities.push_back(new ColoredEllipse());
 		entities.push_back(new Mesh("tree.obj"));
+		entities.push_back(new DynamicMesh("tree.obj"));
 	}
 	void Draw() {
 		if (cur_task >= entities.size()) return;
@@ -113,6 +114,9 @@ public:
 					cur_task = 4;
 					break;
 
+				case sf::Keyboard::Num6:
+					cur_task = 5;
+					break;
 
 				case sf::Keyboard::A:
 					decrease_ratio = true;

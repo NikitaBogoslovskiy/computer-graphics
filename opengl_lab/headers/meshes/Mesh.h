@@ -8,6 +8,7 @@
 
 class Mesh : public Entity 
 {
+protected:
 	/*
 		Guide: where mf my faces?
 		We are using indices(offsets) and an array of fully complected vertexes,
@@ -37,10 +38,12 @@ class Mesh : public Entity
 	void ReleaseVO() override; // VBO, IBO, VAO
 
 	void InitTextures();
+	
+	virtual void UpdateUniforms(const float& time);
 public:
 
 	Mesh(); 
-	Mesh(const char* path);
+	Mesh(const char* obj_path);
 
 	void Load(const char* path);
 	void LoadTexture(const char* path, uint texturei);
@@ -48,9 +51,17 @@ public:
 	void ChangeShaders(const char* vertex_path, const char* fragment_path);
 
 	void Draw(const float& time) final;
-	virtual void UpdateUniforms(const float& time);
 
 	~Mesh();
+};
+
+class DynamicMesh : public Mesh {
+protected:
+	virtual void InitShader() override;
+	virtual void UpdateUniforms(const float& time) override;
+public:
+	DynamicMesh();
+	DynamicMesh(const char* obj_path);
 };
 
 #endif // !MESH_H

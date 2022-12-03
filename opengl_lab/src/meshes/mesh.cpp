@@ -167,20 +167,6 @@ void Mesh::UpdateUniforms(const float& time)
 		glActiveTexture(GL_TEXTURE0 + i);
 		glBindTexture(GL_TEXTURE_2D, t);
 	}
-
-	/*
-	model = glm::rotate(model, glm::radians(time * 30.f), glm::vec3(0.5f, 1.0f, 0.0f));
-	view = glm::translate(view, glm::vec3(offset[0], offset[1], zOffset));
-
-	// retrieve the matrix uniform locations
-	unsigned int modelLoc = glGetUniformLocation(Program, "model");
-	unsigned int viewLoc = glGetUniformLocation(Program, "view");
-	unsigned int projectionLoc = glGetUniformLocation(Program, "projection");
-
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-	*/
 }
 
 #include <fstream>
@@ -339,4 +325,40 @@ void Mesh::AddTexture(const char* path)
 Mesh::~Mesh()
 {
 	Release();
+}
+
+DynamicMesh::DynamicMesh()
+{
+	InitShader();
+}
+
+DynamicMesh::DynamicMesh(const char* path)
+{
+	Load(path);
+	InitTextures();
+	InitShader();
+	InitVO();
+}
+
+void DynamicMesh::InitShader()
+{
+	ChangeShaders("shaders/mesh/default_d.vert", "shaders/mesh/default_d.frag");
+}
+
+void DynamicMesh::UpdateUniforms(const float& time)
+{
+	Mesh::UpdateUniforms(time);
+	model = glm::rotate(model, glm::radians(time * 30.f), glm::vec3(0.5f, 1.0f, 0.f));
+	view = glm::translate(view, glm::vec3(offset.x, offset.y, offset.z));
+
+	// retrieve the matrix uniform locations
+	unsigned int modelLoc = glGetUniformLocation(Program, "model");
+	unsigned int viewLoc = glGetUniformLocation(Program, "view");
+	unsigned int projectionLoc = glGetUniformLocation(Program, "projection");
+
+	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+	/*
+	*/
 }
