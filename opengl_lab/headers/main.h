@@ -186,11 +186,11 @@ public:
 			if (is_up)    entities[cur_task]->offset[1] = std::min(1.f, entities[cur_task]->offset[1] + velocity);
 			if (is_down)  entities[cur_task]->offset[1] = std::max(-1.f, entities[cur_task]->offset[1] - velocity);
 			if (increase_zOffset) {
-				entities[cur_task]->zOffset -= velocity;
+				entities[cur_task]->offset.z -= velocity;
 			}
 			if (decrease_zOffset) {
-				entities[cur_task]->zOffset += velocity;
-				entities[cur_task]->zOffset = std::min(-1.f, entities[cur_task]->zOffset);
+				entities[cur_task]->offset.z += velocity;
+				entities[cur_task]->offset.z = std::min(-1.f, entities[cur_task]->offset.z);
 			}
 		}
 		if (testMC != nullptr) {

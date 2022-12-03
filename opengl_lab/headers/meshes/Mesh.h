@@ -25,7 +25,10 @@ class Mesh : public Entity
 	GLuint Attrib_texture;
 	GLuint Attrib_normal;
 
-	GLuint texture0;
+	std::vector<GLuint> textures;
+
+	glm::mat4 model = glm::mat4(1.0f);
+	glm::mat4 view = glm::mat4(1.0f);
 
 	void InitVBO(); // VBO, IBO
 	void InitShader() override;
@@ -40,8 +43,12 @@ public:
 	Mesh(const char* path);
 
 	void Load(const char* path);
+	void LoadTexture(const char* path, uint texturei);
+	void AddTexture(const char* path);
+	void ChangeShaders(const char* vertex_path, const char* fragment_path);
 
-	void Draw(const float& time) override;
+	void Draw(const float& time) final;
+	virtual void UpdateUniforms(const float& time);
 
 	~Mesh();
 };

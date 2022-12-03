@@ -15,7 +15,7 @@ void Mesh::InitVBO()
 
 void Mesh::InitShader()
 {
-	Program = ShaderLoader::initProgram("shaders/mesh/default.vert", "shaders/mesh/default.frag");
+	Program = ShaderLoader::initProgram("shaders/mesh/default_s.vert", "shaders/mesh/default_s.frag");
 
 	const char* attr_name = "coord"; //имя в шейдере
 	Attrib_vertex = glGetAttribLocation(Program, attr_name);
@@ -74,8 +74,10 @@ void Mesh::ReleaseVO()
 
 void Mesh::InitTextures()
 {
-	glGenTextures(1, &texture0);
-	glBindTexture(GL_TEXTURE_2D, texture0);
+	textures.push_back(0);
+
+	glGenTextures(1, &textures.back());
+	glBindTexture(GL_TEXTURE_2D, textures.back());
 	// set the texture wrapping parameters
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);	// set texture wrapping to GL_REPEAT (default wrapping method)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -111,13 +113,62 @@ Mesh::Mesh(const char* path)
 	InitVO();
 }
 
+void Mesh::ChangeShaders(const char* vertex_path, const char* fragment_path)
+{
+	Program = ShaderLoader::initProgram(vertex_path, fragment_path);
+
+	const char* attr_name = "coord"; //имя в шейдере
+	Attrib_vertex = glGetAttribLocation(Program, attr_name);
+	if (Attrib_vertex == -1) {
+		printf("could not bind attrib %s\n", attr_name);
+		return;
+	}
+
+	const char* attr_name2 = "texCoord"; //имя в шейдере
+	Attrib_texture = glGetAttribLocation(Program, attr_name2);
+	if (Attrib_texture == -1) {
+		printf("could not bind attrib %s\n", attr_name2);
+		return;
+	}
+	/*
+	const char* attr_name3 = "normal";
+	Attrib_normal = glGetAttribLocation(Program, attr_name3);
+	if (Attrib_normal == -1) {
+		printf("could not bind attrib %s\n", attr_name3);
+		return;
+	}
+	*/
+}
+
 void Mesh::Draw(const float& time)
 {
 	glUseProgram(Program);
 
-	glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 view = glm::mat4(1.0f);
+	UpdateUniforms(time);
 
+	glBindVertexArray(VAO);
+	glMultiDrawElements(GL_TRIANGLE_FAN, count.data(), GL_UNSIGNED_INT, void_indices.data(), count.size());
+	/* the same
+	int x = 0;
+	for (auto t : count) {
+		glDrawElements(GL_TRIANGLE_FAN, t, GL_UNSIGNED_INT, (const void*)(x * sizeof(GLuint)));
+		x += t;
+	}
+	*/
+	
+	glBindVertexArray(0);
+	glUseProgram(0);
+}
+
+void Mesh::UpdateUniforms(const float& time)
+{
+	uint i = 0;
+	for (auto t : textures) {
+		glActiveTexture(GL_TEXTURE0 + i);
+		glBindTexture(GL_TEXTURE_2D, t);
+	}
+
+	/*
 	model = glm::rotate(model, glm::radians(time * 30.f), glm::vec3(0.5f, 1.0f, 0.0f));
 	view = glm::translate(view, glm::vec3(offset[0], offset[1], zOffset));
 
@@ -129,20 +180,7 @@ void Mesh::Draw(const float& time)
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
 	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-
-	glBindVertexArray(VAO);
-
-	glMultiDrawElements(GL_TRIANGLE_FAN, count.data(), GL_UNSIGNED_INT, void_indices.data(), count.size());
-	/*
-	int x = 0;
-	for (auto t : count) {
-		glDrawElements(GL_TRIANGLE_FAN, t, GL_UNSIGNED_INT, (const void*)(x * sizeof(GLuint)));
-		x += t;
-	}
 	*/
-	
-	glBindVertexArray(0);
-	glUseProgram(0);
 }
 
 #include <fstream>
@@ -247,6 +285,55 @@ void Mesh::Load(const char* path)
 		void_indices.push_back((GLvoid*)(indices[x] * sizeof(GLuint)));
 		x += t;
 	}
+}
+
+void Mesh::LoadTexture(const char* path, uint texturei)
+{
+	if (textures.size() <= texturei) {
+		printf("undefined texture number\n");
+		return;
+	}
+	int width, height, nrChannels;
+	//stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis. but ive 
+	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
+	if (*data)
+	{
+		glBindTexture(GL_TEXTURE_2D, textures[texturei]);
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		printf("Failed to load texture\n");
+	}
+	stbi_image_free(data);
+}
+
+void Mesh::AddTexture(const char* path)
+{
+	if (textures.size() == 32) {
+		printf("Textures are full\n");
+		return;
+	}
+
+	textures.push_back(0);
+	glGenTextures(1, &textures.back());
+
+	int width, height, nrChannels;
+	//stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis. but ive 
+	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
+	if (*data)
+	{
+		glBindTexture(GL_TEXTURE_2D, textures.back());
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+	{
+		textures.pop_back();
+		printf("Failed to load texture\n");
+	}
+	stbi_image_free(data);
 }
 
 Mesh::~Mesh()
