@@ -343,3 +343,48 @@ void Mesh::updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool needTranslsate)
 	recalculate_normals();
 }
 
+void Mesh::updateInitPoints()
+{
+	auto c = center();
+	for (size_t i = 0; i < init_points.size(); i++) {
+		init_points[i].x -= c.x;
+		init_points[i].y -= c.y;
+		init_points[i].z -= c.z;
+	}
+	translate_mat(0, 3) = c.x;
+	translate_mat(1, 3) = c.y;
+	translate_mat(2, 3) = c.z;
+}
+
+void Mesh::save(const char* filename, std::set<Mesh*> meshes) {
+	std::ofstream out(filename);
+	if (!out.is_open())
+	{
+		printf("something went wrong\n");
+	}
+
+	size_t points = 0;
+	size_t polygons = 0;
+	for (Mesh* m : meshes)
+	{
+
+		for (auto& p : m->points) {
+			out << "v " << p.x << ' ' << p.y << ' ' << p.z << '\n';
+		}
+		out << '\n';
+
+		for (auto& p : m->polygons) {
+			out << 'f';
+			for (auto i : p.indices) {
+				out << ' ' << i + 1 + points;
+			}
+			out << '\n';
+		}
+	
+		points += m->points.size();
+		polygons += m->polygons.size();
+	}
+	out << "# Vertices: " << points << "\n# Faces: " << polygons << "\n\n";
+	
+	out.close();
+}

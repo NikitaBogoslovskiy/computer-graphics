@@ -1011,7 +1011,8 @@ void BLEV::Interface::Menu::ShowFileManagerMenu()
 
 				if (result == NFD_OKAY) {
 					for (auto m : _data.chosen_meshes) {
-						m->save(outPath);
+						//m->save(outPath);
+						Mesh::save(outPath, _data.chosen_meshes);
 					}
 					free(outPath);
 				}
@@ -1131,37 +1132,6 @@ void BLEV::Interface::Menu::ShowAddingMenu()
 		if (ImGui::MenuItem("Torch", "", false, _data.torch == nullptr)) {
 			_data.torch = new Torch();
 			_data.meshes.push_back(_data.torch);
-		}
-#ifdef _DEBUG
-		if (ImGui::MenuItem("Bunny", NULL, (bool*)0, false)) {
-			static Mesh mesh = open("bunny.obj");
-			_data.meshes.push_back(&mesh);
-		}
-		if (ImGui::MenuItem("Mill", NULL, (bool*)0, false)) {
-			static Mesh mesh = open("mill.obj");
-			_data.meshes.push_back(&mesh);
-		}
-		if (ImGui::MenuItem("Hand", NULL, (bool*)0, false)) {
-			static Mesh mesh = open("hand.obj");
-			_data.meshes.push_back(&mesh);
-		}
-#else
-		if (ImGui::MenuItem("Bunny")) {
-			static Mesh mesh = open("bunny.obj");
-			_data.meshes.push_back(&mesh);
-		}
-		if (ImGui::MenuItem("Mill")) {
-			static Mesh mesh = open("mill.obj");
-			_data.meshes.push_back(&mesh);
-		}
-		if (ImGui::MenuItem("Hand")) {
-			static Mesh mesh = open("hand.obj");
-			_data.meshes.push_back(&mesh);
-		}
-#endif // DEBUG
-		if (ImGui::MenuItem("Boat")) {
-			static Mesh mesh = open("boat.obj");
-			_data.meshes.push_back(&mesh);
 		}
 		ImGui::EndMenu();
 	}

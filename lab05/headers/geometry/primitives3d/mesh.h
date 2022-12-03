@@ -88,6 +88,8 @@ protected:
 		p.normal = normilize(cross_product(points[p.indices[2]] - points[p.indices[1]], points[p.indices[0]] - points[p.indices[1]]));
 	}
 	virtual void recalculate_normals();
+public:
+	static void save(const char* filename, std::set<Mesh*> meshes);
 };
 
 static Mesh open(const char* filename) {
