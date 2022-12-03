@@ -64,6 +64,8 @@ public:
 	void draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp);
 	void save(const char* filename);
 	void open(const char* filename);
+
+	static void save(const char* filename, std::set<Mesh*> meshes);
 };
 
 static Mesh open(const char* filename) {
