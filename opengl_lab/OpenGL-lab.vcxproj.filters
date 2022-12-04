@@ -45,6 +45,12 @@
     <ClCompile Include="src\scenes\Scene.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\meshes\DynamicMesh.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entities\Skybox.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\entities\Entity.h">
@@ -80,6 +86,15 @@
     <ClInclude Include="headers\scenes\Scene.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="headers\Camera.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\meshes\DynamicMesh.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\entities\Skybox.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\task3\tt_cube.frag" />
@@ -88,5 +103,7 @@
     <None Include="shaders\task4\ellipse.vert" />
     <None Include="shaders\mesh\default_s.frag" />
     <None Include="shaders\mesh\default_s.vert" />
+    <None Include="shaders\cubemap\cubemap.frag" />
+    <None Include="shaders\cubemap\cubemap.vert" />
   </ItemGroup>
 </Project>

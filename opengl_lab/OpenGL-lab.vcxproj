@@ -154,6 +154,7 @@
     <ClCompile Include="src\entities\Cube3Tex.cpp" />
     <ClCompile Include="src\entities\ColoredEllipse.cpp" />
     <ClCompile Include="src\entities\Entity.cpp" />
+    <ClCompile Include="src\entities\Skybox.cpp" />
     <ClCompile Include="src\meshes\DynamicMesh.cpp" />
     <ClCompile Include="src\meshes\Mesh.cpp" />
     <ClCompile Include="src\scenes\Scene.cpp" />
@@ -169,6 +170,7 @@
     <ClInclude Include="headers\entities\ColoredEllipse.h" />
     <ClInclude Include="headers\entities\Entity.h" />
     <ClInclude Include="headers\entities\MixedCube.h" />
+    <ClInclude Include="headers\entities\Skybox.h" />
     <ClInclude Include="headers\main.h" />
     <ClInclude Include="headers\meshes\DynamicMesh.h" />
     <ClInclude Include="headers\meshes\Mesh.h" />
@@ -180,6 +182,8 @@
   <ItemGroup>
     <None Include="shaders\mesh\default_s.frag" />
     <None Include="shaders\mesh\default_s.vert" />
+    <None Include="shaders\cubemap\cubemap.frag" />
+    <None Include="shaders\cubemap\cubemap.vert" />
     <None Include="shaders\task3\tt_cube.frag" />
     <None Include="shaders\task3\tt_cube.vert" />
     <None Include="shaders\task4\ellipse.frag" />

@@ -61,7 +61,7 @@ public:
 	const glm::mat4& GetProjectionMatrix()
 	{
 		if (needsUpdateProjection) {
-			projection = glm::perspective(glm::radians(FOV_Angle), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
+			projection = glm::perspective(glm::radians(FOV_Angle), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
 			needsUpdateProjection = false;
 		}
 		return projection;

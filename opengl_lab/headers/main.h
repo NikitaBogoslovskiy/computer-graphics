@@ -12,6 +12,7 @@
 #include "../headers/entities/Cube2Tex.h"
 #include "../headers/entities/Cube3Tex.h"
 #include "../headers/entities/ColoredEllipse.h"
+#include "../headers/entities/Skybox.h"
 #include "meshes/Mesh.h"
 #include "meshes/DynamicMesh.h"
 #include "Camera.h"
@@ -55,7 +56,7 @@ private:
 
 	int cur_task = 0;
 	std::vector<Entity*> entities;
-
+	Entity* skybox;
 
 public:
 	void ResetClock() {
@@ -68,6 +69,7 @@ public:
 	}
 	App() {}
 	void Init() {
+		skybox = new Skybox();
 		entities.push_back(new Tetrahedron());
 		entities.push_back(new Cube2Tex());
 		entities.push_back(new Cube3Tex());
@@ -79,7 +81,11 @@ public:
 		if (cur_task >= entities.size()) return;
 		//auto model = glm::rotate(glm::mat4(1.0f), glm::radians(elapsedTime * 50.f), glm::vec3(0.0f, 1.0f, 0.f));
 		auto model = glm::mat4(1.0f);
-		entities[cur_task]->Draw(model, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+		entities[1]->Draw(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -3.f, 0.f)) * glm::rotate(glm::mat4(1.0f), glm::radians(elapsedTime * 50.f), glm::vec3(0.0f, 1.0f, 0.f)), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+		entities[5]->Draw(model, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+
+		// skybox should be rendered last for optimization
+		skybox->Draw(model, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	}
 	void Release() {
 		if (cur_task >= entities.size()) return;
