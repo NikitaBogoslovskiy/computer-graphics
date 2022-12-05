@@ -19,11 +19,19 @@ inline ImVec2 operator-(const ImVec2& lhs, const ImVec2& rhs) { return ImVec2(lh
 inline float operator*(const ImVec2& lhs, const ImVec2& rhs) { return lhs.x * rhs.x + lhs.y * rhs.y; }
 inline ImVec2 operator*(const float& lhs, const ImVec2& rhs) { return ImVec2(lhs * rhs.x, lhs * rhs.y); }
 inline bool operator==(const ImVec2& lhs, const ImVec2& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y; }
+inline bool operator!=(const ImVec2& lhs, const ImVec2& rhs) { return !(lhs == rhs); }
+inline ImVec2 operator/(const ImVec2& lhs, const float& rhs) { return ImVec2(lhs.x / rhs, lhs.y / rhs); }
+inline ImVec2& operator+=(ImVec2& lhs, const ImVec2& rhs) { return lhs = lhs + rhs; }
+
 
 inline ImVec4 operator+(const ImVec4& lhs, const ImVec4& rhs) { return ImVec4(lhs.x + rhs.x, lhs.y + rhs.y, lhs.z + rhs.z, lhs.w + rhs.w); }
 inline ImVec4 operator-(const ImVec4& lhs, const ImVec4& rhs) { return ImVec4(lhs.x - rhs.x, lhs.y - rhs.y, lhs.z - rhs.z, lhs.w - rhs.w); }
+inline ImVec4 operator/(const ImVec4& lhs, const float rhs) { return ImVec4(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs, lhs.w / rhs); }
+inline ImVec4 operator*(const ImVec4& lhs, const float rhs) { return ImVec4(lhs.x * rhs, lhs.y * rhs, lhs.z * rhs, lhs.w * rhs); }
 inline float operator*(const ImVec4& lhs, const ImVec4& rhs) { return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z + lhs.w * rhs.w; }
 inline ImVec4 operator*(const float& lhs, const ImVec4& rhs) { return ImVec4(lhs * rhs.x, lhs * rhs.y, lhs * rhs.z, lhs * rhs.w); }
+inline bool operator==(const ImVec4& lhs, const ImVec4& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.w == rhs.w; }
+inline bool operator!=(const ImVec4& lhs, const ImVec4& rhs) { return !(lhs == rhs); }
 
 
 inline ImU32 GetColorV4U32(const ImVec4& curr_color) {
@@ -36,6 +44,10 @@ inline ImU32 GetColorFlU32(const float* curr_color) {
 
 inline ImVec4 GetColorFlV4(const float* curr_color) {
 	return ImVec4((int)(curr_color[0] * 255), (int)(curr_color[1] * 255),(int)(curr_color[2] * 255), (int)(curr_color[3] * 255));
+}
+
+inline ImVec4 GetColorU32V4(const ImU32& curr_color) {
+	return { (float)(curr_color & 0x000000FF), (float)(curr_color & 0x0000FF00), (float)(curr_color & 0x00FF0000), (float)(curr_color & 0xFF000000) };
 }
 
 inline float DegreesToRadians(const float& degrees) {
@@ -92,6 +104,22 @@ inline ImVec3 operator*(const float& lhs, const ImVec3& rhs) { return ImVec3(lhs
 inline ImVec3 operator*(const ImVec3& lhs, const float& rhs) { return rhs * lhs; }
 inline bool operator==(const ImVec3& lhs, const ImVec3& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z; }
 inline ImVec3 operator/(const ImVec3& lhs, const float& rhs) { return ImVec3(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs); }
+
+inline ImVec3 cross_product(const ImVec3& lhs, const ImVec3& rhs) {
+	return ImVec3(lhs.y * rhs.z - lhs.z * rhs.y, lhs.z * rhs.x - lhs.x * rhs.z, lhs.x * rhs.y - lhs.y * rhs.x);
+}
+
+inline float dot_product(const ImVec3& lhs, const ImVec3& rhs) {
+	return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
+}
+
+inline float length(const ImVec3& v3) {
+	return sqrtf(powf(v3.x, 2) + powf(v3.y, 2) + powf(v3.z, 2));
+}
+
+inline ImVec3 normilize(const ImVec3& v3) {
+	return v3 / length(v3);
+}
 
 // sometime in future, but now just this
 template<class C>

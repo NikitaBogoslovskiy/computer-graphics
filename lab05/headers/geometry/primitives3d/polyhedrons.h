@@ -27,8 +27,8 @@ public:
 
 			add_polygon(Polygon({ 0, 1, 2 }));
 			add_polygon(Polygon({ 0, 2, 3 }));
-			add_polygon(Polygon({ 0, 1, 3 }));
-			add_polygon(Polygon({ 1, 2, 3 }));
+			add_polygon(Polygon({ 3, 1, 0 }));
+			add_polygon(Polygon({ 3, 2, 1 }));
 		}
 		else {
 			add_point(center + ImVec3(-hlife, -hlife, -hlife));
@@ -41,8 +41,6 @@ public:
 			add_polygon(Polygon({ 0, 1, 3 }));
 			add_polygon(Polygon({ 1, 2, 3 }));
 		}
-
-		updateInitPoints();
 	}
 };
 
@@ -54,20 +52,18 @@ public:
 		add_point(center + ImVec3(hlife, hlife, hlife));
 		add_point(center + ImVec3(hlife, hlife, -hlife));
 		add_point(center + ImVec3(hlife, -hlife, hlife));
-		add_point(center + ImVec3(hlife, -hlife, -hlife));
+		add_point(center + ImVec3(hlife, -hlife, -hlife)); 
 		add_point(center + ImVec3(-hlife, hlife, hlife));
 		add_point(center + ImVec3(-hlife, hlife, -hlife));
 		add_point(center + ImVec3(-hlife, -hlife, hlife));
 		add_point(center + ImVec3(-hlife, -hlife, -hlife));
 
-		updateInitPoints();
-
-		add_polygon(Polygon({ 0, 1, 3, 2 }));
+		add_polygon(Polygon({ 2, 3, 1, 0 }));
 		add_polygon(Polygon({ 4, 5, 7, 6 }));
 		add_polygon(Polygon({ 1, 3, 7, 5 }));
-		add_polygon(Polygon({ 0, 2, 6, 4 }));
+		add_polygon(Polygon({ 4, 6, 2, 0 }));
 		add_polygon(Polygon({ 0, 1, 5, 4 }));
-		add_polygon(Polygon({ 2, 3, 7, 6 }));
+		add_polygon(Polygon({ 6, 7, 3, 2 }));
 	}
 };
 
@@ -83,16 +79,14 @@ public:
 		add_point(center + ImVec3(0, -hlife, 0));
 		add_point(center + ImVec3(0, 0, -hlife));
 
-		updateInitPoints();
-
 		add_polygon(Polygon({ 0, 1, 2 }));
 		add_polygon(Polygon({ 0, 2, 3 }));
 		add_polygon(Polygon({ 0, 3, 4 }));
 		add_polygon(Polygon({ 0, 4, 1 }));
-		add_polygon(Polygon({ 5, 1, 2 }));
-		add_polygon(Polygon({ 5, 2, 3 }));
-		add_polygon(Polygon({ 5, 3, 4 }));
-		add_polygon(Polygon({ 5, 4, 1 }));
+		add_polygon(Polygon({ 2, 1, 5 }));
+		add_polygon(Polygon({ 3, 2, 5 }));
+		add_polygon(Polygon({ 4, 3, 5 }));
+		add_polygon(Polygon({ 1, 4, 5 }));
 	}
 };
 
@@ -118,14 +112,12 @@ public:
 		add_point(center + ImVec3(hlife, 0, -phiMhl)); // K 10
 		add_point(center + ImVec3(-hlife, 0, -phiMhl)); // L 11
 
-		updateInitPoints();
-
-		add_polygon({0, 8, 9});
-		add_polygon({0, 9, 5});
+		add_polygon({9, 8, 0});
+		add_polygon({5, 9, 0});
 		add_polygon({0, 8, 4});
-		add_polygon({0, 2, 4});
+		add_polygon({4, 2, 0});
 		add_polygon({0, 2, 5});
-		add_polygon({1, 8, 6});
+		add_polygon({1, 6, 8});
 		add_polygon({1, 8, 9});
 		add_polygon({1, 9, 7});
 		add_polygon({1, 7, 3});
@@ -139,7 +131,7 @@ public:
 		add_polygon({6, 10, 4});
 		add_polygon({4, 10, 2});
 		add_polygon({2, 10, 11});
-		add_polygon({3, 10, 11});
+		add_polygon({11, 10, 3});
 	}
 };
 
@@ -175,19 +167,17 @@ public:
 		add_point(center + ImVec3(-hlife, -hlife, hlife)); // S 18
 		add_point(center + ImVec3(-hlife, -hlife, -hlife)); // T 19
 
-		updateInitPoints();
-
 		add_polygon({ 0, 1, 14, 8, 12 });
-		add_polygon({ 0, 1, 18, 9, 16 });
+		add_polygon({ 16, 9, 18, 1, 0 });
 		add_polygon({ 0, 12, 4, 5, 16 });
 		add_polygon({ 12, 8, 10, 13, 4 });
-		add_polygon({ 14, 8, 10, 15, 6 });
-		add_polygon({ 18, 1, 14, 6, 7 });
-		add_polygon({ 18, 7, 19, 11, 9 });
+		add_polygon({ 6, 15, 10, 8, 14 });
+		add_polygon({ 7, 6, 14, 1, 18 });
+		add_polygon({ 9, 11, 19, 7, 18 });
 		add_polygon({ 9, 16, 5, 17, 11 });
-		add_polygon({ 7, 6, 15, 3, 19 });
-		add_polygon({ 4, 5, 17, 2, 13 });
-		add_polygon({ 10, 13, 2, 3, 15 });
-		add_polygon({ 17, 11, 19, 3, 2 });
+		add_polygon({ 19, 3, 15, 6, 7 });
+		add_polygon({ 13, 2, 17, 5, 4 });
+		add_polygon({ 15, 3, 2, 13, 10 });
+		add_polygon({ 2, 3, 19, 11, 17 });
 	}
 };

@@ -44,6 +44,7 @@ namespace BLEV {
 			new ConsoleFields(),
 			new ConsoleFields(),
 			new ConsoleFields(),
+			new ConsoleFields(),
 			new ConsoleFields()
 		};
 
@@ -70,6 +71,7 @@ namespace BLEV {
 		void F_Edit();
 		void F_Displace();
 		void F_MeshGraph();
+		void F_FloatingHorizon();
 		void F_RotationBody();
 		void F_Union();
 		void F_Lsystem();
@@ -97,12 +99,12 @@ namespace BLEV {
 			bool b_camera_open = false;
 			bool b_rotation_body_open = false;
 			bool b_mesh_graph_open = false;
+			bool b_floating_horizon_open = false;
 
 			bool b_shells_open = false;
 		} bmo;
 	public:
 		void ShowExternalWindows();
-	
 	private:
 		struct Global_visual_params {
 			VisualParams vp;
@@ -127,6 +129,7 @@ namespace BLEV {
 			void ShowPrimTable(Primitive* prim, size_t idx);
 			void ShowLsysTable(Lsystem* lsys, size_t idx);
 			void ShowMeshTable(Mesh* mesh, size_t idx);
+			void ShowHorizonTable(FloatingHorizon* horizon, size_t idx);
 			void Show();
 
 			ObjectTable(BLEV::Data& data) : _data(data) {}
@@ -143,6 +146,11 @@ namespace BLEV {
 			ImVec2 deltaMouse = ImVec2(0.f, 0.f);
 			float deltaTime = 0.0f;	// Time between current frame and last frame
 			float lastFrame = 0.0f; // Time of last frame
+			float deltaTimeSec = 0.0f; // Sigma deltaTime [0; 1)
+			size_t fps = 0;
+			size_t oldSize = 0;
+			ZBuffer zbuf;
+			LightBuffer lbuf;
 
 			ImDrawList* draw_list;
 
@@ -162,6 +170,8 @@ namespace BLEV {
 
 			ImVec2* point_of_transformation = nullptr;
 
+			bool show_fps = true;
+
 			bool is_hovered = false,
 				is_active = false;
 
@@ -173,8 +183,8 @@ namespace BLEV {
 			const float GRID_BORDER = 300.f;
 			const VisualParams vis_p{ IM_COL32(200, 200, 200, 40), 1.f, true };
 
-			void ProcessCamKeyboardInput(Camera& cam, float& deltaTime);
-			void ProcessCamMouseInput(ImVec2& deltaMouse, Camera& cam);
+			void ProcessCamKeyboardInput(Camera& cam, const float& deltaTime);
+			void ProcessCamMouseInput(Camera& cam, const ImVec2& deltaMouse);
 			void SwitchModes();
 			void DrawObjects();
 			void PollCallbacks();

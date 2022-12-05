@@ -8,21 +8,21 @@
 
 class Mesh : public VisualParams
 {
-private:
-	std::vector<ImVec3> init_points;
-	std::vector<ImVec3> points;
-	std::deque<Polygon> polygons;
 protected:
-	Eigen::Matrix<float, 4, 4> translate_mat;
-	Eigen::Matrix<float, 4, 4> rotate_mat;
-	Eigen::Matrix<float, 4, 4> scale_mat;
-	Eigen::Matrix<float, 4, 4> reflect_mat;
+	std::vector<ImVec3> points;
+	std::vector<Polygon> polygons;
+	std::vector<ImVec2> vt; // vertex texture
+	ImVec4 face_color;
+	ImVec4 edge_color;
+	bool use_normals = true;
+	CringeImage image;
+	float albedo = 0.18;
 public:
 	Mesh();
-	inline void add_point(const ImVec3& point) { points.push_back(point); init_points.push_back(point); }
-	inline void add_point(ImVec3&& point) { points.push_back(std::move(point)); init_points.push_back(std::move(point)); }
-	inline void add_polygon(const Polygon& polygon) { polygons.push_back(polygon); }
-	inline void add_polygon(Polygon&& polygon) { polygons.push_back(std::move(polygon)); }
+	inline void add_point(const ImVec3& point) { points.push_back(point); }
+	inline void add_point(ImVec3&& point) { points.push_back(std::move(point)); }
+	virtual inline void add_polygon(const Polygon& polygon) { polygons.push_back(polygon); calculate_normal(polygons.back()); }
+	virtual inline void add_polygon(Polygon&& polygon) { polygons.push_back(std::move(polygon)); calculate_normal(polygons.back()); }
 	inline ImVec3 center() { return sum(points) / points.size(); }
 	inline size_t polygons_size() { return polygons.size(); }
 	inline size_t points_size() { return points.size(); }
@@ -30,40 +30,66 @@ public:
 	inline ImVec3& getPoint(size_t idx) {
 		return points[idx];
 	}
-	inline ImVec3& getInitPoint(size_t idx) {
-		return init_points[idx];
+
+	inline std::vector<Polygon>& getPolygons() {
+		return polygons;
+	}
+	inline Polygon& getPolygon(size_t idx) {
+		return polygons[idx];
+	}
+	inline ImVec4& getFaceColor() {
+		return face_color;
+	}
+	inline void setFaceColor(ImVec4& _color) {
+		face_color = _color;
+	}
+	inline ImVec4& getEdgeColor() {
+		return edge_color;
+	}
+	inline float& getAlbedo() {
+		return albedo;
 	}
 	inline Polygon& operator[](size_t idx) {
 		return polygons[idx];
 	}
-
-	inline void translate(float dx, float dy, float dz) {
-		translate_mat.col(3) += Eigen::Vector4f(dx, dy, dz, 0);
-		updatePoints();
+	inline bool getUseNormals() { return use_normals; }
+	inline void setUseNormals(bool value) { use_normals = value; }
+	inline ImU32 getImagePixelU32(ImVec2 uv) { 
+		return image.loaded() ? image.get_pixelU32(uv) : color;
 	}
+	inline ImVec4 getImagePixelV4(ImVec2 uv) {
+		return image.loaded() ? image.get_pixelV4(uv) : face_color;
+	}
+	inline void loadImage(const char* path) { return image.load(path); }
+	inline bool loadedImage() { return image.loaded(); }
+	inline bool hasVT() { return !vt.empty(); }
+	inline const CringeImage& img() { return image; }
+	inline const ImVec2& getUV(size_t idx) { return vt[idx]; }
+
+	void translate(float dx, float dy, float dz);
 	void rotateX(float angle);
 	void rotateY(float angle);
 	void rotateZ(float angle);
 	void rotateU(ImVec3 p1, ImVec3 p2, float angle);
-	inline void reflectX() { 
-		reflect_mat(0, 0) *= -1; 
-		updatePoints(); 
-	}
-	inline void reflectY() { 
-		reflect_mat(1, 1) *= -1; 
-		updatePoints(); 
-	}
-	inline void reflectZ() { 
-		reflect_mat(2, 2) *= -1; 
-		updatePoints(); 
-	}
+	void reflectX();
+	void reflectY();
+	void reflectZ();
 	void scale(float dx, float dy, float dz);
-	void updatePoints();
-	void updateInitPoints();
+	void updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool needTranslsate = true);
 
-	void draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp);
+private:
+	void _draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp, const ImVec3& cam_dir, size_t start, size_t end);
+public:
+	void draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp, const ImVec3& cam_dir);
 	void save(const char* filename);
 	void open(const char* filename);
+protected:
+	inline void calculate_normal(Polygon& p) {
+		p.normal = normilize(cross_product(points[p.indices[2]] - points[p.indices[1]], points[p.indices[0]] - points[p.indices[1]]));
+	}
+	virtual void recalculate_normals();
+public:
+	static void save(const char* filename, std::set<Mesh*> meshes);
 };
 
 static Mesh open(const char* filename) {

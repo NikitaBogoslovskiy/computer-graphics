@@ -18,27 +18,52 @@ struct ImVec3
     inline float& operator[] (size_t idx) { assert(idx <= 2); return (&x)[idx]; }
 
     ImVec3& operator+=(const ImVec3& rhs);
+    ImVec3& operator/=(const ImVec3& rhs);
+    ImVec3& operator/=(const float rhs);
+    ImVec3& cross_product(const ImVec3& rhs);
 };
 
 struct Polygon
 {
     Polygon() = default;
-    std::deque<uint32_t> indices;
-    Polygon(const std::initializer_list<uint32_t>& _indices) : indices(_indices) { assert(_indices.size() >= 3); }
-    Polygon(std::initializer_list<uint32_t>&& _indices) : indices(_indices) { assert(indices.size() >= 3); }
-    Polygon(const Polygon& _polygon) noexcept : indices(_polygon.indices) {}
-    Polygon(Polygon&& _polygon) noexcept : indices(std::move(_polygon.indices)) {}
+    std::vector<uint32_t> indices;
+    std::vector<uint32_t> uv_ind;
+    ImVec3 normal;
+    Polygon(const std::initializer_list<uint32_t>& _indices, const std::initializer_list<uint32_t>& _uv_ind = {}) : indices(_indices), uv_ind(_uv_ind) { assert(_indices.size() >= 3); }
+    Polygon(std::initializer_list<uint32_t>&& _indices, std::initializer_list<uint32_t>&& _uv_ind = {}) : indices(std::move(_indices)), uv_ind(std::move(_uv_ind)) { assert(indices.size() >= 3); }
+    Polygon(const Polygon& _polygon) noexcept : indices(_polygon.indices), uv_ind(_polygon.uv_ind), normal(_polygon.normal) {}
+    Polygon(Polygon&& _polygon) noexcept : indices(std::move(_polygon.indices)), uv_ind(std::move(_polygon.uv_ind)), normal(std::move(_polygon.normal)) {}
+    inline Polygon& operator=(const Polygon& _polygon) {
+        indices = _polygon.indices;
+        uv_ind = _polygon.uv_ind;
+        normal = _polygon.normal;
+        return *this;
+    }
+    inline Polygon& operator=(Polygon&& _polygon) noexcept {
+        indices = std::move(_polygon.indices);
+        uv_ind = std::move(_polygon.uv_ind);
+        normal = std::move(_polygon.normal);
+        return *this;
+    }
+    [[deprecated("sorry")]]
     inline uint32_t  operator[] (size_t idx) const { return indices[idx]; }
+    inline uint32_t  atc (size_t idx) const { return indices[idx]; }
     inline uint32_t& operator[] (size_t idx) { return indices[idx]; }
     inline uint32_t& at(size_t idx) { return indices[idx]; }
     inline size_t size() const noexcept { return indices.size(); }
     inline void push_back(uint32_t val) { indices.push_back(val); }
     inline void pop_back() { assert(indices.size() > 3); indices.pop_back(); } 
-    inline void push_front(uint32_t val) { indices.push_front(val); }
-    inline void pop_front() { assert(indices.size() > 3); indices.pop_front(); }
+    inline void push_front(uint32_t val) { indices.insert(indices.begin(), val); }
+    inline void pop_front() { assert(indices.size() > 3); indices.erase(indices.begin()); }
     inline void insert(size_t idx, uint32_t val) { assert(indices.size() > idx);  indices.insert(indices.begin() + idx, val); }
     ImVec3 center(const std::vector<ImVec3>& points);
-    
+
+    inline void push_back_uv(uint32_t val) { uv_ind.push_back(val); }
+    inline void pop_back_uv() { assert(uv_ind.size() > 3); uv_ind.pop_back(); }
+    inline void push_front_uv(uint32_t val) { uv_ind.insert(uv_ind.begin(), val); }
+    inline void pop_front_uv() { assert(uv_ind.size() > 3); uv_ind.erase(uv_ind.begin()); }
+    inline void insert_uv(size_t idx, uint32_t val) { assert(uv_ind.size() > idx);  uv_ind.insert(uv_ind.begin() + idx, val); }
+
     void draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f& vp) {
         
     }
@@ -111,6 +136,28 @@ struct Line3d : public VisualParams {
         //start.x *= 512.f * 0.5f; start.y *= 512.f * 0.5f; //if we use fov perspective
         //end.x *= 512.f * 0.5f; end.y *= 512.f * 0.5f;
         draw_list->AddLine(start + offset , end + offset, _vp.color, _vp.thickness);
+    }
+};
+
+struct CringeImage {
+    int width, height, nrChannels;
+    unsigned char* data;
+
+
+    void load(const char* path);
+
+    inline bool loaded() const {
+        return data != 0;
+    }
+
+    inline ImU32 get_pixelU32(ImVec2 uv) { 
+        auto beg = data + ((int)((width - 1) * uv.x) + (int)((height - 1) * (1 - uv.y)) * width) * nrChannels;
+        return IM_COL32(*beg, *(beg + 1), *(beg + 2), 255);
+    }
+
+    inline ImVec4 get_pixelV4(ImVec2 uv) {
+        auto beg = data + ((int)((width - 1) * uv.x) + (int)((height - 1) * (1 - uv.y)) * width) * nrChannels;
+        return ImVec4(* beg, * (beg + 1), * (beg + 2), 255);
     }
 };
 

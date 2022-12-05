@@ -5,6 +5,7 @@
 #include <commdlg.h>
 #include "stuff/NFD/nfd.h"
 #include <algorithm>
+#include "BLEV/Display.h"
 
 const std::vector<BLEV::Interface::ready_l_system*> BLEV::Interface::ready_l_systems{
 	//Кривая Коха
@@ -596,6 +597,36 @@ void BLEV::Interface::F_Classify() {
 }
 
 void BLEV::Interface::F_Camera() {
+	if (ImGui::BeginTable("MainCamera##info_table", 3, ImGuiTableFlags_Borders | ImGuiTableFlags_SizingFixedFit, ImVec2(400.f, 0.f)))
+	{
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Camera position");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text("Camera rotation");
+		ImGui::TableSetColumnIndex(2);
+		ImGui::Text("Camera target");
+
+		ImGui::TableNextRow();
+
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("X: %f", canvas.main_camera.eye().x);
+		ImGui::Text("Y: %f", canvas.main_camera.eye().y);
+		ImGui::Text("Z: %f", canvas.main_camera.eye().z);
+
+		ImGui::TableSetColumnIndex(1);
+		ImGui::Text("Pitch: %f", canvas.main_camera.pitchYawRoll().x);
+		ImGui::Text("Yaw: %f", canvas.main_camera.pitchYawRoll().y);
+		ImGui::Text("Roll: %f", canvas.main_camera.pitchYawRoll().z);
+
+		ImGui::TableSetColumnIndex(2);
+		ImGui::Text("X: %f", canvas.main_camera.target().x);
+		ImGui::Text("Y: %f", canvas.main_camera.target().y);
+		ImGui::Text("Z: %f", canvas.main_camera.target().z);
+
+		ImGui::EndTable();
+	}
+
 	if (ImGui::Combo("projection", &canvas.main_camera.mode(), _data.cameraModes, _data.cameraModesSize)) {}
 	switch ((Camera::CamMode)canvas.main_camera.mode()) {
 	case Camera::Perspective:
@@ -736,6 +767,7 @@ void BLEV::Interface::F_RotationBody() {
 			console[3]->feedback = "";
 			auto body = new RotationBody(prim, iterNumber, Axis::X);
 			_data.chosen_prims.clear();
+			_data.primitives.erase(std::find(_data.primitives.begin(), _data.primitives.end(), prim));
 			_data.meshes.push_back(body);
 			_data.chosen_meshes.insert(body);
 		}
@@ -761,6 +793,7 @@ void BLEV::Interface::F_RotationBody() {
 			console[3]->feedback = "";
 			auto body = new RotationBody(prim, iterNumber, Axis::Y);
 			_data.chosen_prims.clear();
+			_data.primitives.erase(std::find(_data.primitives.begin(), _data.primitives.end(), prim));
 			_data.meshes.push_back(body);
 			_data.chosen_meshes.insert(body);
 		}
@@ -786,6 +819,7 @@ void BLEV::Interface::F_RotationBody() {
 			console[3]->feedback = "";
 			auto body = new RotationBody(prim, iterNumber, Axis::Z);
 			_data.chosen_prims.clear();
+			_data.primitives.erase(std::find(_data.primitives.begin(), _data.primitives.end(), prim));
 			_data.meshes.push_back(body);
 			_data.chosen_meshes.insert(body);
 		}
@@ -806,11 +840,6 @@ void BLEV::Interface::F_MeshGraph() {
 	ImGui::InputText("##ConsoleRanges", console[4]->pseudo_console, 100);
 	HelpPrevItem("x0 x1 z0 z1 x_parts z_parts");
 
-	static Func3d meshGraphFuncs[5]{ &BLEVmath::ripples,
-									 &BLEVmath::ripples2,
-									 &BLEVmath::sinxMultCosz,
-									 &BLEVmath::sinxPlusCosz,
-									 &BLEVmath::squaresSum };
 	static int chosen3dFuncType = 0;
 	ImGui::Combo("##", &chosen3dFuncType, _data.funcs3dTypes, _data.funcs3dSize);
 
@@ -822,7 +851,7 @@ void BLEV::Interface::F_MeshGraph() {
 		{
 			char* nstr = console[4]->pseudo_console;
 			Validator::ValidateMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, z_parts);
-			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, z_parts, meshGraphFuncs[chosen3dFuncType]));
+			_data.meshes.push_back(new MeshGraph(x0, x1, z0, z1, x_parts, z_parts, _data.meshGraphFuncs[chosen3dFuncType]));
 			//console[4]->feedback = ""; // left it be cuz dont wanna to retype the params over and over for multiple meshgraphs
 		}
 		catch (const std::exception& e)
@@ -833,6 +862,37 @@ void BLEV::Interface::F_MeshGraph() {
 	}
 	if (!console[4]->feedback.empty()) {
 		ImGui::TextColored(console[4]->feedback_color, console[4]->feedback.c_str());
+	}
+}
+
+void BLEV::Interface::F_FloatingHorizon() {
+	float x0, x1, z0, z1; int x_parts, z_parts;
+	ImGui::BeginGroup();
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	ImGui::InputText("##ConsoleRanges", console[5]->pseudo_console, 100);
+	HelpPrevItem("x0 x1 z0 z1 x_parts z_parts");
+
+	static int chosenHorizonType = 0;
+	ImGui::Combo("##", &chosenHorizonType, _data.funcs3dTypes, _data.funcs3dSize);
+
+	ImGui::EndGroup();
+
+
+	if (ImGui::Button("Create horizon")) {
+		try
+		{
+			char* nstr = console[5]->pseudo_console;
+			Validator::ValidateMeshGraphArgs(nstr, x0, x1, z0, z1, x_parts, z_parts);
+			_data.horizons.push_back(new FloatingHorizon(x0, x1, z0, z1, x_parts, z_parts, _data.meshGraphFuncs[chosenHorizonType]));
+		}
+		catch (const std::exception& e)
+		{
+			console[5]->feedback = e.what();
+			console[5]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+	if (!console[5]->feedback.empty()) {
+		ImGui::TextColored(console[5]->feedback_color, console[5]->feedback.c_str());
 	}
 }
 
@@ -884,6 +944,12 @@ void BLEV::Interface::ShowExternalWindows()
 	if (bmo.b_mesh_graph_open) {
 		if (ImGui::Begin("Mesh graph", &bmo.b_mesh_graph_open)) {
 			F_MeshGraph();
+			ImGui::End();
+		}
+	}
+	if (bmo.b_floating_horizon_open) {
+		if (ImGui::Begin("Floating Horizon", &bmo.b_floating_horizon_open)) {
+			F_FloatingHorizon();
 			ImGui::End();
 		}
 	}
@@ -945,7 +1011,8 @@ void BLEV::Interface::Menu::ShowFileManagerMenu()
 
 				if (result == NFD_OKAY) {
 					for (auto m : _data.chosen_meshes) {
-						m->save(outPath);
+						//m->save(outPath);
+						Mesh::save(outPath, _data.chosen_meshes);
 					}
 					free(outPath);
 				}
@@ -961,6 +1028,26 @@ void BLEV::Interface::Menu::ShowFileManagerMenu()
 			}
 
 			ImGui::EndMenu();
+		}
+		if (ImGui::MenuItem("Load texture", NULL, (bool*)0, !_data.chosen_meshes.empty())) {
+			nfdchar_t* outPath = NULL;
+			nfdresult_t result = NFD_OpenDialog("jpg", NULL, &outPath);
+
+			if (result == NFD_OKAY) {
+				for (auto m : _data.chosen_meshes) {
+					m->loadImage(outPath);
+				}
+				needRefresh = true;
+				free(outPath);
+			}
+			else if (result == NFD_CANCEL) {
+				puts("User pressed cancel.");
+			}
+			else {
+				printf("Error: %s\n", NFD_GetError());
+			}
+
+			//ImGui::EndMenu();
 		}
 
 		ImGui::EndMenu();
@@ -1010,6 +1097,9 @@ void BLEV::Interface::Menu::ShowMethodsMenu(B_method_open& bmo)
 		if (ImGui::MenuItem("Mesh Graph", NULL, bmo.b_mesh_graph_open)) {
 			bmo.b_mesh_graph_open = true;
 		}
+		if (ImGui::MenuItem("Floating Horizon", NULL, bmo.b_floating_horizon_open)) {
+			bmo.b_floating_horizon_open = true;
+		}
 		ImGui::EndMenu();
 	}
 }
@@ -1039,36 +1129,9 @@ void BLEV::Interface::Menu::ShowAddingMenu()
 		if (ImGui::MenuItem("Icosahedron")) {
 			_data.meshes.push_back(new Icosahedron(ImVec3(0.f, 30.f, 0.f)));
 		}
-#ifdef _DEBUG
-		if (ImGui::MenuItem("Bunny", NULL, (bool*)0, false)) {
-			static Mesh mesh = open("bunny.obj");
-			_data.meshes.push_back(&mesh);
-		}
-		if (ImGui::MenuItem("Mill", NULL, (bool*)0, false)) {
-			static Mesh mesh = open("mill.obj");
-			_data.meshes.push_back(&mesh);
-		}
-		if (ImGui::MenuItem("Hand", NULL, (bool*)0, false)) {
-			static Mesh mesh = open("hand.obj");
-			_data.meshes.push_back(&mesh);
-		}
-#else
-		if (ImGui::MenuItem("Bunny")) {
-			static Mesh mesh = open("bunny.obj");
-			_data.meshes.push_back(&mesh);
-		}
-		if (ImGui::MenuItem("Mill")) {
-			static Mesh mesh = open("mill.obj");
-			_data.meshes.push_back(&mesh);
-		}
-		if (ImGui::MenuItem("Hand")) {
-			static Mesh mesh = open("hand.obj");
-			_data.meshes.push_back(&mesh);
-		}
-#endif // DEBUG
-		if (ImGui::MenuItem("Boat")) {
-			static Mesh mesh = open("boat.obj");
-			_data.meshes.push_back(&mesh);
+		if (ImGui::MenuItem("Torch", "", false, _data.torch == nullptr)) {
+			_data.torch = new Torch();
+			_data.meshes.push_back(_data.torch);
 		}
 		ImGui::EndMenu();
 	}
@@ -1248,11 +1311,16 @@ void BLEV::Interface::ObjectTable::ShowMeshTable(Mesh* mesh, size_t idx)
 	bool node_open = ImGui::TreeNode("Prim", "prim%d", idx);
 	ImGui::TableSetColumnIndex(1);
 
+	auto t = dynamic_cast<Torch*>(mesh);
+	char primName[32];
+	strcpy(primName, "%d-hedr figure");
+	if (t != nullptr)
+		strcpy(primName, "torch");
 	if (_data.chosen_meshes.find(mesh) != _data.chosen_meshes.end()) {
-		ImGui::TextColored(ImVec4(255, 0, 0, 255), "%d-hedr figure", mesh->polygons_size());
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), primName, mesh->polygons_size());
 	}
 	else {
-		ImGui::Text("%d-hedr figure", mesh->polygons_size());
+		ImGui::Text(primName, mesh->polygons_size());
 	}
 
 	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
@@ -1267,35 +1335,136 @@ void BLEV::Interface::ObjectTable::ShowMeshTable(Mesh* mesh, size_t idx)
 
 	if (node_open)
 	{
-		//ImGui::TableNextRow();
-		//ImGui::TableSetColumnIndex(0);
-		//ImGui::SetNextItemWidth(-FLT_MAX);
-		//ImGui::DragFloat(" ", &(mesh->thickness), 0.05f, 1.f, 10.f, "th %.2f");
-
-		for (size_t i = 0; i < mesh->points_size(); i++) {
-			ImGui::PushID(&(mesh->getPoint(i)));
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		if (t == nullptr)
+		{
+			ImGui::Text("Color");
+			ImGui::TableSetColumnIndex(1);
+			auto normColor = mesh->getFaceColor() / 255.;
+			bool hasChanged = ImGui::ColorEdit4("", (float*)&normColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+			auto result = normColor * 255;
+			if (hasChanged)
+			{
+				mesh->setFaceColor(result);
+				needRefresh = true;
+			}
 
 			ImGui::TableNextRow();
-
 			ImGui::TableSetColumnIndex(0);
-
-			ImGui::AlignTextToFramePadding();
-			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
-			ImGui::Text("Point %d", i);
-
+			ImGui::Text("Albedo");
 			ImGui::TableSetColumnIndex(1);
-			float x = mesh->getPoint(i).x;
-			float y = mesh->getPoint(i).y;
-			float z = mesh->getPoint(i).z;
-			if (ImGui::DragFloat("x", &(mesh->getPoint(i).x), 1.f, -1000.f, 1000.f, "%.0f"))
-				mesh->getInitPoint(i).x += mesh->getPoint(i).x - x;
-			if (ImGui::DragFloat("y", &(mesh->getPoint(i).y), 1.f, -1000.f, 1000.f, "%.0f"))
-				mesh->getInitPoint(i).y += mesh->getPoint(i).y - y;
-			if (ImGui::DragFloat("z", &(mesh->getPoint(i).z), 1.f, -1000.f, 1000.f, "%.0f"))
-				mesh->getInitPoint(i).z += mesh->getPoint(i).z - z;
+			if (ImGui::DragFloat("##", &(mesh->getAlbedo()), 0.005f, 0.f, 1.f, "%.3f"))
+				needRefresh = true;
 
-			ImGui::PopID();
+			for (size_t i = 0; i < mesh->points_size(); i++) {
+				ImGui::PushID(&(mesh->getPoint(i)));
+
+				ImGui::TableNextRow();
+
+				ImGui::TableSetColumnIndex(0);
+
+				ImGui::AlignTextToFramePadding();
+				ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
+				ImGui::Text("Point %d", i);
+
+				ImGui::TableSetColumnIndex(1);
+				float x = mesh->getPoint(i).x;
+				float y = mesh->getPoint(i).y;
+				float z = mesh->getPoint(i).z;
+				ImGui::PopID();
+			}
 		}
+		else
+		{
+			ImGui::Text("Color");
+			ImGui::TableSetColumnIndex(1);
+			auto normColor = t->getColor() / 255.;
+			bool hasChanged = ImGui::ColorEdit4("", (float*)&normColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+			auto result = normColor * 255;
+			if (hasChanged)
+			{
+				t->setColor(result);
+				needRefresh = true;
+			}
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Intensity");
+			ImGui::TableSetColumnIndex(1);
+			//auto intensity = t->getIntensity();
+			if (ImGui::DragFloat("##", &(t->getIntensity()), 0.005f, 0.f, 1.f, "%.3f"))
+			{
+				//t->setIntensity(intensity);
+				needRefresh = true;
+			}
+		}
+		ImGui::TreePop();
+	}
+
+	ImGui::PopID();
+}
+
+void BLEV::Interface::ObjectTable::ShowHorizonTable(FloatingHorizon* horizon, size_t idx)
+{
+	ImGui::PushID(horizon);
+
+	ImGui::TableNextRow();
+	ImGui::TableSetColumnIndex(0);
+	ImGui::AlignTextToFramePadding();
+	bool node_open = ImGui::TreeNode("Horizon", "horizon%d", idx);
+	ImGui::TableSetColumnIndex(1);
+
+	char primName[32];
+	strcpy(primName, "Horizon %d");
+	if (_data.chosen_horizons.find(horizon) != _data.chosen_horizons.end()) {
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), primName, idx);
+	}
+	else {
+		ImGui::Text(primName, idx);
+	}
+
+	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+		if (_data.chosen_horizons.find(horizon) == _data.chosen_horizons.end()) {
+			_data.chosen_horizons.insert(horizon);
+		}
+		else {
+			_data.chosen_horizons.erase(horizon);
+		}
+	}
+	ImGui::SameLine();
+
+	if (node_open)
+	{
+		ImGui::PushID(&(horizon->upperColor));
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+
+		ImGui::Text("Upper Color");
+		ImGui::TableSetColumnIndex(1);
+		auto upperColor = horizon->upperColor / 255.;
+		bool upperHasChanged = ImGui::ColorEdit4("", (float*)&upperColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+		auto upperResult = upperColor * 255;
+		if (upperHasChanged)
+		{
+			horizon->upperColor = upperResult;
+			//needRefresh = true;
+		}
+		ImGui::PopID();
+
+		ImGui::PushID(&(horizon->lowerColor));
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Lower Color");
+		ImGui::TableSetColumnIndex(1);
+		auto lowerColor = horizon->lowerColor / 255.;
+		bool lowerHasChanged = ImGui::ColorEdit4("", (float*)&lowerColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+		auto lowerResult = lowerColor * 255;
+		if (lowerHasChanged)
+		{
+			horizon->lowerColor = lowerResult;
+			//needRefresh = true;
+		}
+		ImGui::PopID();
 
 		ImGui::TreePop();
 	}
@@ -1326,41 +1495,33 @@ void BLEV::Interface::ObjectTable::Show()
 			ShowMeshTable(_data.meshes[i], i);
 			//ImGui::Separator();
 		}
+
+		for (size_t i = 0; i < _data.horizons.size(); i++)
+		{
+			ShowHorizonTable(_data.horizons[i], i);
+			//ImGui::Separator();
+		}
 		ImGui::EndTable();
 	}
 	ImGui::PopStyleVar();
 }
 
-void BLEV::Interface::Canvas::ProcessCamKeyboardInput(Camera& cam, float& deltaTime) {
+void BLEV::Interface::Canvas::ProcessCamKeyboardInput(Camera& cam, const float& deltaTime) {
 	float speed = cam.speed() * deltaTime;
 	if (ImGui::IsKeyPressed(ImGuiKey_W)) {
-		cam.eye() += speed * Linal::normalize(cam.direction());
-		//return;
+		main_camera.setEye(cam.eye() + speed * Linal::normalize(cam.direction()));
+		needRefresh = true;
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_S)) {
-		cam.eye() += -speed * Linal::normalize(cam.direction());
-		//return;
-	}
-	if (ImGui::IsKeyPressed(ImGuiKey_A)) {
-		cam.eye() += -speed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
-		//return;
-	}
-	if (ImGui::IsKeyPressed(ImGuiKey_D)) {
-		cam.eye() += speed * Linal::normalize(Linal::cross(cam.direction(), cam.up()));
-		//return;
+		main_camera.setEye(cam.eye() - speed * Linal::normalize(cam.direction()));
+		needRefresh = true;
 	}
 }
-void BLEV::Interface::Canvas::ProcessCamMouseInput(ImVec2& deltaMouse, Camera& cam) {
+
+void BLEV::Interface::Canvas::ProcessCamMouseInput(Camera& cam, const ImVec2& deltaMouse) {
 	if (ImGui::IsKeyDown(ImGuiKey_C)) {
-		ImVec2 offset = cam.sensitivity() * deltaMouse;
-
-		cam.rotation().x += offset.x; // yaw
-		cam.rotation().y -= offset.y; // pitch
-
-		cam.rotation().y = min(cam.rotation().y, 89.0f);
-		cam.rotation().y = max(cam.rotation().y, -89.0f);
-
-		cam.updateDirection();
+		main_camera.setPitchYawRoll(deltaMouse);
+		needRefresh = true;
 	}
 }
 
@@ -1636,12 +1797,59 @@ void BLEV::Interface::Canvas::DrawObjects() {
 		draw_list->AddCircleFilled(*ch_p + origin, (*_data.chosen_prims.begin())->thickness() + 2.f, IM_COL32(0, 255, 0, 255), 10);
 	}
 
-	for (auto mesh : _data.meshes) {
-		mesh->draw(draw_list, origin, vp);
+	if (_data.chosenView == ViewMode::Wireframe)
+	{
+		for (auto mesh : _data.meshes) {
+			mesh->draw(draw_list, origin, vp, main_camera.direction());
+		}
+		for (auto& horizon : _data.horizons) {
+			horizon->draw(draw_list, main_camera, size, origin, p[0]);
+		}
+	}
+	else if (_data.chosenView == ViewMode::FlatColor)
+	{
+		if (needShift) {
+			zbuf.setOffset(scrolling);
+			needShift = false;
+		}
+		if (needResize) {
+			zbuf.resize(size.x, size.y);
+			needResize = false;
+		}
+		if (needRefresh) {
+			zbuf.clear();
+			zbuf.fillBuffers(_data.meshes, vp, main_camera.direction());
+			needRefresh = false;
+		}
+		zbuf.draw(draw_list, p[0]);
+	}
+	else if (_data.chosenView == ViewMode::GouraudShading)
+	{
+		if (needShift) {
+			lbuf.setOffset(scrolling);
+			needShift = false;
+		}
+		if (needResize) {
+			lbuf.resize(size.x, size.y);
+			needResize = false;
+		}
+		if (needRefresh) {
+			lbuf.clear();
+			lbuf.fillBuffers(_data.meshes, _data.torch, vp, main_camera.direction());
+			needRefresh = false;
+		}
+		lbuf.draw(draw_list, p[0]);
 	}
 
 	if (_data.rotate_axis != nullptr)
 		_data.rotate_axis->draw(draw_list, origin, vp);
+
+	if (show_fps) {
+		char fps_c[10];
+		sprintf(fps_c, "%.0f", ImGui::GetIO().Framerate);
+		draw_list->AddText(p[0], 0xFFFFFFFF, fps_c);
+		//ImGui::ShowDemoWindow
+	}
 }
 void BLEV::Interface::Canvas::PollCallbacks() {
 	for (size_t i = 0; i < hotkeysSize; i++) {
@@ -1807,6 +2015,20 @@ void BLEV::Interface::Canvas::ShowContextMenu()
 				ImGui::Separator();
 			}
 
+
+			if (ImGui::BeginMenu("View Mode")) {
+
+				for (size_t i = 0; i < _data.viewModesSize; ++i) {
+					if (ImGui::MenuItem(_data.viewModes[i], "", _data.chosenView == (ViewMode)i)) {
+						_data.chosenView = (ViewMode)i;
+						needRefresh = true;
+						needResize = true;
+						needShift = true;
+					}
+				}
+				ImGui::EndMenu();
+			}
+
 			if (ImGui::MenuItem("Remove last prim", NULL, false, _data.primitives.size() > 0)) {
 				_data.chosen_prims.erase(_data.primitives.back());
 				if (_data.primitives.back() == &_data.prev_displacement)
@@ -1825,17 +2047,40 @@ void BLEV::Interface::Canvas::ShowContextMenu()
 				_data.chosen_lsys.erase(_data.fractals.back());
 				_data.fractals.pop_back();
 			}
-			if (ImGui::MenuItem("Remove all", NULL, false, _data.primitives.size() + _data.fractals.size() + _data.meshes.size() > 0)) {
+			if (ImGui::MenuItem("Remove selected", NULL, false, _data.chosen_prims.size() + _data.chosen_meshes.size() + _data.chosen_horizons.size() > 0)) {
+				for (auto it = _data.chosen_prims.begin(); it != _data.chosen_prims.end();)
+				{
+					Primitive* prim = *it;
+					it = _data.chosen_prims.erase(it);
+					_data.primitives.erase(std::find(_data.primitives.begin(), _data.primitives.end(), prim));
+				}
+				for (auto it = _data.chosen_meshes.begin(); it != _data.chosen_meshes.end();)
+				{
+					Mesh* m = *it;
+					if (dynamic_cast<Torch*>(m) != nullptr)
+						_data.torch = nullptr;
+					it = _data.chosen_meshes.erase(it);
+					_data.meshes.erase(std::find(_data.meshes.begin(), _data.meshes.end(), m));
+				}
+				needRefresh = true;
+			}
+			if (ImGui::MenuItem("Remove all", NULL, false, _data.primitives.size() + _data.fractals.size() + _data.meshes.size() + _data.horizons.size() > 0)) {
 				_data.chosen_prims.clear();
 				_data.chosen_prim_points.clear();
 				_data.chosen_prim_edges.clear();
 				_data.chosen_meshes.clear();
+				zbuf.clear();
+				lbuf.clear();
 				_data.primitives.clear();
 				_data.fractals.clear();
 				_data.chosen_lsys.clear();
 				_data.prev_displacement.clear();
 				_data.curr_displacement.clear();
 				_data.meshes.clear();
+				_data.horizons.clear();
+				_data.chosen_horizons.clear();
+
+				_data.torch = nullptr;
 				delete _data.rotate_axis;
 				_data.rotate_axis = nullptr;
 				_data.chosenPrimEditMode = PrimEditMode::None;
@@ -1937,14 +2182,22 @@ void BLEV::Interface::Canvas::Body() {
 	if (ImGui::BeginChild("Canvas")) {
 
 		p[0] = ImGui::GetCursorScreenPos();
-		size = ImGui::GetContentRegionAvail();
+		auto s = ImGui::GetContentRegionAvail();
+		if (s != size) {
+			needResize = true;
+			needRefresh = true;
+		}
+		size = s;
 		if (size.x < MIN_WIDTH) size.x = MIN_WIDTH;
 		if (size.y < MIN_HEIGHT) size.y = MIN_HEIGHT;
 		p[1] = ImVec2(p[0].x + size.x, p[0].y + size.y);
 
 		ImGuiIO& io = ImGui::GetIO();
 		draw_list = ImGui::GetWindowDrawList();
-		draw_list->AddRectFilled(p[0], p[1], IM_COL32(50, 50, 50, 255));
+		if (_data.chosenView != GouraudShading)
+			draw_list->AddRectFilled(p[0], p[1], IM_COL32(50, 50, 50, 255));
+		else
+			draw_list->AddRectFilled(p[0], p[1], IM_COL32(13, 13, 13, 255));
 		draw_list->AddRect(p[0], p[1], IM_COL32(255, 255, 255, 255));
 
 		ImGui::InvisibleButton("canvas", size, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
@@ -1964,8 +2217,17 @@ void BLEV::Interface::Canvas::Body() {
 				main_camera.resetFlightSettings();
 				main_camera.resetCamPosition();
 				main_camera.resetProjectionSettings();
+				needRefresh = true;
 			}
-
+			if (ImGui::IsKeyPressed(ImGuiKey_X)) {
+				main_camera.setEyeAndPYR(ImVec3(400.f, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
+			}
+			if (ImGui::IsKeyPressed(ImGuiKey_Y)) {
+				main_camera.setEyeAndPYR(ImVec3(0.f, 400.f, 0.f), ImVec3(89.f, 0.f, 0.f));
+			}
+			if (ImGui::IsKeyPressed(ImGuiKey_Z)) {
+				main_camera.setEyeAndPYR();
+			}
 			if (!main_camera.dirtiness())
 			{
 				prev_point = mouse_pos;
@@ -1977,10 +2239,15 @@ void BLEV::Interface::Canvas::Body() {
 			auto x = (float)io.MouseWheel;
 			if (x != 0.f) {
 				main_camera.altPerspectiveScale(x < 0 ? -0.5f : 0.5f);
+				needRefresh = true;
 			}
 			if ((Camera::CamMode)main_camera.mode() == Camera::Perspective) {
+				ProcessCamMouseInput(main_camera, deltaMouse);
 				ProcessCamKeyboardInput(main_camera, deltaTime);
-				ProcessCamMouseInput(deltaMouse, main_camera);
+				if (main_camera.pitchYawRollChanged()) {
+					main_camera.updateEyeRotation();
+					needRefresh = true;
+				}
 				main_camera.updateLook();
 			}
 		}
@@ -1991,6 +2258,8 @@ void BLEV::Interface::Canvas::Body() {
 		{
 			scrolling.x += io.MouseDelta.x;
 			scrolling.y += io.MouseDelta.y;
+			needShift = true;
+			needRefresh = true;
 		}
 
 		drag_delta = ImGui::GetMouseDragDelta(ImGuiMouseButton_Right);
@@ -2001,9 +2270,12 @@ void BLEV::Interface::Canvas::Body() {
 
 		vp = main_camera.viewProjecion(); //auto vp = main_camera.getProjection(); //auto vp = main_camera.getView();
 
-		if (b_grid_2d_enabled) Draw2dGrid();
-		if (b_grid_3d_enabled) Draw3dGrid();
-		if (b_grid_3d_enabled) DrawAxis();
+		if (_data.chosenView != GouraudShading || (_data.torch != nullptr))
+		{
+			if (b_grid_2d_enabled) Draw2dGrid();
+			if (b_grid_3d_enabled) Draw3dGrid();
+			if (b_grid_3d_enabled) DrawAxis();
+		}
 		DrawObjects();
 
 		/* intersections
