@@ -343,19 +343,6 @@ void Mesh::updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool needTranslsate)
 	recalculate_normals();
 }
 
-void Mesh::updateInitPoints()
-{
-	auto c = center();
-	for (size_t i = 0; i < init_points.size(); i++) {
-		init_points[i].x -= c.x;
-		init_points[i].y -= c.y;
-		init_points[i].z -= c.z;
-	}
-	translate_mat(0, 3) = c.x;
-	translate_mat(1, 3) = c.y;
-	translate_mat(2, 3) = c.z;
-}
-
 void Mesh::save(const char* filename, std::set<Mesh*> meshes) {
 	std::ofstream out(filename);
 	if (!out.is_open())
