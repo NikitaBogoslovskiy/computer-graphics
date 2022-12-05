@@ -79,13 +79,12 @@ public:
 	}
 	void Draw() {
 		if (cur_task >= entities.size()) return;
-		//auto model = glm::rotate(glm::mat4(1.0f), glm::radians(elapsedTime * 50.f), glm::vec3(0.0f, 1.0f, 0.f));
-		auto model = glm::mat4(1.0f);
-		entities[1]->Draw(glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, -3.f, 0.f)) * glm::rotate(glm::mat4(1.0f), glm::radians(elapsedTime * 50.f), glm::vec3(0.0f, 1.0f, 0.f)), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-		entities[5]->Draw(model, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+		auto r = 5.f;
+		entities[1]->Draw(glm::translate(glm::mat4(1.0f), glm::vec3(r * cos(elapsedTime), -3.f, r * sin(elapsedTime))) * glm::rotate(glm::mat4(1.0f), glm::radians(elapsedTime * 50.f), glm::vec3(0.0f, 1.0f, 0.f)), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+		entities[5]->Draw(glm::rotate(glm::mat4(1.0f), glm::radians(elapsedTime * 50.f), glm::vec3(0.0f, 1.0f, 0.f)), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 
 		// skybox should be rendered last for optimization
-		skybox->Draw(model, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+		skybox->Draw(glm::mat4(1.0f), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	}
 	void Release() {
 		if (cur_task >= entities.size()) return;
