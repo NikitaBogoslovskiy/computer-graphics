@@ -5,6 +5,7 @@
 #include <SFML/OpenGL.hpp>
 #include <SFML/Window.hpp>
 #include <SFML/Graphics.hpp>
+#include <SFML/Audio.hpp>
 #include <iostream>
 #include "shader_loader.h"
 #include "../headers/entities/Entity.h"
@@ -60,6 +61,8 @@ private:
 	Entity* skybox;
 	SolarSystem* solar_system;
 public:
+	sf::Music* music;
+	bool is_playing = false;
 	void ResetClock() {
 		deltaTime = clock.getElapsedTime().asSeconds();
 		elapsedTime += deltaTime;
@@ -71,22 +74,27 @@ public:
 	App() {}
 	void Init() {
 		skybox = new Skybox();
-		solar_system = new SolarSystem(8);
-		solar_system->LoadModels("tree.obj", "vodica.jpg", "krosh.obj", "krosh.jpg");
-		solar_system->PrepareData(glm::vec3(0.0f, -3.0f, 0.0f));
+		solar_system = new SolarSystem(50);
+		solar_system->LoadModels("tree.obj", "vodica.jpg", "krosh.obj", "krosh.png");
+		solar_system->PrepareData(glm::vec3(0.0f, -1.0f, 0.0f));
 		entities.push_back(new Tetrahedron());
 		entities.push_back(new Cube2Tex());
 		entities.push_back(new Cube3Tex());
 		entities.push_back(new ColoredEllipse());
 		entities.push_back(new Mesh("tree.obj"));
 		entities.push_back(new DynamicMesh("tree.obj"));
+		music = new sf::Music();
+		music->openFromFile("smesharikiBASSBOOSTED.wav");
+		music->setVolume(100.0f);
 	}
 	void Draw() {
 		if (cur_task >= entities.size()) return;
 		auto r = 5.f;
+		if (is_playing && music->getStatus() != sf::SoundSource::Playing)
+			music->play();
 		//entities[1]->Draw(glm::translate(glm::mat4(1.0f), glm::vec3(r * cos(elapsedTime * 0.4f), -3.f, r * sin(elapsedTime * 0.4f))) * glm::rotate(glm::mat4(1.0f), glm::radians(elapsedTime * 50.f), glm::vec3(0.0f, 1.0f, 0.f)), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 		//entities[5]->Draw(glm::rotate(glm::mat4(1.0f), glm::radians(elapsedTime * 10.f), glm::vec3(0.0f, 1.0f, 0.f)), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-		solar_system->Draw(elapsedTime, camera.GetViewMatrix(), camera.GetProjectionMatrix());
+		solar_system->Draw(elapsedTime, camera.GetViewMatrix(), camera.GetProjectionMatrix(), music->getPlayingOffset().asSeconds());
 		// skybox should be rendered last for optimization
 		skybox->Draw(glm::mat4(1.0f), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	}
@@ -156,6 +164,10 @@ public:
 
 				case sf::Keyboard::C:
 					is_cam_active = true;
+					break;
+
+				case sf::Keyboard::Q:
+					is_playing = true;
 					break;
 
 				default:

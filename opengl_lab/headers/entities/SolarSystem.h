@@ -1,8 +1,5 @@
 #pragma once
 
-//#include "gl/glew.h"
-//#include "../stuff.h"
-//#include "../../headers/pch.h"
 #include "../headers/meshes/DynamicMesh.h"
 
 
@@ -14,6 +11,7 @@ struct PlanetParameters
 	float movement_speed;
 	float selfrotation_speed;
 	float scale_factor;
+	glm::vec3 rotation_axis;
 };
 
 struct SunParameters
@@ -36,5 +34,5 @@ public:
 	SolarSystem(size_t _planets_number);
 	void LoadModels(const char* sun_object_path, const char* sun_texture_path, const char* planet_object_path, const char* planet_texture_path);
 	void PrepareData(const glm::vec3& center);
-	void Draw(float time_coefficient, const glm::mat4& view, const glm::mat4& projection);
+	void Draw(float time_coefficient, const glm::mat4& view, const glm::mat4& projection, float music_seconds = -1.0f);
 };
