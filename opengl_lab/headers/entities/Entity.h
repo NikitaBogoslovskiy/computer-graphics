@@ -18,14 +18,14 @@ class Entity {
 	void checkOpenGLerror() {}
 
 protected:
-	GLuint Program;
 	GLuint Attrib_vertex;
 
 	GLuint VBO;
-	GLuint VAO;
 	GLuint IBO;
 
 public:
+	GLuint Program;
+	GLuint VAO;
 	Entity() {}
 
 	float velocity = 0.1f;

@@ -51,6 +51,9 @@
     <ClCompile Include="src\entities\Skybox.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\entities\SolarSystem.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\entities\Entity.h">
@@ -93,6 +96,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\entities\Skybox.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\entities\SolarSystem.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

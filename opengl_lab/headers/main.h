@@ -13,6 +13,7 @@
 #include "../headers/entities/Cube3Tex.h"
 #include "../headers/entities/ColoredEllipse.h"
 #include "../headers/entities/Skybox.h"
+#include "../headers/entities/SolarSystem.h"
 #include "meshes/Mesh.h"
 #include "meshes/DynamicMesh.h"
 #include "Camera.h"
@@ -57,7 +58,7 @@ private:
 	int cur_task = 0;
 	std::vector<Entity*> entities;
 	Entity* skybox;
-
+	SolarSystem* solar_system;
 public:
 	void ResetClock() {
 		deltaTime = clock.getElapsedTime().asSeconds();
@@ -70,6 +71,9 @@ public:
 	App() {}
 	void Init() {
 		skybox = new Skybox();
+		solar_system = new SolarSystem(8);
+		solar_system->LoadModels("tree.obj", "vodica.jpg", "krosh.obj", "krosh.jpg");
+		solar_system->PrepareData(glm::vec3(0.0f, -3.0f, 0.0f));
 		entities.push_back(new Tetrahedron());
 		entities.push_back(new Cube2Tex());
 		entities.push_back(new Cube3Tex());
@@ -80,9 +84,9 @@ public:
 	void Draw() {
 		if (cur_task >= entities.size()) return;
 		auto r = 5.f;
-		entities[1]->Draw(glm::translate(glm::mat4(1.0f), glm::vec3(r * cos(elapsedTime * 0.4f), -3.f, r * sin(elapsedTime * 0.4f))) * glm::rotate(glm::mat4(1.0f), glm::radians(elapsedTime * 50.f), glm::vec3(0.0f, 1.0f, 0.f)), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-		entities[5]->Draw(glm::rotate(glm::mat4(1.0f), glm::radians(elapsedTime * 10.f), glm::vec3(0.0f, 1.0f, 0.f)), camera.GetViewMatrix(), camera.GetProjectionMatrix());
-
+		//entities[1]->Draw(glm::translate(glm::mat4(1.0f), glm::vec3(r * cos(elapsedTime * 0.4f), -3.f, r * sin(elapsedTime * 0.4f))) * glm::rotate(glm::mat4(1.0f), glm::radians(elapsedTime * 50.f), glm::vec3(0.0f, 1.0f, 0.f)), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+		//entities[5]->Draw(glm::rotate(glm::mat4(1.0f), glm::radians(elapsedTime * 10.f), glm::vec3(0.0f, 1.0f, 0.f)), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+		solar_system->Draw(elapsedTime, camera.GetViewMatrix(), camera.GetProjectionMatrix());
 		// skybox should be rendered last for optimization
 		skybox->Draw(glm::mat4(1.0f), camera.GetViewMatrix(), camera.GetProjectionMatrix());
 	}
