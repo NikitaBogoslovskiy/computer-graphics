@@ -25,7 +25,7 @@ void Scene::Render(Image& img) {
 	size_t ySize = img.YSize();
 
 	/*
-	The arguments to the thread function are moved or copied by value. 
+	The arguments to the thread function are moved or copied by value.
 	If a reference argument needs to be passed to the thread function, it has to be wrapped (e.g., with std::ref or std::cref).
 	*/
 	std::thread th1(&Scene::SubRender, this, std::ref(img), 0, xSize / 4, xSize, ySize);

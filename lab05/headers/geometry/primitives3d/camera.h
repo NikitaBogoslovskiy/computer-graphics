@@ -7,36 +7,29 @@
 
 class Camera
 {
-	/* to make it possible to wander through scene */
 	Eigen::Matrix4f _view;
+	Eigen::Matrix4f _projection;
+	Eigen::Matrix4f _scale;
+
 	ImVec3 _eye;
-	ImVec3 _pyr;
 	ImVec3 _target;
+	ImVec3 _up;
 
 	ImVec3 _direction;
-	ImVec2 _rotation;
-	ImVec3 _up;
+	ImVec3 _pyr;
+
 	float _sensitivity;
 	float _speed;
 
 	bool _isMouseDirty;
 
-	/* someday i will divide cam classes by projection types. someday. */
-	Eigen::Matrix4f _projection;
-
-	/* perspective */
 	float _zFocus;
-	ImVec2 _viewport; /*width, height of screen we project picture on! used in FoV perspective*/
 
-	/* axonometry */
 	float _angleX; float _angleY;
 
-	Eigen::Matrix4f _scale; // scaling image
-	ImDrawList* _draw_list; // draw list camera projects picture on
 	int _mode;
 
 	inline void resetPerspectiveSettings() {
-		this->_viewport = ImVec2(800.f, 800.f); // maybe we'll need it someday
 		this->_zFocus = 1000.f;
 	}
 
@@ -44,59 +37,16 @@ class Camera
 		this->_angleX = 145.f;
 		this->_angleY = 135.f;
 	}
-	inline void updateLook() {
-		this->_view = Linal::lookAt(this->_eye, this->_target, this->_up);
-	}
-public:
-	enum CamMode {
-		Perspective,
-		Axonometry,
-	};
-	static CamMode cameraModes;
 
-	Camera() {
-		resetFlightSettings();
-		resetCamPosition();
-		resetPerspectiveSettings();
-		resetAxonometrySettings();
-	}
-
-	inline int& mode() { return this->_mode; }
-	inline float& sensitivity() { return this->_sensitivity; }
-	inline float& speed() { return this->_speed; }
-	inline bool& dirtiness() { return this->_isMouseDirty; }
-	inline float& zFocus() { return this->_zFocus; }
-	inline float& angleX() { return this->_angleX; }
-	inline float& angleY() { return this->_angleY; }
-	inline ImVec3& target() { return this->_target; }
-
-	inline const ImVec3& pitchYawRoll() { return this->_pyr; }
-	inline void setPitchYawRoll(const ImVec2& deltaMouse) {
-		ImVec2 offset = this->_sensitivity * deltaMouse;
-
-		this->_pyr.x += offset.y; // pitch
-		this->_pyr.y += offset.x; // yaw
-
-		this->_pyr.x = std::min(this->_pyr.x, 89.0f);
-		this->_pyr.x = std::max(this->_pyr.x, -89.0f);
-
-		if (this->_pyr.y >= 360.f) {
-			this->_pyr.y = this->_pyr.y - 360.f;
-		}
-		if (this->_pyr.y <= -360.f) {
-			this->_pyr.y = this->_pyr.y + 360.f;
-		}
-		updateEyeRotation();
-	}
-
-	inline const ImVec3& eye() { return this->_eye; }
 	void setEye(const ImVec3& newEye) {
-		if (Linal::len(this->_target - newEye) < 400.f) {
-			return;
-		}
+		if (Linal::len(this->_target - newEye) < 400.f) return;
 		this->_eye = newEye;
 
 		updateLook();
+	}
+
+	inline void updateLook() {
+		this->_view = Linal::lookAt(this->_eye, this->_target, this->_up);
 	}
 
 	void updateEyeRotation() {
@@ -116,9 +66,40 @@ public:
 		updateLook();
 	}
 
-	inline const ImVec3 direction() { return this->_target - this->_eye; /*return this->_direction;*/ }
+public:
+	enum Direction {
+		Forward,
+		Backward,
+		Left,
+		Right
+	};
+
+	enum CamMode {
+		Perspective,
+		Axonometry,
+	};
+	static CamMode cameraModes;
+
+	Camera() {
+		resetFlightSettings();
+		resetCamPosition();
+		resetPerspectiveSettings();
+		resetAxonometrySettings();
+	}
+	inline int& mode() { return this->_mode; }
+	inline bool& dirtiness() { return this->_isMouseDirty; }
+
+	inline const ImVec3& eye() { return this->_eye; }
+	inline ImVec3& target() { return this->_target; }
 	inline const ImVec3& up() { return this->_up; }
-	inline const ImVec2& viewport() { return this->_viewport; }
+	inline const ImVec3 direction() { return this->_target - this->_eye; }
+
+	inline const ImVec3& pitchYawRoll() { return this->_pyr; }
+
+	inline float& zFocus() { return this->_zFocus; }
+	inline float& angleX() { return this->_angleX; }
+	inline float& angleY() { return this->_angleY; }
+
 	inline const Eigen::Matrix4f& scale() { return this->_scale; }
 	inline const Eigen::Matrix4f& view() { return this->_view; }
 	inline const Eigen::Matrix4f projection() {
@@ -132,7 +113,6 @@ public:
 		}
 	}
 	inline const Eigen::Matrix4f viewProjecion() {
-		//return this->_scale * projection() * this->_view;
 		switch ((CamMode)this->_mode) {
 		case CamMode::Perspective:
 			return this->_scale * projection() * (this->_view);
@@ -181,12 +161,48 @@ public:
 		this->_pyr = pitchYawRoll;
 	}
 
-	inline void altPerspectiveScale(const float& d = 1.f) {
+	// ================================================================== interface api
+
+	void ProcessKeyboard(Direction direction, const float& deltaTime)
+	{
+		float velocity = _speed * deltaTime;
+		if (direction == Forward)
+			this->setEye(_eye + velocity * Linal::normalize(this->direction()));
+		else if (direction == Backward)
+			this->setEye(_eye - velocity * Linal::normalize(this->direction()));
+		//else if (direction == Left) 
+		// Position -= Right * velocity;
+		//else if (direction == Right) 
+		// Position += Right * velocity;
+
+	}
+
+	inline void ProcessMouseMovement(const ImVec2& deltaMouse) {
+		ImVec2 offset = this->_sensitivity * deltaMouse;
+
+		this->_pyr.x += offset.y; // pitch
+		this->_pyr.y += offset.x; // yaw
+
+		this->_pyr.x = std::min(this->_pyr.x, 89.0f);
+		this->_pyr.x = std::max(this->_pyr.x, -89.0f);
+
+		if (this->_pyr.y >= 360.f) {
+			this->_pyr.y = this->_pyr.y - 360.f;
+		}
+		if (this->_pyr.y <= -360.f) {
+			this->_pyr.y = this->_pyr.y + 360.f;
+		}
+		updateEyeRotation();
+	}
+
+	inline void ProcessMouseScroll(const float x) {
+		auto d = x < 0 ? -0.5f : 0.5f;
 		for (int i = 0; i < 3; i++) {
 			if (this->_scale(i, i) + d < 1.f) continue;
 			this->_scale(i, i) += d;
 		}
 	}
+
 };
 
 #endif

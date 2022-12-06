@@ -203,6 +203,7 @@ namespace BLEV {
 			Canvas(BLEV::Data& data) : _data(data) {}
 		} canvas {_data};
 	public:
+		void PrepareCringetracer();
 		void ShowContent();
 	};
 }

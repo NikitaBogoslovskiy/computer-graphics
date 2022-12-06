@@ -8,6 +8,7 @@ int main(void)
 	GLFWwindow* window;
 	
 	BLEV::Application app;
+	app.body.PrepareCringetracer();
 
 	/* Initialize the library */
 	if (!glfwInit())

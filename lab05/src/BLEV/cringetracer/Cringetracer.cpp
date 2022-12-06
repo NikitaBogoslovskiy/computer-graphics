@@ -5,3 +5,8 @@ CringeTracer::CringeTracer()
 {
 
 }
+
+
+void CringeTracer::SetCamera(Camera* _cam) {
+	cam = _cam;
+}

@@ -955,6 +955,10 @@ void BLEV::Interface::ShowExternalWindows()
 	}
 }
 
+void BLEV::Interface::PrepareCringetracer() {
+	canvas.cringulik.SetCamera(&canvas.main_camera);
+}
+
 void BLEV::Interface::ShowContent()
 {
 	static bool use_work_area = true;
@@ -1507,20 +1511,27 @@ void BLEV::Interface::ObjectTable::Show()
 }
 
 void BLEV::Interface::Canvas::ProcessCamKeyboardInput(Camera& cam, const float& deltaTime) {
-	float speed = cam.speed() * deltaTime;
 	if (ImGui::IsKeyPressed(ImGuiKey_W)) {
-		main_camera.setEye(cam.eye() + speed * Linal::normalize(cam.direction()));
+		main_camera.ProcessKeyboard(Camera::Forward, deltaTime);
+		needRefresh = true;
+	}
+	if (ImGui::IsKeyPressed(ImGuiKey_A)) {
+		main_camera.ProcessKeyboard(Camera::Left, deltaTime);
 		needRefresh = true;
 	}
 	if (ImGui::IsKeyPressed(ImGuiKey_S)) {
-		main_camera.setEye(cam.eye() - speed * Linal::normalize(cam.direction()));
+		main_camera.ProcessKeyboard(Camera::Backward, deltaTime);
+		needRefresh = true;
+	}
+	if (ImGui::IsKeyPressed(ImGuiKey_D)) {
+		main_camera.ProcessKeyboard(Camera::Right, deltaTime);
 		needRefresh = true;
 	}
 }
 
 void BLEV::Interface::Canvas::ProcessCamMouseInput(Camera& cam, const ImVec2& deltaMouse) {
 	if (ImGui::IsKeyDown(ImGuiKey_C)) {
-		main_camera.setPitchYawRoll(deltaMouse);
+		main_camera.ProcessMouseMovement(deltaMouse);
 		needRefresh = true;
 	}
 }
@@ -2251,7 +2262,7 @@ void BLEV::Interface::Canvas::Body() {
 
 			auto x = (float)io.MouseWheel;
 			if (x != 0.f) {
-				main_camera.altPerspectiveScale(x < 0 ? -0.5f : 0.5f);
+				main_camera.ProcessMouseScroll(x);
 				needRefresh = true;
 			}
 			if ((Camera::CamMode)main_camera.mode() == Camera::Perspective) {
