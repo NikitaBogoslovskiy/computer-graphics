@@ -6,6 +6,7 @@
 #include "Enums.h"
 #include "Data.h"
 #include "Validator.h"
+#include "cringetracer/Cringetracer.h"
 
 namespace BLEV {
 	class Interface {
@@ -151,6 +152,7 @@ namespace BLEV {
 			size_t oldSize = 0;
 			ZBuffer zbuf;
 			LightBuffer lbuf;
+			CringeTracer cringulik;
 
 			ImDrawList* draw_list;
 

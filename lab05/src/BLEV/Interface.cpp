@@ -691,7 +691,7 @@ void BLEV::Interface::F_QuickHull()
 		std::vector<ImVec2> rhs;
 		std::for_each(std::begin(vecs), std::end(vecs), [&](const ImVec2& p) {
 			if (pointPositionWithEdge(mm.first, mm.second, p))
-				lhs.push_back(p);
+			lhs.push_back(p);
 			else
 				rhs.push_back(p);
 			});
@@ -1840,6 +1840,18 @@ void BLEV::Interface::Canvas::DrawObjects() {
 		}
 		lbuf.draw(draw_list, p[0]);
 	}
+	else if (_data.chosenView == ViewMode::Cringetracer)
+	{
+		if (needResize) {
+			cringulik.img.Resize(size.x, size.y);
+			needResize = false;
+		}
+		if (needRefresh) {
+			cringulik.scene.Render(cringulik.img);
+			needRefresh = false;
+		}
+		cringulik.img.Draw(draw_list, p[0]);
+	}
 
 	if (_data.rotate_axis != nullptr)
 		_data.rotate_axis->draw(draw_list, origin, vp);
@@ -2194,10 +2206,11 @@ void BLEV::Interface::Canvas::Body() {
 
 		ImGuiIO& io = ImGui::GetIO();
 		draw_list = ImGui::GetWindowDrawList();
-		if (_data.chosenView != GouraudShading)
-			draw_list->AddRectFilled(p[0], p[1], IM_COL32(50, 50, 50, 255));
-		else
+
+		if (_data.chosenView == GouraudShading)
 			draw_list->AddRectFilled(p[0], p[1], IM_COL32(13, 13, 13, 255));
+		else if (_data.chosenView != Cringetracer)
+			draw_list->AddRectFilled(p[0], p[1], IM_COL32(50, 50, 50, 255));
 		draw_list->AddRect(p[0], p[1], IM_COL32(255, 255, 255, 255));
 
 		ImGui::InvisibleButton("canvas", size, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
@@ -2270,7 +2283,7 @@ void BLEV::Interface::Canvas::Body() {
 
 		vp = main_camera.viewProjecion(); //auto vp = main_camera.getProjection(); //auto vp = main_camera.getView();
 
-		if (_data.chosenView != GouraudShading || (_data.torch != nullptr))
+		if (_data.chosenView != Cringetracer && (_data.chosenView != GouraudShading || (_data.torch != nullptr)))
 		{
 			if (b_grid_2d_enabled) Draw2dGrid();
 			if (b_grid_3d_enabled) Draw3dGrid();
