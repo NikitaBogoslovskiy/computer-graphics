@@ -4,8 +4,8 @@
 CringeTracer::CringeTracer()
 {
 	screen_distance = 1.0;
-	width = 1.0;
-	aspect = 1.0;
+	width = 0.25; // 1.0
+	aspect = 1.0; // 16.0 / 9.0
 }
 
 
@@ -40,10 +40,76 @@ void CringeTracer::UpdateScreenVectors() {
 // x and y are fractions of width and height of virtual screen. 
 // x- fraction of U vector, y - fraction of V vector.
 // extremes - [-1, 1]; 0,0 - center of the screen
-Ray CringeTracer::GenerateRay(const float x, const float y) {
+bool CringeTracer::GenerateRay(const float x, const float y, Ray& outRay) {
 	HVec<double> newX = centre + u * x;
 	HVec<double> worldPoint = newX + v * y;
-	return Ray(eye, worldPoint);
+
+	outRay.p1 = eye;
+	outRay.p2 = worldPoint;
+	outRay.direction = worldPoint - eye;
+	return true;
+}
+
+void CringeTracer::SubRender(const size_t start, const size_t end, const size_t xSize, const size_t ySize, const double xFact, const double yFact) {
+	HVec<double> intersection(3);
+	HVec<double> localNormal(3);
+	HVec<double> localColor(3);
+
+	double minDist = 1e6;
+	double maxDist = 0.0;
+	for (size_t x = start; x < end; x++)
+	{
+		for (size_t y = 0; y < ySize; y++)
+		{
+			// Normalize the x and y coordinates.
+			double normX = (static_cast<double>(x) * xFact) - 1.0;
+			double normY = (static_cast<double>(y) * yFact) - 1.0;
+
+			// Generate the ray for this pixel (optimize! one recalc per shift)
+			GenerateRay(normX, normY, img.rays[x][y]);
+
+			for (auto & body : scene.bodies) {
+				bool intersected = body->TestIntersection(img.rays[x][y], intersection, localNormal, localColor);
+				if (intersected)
+				{
+					printf("intersection: %lf %lf %lf\n", intersection.At(0), intersection.At(1), intersection.At(2));
+					// Compute the distance between the camera and the point of intersection.
+					double dist = (intersection - img.rays[x][y].p1).len();
+					maxDist = std::max(maxDist, dist);
+					minDist = std::min(minDist, dist);
+
+					img.SetPixel(x, y, body->dcol.At(0), body->dcol.At(1), body->dcol.At(2));
+				}
+				else
+				{
+					img.SetPixel(x, y, 0.0, 0.0, 0.0);
+				}
+			}
+			
+		}
+	}
+	printf("min = %lf | max = %lf\n", minDist, maxDist);
+}
+
+void CringeTracer::Render() {
+	size_t xSize = img.XSize();
+	size_t ySize = img.YSize();
+
+	double xFact = 1.0 / (static_cast<double>(xSize) / 2.0);
+	double yFact = 1.0 / (static_cast<double>(ySize) / 2.0);
+	/*
+	The arguments to the thread function are moved or copied by value.
+	If a reference argument needs to be passed to the thread function, it has to be wrapped (e.g., with std::ref or std::cref).
+	*/
+	std::thread th1(&CringeTracer::SubRender, this, 0, xSize / 4, xSize, ySize, xFact, yFact);
+	std::thread th2(&CringeTracer::SubRender, this, xSize / 4, xSize / 2, xSize, ySize, xFact, yFact);
+	std::thread th3(&CringeTracer::SubRender, this, xSize / 2, xSize / 4 * 3, xSize, ySize, xFact, yFact);
+	std::thread th4(&CringeTracer::SubRender, this, xSize / 4 * 3, xSize, xSize, ySize, xFact, yFact);
+
+	th1.join();
+	th2.join();
+	th3.join();
+	th4.join();
 }
 
 // trash ==========================================

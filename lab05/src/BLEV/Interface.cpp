@@ -1554,7 +1554,7 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 
 	if (node_open)
 	{
-		ImGui::PushID(&(gb->color));
+		ImGui::PushID(&(gb->dcol));
 	//	ImGui::TableNextRow();
 	//	ImGui::TableSetColumnIndex(0);
 
@@ -1963,12 +1963,14 @@ void BLEV::Interface::Canvas::DrawObjects() {
 	else if (_data.chosenView == ViewMode::Cringetracer)
 	{
 		if (needResize) {
+			cringulik.img.Clear();
 			cringulik.img.Resize(size.x, size.y);
 			needResize = false;
 		}
 		if (needRefresh) {
 			cringulik.Update();
-			cringulik.scene.Render(cringulik.img);
+			//cringulik.scene.Render(cringulik.img);
+			cringulik.Render();
 			needRefresh = false;
 		}
 		cringulik.img.Draw(draw_list, p[0]);
@@ -2332,6 +2334,9 @@ void BLEV::Interface::Canvas::Body() {
 			draw_list->AddRectFilled(p[0], p[1], IM_COL32(13, 13, 13, 255));
 		else if (_data.chosenView != Cringetracer)
 			draw_list->AddRectFilled(p[0], p[1], IM_COL32(50, 50, 50, 255));
+		//else 
+			//draw_list->AddRectFilled(p[0], p[1], IM_COL32(0, 0, 0, 255));
+
 		draw_list->AddRect(p[0], p[1], IM_COL32(255, 255, 255, 255));
 
 		ImGui::InvisibleButton("canvas", size, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight);
@@ -2355,12 +2360,12 @@ void BLEV::Interface::Canvas::Body() {
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_X)) {
 				//main_camera.resetPosition(ImVec3(400.f, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
-				main_camera.setEyeAndPYR(ImVec3(400.f, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
+				main_camera.setEyeAndPYR(ImVec3(200.f, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
 				needRefresh = true;
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_Y)) {
 				//main_camera.resetPosition(ImVec3(0.f, 400.f, 0.f), ImVec3(89.f, 0.f, 0.f));
-				main_camera.setEyeAndPYR(ImVec3(0.f, 400.f, 0.f), ImVec3(89.f, 0.f, 0.f));
+				main_camera.setEyeAndPYR(ImVec3(0.f, 200.f, 0.f), ImVec3(89.f, 0.f, 0.f));
 				needRefresh = true;
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_Z)) {

@@ -272,6 +272,9 @@
     <ClInclude Include="headers\cringetracer\GeometricBodies\GeometricBody.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="headers\cringetracer\HeyraMath\HMath.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\dependencies\Eigen\Eigen\Cholesky">

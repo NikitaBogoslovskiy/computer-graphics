@@ -190,6 +190,7 @@
     <ClInclude Include="headers\BLEV\Interface.h" />
     <ClInclude Include="headers\BLEV\Validator.h" />
     <ClInclude Include="headers\cringetracer\GeometricBodies\GeometricBody.h" />
+    <ClInclude Include="headers\cringetracer\HeyraMath\HMath.h" />
     <ClInclude Include="headers\cringetracer\HeyraMath\HVec.h" />
     <ClInclude Include="headers\cringetracer\Image.h" />
     <ClInclude Include="headers\cringetracer\GeometricBodies\Sphere.h" />

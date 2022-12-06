@@ -20,11 +20,19 @@ void Image::Resize(const size_t& _xSize, const size_t& _ySize)
 	rChannel.resize(xSize);
 	gChannel.resize(xSize);
 	bChannel.resize(xSize);
+	rays.resize(xSize);
+
+	//intersections.resize(xSize);
+	//localNormals.resize(xSize);
+	//localColors.resize(xSize);
+
 	for (size_t i = 0; i < xSize; ++i)
 	{
 		rChannel[i].resize(ySize, 0.0);
 		gChannel[i].resize(ySize, 0.0);
 		bChannel[i].resize(ySize, 0.0);
+		rays[i].resize(ySize, Ray());
+		//intersections[i].resize(ySize, Ray());
 	}
 }
 
@@ -35,11 +43,11 @@ void Image::Clear()
 		std::fill(rChannel[i].begin(), rChannel[i].end(), 0);
 		std::fill(gChannel[i].begin(), gChannel[i].end(), 0);
 		std::fill(bChannel[i].begin(), bChannel[i].end(), 0);
+		std::fill(rays[i].begin(), rays[i].end(), Ray());
 	}
 }
 
 void Image::Draw(ImDrawList* dl, const ImVec2& canvasOffset) {
-	// parallel?
 	for (size_t x = 0; x < xSize; ++x)
 	{
 		for (size_t y = 0; y < ySize; ++y)
