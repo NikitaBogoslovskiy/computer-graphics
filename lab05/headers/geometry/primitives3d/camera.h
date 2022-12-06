@@ -150,15 +150,15 @@ public:
 	}
 
 	inline void resetPosition(const ImVec3& eye = ImVec3(0.f, 0.f, 400.f), const ImVec3& pitchYawRoll = ImVec3(0.f, 90.f, 0.f), const ImVec3& target = ImVec3(0.f, 0.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
-		setEyeAndPYR(eye, pitchYawRoll);
 		this->_target = target;
 		this->_up = up;
-		updateEyeRotation();
+		setEyeAndPYR(eye, pitchYawRoll);
 	}
 
 	void setEyeAndPYR(const ImVec3& eye = ImVec3(0.f, 0.f, 400.f), const ImVec3& pitchYawRoll = ImVec3(0.f, 90.f, 0.f)) {
 		this->_eye = eye;
 		this->_pyr = pitchYawRoll;
+		updateEyeRotation();
 	}
 
 	// ================================================================== interface api

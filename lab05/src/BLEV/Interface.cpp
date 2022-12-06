@@ -896,6 +896,43 @@ void BLEV::Interface::F_FloatingHorizon() {
 	}
 }
 
+void BLEV::Interface::F_Scene() {
+	double x0, y0, z0, radius;
+	ImGui::BeginGroup();
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	ImGui::InputText("##ConsoleRanges", console[6]->pseudo_console, 100);
+	HelpPrevItem("x0 y0 z0 radius");
+
+	static ImVec3 sphereColor{ 0.5f, 0.5f, 0.5f };
+	bool colorHasChanged = ImGui::ColorEdit3("", (float*)&sphereColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+	//auto lowerResult = sphereColor * 255;
+	//if (colorHasChanged)
+	//{
+		//horizon->lowerColor = lowerResult;
+		//needRefresh = true;
+	//}
+
+	ImGui::EndGroup();
+
+	if (ImGui::Button("Create sphere")) {
+		try
+		{
+			char* nstr = console[6]->pseudo_console;
+			Validator::ValidateSphereArgs(nstr, x0, y0, z0, radius);
+			canvas.cringulik.scene.bodies.push_back(new Sphere(x0, y0, z0, radius, sphereColor));
+			//printf("%lf %lf %lf %lf", x0, y0, z0, radius);
+		}
+		catch (const std::exception& e)
+		{
+			console[6]->feedback = e.what();
+			console[6]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+	if (!console[6]->feedback.empty()) {
+		ImGui::TextColored(console[6]->feedback_color, console[6]->feedback.c_str());
+	}
+}
+
 void BLEV::Interface::ShowExternalWindows()
 {
 	if (bmo.b_edit_open) {
@@ -953,9 +990,16 @@ void BLEV::Interface::ShowExternalWindows()
 			ImGui::End();
 		}
 	}
+	if (bmo.b_scene_open) {
+		if (ImGui::Begin("Scene", &bmo.b_scene_open)) {
+			F_Scene();
+			ImGui::End();
+		}
+	}
 }
 
 void BLEV::Interface::PrepareCringetracer() {
+	_data.gbodies = &canvas.cringulik.scene.bodies;
 	canvas.cringulik.SetCamera(&canvas.main_camera);
 }
 
@@ -1103,6 +1147,9 @@ void BLEV::Interface::Menu::ShowMethodsMenu(B_method_open& bmo)
 		}
 		if (ImGui::MenuItem("Floating Horizon", NULL, bmo.b_floating_horizon_open)) {
 			bmo.b_floating_horizon_open = true;
+		}
+		if (ImGui::MenuItem("Scene", NULL, bmo.b_scene_open)) {
+			bmo.b_scene_open = true;
 		}
 		ImGui::EndMenu();
 	}
@@ -1476,6 +1523,59 @@ void BLEV::Interface::ObjectTable::ShowHorizonTable(FloatingHorizon* horizon, si
 	ImGui::PopID();
 }
 
+void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
+{
+	ImGui::PushID(gb);
+
+	ImGui::TableNextRow();
+	ImGui::TableSetColumnIndex(0);
+	ImGui::AlignTextToFramePadding();
+	bool node_open = ImGui::TreeNode("GBody", "gb%d", idx);
+	ImGui::TableSetColumnIndex(1);
+
+	char primName[32];
+	strcpy(primName, "GBody %d");
+	if (_data.chosen_gbodies.find(gb) != _data.chosen_gbodies.end()) {
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), primName, idx);
+	}
+	else {
+		ImGui::Text(primName, idx);
+	}
+
+	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+		if (_data.chosen_gbodies.find(gb) == _data.chosen_gbodies.end()) {
+			_data.chosen_gbodies.insert(gb);
+		}
+		else {
+			_data.chosen_gbodies.erase(gb);
+		}
+	}
+	ImGui::SameLine();
+
+	if (node_open)
+	{
+		ImGui::PushID(&(gb->color));
+	//	ImGui::TableNextRow();
+	//	ImGui::TableSetColumnIndex(0);
+
+	//	ImGui::Text("Color");
+	//	ImGui::TableSetColumnIndex(1);
+	//	auto upperColor = gb->color / 255.;
+	//	bool upperHasChanged = ImGui::ColorEdit4("", (float*)&upperColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+	//	auto upperResult = upperColor * 255;
+	//	if (upperHasChanged)
+	//	{
+	//		gb->color = upperResult;
+	//		//needRefresh = true;
+	//	}
+		ImGui::PopID();
+
+		ImGui::TreePop();
+	}
+
+	ImGui::PopID();
+}
+
 void BLEV::Interface::ObjectTable::Show()
 {
 	ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(2, 2));
@@ -1503,6 +1603,12 @@ void BLEV::Interface::ObjectTable::Show()
 		for (size_t i = 0; i < _data.horizons.size(); i++)
 		{
 			ShowHorizonTable(_data.horizons[i], i);
+			//ImGui::Separator();
+		}
+
+		for (size_t i = 0; i < _data.gbodies->size(); i++)
+		{
+			ShowGBodyTable(_data.gbodies->at(i), i);
 			//ImGui::Separator();
 		}
 		ImGui::EndTable();
@@ -1810,6 +1916,9 @@ void BLEV::Interface::Canvas::DrawObjects() {
 
 	if (_data.chosenView == ViewMode::Wireframe)
 	{
+		for (auto& bbody : cringulik.scene.bodies) {
+			bbody->Draw(draw_list, origin, vp);
+		}
 		for (auto mesh : _data.meshes) {
 			mesh->draw(draw_list, origin, vp, main_camera.direction());
 		}
@@ -1858,6 +1967,7 @@ void BLEV::Interface::Canvas::DrawObjects() {
 			needResize = false;
 		}
 		if (needRefresh) {
+			cringulik.Update();
 			cringulik.scene.Render(cringulik.img);
 			needRefresh = false;
 		}
@@ -2244,13 +2354,19 @@ void BLEV::Interface::Canvas::Body() {
 				needRefresh = true;
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_X)) {
+				//main_camera.resetPosition(ImVec3(400.f, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
 				main_camera.setEyeAndPYR(ImVec3(400.f, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
+				needRefresh = true;
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_Y)) {
+				//main_camera.resetPosition(ImVec3(0.f, 400.f, 0.f), ImVec3(89.f, 0.f, 0.f));
 				main_camera.setEyeAndPYR(ImVec3(0.f, 400.f, 0.f), ImVec3(89.f, 0.f, 0.f));
+				needRefresh = true;
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_Z)) {
+				//main_camera.resetPosition();
 				main_camera.setEyeAndPYR();
+				needRefresh = true;
 			}
 			if (!main_camera.dirtiness())
 			{

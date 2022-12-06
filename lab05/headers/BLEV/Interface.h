@@ -8,6 +8,8 @@
 #include "Validator.h"
 #include "cringetracer/Cringetracer.h"
 
+#include "cringetracer/GeometricBodies/Sphere.h"
+
 namespace BLEV {
 	class Interface {
 		BLEV::Data& _data;
@@ -46,7 +48,10 @@ namespace BLEV {
 			new ConsoleFields(),
 			new ConsoleFields(),
 			new ConsoleFields(),
-			new ConsoleFields()
+			new ConsoleFields(),
+
+			new ConsoleFields(),
+			new ConsoleFields(),
 		};
 
 		struct TextFilters{
@@ -77,7 +82,9 @@ namespace BLEV {
 		void F_Union();
 		void F_Lsystem();
 		void F_Classify();
+
 		void F_Camera();
+		void F_Scene();
 
 		void F_QuickHull();
 		void F_Present();
@@ -101,6 +108,7 @@ namespace BLEV {
 			bool b_rotation_body_open = false;
 			bool b_mesh_graph_open = false;
 			bool b_floating_horizon_open = false;
+			bool b_scene_open = false;
 
 			bool b_shells_open = false;
 		} bmo;
@@ -131,6 +139,8 @@ namespace BLEV {
 			void ShowLsysTable(Lsystem* lsys, size_t idx);
 			void ShowMeshTable(Mesh* mesh, size_t idx);
 			void ShowHorizonTable(FloatingHorizon* horizon, size_t idx);
+			void ShowGBodyTable(GeometricBody* gb, size_t idx);
+
 			void Show();
 
 			ObjectTable(BLEV::Data& data) : _data(data) {}

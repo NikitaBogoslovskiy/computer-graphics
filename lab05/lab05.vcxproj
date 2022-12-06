@@ -169,7 +169,9 @@
     <ClCompile Include="headers\stuff\NFD\nfd_common.c" />
     <ClCompile Include="headers\stuff\NFD\nfd_win.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\Cringetracer.cpp" />
+    <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\GeometricBody.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\Image.cpp" />
+    <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Sphere.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\Ray.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\Scene.cpp" />
     <ClCompile Include="src\BLEV\geometry\methods\funcs.cpp" />
@@ -187,8 +189,10 @@
     <ClInclude Include="headers\BLEV\Geometry.h" />
     <ClInclude Include="headers\BLEV\Interface.h" />
     <ClInclude Include="headers\BLEV\Validator.h" />
+    <ClInclude Include="headers\cringetracer\GeometricBodies\GeometricBody.h" />
     <ClInclude Include="headers\cringetracer\HeyraMath\HVec.h" />
     <ClInclude Include="headers\cringetracer\Image.h" />
+    <ClInclude Include="headers\cringetracer\GeometricBodies\Sphere.h" />
     <ClInclude Include="headers\cringetracer\Ray.h" />
     <ClInclude Include="headers\cringetracer\Scene.h" />
     <ClInclude Include="headers\geometry\methods\blev_math.h" />

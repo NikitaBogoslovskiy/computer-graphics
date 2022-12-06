@@ -1,11 +1,13 @@
 #pragma once
-#include <thread>
 
+#include <thread>
 #include "Image.h"
+#include "GeometricBodies/GeometricBody.h"
 
 class Scene
 {
 public:
+	std::vector<GeometricBody*> bodies;
 	Scene();
 	~Scene();
 	void Render(Image& outputImage);

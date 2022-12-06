@@ -7,6 +7,21 @@
 
 class CringeTracer
 {
+	double screen_distance;
+	double width;
+	double aspect;
+
+	//well lets see if double precision will help me somehow
+	HVec<double> eye;
+	HVec<double> target;
+	HVec<double> up;
+	HVec<double> primaryVec;
+
+	HVec<double> u;
+	HVec<double> v;
+	HVec<double> centre;
+	void DoubleCameraInfo();
+	void UpdateScreenVectors();
 
 public:
 	Camera* cam;
@@ -14,23 +29,30 @@ public:
 	Scene scene;
 
 	CringeTracer();
+	void Update();
 
 	void SetCamera(Camera* _cam);
 
-	//void SetScreenDistance(const double _distance);
-	//void SetWidth(const double _width);
-	//void SetAspect(const double _width);
+	void SetScreenDistance(const double _distance);
+	void SetWidth(const double _width);
+	void SetAspect(const double _aspect);
 
-	//HVec<double> GetU();
-	//HVec<double> GetV();
-	//HVec<double> GetScreenCentre();
+	const HVec<double>& GetEye();
+	const HVec<double>& GetTarget();
+	const HVec<double>& GetUp();
 
-	//double GetScreenDistance();
-	//double GetWidth();
-	//double GetAspect();
+	const HVec<double>& GetU();
+	const HVec<double>& GetV();
+	const HVec<double>& GetScreenCentre();
 
-	//// x and y are fractions of width and height of virtual screen. 
-	//// x- fraction of U vector, y - fraction of V vector.
-	//// extremes - [-1, 1]; 0,0 - center of the screen
-	//Ray GenerateRay(const float x, const float y); // tip of the vector we cast from the pinhole through virtual screen
+	double GetScreenDistance();
+	double GetWidth();
+	double GetAspect();
+
+
+
+	// x and y are fractions of width and height of virtual screen. 
+	// x- fraction of U vector, y - fraction of V vector.
+	// extremes - [-1, 1]; 0,0 - center of the screen
+	Ray GenerateRay(const float x, const float y); // tip of the vector we cast from the pinhole through virtual screen
 };

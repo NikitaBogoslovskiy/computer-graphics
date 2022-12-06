@@ -3,6 +3,7 @@
 
 #include "Enums.h"
 #include "Geometry.h"
+#include "cringetracer/GeometricBodies/GeometricBody.h"
 
 namespace BLEV {
 	struct Data {
@@ -22,6 +23,9 @@ namespace BLEV {
 
 		std::vector<FloatingHorizon*> horizons;
 		std::set<FloatingHorizon*> chosen_horizons;
+
+		std::vector<GeometricBody*>* gbodies;
+		std::set<GeometricBody*> chosen_gbodies;
 
 		Mode chosenMode;
 		AddingLine adding_line;

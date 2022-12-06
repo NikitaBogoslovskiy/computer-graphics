@@ -114,6 +114,12 @@
     <ClCompile Include="src\BLEV\cringetracer\Ray.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Sphere.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\GeometricBody.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\dependencies\imgui\imgui\imconfig.h">
@@ -258,6 +264,12 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\cringetracer\Ray.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\cringetracer\GeometricBodies\Sphere.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\cringetracer\GeometricBodies\GeometricBody.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
