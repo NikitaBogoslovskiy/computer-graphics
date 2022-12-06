@@ -2257,11 +2257,6 @@ void BLEV::Interface::Canvas::Body() {
 			if ((Camera::CamMode)main_camera.mode() == Camera::Perspective) {
 				ProcessCamMouseInput(main_camera, deltaMouse);
 				ProcessCamKeyboardInput(main_camera, deltaTime);
-				if (main_camera.pitchYawRollChanged()) {
-					main_camera.updateEyeRotation();
-					needRefresh = true;
-				}
-				main_camera.updateLook();
 			}
 		}
 

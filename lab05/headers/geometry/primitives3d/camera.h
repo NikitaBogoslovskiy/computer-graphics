@@ -10,9 +10,7 @@ class Camera
 	/* to make it possible to wander through scene */
 	Eigen::Matrix4f _view;
 	ImVec3 _eye;
-	ImVec3 _prev_eye;
 	ImVec3 _pyr;
-	ImVec3 _prev_pyr;
 	ImVec3 _target;
 
 	ImVec3 _direction;
@@ -46,7 +44,9 @@ class Camera
 		this->_angleX = 145.f;
 		this->_angleY = 135.f;
 	}
-
+	inline void updateLook() {
+		this->_view = Linal::lookAt(this->_eye, this->_target, this->_up);
+	}
 public:
 	enum CamMode {
 		Perspective,
@@ -86,9 +86,7 @@ public:
 		if (this->_pyr.y <= -360.f) {
 			this->_pyr.y = this->_pyr.y + 360.f;
 		}
-	}
-	inline bool pitchYawRollChanged() {
-		return this->_pyr != this->_prev_pyr;
+		updateEyeRotation();
 	}
 
 	inline const ImVec3& eye() { return this->_eye; }
@@ -97,9 +95,8 @@ public:
 			return;
 		}
 		this->_eye = newEye;
-	}
-	inline bool eyeChanged() {
-		return this->_eye != this->_prev_eye;
+
+		updateLook();
 	}
 
 	void updateEyeRotation() {
@@ -116,9 +113,9 @@ public:
 		this->_eye.y = r * sinPitch;
 		this->_eye.z = r * cosPitch * sinYaw;
 
-		this->_prev_pyr = this->_pyr;
+		updateLook();
 	}
-	
+
 	inline const ImVec3 direction() { return this->_target - this->_eye; /*return this->_direction;*/ }
 	inline const ImVec3& up() { return this->_up; }
 	inline const ImVec2& viewport() { return this->_viewport; }
@@ -174,7 +171,6 @@ public:
 
 	inline void resetPosition(const ImVec3& eye = ImVec3(0.f, 0.f, 400.f), const ImVec3& pitchYawRoll = ImVec3(0.f, 90.f, 0.f), const ImVec3& target = ImVec3(0.f, 0.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
 		setEyeAndPYR(eye, pitchYawRoll);
-		this->_prev_pyr = pitchYawRoll;
 		this->_target = target;
 		this->_up = up;
 		updateEyeRotation();
@@ -183,14 +179,6 @@ public:
 	void setEyeAndPYR(const ImVec3& eye = ImVec3(0.f, 0.f, 400.f), const ImVec3& pitchYawRoll = ImVec3(0.f, 90.f, 0.f)) {
 		this->_eye = eye;
 		this->_pyr = pitchYawRoll;
-	}
-
-	inline void updateLook() {
-		lookAt(this->_target);
-	}
-
-	inline void lookAt(const ImVec3& target) {
-		this->_view = Linal::lookAt(this->_eye, target, this->_up);
 	}
 
 	inline void altPerspectiveScale(const float& d = 1.f) {
