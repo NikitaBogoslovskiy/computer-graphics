@@ -9,5 +9,6 @@
 #include "mesh_graph.h"
 #include "torch.h"
 #include "floating_horizon.h"
+#include "sphere.h"
 
 #endif // !__PRIMITIVES_3D_H__

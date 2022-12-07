@@ -6,13 +6,12 @@
 #include "geometry/methods/funcs.h"
 #include <deque>
 
-class Mesh : public VisualParams
+class Mesh : public VisualParams, public MaterialParams
 {
 protected:
 	std::vector<ImVec3> points;
 	std::vector<Polygon> polygons;
 	std::vector<ImVec2> vt; // vertex texture
-	ImVec4 face_color;
 	ImVec4 edge_color;
 	bool use_normals = true;
 	CringeImage image;
@@ -36,12 +35,6 @@ public:
 	}
 	inline Polygon& getPolygon(size_t idx) {
 		return polygons[idx];
-	}
-	inline ImVec4& getFaceColor() {
-		return face_color;
-	}
-	inline void setFaceColor(ImVec4& _color) {
-		face_color = _color;
 	}
 	inline ImVec4& getEdgeColor() {
 		return edge_color;
@@ -76,6 +69,7 @@ public:
 	void reflectZ();
 	void scale(float dx, float dy, float dz);
 	void updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool needTranslsate = true);
+	void reverse();
 
 private:
 	void _draw(ImDrawList* draw_list, const ImVec2& offset, const Eigen::Matrix4f& vp, const ImVec3& cam_dir, size_t start, size_t end);
@@ -84,12 +78,18 @@ public:
 	void save(const char* filename);
 	void open(const char* filename);
 protected:
-	inline void calculate_normal(Polygon& p) {
-		p.normal = normilize(cross_product(points[p.indices[2]] - points[p.indices[1]], points[p.indices[0]] - points[p.indices[1]]));
-	}
+	void calculate_normal(Polygon& p);
 	virtual void recalculate_normals();
 public:
-	static void save(const char* filename, std::set<Mesh*> meshes);
+	static void save_s(const char* filename, const std::set<Mesh*>& meshes);
+	static void open_s(const char* filename, std::vector<Mesh*>& meshes);
+
+private:
+	//Барицентрический тест
+	bool BarTest(const Polygon& p, const ImVec3& sp, const ImVec3& direction, float&t) const;
+public:
+	std::pair<float, ImVec3> is_intersected_with_ray(const ImVec3& sp, const ImVec3& direction, bool use_normals = true) const;
+	bool is_intersected_with_light(const ImVec3& sp, const ImVec3& direction, bool use_normals = true, float max_t = FLT_MAX) const;
 };
 
 static Mesh open(const char* filename) {

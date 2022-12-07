@@ -303,7 +303,8 @@ void BLEV::Interface::F_Edit()
 	F_Scale();
 	ImGui::Separator();
 	F_Reflect();
-	//ImGui::Separator();
+	ImGui::Separator();
+	F_Reverse();
 }
 
 void BLEV::Interface::F_Displace() {
@@ -896,6 +897,18 @@ void BLEV::Interface::F_FloatingHorizon() {
 	}
 }
 
+void BLEV::Interface::F_Reverse() {
+	ImGui::BeginGroup();
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	if (ImGui::Button("Reverse")) {
+		for (auto& m : _data.chosen_meshes) {
+			m->reverse();
+		}
+	}
+	ImGui::EndGroup();
+	HelpPrevItem("Reverse faces");
+}
+
 void BLEV::Interface::ShowExternalWindows()
 {
 	if (bmo.b_edit_open) {
@@ -980,17 +993,12 @@ void BLEV::Interface::Menu::ShowFileManagerMenu()
 	if (ImGui::BeginMenu("File")) {
 		if (ImGui::BeginMenu("Open")) {
 
-			if (ImGui::MenuItem("Scene...", NULL, (bool*)0, false)) {
-			}
-
-			if (ImGui::MenuItem("Mesh...")) {
+			if (ImGui::MenuItem("Scene...")) {
 				nfdchar_t* outPath = NULL;
 				nfdresult_t result = NFD_OpenDialog("obj", NULL, &outPath);
 
 				if (result == NFD_OKAY) {
-					Mesh* m = new Mesh();
-					m->open(outPath);
-					_data.meshes.push_back(m);
+					Mesh::open_s(outPath, _data.meshes);
 
 					free(outPath);
 				}
@@ -1001,6 +1009,28 @@ void BLEV::Interface::Menu::ShowFileManagerMenu()
 					printf("Error: %s\n", NFD_GetError());
 				}
 			}
+
+			if (ImGui::MenuItem("Mesh...")) {
+				nfdchar_t* outPath = NULL;
+				nfdresult_t result = NFD_OpenDialog("obj", NULL, &outPath);
+
+				if (result == NFD_OKAY) {
+
+					Mesh* m = new Mesh();
+					m->open(outPath);
+					_data.meshes.push_back(m);
+					
+
+					free(outPath);
+				}
+				else if (result == NFD_CANCEL) {
+					puts("User pressed cancel.");
+				}
+				else {
+					printf("Error: %s\n", NFD_GetError());
+				}
+			}
+
 			ImGui::EndMenu();
 		}
 		if (ImGui::BeginMenu("Save")) {
@@ -1012,7 +1042,7 @@ void BLEV::Interface::Menu::ShowFileManagerMenu()
 				if (result == NFD_OKAY) {
 					for (auto m : _data.chosen_meshes) {
 						//m->save(outPath);
-						Mesh::save(outPath, _data.chosen_meshes);
+						Mesh::save_s(outPath, _data.chosen_meshes);
 					}
 					free(outPath);
 				}
@@ -1100,6 +1130,9 @@ void BLEV::Interface::Menu::ShowMethodsMenu(B_method_open& bmo)
 		if (ImGui::MenuItem("Floating Horizon", NULL, bmo.b_floating_horizon_open)) {
 			bmo.b_floating_horizon_open = true;
 		}
+		if (ImGui::MenuItem("Reverse", NULL, bmo.b_floating_horizon_open)) {
+			bmo.b_reverse_open = true;
+		}
 		ImGui::EndMenu();
 	}
 }
@@ -1132,6 +1165,9 @@ void BLEV::Interface::Menu::ShowAddingMenu()
 		if (ImGui::MenuItem("Torch", "", false, _data.torch == nullptr)) {
 			_data.torch = new Torch();
 			_data.meshes.push_back(_data.torch);
+		}
+		if (ImGui::MenuItem("Sphere")) {
+			_data.spheres.push_back(new Sphere());
 		}
 		ImGui::EndMenu();
 	}
@@ -1356,7 +1392,7 @@ void BLEV::Interface::ObjectTable::ShowMeshTable(Mesh* mesh, size_t idx)
 			ImGui::TableSetColumnIndex(1);
 			if (ImGui::DragFloat("##", &(mesh->getAlbedo()), 0.005f, 0.f, 1.f, "%.3f"))
 				needRefresh = true;
-
+			/*
 			for (size_t i = 0; i < mesh->points_size(); i++) {
 				ImGui::PushID(&(mesh->getPoint(i)));
 
@@ -1374,6 +1410,7 @@ void BLEV::Interface::ObjectTable::ShowMeshTable(Mesh* mesh, size_t idx)
 				float z = mesh->getPoint(i).z;
 				ImGui::PopID();
 			}
+			*/
 		}
 		else
 		{
@@ -1397,13 +1434,57 @@ void BLEV::Interface::ObjectTable::ShowMeshTable(Mesh* mesh, size_t idx)
 				//t->setIntensity(intensity);
 				needRefresh = true;
 			}
+
+
 		}
+
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("ambient");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat3("##ka3", &mesh->ambient.x, 0.05f, 0.f, 1.f, "%.2f");
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("diffuse");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat3("##kd3", &mesh->diffuse.x, 0.05f, 0.f, 1.f, "%.2f");
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("specular");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat3("##ks3", &mesh->specular.x, 0.05f, 0.f, 1.f, "%.2f");
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("shiness");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::DragFloat("##sh", &mesh->shine, 0.5f, 0.f, 100.f, "%.1f");
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("reflection");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat3("##refl3", &mesh->reflection.x, 0.05f, 0.f, 1.f, "%.2f");
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("refraction");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat3("##refr3", &mesh->refraction.x, 0.05f, 0.f, 1.f, "%.2f");
+
 		ImGui::TreePop();
 	}
 
 	ImGui::PopID();
 }
-
 void BLEV::Interface::ObjectTable::ShowHorizonTable(FloatingHorizon* horizon, size_t idx)
 {
 	ImGui::PushID(horizon);
@@ -1471,6 +1552,109 @@ void BLEV::Interface::ObjectTable::ShowHorizonTable(FloatingHorizon* horizon, si
 
 	ImGui::PopID();
 }
+void BLEV::Interface::ObjectTable::ShowSphereTable(Sphere* sphere, size_t idx)
+{
+	ImGui::PushID(sphere);
+
+	ImGui::TableNextRow();
+	ImGui::TableSetColumnIndex(0);
+	ImGui::AlignTextToFramePadding();
+	bool node_open = ImGui::TreeNode("Sphere", "sphere %d", idx);
+
+	ImGui::TableSetColumnIndex(1);
+	if (_data.chosen_spheres.find(sphere) != _data.chosen_spheres.end()) {
+		ImGui::TextColored(ImVec4(255, 0, 0, 255), "sphere");
+	}
+	else {
+		ImGui::Text("sphere");
+	}
+
+	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+		if (_data.chosen_spheres.find(sphere) == _data.chosen_spheres.end()) {
+			_data.chosen_spheres.insert(sphere);
+		}
+		else {
+			_data.chosen_spheres.erase(sphere);
+		}
+	}
+	ImGui::SameLine();
+
+	if (node_open)
+	{
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		
+		ImGui::Text("Color");
+		ImGui::TableSetColumnIndex(1);
+		auto normColor = sphere->getFaceColor() / 255.;
+		bool hasChanged = ImGui::ColorEdit4("", (float*)&normColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+		auto&& result = normColor * 255;
+		if (hasChanged)
+		{
+			sphere->setFaceColor(result);
+			needRefresh = true;
+		}
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("position");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat3("##pos", &sphere->pos.x, 5.f, -1000.f, 1000.f, "%.0f");
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("radius");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat("##rad", &sphere->radius, 0.5f, 1.f, 100.f, "%.1f");
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("ambient");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat3("##ka3", &sphere->ambient.x, 0.05f, 0.f, 1.f, "%.2f");
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("diffuse");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat3("##kd3", &sphere->diffuse.x, 0.05f, 0.f, 1.f, "%.2f");
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("specular");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat3("##ks3", &sphere->specular.x, 0.05f, 0.f, 1.f, "%.2f");
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("shiness");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::DragFloat("##sh", &sphere->shine, 0.5f, 0.f, 100.f, "%.1f");
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("reflection");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat3("##refl3", &sphere->reflection.x, 0.05f, 0.f, 1.f, "%.2f");
+
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("refraction");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat3("##refr3", &sphere->refraction.x, 0.05f, 0.f, 1.f, "%.2f");
+
+		ImGui::TreePop();
+	}
+
+	ImGui::PopID();
+}
 
 void BLEV::Interface::ObjectTable::Show()
 {
@@ -1499,6 +1683,12 @@ void BLEV::Interface::ObjectTable::Show()
 		for (size_t i = 0; i < _data.horizons.size(); i++)
 		{
 			ShowHorizonTable(_data.horizons[i], i);
+			//ImGui::Separator();
+		}
+
+		for (size_t i = 0; i < _data.spheres.size(); i++)
+		{
+			ShowSphereTable(_data.spheres[i], i);
 			//ImGui::Separator();
 		}
 		ImGui::EndTable();
@@ -1840,6 +2030,21 @@ void BLEV::Interface::Canvas::DrawObjects() {
 		}
 		lbuf.draw(draw_list, p[0]);
 	}
+	else if (_data.chosenView == ViewMode::RayTracing) {
+		if (needShift) {
+			rt.setOffset(scrolling);
+			needShift = false;
+		}
+		if (needResize) {
+			rt.resize(size.x, size.y);
+			needResize = false;
+		}
+		if (needRefresh) {
+			rt.render({ _data.meshes, _data.spheres }, main_camera);
+			needRefresh = false;
+		}
+		rt.draw(draw_list, p[0]);
+	}
 
 	if (_data.rotate_axis != nullptr)
 		_data.rotate_axis->draw(draw_list, origin, vp);
@@ -2062,9 +2267,15 @@ void BLEV::Interface::Canvas::ShowContextMenu()
 					it = _data.chosen_meshes.erase(it);
 					_data.meshes.erase(std::find(_data.meshes.begin(), _data.meshes.end(), m));
 				}
+				for (auto it = _data.chosen_spheres.begin(); it != _data.chosen_spheres.end();)
+				{
+					Sphere* sph = *it;
+					it = _data.chosen_spheres.erase(it);
+					_data.spheres.erase(std::find(_data.spheres.begin(), _data.spheres.end(), sph));
+				}
 				needRefresh = true;
 			}
-			if (ImGui::MenuItem("Remove all", NULL, false, _data.primitives.size() + _data.fractals.size() + _data.meshes.size() + _data.horizons.size() > 0)) {
+			if (ImGui::MenuItem("Remove all", NULL, false, _data.primitives.size() + _data.fractals.size() + _data.meshes.size() + _data.horizons.size() + _data.spheres.size() > 0)) {
 				_data.chosen_prims.clear();
 				_data.chosen_prim_points.clear();
 				_data.chosen_prim_edges.clear();
@@ -2079,6 +2290,8 @@ void BLEV::Interface::Canvas::ShowContextMenu()
 				_data.meshes.clear();
 				_data.horizons.clear();
 				_data.chosen_horizons.clear();
+				_data.spheres.clear();
+				_data.chosen_spheres.clear();
 
 				_data.torch = nullptr;
 				delete _data.rotate_axis;

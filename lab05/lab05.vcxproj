@@ -170,10 +170,12 @@
     <ClCompile Include="headers\stuff\NFD\nfd_win.cpp" />
     <ClCompile Include="src\BLEV\geometry\methods\funcs.cpp" />
     <ClCompile Include="src\BLEV\geometry\methods\light_buffer.cpp" />
+    <ClCompile Include="src\BLEV\geometry\methods\raytracing.cpp" />
     <ClCompile Include="src\BLEV\geometry\methods\zbuffer.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\floating_horizon.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\mesh_graph.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\rotation_body.cpp" />
+    <ClCompile Include="src\BLEV\geometry\primitives3d\sphere.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\structers.cpp" />
     <ClCompile Include="src\BLEV\geometry\primitives3d\mesh.cpp" />
     <ClInclude Include="headers\BLEV\Application.h" />
@@ -184,6 +186,7 @@
     <ClInclude Include="headers\BLEV\Interface.h" />
     <ClInclude Include="headers\BLEV\Validator.h" />
     <ClInclude Include="headers\geometry\methods\blev_math.h" />
+    <ClInclude Include="headers\geometry\methods\raytracing.h" />
     <ClInclude Include="headers\geometry\primitives3d\floating_horizon.h" />
     <ClInclude Include="headers\geometry\methods\light_buffer.h" />
     <ClInclude Include="headers\geometry\methods\methods.h" />
@@ -201,6 +204,7 @@
     <ClCompile Include="src\BLEV\geometry\primitives2d\primitive.cpp" />
     <ClInclude Include="headers\geometry\primitives3d\mesh_graph.h" />
     <ClInclude Include="headers\geometry\primitives3d\rotation_body.h" />
+    <ClInclude Include="headers\geometry\primitives3d\sphere.h" />
     <ClInclude Include="headers\geometry\primitives3d\torch.h" />
     <ClInclude Include="headers\stuff\NFD\common.h" />
     <ClInclude Include="headers\stuff\NFD\nfd.h" />

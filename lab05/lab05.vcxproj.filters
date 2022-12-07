@@ -102,6 +102,12 @@
     <ClCompile Include="src\BLEV\geometry\primitives3d\floating_horizon.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\BLEV\geometry\methods\raytracing.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BLEV\geometry\primitives3d\sphere.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\dependencies\imgui\imgui\imconfig.h">
@@ -231,6 +237,12 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\geometry\primitives3d\floating_horizon.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\methods\raytracing.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\geometry\primitives3d\sphere.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

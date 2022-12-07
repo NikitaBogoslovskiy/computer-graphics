@@ -77,6 +77,7 @@ namespace BLEV {
 		void F_Lsystem();
 		void F_Classify();
 		void F_Camera();
+		void F_Reverse();
 
 		void F_QuickHull();
 		void F_Present();
@@ -100,6 +101,7 @@ namespace BLEV {
 			bool b_rotation_body_open = false;
 			bool b_mesh_graph_open = false;
 			bool b_floating_horizon_open = false;
+			bool b_reverse_open = false;
 
 			bool b_shells_open = false;
 		} bmo;
@@ -130,6 +132,7 @@ namespace BLEV {
 			void ShowLsysTable(Lsystem* lsys, size_t idx);
 			void ShowMeshTable(Mesh* mesh, size_t idx);
 			void ShowHorizonTable(FloatingHorizon* horizon, size_t idx);
+			void ShowSphereTable(Sphere* sphere, size_t idx);
 			void Show();
 
 			ObjectTable(BLEV::Data& data) : _data(data) {}
@@ -151,6 +154,7 @@ namespace BLEV {
 			size_t oldSize = 0;
 			ZBuffer zbuf;
 			LightBuffer lbuf;
+			Raytracing rt;
 
 			ImDrawList* draw_list;
 

@@ -111,11 +111,8 @@ void Mesh::open(const char* filename)
 		return;
 	}
 
-	const std::regex fr1("^\\d+(/\\d+)?$");
-	const std::regex fr2("^\\d+/(\\d+)?/\\d+$");
-	char slash;
-
 	std::string line;
+	char slash;
 	while (std::getline(infile, line))
 	{
 		std::istringstream iss(line);
@@ -141,36 +138,15 @@ void Mesh::open(const char* filename)
 		}
 		else if (type == "f") {
 			Polygon p;
-			uint32_t temp;
+			uint32_t vi, vti;
 			std::string buf;
 			while (iss >> buf) {
-				// всего 4 варината 
-				// f v1 v2 v3 ....
-				// f v1/vt1 v2/vt2 v3/vt3 ...
-				// f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...
-				// f v1//vn1 v2//vn2 v3//vn3 ...
-				// fr1 покрывает первые два, fr2 - оставшиеся два
+				std::stringstream iss2(buf);
 
-				if (std::regex_match(buf, fr1)) {
-					std::stringstream ss(buf);
-					ss >> temp;	p.push_back(temp - 1);
-					if (!ss.eof()) {
-						ss >> slash >> temp;
-						p.push_back_uv(temp - 1);
-					}
-				}
-				else if(std::regex_match(buf, fr2)) {
-					std::stringstream ss(buf);
-					ss >> temp;	p.push_back(temp - 1);
-					ss >> slash >> temp;
-					if (temp == 0) continue;// v//vn
-					ss >> slash >> temp;			
-					p.push_back_uv(temp - 1);
-				}
-				else {
-					printf("File can't be read by our simple parser\n");
-					return;
-				}
+				// f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...
+				iss2 >> vi >> slash >> vti; // dont look for normals
+				p.push_back(vi - 1);
+				if(vti)	p.push_back_uv(vti - 1);
 			}
 			if (p.size() < 3) {
 				printf("File can't be read by our simple parser\n");
@@ -184,6 +160,13 @@ void Mesh::open(const char* filename)
 	this->points = std::move(m.points);
 	this->polygons = std::move(m.polygons);
 }
+
+void Mesh::calculate_normal(Polygon& p)
+{
+	p.normal = normilize(cross_product(points[p.indices[2]] - points[p.indices[1]], points[p.indices[0]] - points[p.indices[1]]));
+	p.d = -(p.normal * points[p.indices[0]]);
+}
+
 
 void Mesh::recalculate_normals()
 {
@@ -343,20 +326,17 @@ void Mesh::updatePoints(Eigen::Matrix<float, 4, 4>& mat, bool needTranslsate)
 	recalculate_normals();
 }
 
-void Mesh::updateInitPoints()
+void Mesh::reverse()
 {
-	auto c = center();
-	for (size_t i = 0; i < init_points.size(); i++) {
-		init_points[i].x -= c.x;
-		init_points[i].y -= c.y;
-		init_points[i].z -= c.z;
+	for (auto& p : polygons) {
+		std::reverse(p.indices.begin(), p.indices.end());
+		std::reverse(p.uv_ind.begin(), p.uv_ind.end());
 	}
-	translate_mat(0, 3) = c.x;
-	translate_mat(1, 3) = c.y;
-	translate_mat(2, 3) = c.z;
+	recalculate_normals();
 }
 
-void Mesh::save(const char* filename, std::set<Mesh*> meshes) {
+
+void Mesh::save_s(const char* filename, const std::set<Mesh*>& meshes) {
 	std::ofstream out(filename);
 	if (!out.is_open())
 	{
@@ -373,6 +353,8 @@ void Mesh::save(const char* filename, std::set<Mesh*> meshes) {
 		}
 		out << '\n';
 
+		out << "usemtl " << m << "\n";
+
 		for (auto& p : m->polygons) {
 			out << 'f';
 			for (auto i : p.indices) {
@@ -388,3 +370,148 @@ void Mesh::save(const char* filename, std::set<Mesh*> meshes) {
 	
 	out.close();
 }
+
+void Mesh::open_s(const char* filename, std::vector<Mesh*>& meshes)
+{
+	std::ifstream infile(filename);
+	if (!infile.is_open()) {
+		printf("path is wrong\n");
+		return;
+	}
+
+	std::vector<ImVec3> points;
+	std::vector<ImVec2> vt;
+
+	Mesh* m = NULL;
+	std::string line;
+	char slash;
+	while (std::getline(infile, line))
+	{
+		std::istringstream iss(line);
+
+		std::string type;
+		if (iss >> type, infile.eof()) {
+			break;
+		}
+
+		if (type == "v") {
+			ImVec3 vertex;
+			iss >> vertex.x >> vertex.y >> vertex.z;
+			points.push_back(std::move(vertex));
+		}
+		else if (type == "vt") {
+			ImVec2 vertex;
+			iss >> vertex.x >> vertex.y;
+			if (vertex.x < 0) vertex.x += 1;
+			if (vertex.y < 0) vertex.y += 1;
+			if (vertex.x > 1) vertex.x -= 1;
+			if (vertex.y > 1) vertex.y -= 1;
+			vt.push_back(std::move(vertex));
+		}
+		else if (type == "f") {
+			if (!m) {
+				m = new Mesh();
+				m->points = points;
+				m->vt = vt;
+			}
+			Polygon p;
+			uint32_t vi, vti;
+			std::string buf;
+			while (iss >> buf) {
+				std::stringstream iss2(buf);
+
+				// f v1/vt1/vn1 v2/vt2/vn2 v3/vt3/vn3 ...
+				iss2 >> vi >> slash >> vti; // dont look for normals
+				p.push_back(vi - 1);
+				if (vti) p.push_back_uv(vti - 1);
+			}
+			if (p.size() < 3) {
+				printf("File can't be read by our simple parser\n");
+				return;
+			}
+			m->add_polygon(std::move(p));
+		}
+		else if (type == "usemtl") {
+			if (m) {
+				m->recalculate_normals();
+				m->face_color = { (float)(rand() % 255), (float)(rand() % 255), (float)(rand() % 255), 255.f };
+				meshes.push_back(m);
+			}
+			m = new Mesh();
+			m->points = points;
+			m->vt = vt;
+		}
+	}
+	infile.close();
+
+	if (m) {
+		m->recalculate_normals();
+		m->face_color = { (float)(rand() % 255), (float)(rand() % 255), (float)(rand() % 255), 255.f };
+		meshes.push_back(m);
+	}
+}
+
+std::pair<float, ImVec3> Mesh::is_intersected_with_ray(const ImVec3& sp, const ImVec3& direction, bool use_normals) const
+{
+	std::pair<float, ImVec3> ret = { FLT_MAX, 0 };
+	float t;
+	for (const Polygon& p : polygons)
+	{
+		if (use_normals && dot_product(direction, p.normal) >= 0) continue;
+		if (BarTest(p, sp, direction, t)) {
+			if (t < ret.first) {
+				ret.first = t;
+				ret.second = p.normal;
+			}
+		}
+	}
+	return ret;
+}
+
+bool Mesh::is_intersected_with_light(const ImVec3& sp, const ImVec3& direction, bool use_normals, float max_t) const
+{
+	float t;
+	for (const Polygon& p : polygons)
+	{
+		if (use_normals && dot_product(direction, p.normal) >= 0) continue;
+		if (BarTest(p, sp, direction, t)) {
+			if (t < max_t) {
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool Mesh::BarTest(const Polygon& p, const ImVec3& sp, const ImVec3& direction, float &ret) const
+{
+	auto v0 = points[p.indices[0]];
+	for (size_t i = 2; i < p.size(); i++)
+	{
+		const float EPSILON = 0.0000001;
+		auto E1 = points[p.indices[i-1]] - v0;
+		auto E2 = points[p.indices[i]] - v0;
+		auto P = cross_product(direction, E2);
+		auto temp = (P * E1);
+		if (temp > -EPSILON && temp < EPSILON) continue;
+	
+		auto T = sp - v0;
+		auto u = dot_product(P,T) / temp;
+		if (u < 0.f || u > 1.f) continue;
+
+		auto Q = cross_product(T, E1);
+		auto v = dot_product(Q, direction) / temp;
+		if (v < 0.f || u + v > 1.f) continue;
+
+		auto t = dot_product(Q, E2) / temp;
+		if (t > EPSILON)
+		{
+			ret = t;
+			return true;
+		}
+		else continue;
+	}
+	return false;
+}
+
+

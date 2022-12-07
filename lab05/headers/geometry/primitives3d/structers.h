@@ -29,6 +29,11 @@ struct Polygon
     std::vector<uint32_t> indices;
     std::vector<uint32_t> uv_ind;
     ImVec3 normal;
+    /*
+        from a canonical equation
+        n1 * x1 + n2 * x2 + n3 * x3 + d = 0;
+    */
+    float d; 
     Polygon(const std::initializer_list<uint32_t>& _indices, const std::initializer_list<uint32_t>& _uv_ind = {}) : indices(_indices), uv_ind(_uv_ind) { assert(_indices.size() >= 3); }
     Polygon(std::initializer_list<uint32_t>&& _indices, std::initializer_list<uint32_t>&& _uv_ind = {}) : indices(std::move(_indices)), uv_ind(std::move(_uv_ind)) { assert(indices.size() >= 3); }
     Polygon(const Polygon& _polygon) noexcept : indices(_polygon.indices), uv_ind(_polygon.uv_ind), normal(_polygon.normal) {}
@@ -79,6 +84,28 @@ struct VisualParams {
     VisualParams(const VisualParams& vp) : color(vp.color), thickness(vp.thickness), show(vp.show) {};
     VisualParams(VisualParams&& vp) noexcept : color(std::move(vp.color)), thickness(std::move(vp.thickness)), show(std::move(vp.show)) {};
     virtual void draw(ImDrawList* draw_list, const ImVec2& offset, Eigen::Matrix4f vp) {}
+};
+
+struct MaterialParams {
+    ImVec3 ambient = {0.5f, 0.5f, 0.5f}; // свойство материала воспринимать фоновое освещение - Ka
+    ImVec3 diffuse = { 0.5f, 0.5f, 0.5f }; // свойство материала воспринимать рассеянное освещение - Kd
+    ImVec3 specular = { 0.5f, 0.5f, 0.5f }; // коэффициент зеркального отражения - Ks
+    float shine = 10.f; // коэффициент блеска - Ns 0-1000
+    ImVec3 reflection = { 0.0f, 0.0f, 0.0f }; //
+    ImVec3 refraction = { 0.0f, 0.0f , 0.0f }; //
+    float eta = 1.5f; // Eta - material refraction - Ni
+
+    ImVec4 face_color;
+
+    inline ImVec4& getFaceColor() {
+        return face_color;
+    }
+    inline const ImVec4& getFaceColor() const {
+        return face_color;
+    }
+    inline void setFaceColor(ImVec4& _color) {
+        face_color = _color;
+    }
 };
 
 #include "geometry/methods/funcs.h"
