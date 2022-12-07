@@ -903,7 +903,7 @@ void BLEV::Interface::F_Scene() {
 	ImGui::InputText("##ConsoleRanges", console[6]->pseudo_console, 100);
 	HelpPrevItem("x0 y0 z0 radius");
 
-	static ImVec3 sphereColor{ 0.5f, 0.5f, 0.5f };
+	static ImVec3 sphereColor{ 0.4f, 0.6f, 0.8f };
 	bool colorHasChanged = ImGui::ColorEdit3("", (float*)&sphereColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
 	//auto lowerResult = sphereColor * 255;
 	//if (colorHasChanged)

@@ -20,9 +20,9 @@ void CringeTracer::Update() {
 }
 
 void CringeTracer::DoubleCameraInfo() {
-	eye = HVec<double>(this->cam->eye());
-	target = HVec<double>(this->cam->target());
-	up = HVec<double>(this->cam->up());
+	this->eye = HVec<double>(this->cam->eye());
+	this->target = HVec<double>(this->cam->target());
+	this->up = HVec<double>(this->cam->up());
 }
 
 void CringeTracer::UpdateScreenVectors() {
@@ -34,15 +34,15 @@ void CringeTracer::UpdateScreenVectors() {
 	centre = eye + screen_distance * primaryVec;
 
 	u *= width;
-	v *= (width / aspect);
+	v *= (width / this->GetAspect());
 }
 
 // x and y are fractions of width and height of virtual screen. 
 // x- fraction of U vector, y - fraction of V vector.
 // extremes - [-1, 1]; 0,0 - center of the screen
 bool CringeTracer::GenerateRay(const float x, const float y, Ray& outRay) {
-	HVec<double> newX = centre + u * x;
-	HVec<double> worldPoint = newX + v * y;
+	// HVec<double> newX = centre + u * x;
+	HVec<double> worldPoint = centre + u * x + v * y;
 
 	outRay.p1 = eye;
 	outRay.p2 = worldPoint;
@@ -72,13 +72,17 @@ void CringeTracer::SubRender(const size_t start, const size_t end, const size_t 
 				bool intersected = body->TestIntersection(img.rays[x][y], intersection, localNormal, localColor);
 				if (intersected)
 				{
-					printf("intersection: %lf %lf %lf\n", intersection.At(0), intersection.At(1), intersection.At(2));
+					//printf("intersection: %lf %lf %lf\n", intersection.At(0), intersection.At(1), intersection.At(2));
 					// Compute the distance between the camera and the point of intersection.
 					double dist = (intersection - img.rays[x][y].p1).len();
 					maxDist = std::max(maxDist, dist);
 					minDist = std::min(minDist, dist);
 
-					img.SetPixel(x, y, body->dcol.At(0), body->dcol.At(1), body->dcol.At(2));
+					//img.SetPixel(x, y, body->dcol.At(0), body->dcol.At(1), body->dcol.At(2));
+					//img.SetPixel(x, y, 255.0 - ((dist - 9.0) / 0.94605) * 255.0, 0.0, 0.0);
+					img.SetPixel(x, y, body->dcol.At(0) - ((dist - 9.0) / 0.94605) * body->dcol.At(0), 
+						body->dcol.At(1) - ((dist - 9.0) / 0.94605) * body->dcol.At(1),
+						body->dcol.At(2) - ((dist - 9.0) / 0.94605) * body->dcol.At(2));
 				}
 				else
 				{
@@ -148,7 +152,7 @@ double CringeTracer::GetWidth()
 }
 double CringeTracer::GetAspect()
 {
-	return aspect;
+	return static_cast<double>(img.XSize()) / static_cast<double>(img.YSize());
 }
 const HVec<double>& CringeTracer::GetU()
 {

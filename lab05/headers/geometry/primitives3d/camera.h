@@ -39,7 +39,7 @@ class Camera
 	}
 
 	void setEye(const ImVec3& newEye) {
-		if (Linal::len(this->_target - newEye) < 10.f) return;
+		if (Linal::len(this->_target - newEye) < 5.f) return;
 		this->_eye = newEye;
 
 		updateLook();
@@ -149,13 +149,13 @@ public:
 		this->_scale = Affine::identity();
 	}
 
-	inline void resetPosition(const ImVec3& eye = ImVec3(0.f, 0.f, 200.f), const ImVec3& pitchYawRoll = ImVec3(0.f, 90.f, 0.f), const ImVec3& target = ImVec3(0.f, 0.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
+	inline void resetPosition(const ImVec3& eye = ImVec3(0.f, 0.f, 10.f), const ImVec3& pitchYawRoll = ImVec3(0.f, 90.f, 0.f), const ImVec3& target = ImVec3(0.f, 0.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
 		this->_target = target;
 		this->_up = up;
 		setEyeAndPYR(eye, pitchYawRoll);
 	}
 
-	void setEyeAndPYR(const ImVec3& eye = ImVec3(0.f, 0.f, 200.f), const ImVec3& pitchYawRoll = ImVec3(0.f, 90.f, 0.f)) {
+	void setEyeAndPYR(const ImVec3& eye = ImVec3(0.f, 0.f, 10.f), const ImVec3& pitchYawRoll = ImVec3(0.f, 90.f, 0.f)) {
 		this->_eye = eye;
 		this->_pyr = pitchYawRoll;
 		updateEyeRotation();
