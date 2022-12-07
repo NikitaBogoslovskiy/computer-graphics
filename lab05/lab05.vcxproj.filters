@@ -120,6 +120,12 @@
     <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\GeometricBody.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\BLEV\cringetracer\Lights\Light.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\BLEV\cringetracer\Lights\PointLight.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\dependencies\imgui\imgui\imconfig.h">
@@ -273,6 +279,12 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\cringetracer\HeyraMath\HMath.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\cringetracer\Lights\Light.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\cringetracer\Lights\PointLight.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

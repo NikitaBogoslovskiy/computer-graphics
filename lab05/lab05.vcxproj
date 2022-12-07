@@ -172,6 +172,8 @@
     <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\GeometricBody.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\Image.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Sphere.cpp" />
+    <ClCompile Include="src\BLEV\cringetracer\Lights\Light.cpp" />
+    <ClCompile Include="src\BLEV\cringetracer\Lights\PointLight.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\Ray.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\Scene.cpp" />
     <ClCompile Include="src\BLEV\geometry\methods\funcs.cpp" />
@@ -194,6 +196,8 @@
     <ClInclude Include="headers\cringetracer\HeyraMath\HVec.h" />
     <ClInclude Include="headers\cringetracer\Image.h" />
     <ClInclude Include="headers\cringetracer\GeometricBodies\Sphere.h" />
+    <ClInclude Include="headers\cringetracer\Lights\Light.h" />
+    <ClInclude Include="headers\cringetracer\Lights\PointLight.h" />
     <ClInclude Include="headers\cringetracer\Ray.h" />
     <ClInclude Include="headers\cringetracer\Scene.h" />
     <ClInclude Include="headers\geometry\methods\blev_math.h" />

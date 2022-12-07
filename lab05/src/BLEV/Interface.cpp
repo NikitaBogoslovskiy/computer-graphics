@@ -1554,7 +1554,7 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 
 	if (node_open)
 	{
-		ImGui::PushID(&(gb->dcol));
+		ImGui::PushID(&(gb->color));
 	//	ImGui::TableNextRow();
 	//	ImGui::TableSetColumnIndex(0);
 
@@ -1969,7 +1969,7 @@ void BLEV::Interface::Canvas::DrawObjects() {
 		}
 		if (needRefresh) {
 			cringulik.Update();
-			//cringulik.scene.Render(cringulik.img);
+			cringulik.img.Clear();
 			cringulik.Render();
 			needRefresh = false;
 		}
@@ -2360,12 +2360,12 @@ void BLEV::Interface::Canvas::Body() {
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_X)) {
 				//main_camera.resetPosition(ImVec3(400.f, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
-				main_camera.setEyeAndPYR(ImVec3(200.f, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
+				main_camera.setEyeAndPYR(ImVec3(10.f, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
 				needRefresh = true;
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_Y)) {
 				//main_camera.resetPosition(ImVec3(0.f, 400.f, 0.f), ImVec3(89.f, 0.f, 0.f));
-				main_camera.setEyeAndPYR(ImVec3(0.f, 200.f, 0.f), ImVec3(89.f, 0.f, 0.f));
+				main_camera.setEyeAndPYR(ImVec3(0.f, 10.f, 0.f), ImVec3(89.f, 0.f, 0.f));
 				needRefresh = true;
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_Z)) {

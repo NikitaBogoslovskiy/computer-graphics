@@ -68,31 +68,33 @@ void CringeTracer::SubRender(const size_t start, const size_t end, const size_t 
 			// Generate the ray for this pixel (optimize! one recalc per shift)
 			GenerateRay(normX, normY, img.rays[x][y]);
 
-			for (auto & body : scene.bodies) {
-				bool intersected = body->TestIntersection(img.rays[x][y], intersection, localNormal, localColor);
-				if (intersected)
-				{
-					//printf("intersection: %lf %lf %lf\n", intersection.At(0), intersection.At(1), intersection.At(2));
-					// Compute the distance between the camera and the point of intersection.
-					double dist = (intersection - img.rays[x][y].p1).len();
-					maxDist = std::max(maxDist, dist);
-					minDist = std::min(minDist, dist);
-
-					//img.SetPixel(x, y, body->dcol.At(0), body->dcol.At(1), body->dcol.At(2));
-					//img.SetPixel(x, y, 255.0 - ((dist - 9.0) / 0.94605) * 255.0, 0.0, 0.0);
-					img.SetPixel(x, y, body->dcol.At(0) - ((dist - 9.0) / 0.94605) * body->dcol.At(0), 
-						body->dcol.At(1) - ((dist - 9.0) / 0.94605) * body->dcol.At(1),
-						body->dcol.At(2) - ((dist - 9.0) / 0.94605) * body->dcol.At(2));
-				}
-				else
-				{
+			for (auto& body : scene.bodies) {
+				bool isIntersected = body->TestIntersection(img.rays[x][y], intersection, localNormal, localColor);
+				if (!isIntersected) {
 					img.SetPixel(x, y, 0.0, 0.0, 0.0);
+					continue;
+				}
+
+				bool isIlluminated = false;
+				double intensity; HVec<double> color(3);
+				for (auto& light : scene.lights) {
+					isIlluminated = light->Illuminate(intersection, localNormal, body, scene.bodies, color, intensity);
+				}
+
+				/*printf("intersection: %lf %lf %lf\n", intersection.At(0), intersection.At(1), intersection.At(2));
+				// Compute the distance between the camera and the point of intersection.
+				double dist = (intersection - img.rays[x][y].p1).len();
+				maxDist = std::max(maxDist, dist);
+				minDist = std::min(minDist, dist);*/
+
+				if (isIlluminated) {
+					img.SetPixel(x, y, body->color.At(0) * intensity, body->color.At(1) * intensity, body->color.At(2) * intensity);
 				}
 			}
-			
+
 		}
 	}
-	printf("min = %lf | max = %lf\n", minDist, maxDist);
+	//printf("min = %lf | max = %lf\n", minDist, maxDist);
 }
 
 void CringeTracer::Render() {

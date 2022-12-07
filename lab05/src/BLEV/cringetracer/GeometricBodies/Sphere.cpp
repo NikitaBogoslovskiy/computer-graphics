@@ -1,12 +1,12 @@
 #include "../headers/cringetracer/GeometricBodies/Sphere.h"
 
-Sphere::Sphere(const double x0, const double y0, const double z0, const double radius, const ImVec3& col)
+Sphere::Sphere(const double x0, const double y0, const double z0, const double inRadius, const ImVec3& inColor)
 {
 	centre = HVec<double>{ x0, y0, z0 };
-	r = radius;
+	r = inRadius;
 	//color = IM_COL32(col.x * 255, col.y * 255, col.z * 255, 255);
 	//color = col;
-	dcol = HVec<double>{ col.x * 255, col.y * 255, col.z * 255 };
+	color = HVec<double>{ inColor.x * 255, inColor.y * 255, inColor.z * 255 };
 }
 
 Sphere::~Sphere()
@@ -34,7 +34,7 @@ void Sphere::Draw(ImDrawList* dl, const ImVec2& offset, const Eigen::Matrix4f& v
 		auto lol1 = DegreesToRadians(phi);
 		Eigen::Vector4f next3d = vp * Eigen::Vector4f{ xFlt + rFlt * cos(lol1), yFlt + rFlt * sin(lol1), zFlt,  1.f };
 		ImVec2 next2d = ImVec2(next3d(0) / next3d(3), next3d(1) / next3d(3)) + offset;
-		dl->AddLine(prev_point, next2d, IM_COL32(dcol.At(0), dcol.At(1), dcol.At(2), 255));
+		dl->AddLine(prev_point, next2d, IM_COL32(color.At(0), color.At(1), color.At(2), 255));
 		prev_point = next2d;
 	}
 
@@ -43,7 +43,7 @@ void Sphere::Draw(ImDrawList* dl, const ImVec2& offset, const Eigen::Matrix4f& v
 		auto lol1 = DegreesToRadians(phi);
 		Eigen::Vector4f next3d = vp * Eigen::Vector4f{ xFlt + rFlt * cos(lol1), yFlt, zFlt + rFlt * sin(lol1),  1.f };
 		ImVec2 next2d = ImVec2(next3d(0) / next3d(3), next3d(1) / next3d(3)) + offset;
-		dl->AddLine(prev_point, next2d, IM_COL32(dcol.At(0), dcol.At(1), dcol.At(2), 255));
+		dl->AddLine(prev_point, next2d, IM_COL32(color.At(0), color.At(1), color.At(2), 255));
 		prev_point = next2d;
 	}
 }
@@ -66,5 +66,10 @@ bool Sphere::TestIntersection(const Ray& ray, HVec<double>& intersection, HVec<d
 	else {
 		intersection = ray.p1 + ndir * t2;
 	}
+
+	// localNormal computation
+	// THIS ONLY WORKS FOR CENTRES AT ORIGIN
+	localNormal = intersection;
+	localNormal.Normalize();
 	return true;
 }

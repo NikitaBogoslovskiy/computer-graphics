@@ -15,5 +15,5 @@ public:
 	virtual void Draw(ImDrawList* dl, const ImVec2& offset, const Eigen::Matrix4f& vp) = 0;
 	virtual bool TestIntersection(const Ray& ray, HVec<double>& intPoint, HVec<double>& localNormal, HVec<double>& localColor) = 0;
 
-	HVec<double> dcol;
+	HVec<double> color;
 };
