@@ -9,7 +9,7 @@ template <class T> class HAffine
 {
 public:
 	HAffine();
-	HAffine(const Eigen::Matrix<T, 4, 4>& fwd, const Eigen::Matrix<T, 4, 4>& backw);
+	HAffine(const Eigen::Matrix<T, 4, 4>& toGlobal, const Eigen::Matrix<T, 4, 4>& toLocal);
 	HAffine(const HVec<T>& translation, const HVec<T>& rotation, const HVec<T>& scale);
 
 	~HAffine();
@@ -25,8 +25,8 @@ public:
 	static Eigen::Matrix<T, 4, 4> RotationZ(const T& angle);
 	static Eigen::Matrix<T, 4, 4> Scale(const HVec<T>& inVec);
 
-	HVec<T> Transform(const HVec<T>& inVec, bool direction);
-	Ray<T> Transform(const Ray<T>& inRay, bool direction);
+	HVec<T> Transform(const HVec<T>& inVec, bool toGlobal);
+	Ray<T> Transform(const Ray<T>& inRay, bool toGlobal);
 
 	friend HAffine<T> operator* (const HAffine<T>& lhs, const HAffine<T>& rhs);
 
@@ -34,13 +34,13 @@ public:
 
 protected:
 
-	Eigen::Matrix<T, 4, 4> _forward, _backward;
+	Eigen::Matrix<T, 4, 4> _toGlobal, _toLocal;
 };
 
 template<class T> HAffine<T> operator* (const HAffine<T>& lhs, const HAffine<T>& rhs) {
-	Eigen::Matrix<T, 4, 4> newForward = lhs._forward * rhs._forward;
-	Eigen::Matrix<T, 4, 4> newBackward = newForward.inverse();
-	return HAffine<T>(newForward, newBackward);
+	Eigen::Matrix<T, 4, 4> newGlobal = lhs._toGlobal * rhs._toGlobal;
+	Eigen::Matrix<T, 4, 4> newLocal = newGlobal.inverse();
+	return HAffine<T>(newGlobal, newLocal);
 }
 
 template<class T>
@@ -48,8 +48,8 @@ inline HAffine<T> HAffine<T>::operator=(const HAffine& rhs)
 {
 	if (this != &rhs)
 	{
-		_forward = rhs._forward;
-		_backward = rhs._backward;
+		_toGlobal = rhs._toGlobal;
+		_toLocal = rhs._toLocal;
 	}
 
 	return *this;
@@ -57,15 +57,15 @@ inline HAffine<T> HAffine<T>::operator=(const HAffine& rhs)
 
 template <class T> HAffine<T>::HAffine()
 {
-	_forward.setIdentity();
-	_backward.setIdentity();
+	_toGlobal.setIdentity();
+	_toLocal.setIdentity();
 }
 
 template<class T>
-inline HAffine<T>::HAffine(const Eigen::Matrix<T, 4, 4>& fwd, const Eigen::Matrix<T, 4, 4>& backw)
+inline HAffine<T>::HAffine(const Eigen::Matrix<T, 4, 4>& toGlobal, const Eigen::Matrix<T, 4, 4>& toLocal)
 {
-	_forward = fwd;
-	_backward = backw;
+	_toGlobal = toGlobal;
+	_toLocal = toLocal;
 }
 
 template<class T>
@@ -83,34 +83,34 @@ template <class T> HAffine<T>::~HAffine()
 
 template <class T> void HAffine<T>::SetTransform(const HVec<T>& translation, const HVec<T>& rotation, const HVec<T>& scale)
 {
-	_forward = HAffine<T>::Translation(translation)
+	_toGlobal = HAffine<T>::Translation(translation)
 		* HAffine<T>::RotationX(rotation.At(0))
 		* HAffine<T>::RotationY(rotation.At(1))
 		* HAffine<T>::RotationZ(rotation.At(2))
 		* HAffine<T>::Scale(scale);
-	_backward = _forward.inverse();
+	_toLocal = _toGlobal.inverse();
 }
 
 template<class T>
-inline HVec<T> HAffine<T>::Transform(const HVec<T>& inVec, bool isForward)
+inline HVec<T> HAffine<T>::Transform(const HVec<T>& inVec, bool toGlobal)
 {
 	Eigen::Matrix<T, 4, 1> hVec{ inVec.At(0), inVec.At(1), inVec.At(2), (T)1 };
 	Eigen::Matrix<T, 4, 1> temp;
-	if (isForward) {
-		temp = _forward * hVec;
+	if (toGlobal) {
+		temp = _toGlobal * hVec;
 	}
 	else {
-		temp = _backward * hVec;
+		temp = _toLocal * hVec;
 	}
 	return HVec<T> { temp(0, 0), temp(1, 0), temp(2, 0) };
 }
 
 template<class T>
-inline Ray<T> HAffine<T>::Transform(const Ray<T>& inRay, bool isForward)
+inline Ray<T> HAffine<T>::Transform(const Ray<T>& inRay, bool toGlobal)
 {
 	Ray<T> outRay;
-	outRay.p1 = HAffine<T>::Transform(inRay.p1, isForward);
-	outRay.p2 = HAffine<T>::Transform(inRay.p2, isForward);
+	outRay.p1 = HAffine<T>::Transform(inRay.p1, toGlobal);
+	outRay.p2 = HAffine<T>::Transform(inRay.p2, toGlobal);
 	outRay.direction = outRay.p2 - outRay.p1;
 	return outRay;
 }
@@ -176,11 +176,11 @@ inline Eigen::Matrix<T, 4, 4> HAffine<T>::Scale(const HVec<T>& inVec)
 template<class T>
 inline const Eigen::Matrix<T, 4, 4>& HAffine<T>::Forward()
 {
-	return _forward;
+	return _toGlobal;
 }
 
 template<class T>
 inline const Eigen::Matrix<T, 4, 4>& HAffine<T>::Backward()
 {
-	return _backward;
+	return _toLocal;
 }
