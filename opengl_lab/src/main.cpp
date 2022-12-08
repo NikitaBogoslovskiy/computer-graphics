@@ -2,8 +2,8 @@
 
 int main() {
 	sf::Window window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "CringeCAD2", sf::Style::Default, sf::ContextSettings(24, 8, 16));
-	window.setFramerateLimit(30);
-	App app = App();
+	window.setFramerateLimit(100);
+	App app = App(&window);
 
 	GLenum errorcode = glewInit();
 	if (errorcode != GLEW_OK) {

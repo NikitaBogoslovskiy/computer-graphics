@@ -150,21 +150,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="headers\app.cpp" />
     <ClCompile Include="src\entities\Cube2Tex.cpp" />
     <ClCompile Include="src\entities\Cube3Tex.cpp" />
     <ClCompile Include="src\entities\ColoredEllipse.cpp" />
     <ClCompile Include="src\entities\Entity.cpp" />
     <ClCompile Include="src\entities\Skybox.cpp" />
-    <ClCompile Include="src\entities\SolarSystem.cpp" />
+    <ClCompile Include="src\scenes\SolarSystem.cpp" />
     <ClCompile Include="src\meshes\DynamicMesh.cpp" />
     <ClCompile Include="src\meshes\Mesh.cpp" />
-    <ClCompile Include="src\scenes\Scene.cpp" />
     <ClCompile Include="src\stb_image_impl.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\shader_loader.cpp" />
     <ClCompile Include="src\entities\Tetrahedron.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="headers\app.h" />
     <ClInclude Include="headers\Camera.h" />
     <ClInclude Include="headers\entities\Cube2Tex.h" />
     <ClInclude Include="headers\entities\Cube3Tex.h" />
@@ -172,10 +173,11 @@
     <ClInclude Include="headers\entities\Entity.h" />
     <ClInclude Include="headers\entities\MixedCube.h" />
     <ClInclude Include="headers\entities\Skybox.h" />
-    <ClInclude Include="headers\entities\SolarSystem.h" />
+    <ClInclude Include="headers\scenes\SolarSystem.h" />
     <ClInclude Include="headers\main.h" />
     <ClInclude Include="headers\meshes\DynamicMesh.h" />
     <ClInclude Include="headers\meshes\Mesh.h" />
+    <ClInclude Include="headers\pch.h" />
     <ClInclude Include="headers\scenes\Scene.h" />
     <ClInclude Include="headers\shader_loader.h" />
     <ClInclude Include="headers\entities\Tetrahedron.h" />

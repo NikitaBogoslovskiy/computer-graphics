@@ -1,7 +1,7 @@
 #pragma once
 
 #include <iostream>
-#include "entity.h"
+#include "Entity.h"
 #include "../../headers/shader_loader.h"
 
 class Tetrahedron : public Entity {
