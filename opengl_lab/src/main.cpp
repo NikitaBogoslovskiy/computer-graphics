@@ -1,7 +1,7 @@
 #include "../headers/main.h"
 
 int main() {
-	sf::Window window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "CringeCAD2", sf::Style::Default, sf::ContextSettings(24));
+	sf::Window window(sf::VideoMode(SCREEN_WIDTH, SCREEN_HEIGHT), "CringeCAD2", sf::Style::Default, sf::ContextSettings(24, 8, 16));
 	window.setFramerateLimit(30);
 	App app = App();
 
@@ -16,6 +16,7 @@ int main() {
 
 	app.Init();
 
+	glEnable(GL_MULTISAMPLE);
 	glEnable(GL_DEPTH_TEST);
 	glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);
 
@@ -25,6 +26,7 @@ int main() {
 		glClearColor(0.2f, 0.2f, 0.25f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		app.Draw();
+		app.ResetClock();
 		window.display();
 	}
 	app.Release();

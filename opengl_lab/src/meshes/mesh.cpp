@@ -72,7 +72,7 @@ void Mesh::ReleaseVO()
 
 #include "stb_image.h"
 
-void Mesh::InitTextures()
+void Mesh::InitTextures(char* path)
 {
 	textures.push_back(0);
 
@@ -87,7 +87,7 @@ void Mesh::InitTextures()
 	// load image, create texture and generate mipmaps
 	int width, height, nrChannels;
 	//stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis. but ive 
-	unsigned char* data = stbi_load("shaders/task3/lena.jpg", &width, &height, &nrChannels, 0);
+	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
 	if (*data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -140,11 +140,11 @@ void Mesh::ChangeShaders(const char* vertex_path, const char* fragment_path)
 	*/
 }
 
-void Mesh::Draw(const float& time)
+void Mesh::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection)
 {
 	glUseProgram(Program);
 
-	this->UpdateUniforms(time);
+	this->UpdateUniforms(model, view, projection);
 
 	glBindVertexArray(VAO);
 	glMultiDrawElements(GL_TRIANGLE_FAN, count.data(), GL_UNSIGNED_INT, void_indices.data(), count.size());
@@ -155,12 +155,12 @@ void Mesh::Draw(const float& time)
 		x += t;
 	}
 	*/
-	
+
 	glBindVertexArray(0);
 	glUseProgram(0);
 }
 
-void Mesh::UpdateUniforms(const float& time)
+void Mesh::UpdateUniforms(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection)
 {
 	uint i = 0;
 	for (auto t : textures) {
@@ -203,7 +203,7 @@ void Mesh::Load(const char* path)
 				printf("File can't be read by our simple parser\n");
 				return;
 			}
-			v.push_back({ _v, std::deque<GLuint>()});
+			v.push_back({ _v, std::deque<GLuint>() });
 		}
 		else if (type == "vt") {
 			vertex_texture _vt;
@@ -247,9 +247,9 @@ void Mesh::Load(const char* path)
 					break;
 				}
 				if (do_create_new) {
-					mVs.push_back({ 
-						v[inds.v() - 1].first, 
-						vt[inds.vt() - 1], 
+					mVs.push_back({
+						v[inds.v() - 1].first,
+						vt[inds.vt() - 1],
 						vn[inds.vn() - 1] });
 					v[inds.v() - 1].second.push_back(mVs.size() - 1);
 					indices.push_back(mVs.size() - 1);
@@ -325,44 +325,4 @@ void Mesh::AddTexture(const char* path)
 Mesh::~Mesh()
 {
 	Release();
-}
-
-DynamicMesh::DynamicMesh()
-{
-	InitShader();
-}
-
-DynamicMesh::DynamicMesh(const char* path)
-{
-	Load(path);
-	InitTextures();
-	InitShader();
-	InitVO();
-}
-
-void DynamicMesh::InitShader()
-{
-	ChangeShaders("shaders/mesh/default_d.vert", "shaders/mesh/default_d.frag");
-}
-
-void DynamicMesh::UpdateUniforms(const float& time)
-{
-	Mesh::UpdateUniforms(time);	
-
-	model = glm::mat4(1.0f);
-	view = glm::mat4(1.0f);
-	
-	model = glm::rotate(model, glm::radians(time * 30.f), glm::vec3(0.0f, 1.0f, 0.f));
-	view = glm::translate(view, glm::vec3(offset.x, offset.y, offset.z));
-
-	// retrieve the matrix uniform locations
-	unsigned int modelLoc = glGetUniformLocation(Program, "model");
-	unsigned int viewLoc = glGetUniformLocation(Program, "view");
-	unsigned int projectionLoc = glGetUniformLocation(Program, "projection");
-
-	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
-	/*
-	*/
 }

@@ -115,17 +115,10 @@ void Cube2Tex::ReleaseVO() {
 	glDeleteBuffers(1, &VBO);
 }
 
-void Cube2Tex::Draw(const float& time) {
+void Cube2Tex::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) {
 	glUseProgram(Program);
 	glActiveTexture(GL_TEXTURE0);
 	glBindTexture(GL_TEXTURE_2D, texture1);
-
-	// create transformations
-	glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
-	glm::mat4 view = glm::mat4(1.0f);
-	
-	model = glm::rotate(model, glm::radians(time * 30.f), glm::vec3(0.5f, 1.0f, 0.0f));
-	view = glm::translate(view, glm::vec3(offset.x, offset.y, offset.z));
 
 	// retrieve the matrix uniform locations
 	unsigned int modelLoc = glGetUniformLocation(Program, "model");
