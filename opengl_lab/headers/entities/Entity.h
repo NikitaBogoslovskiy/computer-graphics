@@ -1,5 +1,5 @@
 #pragma once
-#include "gl/glew.h"
+
 #include "../../headers/pch.h"
 #include "../stuff.h"
 
