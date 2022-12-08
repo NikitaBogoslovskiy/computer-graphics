@@ -40,7 +40,7 @@ void CringeTracer::UpdateScreenVectors() {
 // x and y are fractions of width and height of virtual screen. 
 // x- fraction of U vector, y - fraction of V vector.
 // extremes - [-1, 1]; 0,0 - center of the screen
-bool CringeTracer::GenerateRay(const float x, const float y, Ray& outRay) {
+bool CringeTracer::GenerateRay(const float x, const float y, Ray<double>& outRay) {
 	// HVec<double> newX = centre + u * x;
 	HVec<double> worldPoint = centre + u * x + v * y;
 
@@ -71,7 +71,7 @@ void CringeTracer::SubRender(const size_t start, const size_t end, const size_t 
 			for (auto& body : scene.bodies) {
 				bool isIntersected = body->TestIntersection(img.rays[x][y], intersection, localNormal, localColor);
 				if (!isIntersected) {
-					img.SetPixel(x, y, 0.0, 0.0, 0.0);
+					//img.SetPixel(x, y, 0.0, 0.0, 0.0);
 					continue;
 				}
 
@@ -81,20 +81,12 @@ void CringeTracer::SubRender(const size_t start, const size_t end, const size_t 
 					isIlluminated = light->Illuminate(intersection, localNormal, body, scene.bodies, color, intensity);
 				}
 
-				/*printf("intersection: %lf %lf %lf\n", intersection.At(0), intersection.At(1), intersection.At(2));
-				// Compute the distance between the camera and the point of intersection.
-				double dist = (intersection - img.rays[x][y].p1).len();
-				maxDist = std::max(maxDist, dist);
-				minDist = std::min(minDist, dist);*/
-
 				if (isIlluminated) {
-					img.SetPixel(x, y, body->color.At(0) * intensity, body->color.At(1) * intensity, body->color.At(2) * intensity);
+					img.SetPixel(x, y, localColor.At(0) * intensity, localColor.At(1) * intensity, localColor.At(2) * intensity);
 				}
 			}
-
 		}
 	}
-	//printf("min = %lf | max = %lf\n", minDist, maxDist);
 }
 
 void CringeTracer::Render() {

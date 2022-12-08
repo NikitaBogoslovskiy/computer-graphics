@@ -53,7 +53,7 @@ public:
 	// x and y are fractions of width and height of virtual screen. 
 	// x- fraction of U vector, y - fraction of V vector.
 	// extremes - [-1, 1]; 0,0 - center of the screen
-	bool GenerateRay(const float x, const float y, Ray& outRay); // tip of the vector we cast from the pinhole through virtual screen
+	bool GenerateRay(const float x, const float y, Ray<double>& outRay); // tip of the vector we cast from the pinhole through virtual screen
 	void Render();
 	void SubRender(const size_t start, const size_t end, const size_t xSize, const size_t ySize, const double xFact, const double yFact);
 };

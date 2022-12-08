@@ -111,9 +111,6 @@
     <ClCompile Include="src\BLEV\cringetracer\Scene.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\BLEV\cringetracer\Ray.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Sphere.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
@@ -285,6 +282,12 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\cringetracer\Lights\PointLight.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\cringetracer\HeyraMath\HAffine.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\cringetracer\HeyraMath\HMat.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

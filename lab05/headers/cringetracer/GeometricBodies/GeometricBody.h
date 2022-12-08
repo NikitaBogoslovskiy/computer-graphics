@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../HeyraMath/HAffine.h"
 #include "../Ray.h"
 
 #include "../../pch.h"
@@ -11,9 +12,12 @@ public:
 	GeometricBody();
 	~GeometricBody();
 
+	void SetTransform(const HAffine<double>& transformation);
+
 	// for drawing wireframes
 	virtual void Draw(ImDrawList* dl, const ImVec2& offset, const Eigen::Matrix4f& vp) = 0;
-	virtual bool TestIntersection(const Ray& ray, HVec<double>& intPoint, HVec<double>& localNormal, HVec<double>& localColor) = 0;
+	virtual bool TestIntersection(const Ray<double>& ray, HVec<double>& intPoint, HVec<double>& localNormal, HVec<double>& localColor) = 0;
 
-	HVec<double> color;
+	HVec<double> _color;
+	HAffine<double> _tform;
 };

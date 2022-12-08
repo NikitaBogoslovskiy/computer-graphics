@@ -18,7 +18,7 @@ class Image
 	size_t xSize, ySize;
 
 public:
-	std::vector<std::vector<Ray>> rays;
+	std::vector<std::vector<Ray<double>>> rays;
 	Image();
 	Image(const size_t& xSize, const size_t& ySize);
 	~Image();

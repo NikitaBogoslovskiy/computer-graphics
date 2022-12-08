@@ -7,6 +7,7 @@
 #include <iomanip>
 #include <math.h>
 #include <vector>
+#include "Eigen/Eigen"
 
 template <class T> class HVec
 {
@@ -44,6 +45,8 @@ public:
 	HVec<T>& operator*=(const HVec<T>& rhs);
 	HVec<T>& operator+=(const HVec<T>& rhs);
 	HVec<T>& operator-=(const HVec<T>& rhs);
+
+	Eigen::Matrix<T, Eigen::Dynamic, 1> ToEigenVec();
 	/*
 	todo takoe
 	 inline Polygon& operator=(const Polygon& _polygon) {
@@ -63,7 +66,6 @@ public:
 
 	static T dot(const HVec<T>& a, const HVec<T>& b);
 	static HVec<T> cross(const HVec<T>& a, const HVec<T>& b);
-
 };
 
 // =========================================== constructors
@@ -237,6 +239,11 @@ HVec<T>& HVec<T>::operator-=(const HVec<T>& rhs) {
 	for (size_t i = 0; i < _dims; ++i)
 		_data[i] = _data[i] - rhs.At(i);
 	return *this;
+}
+template<class T>
+inline Eigen::Matrix<T, Eigen::Dynamic, 1> HVec<T>::ToEigenVec()
+{
+	return Eigen::Matrix<T, _dims, 1>(_data);
 }
 // ==========================================================
 

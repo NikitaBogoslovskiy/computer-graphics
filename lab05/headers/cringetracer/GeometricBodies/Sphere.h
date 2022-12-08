@@ -6,8 +6,8 @@
 class Sphere: public GeometricBody
 {
 	//ImU32 color;
-	HVec<double> centre;
-	double r;
+	HVec<double> _centre;
+	double _r;
 
 public:
 	const double& Radius();
@@ -17,5 +17,5 @@ public:
 	~Sphere();
 
 	void Draw(ImDrawList* dl, const ImVec2& offset, const Eigen::Matrix4f& vp) override;
-	bool TestIntersection(const Ray& ray, HVec<double>& intersection, HVec<double>& localNormal, HVec<double>& localColor) override;
+	bool TestIntersection(const Ray<double>& ray, HVec<double>& intersection, HVec<double>& localNormal, HVec<double>& localColor) override;
 };

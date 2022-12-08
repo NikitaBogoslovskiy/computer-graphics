@@ -31,7 +31,7 @@ void Image::Resize(const size_t& _xSize, const size_t& _ySize)
 		rChannel[i].resize(ySize, 0.0);
 		gChannel[i].resize(ySize, 0.0);
 		bChannel[i].resize(ySize, 0.0);
-		rays[i].resize(ySize, Ray());
+		rays[i].resize(ySize, Ray<double>());
 		//intersections[i].resize(ySize, Ray());
 	}
 }
@@ -43,7 +43,7 @@ void Image::Clear()
 		std::fill(rChannel[i].begin(), rChannel[i].end(), 0);
 		std::fill(gChannel[i].begin(), gChannel[i].end(), 0);
 		std::fill(bChannel[i].begin(), bChannel[i].end(), 0);
-		std::fill(rays[i].begin(), rays[i].end(), Ray());
+		std::fill(rays[i].begin(), rays[i].end(), Ray<double>());
 	}
 }
 
