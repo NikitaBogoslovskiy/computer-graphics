@@ -17,7 +17,6 @@ void App::Init()
 	ss->Music().setVolume(100.0f);
 	scenes.push_back(ss);
 	cur_scene = 0;
-
 }
 
 void App::Draw()
