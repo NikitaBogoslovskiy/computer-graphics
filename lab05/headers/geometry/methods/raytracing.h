@@ -39,6 +39,8 @@ class Raytracing {
 		std::vector<Sphere*>& spheres;
 	};
 
+	static constexpr float eps = 0.00001f;
+
 public:
 	Raytracing();
 	Raytracing(int width, int height, const ImVec2& offset);

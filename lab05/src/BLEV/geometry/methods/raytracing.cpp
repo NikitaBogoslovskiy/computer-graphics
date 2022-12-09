@@ -109,7 +109,7 @@ ImVec3 Raytracing::renderUnit(const ImVec3& sp, const ImVec3& rayDir, objects ob
 			bool cont = false;
 			for (const Mesh* m : objs.meshes)
 			{
-				if (m->is_intersected_with_light(point, L, !insideMesh, Ldist)) {
+				if (m->is_intersected_with_light(point + eps * L, L, !insideMesh, Ldist)) {
 					cont = true;
 					break;
 				}
@@ -117,7 +117,7 @@ ImVec3 Raytracing::renderUnit(const ImVec3& sp, const ImVec3& rayDir, objects ob
 			if (cont) continue;
 			for (const Sphere* sph : objs.spheres)
 			{
-				if (sph->is_intersected_with_light(point, L, !insideMesh, Ldist)) {
+				if (sph->is_intersected_with_light(point + eps * L, L, !insideMesh, Ldist)) {
 					cont = true;
 					break;
 				}
@@ -139,7 +139,7 @@ ImVec3 Raytracing::renderUnit(const ImVec3& sp, const ImVec3& rayDir, objects ob
 	if (last_bounces > 0) {
 		if (material->reflection != ImVec3(0.f, 0.f, 0.f)) {
 			ImVec3&& reflRay = rayDir - 2 * N * (N * rayDir);
-			Ireflection = renderUnit(point, reflRay, objs, insideMesh, last_bounces);
+			Ireflection = renderUnit(point + eps * reflRay, reflRay, objs, insideMesh, last_bounces);
 		}
 
 		if (material->refraction != ImVec3(0.f, 0.f, 0.f)) {
@@ -159,7 +159,7 @@ ImVec3 Raytracing::renderUnit(const ImVec3& sp, const ImVec3& rayDir, objects ob
 
 				//ImVec3&& refrRay = normilize(e1de2 * rayDir - dot_product(sqrtf(discr) + (e1de2 * dotNrD), N));
 				ImVec3&& refrRay = normilize(e1de2 * (rayDir - (N * dotNrD)) - (N * sqrtf(discr)));
-				Irefraction = renderUnit(point, refrRay, objs, !insideMesh, last_bounces + 1);
+				Irefraction = renderUnit(point + eps * refrRay, refrRay, objs, !insideMesh, last_bounces + 1);
 			}
 			//printf("%f %f %f\n", Irefraction.x, Irefraction.y, Irefraction.z);
 		}
