@@ -15,7 +15,8 @@ struct POL {
 	ImVec3 i_d = { 1.f, 1.f , 1.f }; // мощность рассеянного освещения
 	ImVec3 i_s = { 1.f, 1.f , 1.f }; // мощность зеркального освещения
 
-	ImVec3 attenuation = { 1.0f, 0.0014f, 0.000007f };
+	//ImVec3 attenuation = { 1.0f, 0.0014f, 0.000007f };
+	ImVec3 attenuation = { 0.77f, 0.0005f, 0.000003f };
 
 	inline float att(float d) {
 		return 1.f / (attenuation[0] + attenuation[1] * d + attenuation[2] * d * d);

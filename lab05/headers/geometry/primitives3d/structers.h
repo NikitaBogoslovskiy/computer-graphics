@@ -92,8 +92,8 @@ struct MaterialParams {
     ImVec3 specular = { 0.5f, 0.5f, 0.5f }; // коэффициент зеркального отражения - Ks
     float shine = 10.f; // коэффициент блеска - Ns 0-1000
     ImVec3 reflection = { 0.0f, 0.0f, 0.0f }; //
-    ImVec3 refraction = { 0.0f, 0.0f , 0.0f }; //
-    float eta = 1.5f; // Eta - material refraction - Ni
+    ImVec3 refraction = { 0.0f, 0.0f, 0.0f }; //
+    float eta = 1.5f; // Eta - material refraction - Ni 0-10
 
     ImVec4 face_color;
 

@@ -1634,7 +1634,8 @@ void BLEV::Interface::ObjectTable::ShowSphereTable(Sphere* sphere, size_t idx)
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text("shiness");
 		ImGui::TableSetColumnIndex(1);
-		ImGui::DragFloat("##sh", &sphere->shine, 0.5f, 0.f, 100.f, "%.1f");
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		ImGui::DragFloat("##sh", &sphere->shine, 0.5f, 0.f, 1000.f, "%.1f");
 
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);

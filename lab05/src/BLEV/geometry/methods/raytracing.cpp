@@ -3,7 +3,7 @@
 Raytracing::Raytracing()
 {
 	pols.push_back({ {400.f, 400.f, 400.f}, 1.f });
-	//pols.push_back({ {400.f, -10.f, -200.f}, 0.5f });
+	pols.push_back({ {400.f, -100.f, -200.f}, 0.5f });
 }
 
 Raytracing::Raytracing(int _width, int _height, const ImVec2& _offset)
@@ -98,39 +98,42 @@ ImVec3 Raytracing::renderUnit(const ImVec3& sp, const ImVec3& rayDir, objects ob
 	ImVec3 point = sp + rayDir * minDistToPolygon.first;
 	const ImVec4& clr = material->getFaceColor();
 
-	for (POL& l : pols) {
-		auto L = l.pos - point;
-		float Ldist = length(L);
-		L = normilize(L);
-		auto dotLN = dot_product(L, minDistToPolygon.second);
-		if (dotLN <= 0) continue;
-		bool cont = false;
-		for (const Mesh* m : objs.meshes)
-		{
-			if (m->is_intersected_with_light(point, L, !insideMesh, Ldist)) {
-				cont = true;
-				break;
+	//if (!insideMesh) 
+	{
+		for (POL& l : pols) {
+			auto L = l.pos - point;
+			float Ldist = length(L);
+			L = normilize(L);
+			auto dotLN = dot_product(L, minDistToPolygon.second);
+			if (dotLN <= 0) continue;
+			bool cont = false;
+			for (const Mesh* m : objs.meshes)
+			{
+				if (m->is_intersected_with_light(point, L, !insideMesh, Ldist)) {
+					cont = true;
+					break;
+				}
 			}
-		}
-		if (cont) continue;
-		for (const Sphere* sph : objs.spheres)
-		{
-			if (sph->is_intersected_with_light(point, L, !insideMesh, Ldist)) {
-				cont = true;
-				break;
+			if (cont) continue;
+			for (const Sphere* sph : objs.spheres)
+			{
+				if (sph->is_intersected_with_light(point, L, !insideMesh, Ldist)) {
+					cont = true;
+					break;
+				}
 			}
-		}
-		if (cont) continue;
+			if (cont) continue;
 
-		// ambient
-		Iambient = by_element_product(material->ambient, l.i_a);
+			// ambient
+			Iambient = by_element_product(material->ambient, l.i_a);
 
-		Idiffuse = dotLN * by_element_product(material->diffuse, l.i_d);
+			Idiffuse = dotLN * by_element_product(material->diffuse, l.i_d);
 	
-		auto R = 2 * dotLN * minDistToPolygon.second - L;
-		Ispecular = powf(dot_product(R, -rayDir), material->shine) * by_element_product(material->specular, l.i_s);
+			auto R = 2 * dotLN * minDistToPolygon.second - L;
+			Ispecular = powf(dot_product(R, -rayDir), material->shine) * by_element_product(material->specular, l.i_s);
 		
-		Ilocal += l.att(length(l.pos - point)) * (by_element_product(Iambient + Idiffuse, toVec3(clr)) + by_element_product(Ispecular, { 255.f, 255.f, 255.f }));
+			Ilocal += l.att(length(l.pos - point)) * (by_element_product(Iambient + Idiffuse, toVec3(clr)) + by_element_product(Ispecular, { 255.f, 255.f, 255.f }));
+		}
 	}
 
 	if (last_bounces > 0) {
@@ -151,13 +154,18 @@ ImVec3 Raytracing::renderUnit(const ImVec3& sp, const ImVec3& rayDir, objects ob
 			}
 			float e1de2 = curEta / material->eta;
 			float dotNrD = dot_product(N, rayDir);
-			ImVec3&& cosB = sqrtf(1.f - powf(e1de2, 2.f) * (1.f - powf(dotNrD, 2.f)));
-			ImVec3 refrRay = e1de2 * rayDir - dot_product(cosB + (e1de2 * dotNrD), N);
-			Irefraction = renderUnit(point, refrRay, objs, !insideMesh, last_bounces + 1);
+			float discr = 1.f - powf(e1de2, 2.f) * (1.f - powf(dotNrD, 2.f));
+			if (discr > 0.0f) {
+
+				//ImVec3&& refrRay = normilize(e1de2 * rayDir - dot_product(sqrtf(discr) + (e1de2 * dotNrD), N));
+				ImVec3&& refrRay = normilize(e1de2 * (rayDir - (N * dotNrD)) - (N * sqrtf(discr)));
+				Irefraction = renderUnit(point, refrRay, objs, !insideMesh, last_bounces + 1);
+			}
+			//printf("%f %f %f\n", Irefraction.x, Irefraction.y, Irefraction.z);
 		}
 	}
 	ImVec3 globalL = toVec3(clr) * 0.1f;
-	I = Ilocal + by_element_product(material->reflection, Ireflection) + by_element_product(material->refraction, Irefraction);// +globalL;
+	I = Ilocal + by_element_product(material->reflection, Ireflection) + by_element_product(material->refraction, Irefraction) + globalL;
 
 	clamp(I, 0.f, 255.f);
 
