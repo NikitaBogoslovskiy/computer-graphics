@@ -88,7 +88,7 @@ void CringeTracer::SubRender(const size_t start, const size_t end, const size_t 
 			if (closestBody->HasMaterial()) {
 				finalColor = closestBody->Mtl->ComputeColor(scene.bodies, scene.lights,
 					img.rays[x][y],
-					closestBody, closestIntersection, closestLocalNormal);
+					closestBody, closestIntersection, closestLocalNormal, 0);
 			}
 			else {
 				finalColor = Material::ComputeDiffuse(scene.bodies, scene.lights,
