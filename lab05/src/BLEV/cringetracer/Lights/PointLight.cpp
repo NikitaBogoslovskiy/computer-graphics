@@ -23,7 +23,7 @@ PointLight::~PointLight()
 bool PointLight::Illuminate(const HVec<double>& intersection,
 	const HVec<double>& localNormal,
 	const GeometricBody* gb,
-	const std::vector<GeometricBody*> bodies,
+	const std::vector<GeometricBody*>& bodies,
 	HVec<double>& outColor, double& outIntensity)
 {
 	HVec<double> lightDir = (position - intersection).Normalized();
@@ -53,7 +53,7 @@ bool PointLight::Illuminate(const HVec<double>& intersection,
 		return false;
 	}
 	outColor = color;
-	// intensity is linearly proportional to the angle between the normal and direction of the light
+	// intensity is linearly proportional to the angle between the normal and direction of the light for now
 	outIntensity = intensity * (1.0 - (angle / PIDIVTWO));
 	return true;
 }

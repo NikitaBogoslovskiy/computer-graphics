@@ -47,38 +47,43 @@ void CringeTracer::GetRayXY(const float x, const float y, Ray<double>& outRay) {
 	outRay.direction = worldPoint - eye;
 }
 
-void CringeTracer::SubRender(const size_t start, const size_t end, const size_t xSize, const size_t ySize, const double xFact, const double yFact) {
+bool CringeTracer::CastRay(const Ray<double>& ray,
+	GeometricBody*& closestBody, HVec<double>& closestInt, HVec<double>& closestLocalNormal, HVec<double>& closestLocalColor)
+{
 	HVec<double> intersection(3);
 	HVec<double> localNormal(3);
 	HVec<double> localColor(3);
+	double minDist = 1e6;
+	closestBody = nullptr;
 
+	for (auto& body : scene.bodies) {
+		if (!(body->TestIntersection(ray, intersection, localNormal, localColor))) continue; // no intersection
+
+		double dist = (intersection - ray.p1).len();
+		if (dist >= minDist) continue;
+
+		minDist = dist;
+		closestBody = body;
+		closestInt = intersection;
+		closestLocalNormal = localNormal;
+		closestLocalColor = localColor;
+	}
+
+	return closestBody != nullptr;
+}
+
+void CringeTracer::SubRender(const size_t start, const size_t end, const size_t xSize, const size_t ySize, const double xFact, const double yFact) {
 	for (size_t x = start; x < end; x++)
 	{
 		for (size_t y = 0; y < ySize; y++)
 		{
 			double normX = (static_cast<double>(x) * xFact) - 1.0;
 			double normY = (static_cast<double>(y) * yFact) - 1.0;
+
 			GetRayXY(normX, normY, img.rays[x][y]);
 
-			double minDist = 1e6;
-			GeometricBody* closestBody = nullptr;
-			HVec<double>  closestIntersection(3);
-			HVec<double>  closestLocalNormal(3);
-			HVec<double>  closestLocalColor(3);
-
-			for (auto& body : scene.bodies) {
-				if (!(body->TestIntersection(img.rays[x][y], intersection, localNormal, localColor))) continue; // no intersection
-
-				double dist = (intersection - img.rays[x][y].p1).len();
-				if (dist >= minDist) continue;
-
-				minDist = dist;
-				closestBody = body;
-				closestIntersection = intersection;
-				closestLocalNormal = localNormal;
-				closestLocalColor = localColor;
-			}
-			if (closestBody == nullptr) continue;
+			GeometricBody* closestBody = nullptr; HVec<double>  closestIntersection(3),  closestLocalNormal(3),  closestLocalColor(3);
+			if (!(CastRay(img.rays[x][y], closestBody, closestIntersection, closestLocalNormal, closestLocalColor))) continue;
 
 			bool foundIllum = false;
 			double intensity; HVec<double> color(3); HVec<double> finalColor(3);

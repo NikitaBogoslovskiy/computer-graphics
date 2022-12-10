@@ -15,7 +15,7 @@ public:
 	virtual bool Illuminate(const HVec<double>& intersection,
 		const HVec<double>& localNormal,
 		const GeometricBody* gb,
-		const std::vector<GeometricBody*> bodies,
+		const std::vector<GeometricBody*>& bodies,
 		HVec<double>& outColor, double& outIntensity) = 0;
 
 private:

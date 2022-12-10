@@ -28,7 +28,7 @@ public:
 	Image img;
 	Scene scene;
 
-	
+
 	CringeTracer();
 	void Update();
 
@@ -54,6 +54,8 @@ public:
 	// x- fraction of U vector, y - fraction of V vector.
 	// extremes - [-1, 1]; 0,0 - center of the screen
 	void GetRayXY(const float x, const float y, Ray<double>& outRay); // tip of the vector we cast from the pinhole through virtual screen
+	bool CastRay(const Ray<double>& ray,
+			GeometricBody*& closestBody, HVec<double>& closestInt, HVec<double>& closestLocalNormal, HVec<double>& closestLocalColor);
 	void Render();
 	void SubRender(const size_t start, const size_t end, const size_t xSize, const size_t ySize, const double xFact, const double yFact);
 };
