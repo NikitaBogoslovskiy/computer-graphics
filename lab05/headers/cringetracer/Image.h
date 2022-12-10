@@ -6,23 +6,23 @@
 
 class Image
 {
-	// Arrays to store image data.
 	std::vector<std::vector<double>> rChannel;
 	std::vector<std::vector<double>> gChannel;
 	std::vector<std::vector<double>> bChannel;
-	//std::vector<std::vector<HVec<double>>> intersections;
-	//std::vector<std::vector<HVec<double>>> localNormals;
-	//std::vector<std::vector<HVec<double>>> localColors;
-
-	// And store the size of the image.
 	size_t xSize, ySize;
+
+	double _maxRed = 0.0;
+	double _maxGreen = 0.0;
+	double _maxBlue = 0.0;
+	double _Max = 0.0;
+	void CalcMaxes();
 
 public:
 	std::vector<std::vector<Ray<double>>> rays;
 	Image();
 	Image(const size_t& xSize, const size_t& ySize);
 	~Image();
-	void SetPixel(const size_t x, const size_t y, const double red, const double green, const double blue);
+	void SetPixel(const size_t x, const size_t y, const HVec<double>& color);
 	void Draw(ImDrawList* dl, const ImVec2& canvasOffset);
 	void Clear();
 	void Resize(const size_t& _xSize, const size_t& _ySize);

@@ -110,6 +110,7 @@
       <AdditionalIncludeDirectories>$(SolutionDir)headers;$(SolutionDir)..\dependencies\Eigen;$(SolutionDir)..\dependencies\imgui;$(SolutionDir)..\dependencies\GLFW\x86\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <LanguageStandard_C>Default</LanguageStandard_C>
+      <OpenMPSupport>true</OpenMPSupport>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -170,8 +171,10 @@
     <ClCompile Include="headers\stuff\NFD\nfd_win.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\Cringetracer.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\GeometricBody.cpp" />
-    <ClCompile Include="src\BLEV\cringetracer\Image.cpp" />
+    <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Plane.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Sphere.cpp" />
+    <ClCompile Include="src\BLEV\cringetracer\Image.cpp" />
+    <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Ellipsoid.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\Lights\Light.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\Lights\PointLight.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\Scene.cpp" />
@@ -190,7 +193,9 @@
     <ClInclude Include="headers\BLEV\Geometry.h" />
     <ClInclude Include="headers\BLEV\Interface.h" />
     <ClInclude Include="headers\BLEV\Validator.h" />
+    <ClInclude Include="headers\cringetracer\GeometricBodies\Ellipsoid.h" />
     <ClInclude Include="headers\cringetracer\GeometricBodies\GeometricBody.h" />
+    <ClInclude Include="headers\cringetracer\GeometricBodies\Plane.h" />
     <ClInclude Include="headers\cringetracer\HeyraMath\HAffine.h" />
     <ClInclude Include="headers\cringetracer\HeyraMath\HMat.h" />
     <ClInclude Include="headers\cringetracer\HeyraMath\HMath.h" />

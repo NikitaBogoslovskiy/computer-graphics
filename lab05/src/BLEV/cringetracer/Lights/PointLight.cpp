@@ -26,22 +26,32 @@ bool PointLight::Illuminate(const HVec<double>& intersection,
 	const std::vector<GeometricBody*> bodies,
 	HVec<double>& outColor, double& outIntensity)
 {
-	// light position -> intersection
 	HVec<double> lightDir = (position - intersection).Normalized();
+	HVec<double> start = intersection;
+	Ray<double> rayToLight(start, start + lightDir);
 
-	// starting point
-	HVec<double> startPoint = intersection;
+	HVec<double> curInt(3); HVec<double> curLocalNormal(3); HVec<double> curLocalColor(3);
+
+	bool foundLightBlocker = false;
+	for (auto& body : bodies) {
+		if (body == gb) continue;
+		if (foundLightBlocker = body->TestIntersection(rayToLight, curInt, curLocalNormal, curLocalColor)) break;
+	}
+
+	if (foundLightBlocker) {
+		outColor = color;
+		outIntensity = 0.0;
+		return false;
+	}
 
 	// <(localNormal, lightRay)
-	double angle = acos(HVec<double>::dot(localNormal, lightDir));
-
+	double angle = acos(HVec<double>::dot(localNormal, lightDir)); // local normal is unit
 	// normal pointing away from light: no illumination
 	if (angle > PIDIVTWO) {
 		outColor = color;
 		outIntensity = 0.0;
 		return false;
 	}
-
 	outColor = color;
 	// intensity is linearly proportional to the angle between the normal and direction of the light
 	outIntensity = intensity * (1.0 - (angle / PIDIVTWO));

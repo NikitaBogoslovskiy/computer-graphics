@@ -4,8 +4,8 @@
 CringeTracer::CringeTracer()
 {
 	screen_distance = 1.0;
-	width = 0.25; // 1.0
-	aspect = 1.0; // 16.0 / 9.0
+	width = 0.25;
+	aspect = 1.0;
 }
 
 
@@ -40,14 +40,11 @@ void CringeTracer::UpdateScreenVectors() {
 // x and y are fractions of width and height of virtual screen. 
 // x- fraction of U vector, y - fraction of V vector.
 // extremes - [-1, 1]; 0,0 - center of the screen
-bool CringeTracer::GenerateRay(const float x, const float y, Ray<double>& outRay) {
-	// HVec<double> newX = centre + u * x;
+void CringeTracer::GetRayXY(const float x, const float y, Ray<double>& outRay) {
 	HVec<double> worldPoint = centre + u * x + v * y;
-
 	outRay.p1 = eye;
 	outRay.p2 = worldPoint;
 	outRay.direction = worldPoint - eye;
-	return true;
 }
 
 void CringeTracer::SubRender(const size_t start, const size_t end, const size_t xSize, const size_t ySize, const double xFact, const double yFact) {
@@ -55,40 +52,49 @@ void CringeTracer::SubRender(const size_t start, const size_t end, const size_t 
 	HVec<double> localNormal(3);
 	HVec<double> localColor(3);
 
-	double minDist = 1e6;
-	double maxDist = 0.0;
 	for (size_t x = start; x < end; x++)
 	{
 		for (size_t y = 0; y < ySize; y++)
 		{
-			// Normalize the x and y coordinates.
 			double normX = (static_cast<double>(x) * xFact) - 1.0;
 			double normY = (static_cast<double>(y) * yFact) - 1.0;
+			GetRayXY(normX, normY, img.rays[x][y]);
 
-			// Generate the ray for this pixel (optimize! one recalc per shift)
-			GenerateRay(normX, normY, img.rays[x][y]);
+			double minDist = 1e6;
+			GeometricBody* closestBody = nullptr;
+			HVec<double>  closestIntersection(3);
+			HVec<double>  closestLocalNormal(3);
+			HVec<double>  closestLocalColor(3);
 
 			for (auto& body : scene.bodies) {
-				bool isIntersected = body->TestIntersection(img.rays[x][y], intersection, localNormal, localColor);
-				if (!isIntersected) {
-					//img.SetPixel(x, y, 0.0, 0.0, 0.0);
-					continue;
-				}
+				if (!(body->TestIntersection(img.rays[x][y], intersection, localNormal, localColor))) continue; // no intersection
 
-				bool isIlluminated = false;
-				double intensity; HVec<double> color(3);
-				for (auto& light : scene.lights) {
-					isIlluminated = light->Illuminate(intersection, localNormal, body, scene.bodies, color, intensity);
-				}
+				double dist = (intersection - img.rays[x][y].p1).len();
+				if (dist >= minDist) continue;
 
-				if (isIlluminated) {
-					img.SetPixel(x, y, localColor.At(0) * intensity, localColor.At(1) * intensity, localColor.At(2) * intensity);
-				}
+				minDist = dist;
+				closestBody = body;
+				closestIntersection = intersection;
+				closestLocalNormal = localNormal;
+				closestLocalColor = localColor;
 			}
+			if (closestBody == nullptr) continue;
+
+			bool foundIllum = false;
+			double intensity; HVec<double> color(3); HVec<double> finalColor(3);
+			for (auto& light : scene.lights) {
+				if (!(light->Illuminate(closestIntersection, closestLocalNormal, closestBody, scene.bodies, color, intensity))) continue;
+				foundIllum = true;
+				finalColor += color * intensity; // well this is diffuse shading
+			}
+
+			if (!foundIllum) continue;
+			img.SetPixel(x, y, finalColor * closestLocalColor);
 		}
 	}
 }
 
+// openmp!!!!!!! aaa
 void CringeTracer::Render() {
 	size_t xSize = img.XSize();
 	size_t ySize = img.YSize();

@@ -1,10 +1,8 @@
 #pragma once
 #include "cringetracer/HeyraMath/HVec.h"
 
-template <class T> class Ray
+template <class T> struct Ray
 {
-
-public:
 	HVec<T> p1;
 	HVec<T> p2;
 	HVec<T> direction;

@@ -1554,7 +1554,7 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 
 	if (node_open)
 	{
-		ImGui::PushID(&(gb->_color));
+		ImGui::PushID(&(gb->GetColor()));
 	//	ImGui::TableNextRow();
 	//	ImGui::TableSetColumnIndex(0);
 

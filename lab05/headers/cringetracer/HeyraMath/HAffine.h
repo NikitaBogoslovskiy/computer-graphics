@@ -2,9 +2,6 @@
 #include "HVec.h"
 #include "../Ray.h"
 
-#define FORWARD true
-#define BACKWARD false
-
 template <class T> class HAffine
 {
 public:
