@@ -163,9 +163,9 @@ HVec<T> HVec<T>::operator+ (const HVec<T>& rhs) const
 {
 	if (_dims != rhs._dims) throw std::invalid_argument("Vector dimensions do not match.");
 
-	std::vector<T> resultData;
+	std::vector<T> resultData(_dims);
 	for (size_t i = 0; i < _dims; ++i)
-		resultData.push_back(_data.at(i) + rhs._data.at(i));
+		resultData[i] = _data.at(i) + rhs._data.at(i);
 
 	HVec<T> result(resultData);
 	return result;

@@ -167,6 +167,7 @@
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\BLEV\cringetracer\Materials\Material.cpp" />
     <ClCompile Include="headers\stuff\NFD\nfd_common.c" />
     <ClCompile Include="headers\stuff\NFD\nfd_win.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\Cringetracer.cpp" />
@@ -204,6 +205,7 @@
     <ClInclude Include="headers\cringetracer\GeometricBodies\Sphere.h" />
     <ClInclude Include="headers\cringetracer\Lights\Light.h" />
     <ClInclude Include="headers\cringetracer\Lights\PointLight.h" />
+    <ClInclude Include="headers\cringetracer\Materials\Material.h" />
     <ClInclude Include="headers\cringetracer\Ray.h" />
     <ClInclude Include="headers\cringetracer\Scene.h" />
     <ClInclude Include="headers\geometry\methods\blev_math.h" />

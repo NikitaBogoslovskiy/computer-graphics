@@ -1,5 +1,5 @@
 #include "../headers/cringetracer/Cringetracer.h"
-
+#include "../headers/cringetracer/Materials/Material.h"
 
 CringeTracer::CringeTracer()
 {
@@ -50,9 +50,7 @@ void CringeTracer::GetRayXY(const float x, const float y, Ray<double>& outRay) {
 bool CringeTracer::CastRay(const Ray<double>& ray,
 	GeometricBody*& closestBody, HVec<double>& closestInt, HVec<double>& closestLocalNormal, HVec<double>& closestLocalColor)
 {
-	HVec<double> intersection(3);
-	HVec<double> localNormal(3);
-	HVec<double> localColor(3);
+	HVec<double> intersection(3), localNormal(3), localColor(3);
 	double minDist = 1e6;
 	closestBody = nullptr;
 
@@ -82,19 +80,21 @@ void CringeTracer::SubRender(const size_t start, const size_t end, const size_t 
 
 			GetRayXY(normX, normY, img.rays[x][y]);
 
-			GeometricBody* closestBody = nullptr; HVec<double>  closestIntersection(3),  closestLocalNormal(3),  closestLocalColor(3);
+			GeometricBody* closestBody = nullptr; HVec<double>  closestIntersection(3), closestLocalNormal(3), closestLocalColor(3);
 			if (!(CastRay(img.rays[x][y], closestBody, closestIntersection, closestLocalNormal, closestLocalColor))) continue;
 
-			bool foundIllum = false;
-			double intensity; HVec<double> color(3); HVec<double> finalColor(3);
-			for (auto& light : scene.lights) {
-				if (!(light->Illuminate(closestIntersection, closestLocalNormal, closestBody, scene.bodies, color, intensity))) continue;
-				foundIllum = true;
-				finalColor += color * intensity; // well this is diffuse shading
-			}
 
-			if (!foundIllum) continue;
-			img.SetPixel(x, y, finalColor * closestLocalColor);
+			HVec<double> finalColor(3);
+			if (closestBody->HasMaterial()) {
+				finalColor = closestBody->Mtl->ComputeColor(scene.bodies, scene.lights,
+					img.rays[x][y],
+					closestBody, closestIntersection, closestLocalNormal);
+			}
+			else {
+				finalColor = Material::ComputeDiffuse(scene.bodies, scene.lights,
+					closestBody, closestIntersection, closestLocalNormal, closestBody->GetColor()); // clumsy!!
+			}
+			img.SetPixel(x, y, finalColor);
 		}
 	}
 }
