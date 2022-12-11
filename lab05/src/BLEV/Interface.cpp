@@ -1001,6 +1001,7 @@ void BLEV::Interface::ShowExternalWindows()
 void BLEV::Interface::PrepareCringetracer() {
 	_data.gbodies = &canvas.cringulik.scene.bodies;
 	canvas.cringulik.SetCamera(&canvas.main_camera);
+	canvas.cringulik.SetOMPThreads();
 }
 
 void BLEV::Interface::ShowContent()

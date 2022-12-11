@@ -1,5 +1,7 @@
 #include "../headers/cringetracer/Cringetracer.h"
 #include "../headers/cringetracer/Materials/Material.h"
+#include <omp.h>
+#include <algorithm>
 
 CringeTracer::CringeTracer()
 {
@@ -8,10 +10,15 @@ CringeTracer::CringeTracer()
 	aspect = 1.0;
 }
 
-
 void CringeTracer::SetCamera(Camera* _cam) {
 	cam = _cam;
 	DoubleCameraInfo();
+}
+
+void CringeTracer::SetOMPThreads() {
+	_THREADS = std::max(2 * std::thread::hardware_concurrency() / 3, size_t(1));
+	printf("THREADS = %lu\n", _THREADS);
+	omp_set_num_threads(_THREADS);
 }
 
 void CringeTracer::Update() {
@@ -83,7 +90,6 @@ void CringeTracer::SubRender(const size_t start, const size_t end, const size_t 
 			GeometricBody* closestBody = nullptr; HVec<double>  closestIntersection(3), closestLocalNormal(3), closestLocalColor(3);
 			if (!(CastRay(img.rays[x][y], closestBody, closestIntersection, closestLocalNormal, closestLocalColor))) continue;
 
-
 			HVec<double> finalColor(3);
 			if (closestBody->HasMaterial()) {
 				finalColor = closestBody->Mtl->ComputeColor(scene.bodies, scene.lights,
@@ -99,26 +105,18 @@ void CringeTracer::SubRender(const size_t start, const size_t end, const size_t 
 	}
 }
 
-// openmp!!!!!!! aaa
 void CringeTracer::Render() {
 	size_t xSize = img.XSize();
 	size_t ySize = img.YSize();
-
 	double xFact = 1.0 / (static_cast<double>(xSize) / 2.0);
 	double yFact = 1.0 / (static_cast<double>(ySize) / 2.0);
-	/*
-	The arguments to the thread function are moved or copied by value.
-	If a reference argument needs to be passed to the thread function, it has to be wrapped (e.g., with std::ref or std::cref).
-	*/
-	std::thread th1(&CringeTracer::SubRender, this, 0, xSize / 4, xSize, ySize, xFact, yFact);
-	std::thread th2(&CringeTracer::SubRender, this, xSize / 4, xSize / 2, xSize, ySize, xFact, yFact);
-	std::thread th3(&CringeTracer::SubRender, this, xSize / 2, xSize / 4 * 3, xSize, ySize, xFact, yFact);
-	std::thread th4(&CringeTracer::SubRender, this, xSize / 4 * 3, xSize, xSize, ySize, xFact, yFact);
 
-	th1.join();
-	th2.join();
-	th3.join();
-	th4.join();
+	const size_t chunkSize = xSize / _THREADS;
+#pragma omp parallel for
+	for (int i = 0; i < _THREADS; ++i)
+	{
+		SubRender(i * chunkSize, (i + 1) * chunkSize, xSize, ySize, xFact, yFact);
+	}
 }
 
 // trash ==========================================
