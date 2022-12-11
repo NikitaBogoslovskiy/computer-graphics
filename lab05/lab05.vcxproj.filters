@@ -135,6 +135,9 @@
     <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Cylinder.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Cone.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\dependencies\imgui\imgui\imconfig.h">
@@ -312,6 +315,9 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\cringetracer\GeometricBodies\Cylinder.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\cringetracer\GeometricBodies\Cone.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

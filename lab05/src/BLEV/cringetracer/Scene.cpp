@@ -5,13 +5,14 @@
 #include "../headers/cringetracer/GeometricBodies/Ellipsoid.h"
 #include "../headers/cringetracer/GeometricBodies/Plane.h"
 #include "../headers/cringetracer/GeometricBodies/Cylinder.h"
+#include "../headers/cringetracer/GeometricBodies/Cone.h"
 #include "../headers/cringetracer/Lights/PointLight.h"
 #include "../headers/cringetracer/Materials/Material.h"
 #include <memory>
 
 Scene::Scene()
 {
-	std::map<std::string, Material*> mtlLib{
+	std::map<std::string, Material*> mtlLib{ // please move it so it become accessible to the interface
 			{"brick", new Material()},
 			{"lightBlueMatte", new Material(HVec<double> {0.25, 0.3, 0.8}, 5.0, 0.0)},
 			{"lightBlue", new Material(HVec<double> {0.25, 0.3, 0.8}, 10.0, 0.8)},
@@ -19,12 +20,15 @@ Scene::Scene()
 			{"mirror", new Material(HVec<double> { 1.0, 1.0, 1.0, }, 0.0, 0.9)}
 	};
 
-
-
-	bodies.push_back(new Cylinder(HVec<double> {0.0, -0.5, 0.0},
+	bodies.push_back(new Cone(HVec<double> {0.0, -0.5, 0.0},
 		HVec<double> { M_PI * 0.5, 0.0, 0.0 },
 		HVec<double> {1.0, 1.0, 1.0},
 		ImVec3{ 0.4f, 0.6f, 0.8f }));
+
+	/*bodies.push_back(new Cylinder(HVec<double> {0.0, -0.5, 0.0},
+		HVec<double> { M_PI * 0.5, 0.0, 0.0 },
+		HVec<double> {1.0, 1.0, 1.0},
+		ImVec3{ 0.4f, 0.6f, 0.8f }));*/
 
 	/*bodies.push_back(new Ellipsoid(-1.5, 0.0, -0.5, 0.5, 0.75, 0.5, ImVec3{ 255.f / 255.f, 127.f / 255.f, 80.f / 255.f }));
 	bodies.push_back(new Sphere(0.0, 0.0, 0.5, 0.5, ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f }));
