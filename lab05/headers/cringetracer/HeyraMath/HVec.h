@@ -47,7 +47,7 @@ public:
 	HVec<T>& operator+=(const HVec<T>& rhs);
 	HVec<T>& operator-=(const HVec<T>& rhs);
 
-	Eigen::Matrix<T, Eigen::Dynamic, 1> ToEigenVec();
+	//Eigen::Matrix<T, Eigen::Dynamic, 1> ToEigenVec();
 	/*
 	todo takoe
 	 inline Polygon& operator=(const Polygon& _polygon) {
@@ -110,6 +110,7 @@ template <class T> HVec<T>::HVec(const ImVec4& imvec) {
 	_dims = 4;
 	_data = std::vector<T>{ (T)imvec.x, (T)imvec.y, (T)imvec.z, (T)imvec.w };
 }
+
 // =========================================== properties
 
 template <class T>
@@ -139,12 +140,13 @@ T HVec<T>::len()
 	return sqrt(cumulativeSum);
 }
 
+// ===========================================
+
 template <class T>
 HVec<T> HVec<T>::Normalized()
 {
 	T vecNorm = this->len();
-	HVec<T> result(_data);
-	return result * (static_cast<T>(1.0) / vecNorm);
+	return HVec<T> (_data) * (static_cast<T>(1.0) / vecNorm);
 }
 
 template <class T>
@@ -153,8 +155,7 @@ void HVec<T>::Normalize()
 	T vecNorm = this->len();
 	for (size_t i = 0; i < _dims; ++i)
 	{
-		T temp = _data.at(i) * (static_cast<T>(1.0) / vecNorm);
-		_data.at(i) = temp;
+		_data.at(i) = _data.at(i) * (static_cast<T>(1.0) / vecNorm);
 	}
 }
 
@@ -163,11 +164,9 @@ HVec<T> HVec<T>::operator+ (const HVec<T>& rhs) const
 {
 	if (_dims != rhs._dims) throw std::invalid_argument("Vector dimensions do not match.");
 
-	std::vector<T> resultData(_dims);
+	HVec<T> result(_dims);
 	for (size_t i = 0; i < _dims; ++i)
-		resultData[i] = _data.at(i) + rhs._data.at(i);
-
-	HVec<T> result(resultData);
+		result.SetAt(i, _data.at(i) + rhs._data.at(i));
 	return result;
 }
 
@@ -176,11 +175,9 @@ HVec<T> HVec<T>::operator- (const HVec<T>& rhs) const
 {
 	if (_dims != rhs._dims) throw std::invalid_argument("Vector dimensions do not match.");
 
-	std::vector<T> resultData(_dims);
+	HVec<T> result(_dims);
 	for (size_t i = 0; i < _dims; ++i)
-		resultData[i] = _data.at(i) - rhs._data.at(i);
-
-	HVec<T> result(resultData);
+		result.SetAt(i, _data.at(i) - rhs._data.at(i));
 	return result;
 }
 
@@ -189,22 +186,27 @@ inline HVec<T> HVec<T>::operator*(const HVec<T>& rhs) const
 {
 	if (_dims != rhs._dims) throw std::invalid_argument("Vector dimensions do not match.");
 
-	std::vector<T> resultData(_dims);
+	HVec<T> result(_dims);
 	for (size_t i = 0; i < _dims; ++i)
-		resultData[i] = _data.at(i) * rhs._data.at(i);
-
-	HVec<T> result(resultData);
+		result.SetAt(i, _data.at(i) * rhs._data.at(i));
 	return result;
 }
 
 template <class T>
 HVec<T> HVec<T>::operator* (const T& rhs) const
 {
-	std::vector<T> resultData;
+	HVec<T> result(_dims);
 	for (size_t i = 0; i < _dims; ++i)
-		resultData.push_back(_data.at(i) * rhs);
+		result.SetAt(i, _data.at(i) * rhs);
+	return result;
+}
 
-	HVec<T> result(resultData);
+template <class T>
+HVec<T> operator* (const T& lhs, const HVec<T>& rhs)
+{
+	HVec<T> result(rhs._dims);
+	for (size_t i = 0; i < rhs._dims; ++i)
+		result.SetAt(i, lhs * rhs._data.at(i));
 	return result;
 }
 
@@ -233,7 +235,7 @@ HVec<T>& HVec<T>::operator-=(const T& rhs) {
 
 template <class T>
 HVec<T>& HVec<T>::operator*=(const HVec<T>& rhs) {
-	if (_dims != rhs._dims) throw std::invalid_argument("Vector dimensions must match for the cross-product to be computed.");
+	if (_dims != rhs._dims) throw std::invalid_argument("Vector dimensions must match for the *= to be computed.");
 	for (size_t i = 0; i < _dims; ++i)
 		_data[i] = _data[i] * rhs.At(i);
 	return *this;
@@ -241,7 +243,7 @@ HVec<T>& HVec<T>::operator*=(const HVec<T>& rhs) {
 
 template <class T>
 HVec<T>& HVec<T>::operator+=(const HVec<T>& rhs) {
-	if (_dims != rhs._dims) throw std::invalid_argument("Vector dimensions must match for the cross-product to be computed.");
+	if (_dims != rhs._dims) throw std::invalid_argument("Vector dimensions must match for the += to be computed.");
 	for (size_t i = 0; i < _dims; ++i)
 		_data[i] = _data[i] + rhs.At(i);
 	return *this;
@@ -249,28 +251,18 @@ HVec<T>& HVec<T>::operator+=(const HVec<T>& rhs) {
 
 template <class T>
 HVec<T>& HVec<T>::operator-=(const HVec<T>& rhs) {
-	if (_dims != rhs._dims) throw std::invalid_argument("Vector dimensions must match for the cross-product to be computed.");
+	if (_dims != rhs._dims) throw std::invalid_argument("Vector dimensions must match for the -= to be computed.");
 	for (size_t i = 0; i < _dims; ++i)
 		_data[i] = _data[i] - rhs.At(i);
 	return *this;
 }
-template<class T>
-inline Eigen::Matrix<T, Eigen::Dynamic, 1> HVec<T>::ToEigenVec()
-{
-	return Eigen::Matrix<T, _dims, 1>(_data);
-}
+
+//template<class T>
+//inline Eigen::Matrix<T, Eigen::Dynamic, 1> HVec<T>::ToEigenVec()
+//{
+//	return Eigen::Matrix<T, _dims, 1>(_data);
+//}
 // ==========================================================
-
-template <class T>
-HVec<T> operator* (const T& lhs, const HVec<T>& rhs)
-{
-	std::vector<T> resultData;
-	for (size_t i = 0; i < rhs._dims; ++i)
-		resultData.push_back(lhs * rhs._data.at(i));
-
-	HVec<T> result(resultData);
-	return result;
-}
 
 //  scalars ==================================================================
 
@@ -290,14 +282,11 @@ template <class T>
 HVec<T> HVec<T>::cross(const HVec<T>& a, const HVec<T>& b)
 {
 	if (a._dims != b._dims) throw std::invalid_argument("Vector dimensions must match for the cross-product to be computed.");
+	if (a._dims != 3) throw std::invalid_argument("The cross-product can only be computed for three-dimensional vectors."); // для семи- еще можно
 
-	if (a._dims != 3) throw std::invalid_argument("The cross-product can only be computed for three-dimensional vectors.");
-
-	std::vector<T> resultData;
-	resultData.push_back((a._data.at(1) * b._data.at(2)) - (a._data.at(2) * b._data.at(1)));
-	resultData.push_back(-((a._data.at(0) * b._data.at(2)) - (a._data.at(2) * b._data.at(0))));
-	resultData.push_back((a._data.at(0) * b._data.at(1)) - (a._data.at(1) * b._data.at(0)));
-
-	HVec<T> result(resultData);
-	return result;
+	return HVec<T> {
+		(a._data.at(1)* b._data.at(2)) - (a._data.at(2) * b._data.at(1)),
+			-((a._data.at(0) * b._data.at(2)) - (a._data.at(2) * b._data.at(0))),
+			(a._data.at(0)* b._data.at(1)) - (a._data.at(1) * b._data.at(0))
+	};
 }
