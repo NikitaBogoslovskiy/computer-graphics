@@ -72,7 +72,7 @@ void Tetrahedron::ReleaseVO() {
 	glDeleteBuffers(1, &IBO);
 }
 
-void Tetrahedron::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) {
+void Tetrahedron::Draw(const glm::mat4& model, Camera& cam) {
 	glUseProgram(Program);
 
 	//glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
@@ -87,8 +87,8 @@ void Tetrahedron::Draw(const glm::mat4& model, const glm::mat4& view, const glm:
 	unsigned int projectionLoc = glGetUniformLocation(Program, "projection");
 
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(cam.GetViewMatrix()));
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(cam.GetProjectionMatrix()));
 
 	//glUniform2f(glGetUniformLocation(Program, "offset"), offset[0], offset[1]);
 	glBindVertexArray(VAO);

@@ -64,7 +64,7 @@ void ColoredEllipse::ReleaseVO() {
 	glDeleteBuffers(1, &VAO);
 }
 
-void ColoredEllipse::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) {
+void ColoredEllipse::Draw(const glm::mat4& model, Camera& cam) {
 	glUseProgram(Program);
 	glUniform2f(glGetUniformLocation(Program, "scale"), scale[0], scale[1]);
 	glBindVertexArray(VAO);

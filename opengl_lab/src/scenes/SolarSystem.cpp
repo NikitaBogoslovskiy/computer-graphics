@@ -35,14 +35,14 @@ void SolarSystem::PrepareData(const glm::vec3& center)
     }
 }
 
-void SolarSystem::Draw(float time_coefficient, const glm::mat4& view, const glm::mat4& projection)
+void SolarSystem::Draw(float time_coefficient, Camera& cam)
 {
     auto sun_model = glm::mat4(1.0f);
     sun_model = glm::translate(sun_model, sun_parameters.position);
     sun_model = glm::scale(sun_model, glm::vec3(sun_parameters.scale_factor));
     float self_rot_angle = glm::radians(SELF_ROTATION_ANGLE_UNIT * time_coefficient * sun_parameters.selfrotation_speed);
     sun_model = glm::rotate(sun_model, self_rot_angle, glm::vec3(0.0f, 1.0f, 0.0f));
-    sun.Draw(sun_model, view, projection);
+    sun.Draw(sun_model, cam);
     
     auto center = sun_parameters.position;
     float radius = 2.5;
@@ -83,8 +83,8 @@ void SolarSystem::Draw(float time_coefficient, const glm::mat4& view, const glm:
 
     unsigned int viewLoc = glGetUniformLocation(planet.Program, "view");
     unsigned int projectionLoc = glGetUniformLocation(planet.Program, "projection");
-    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(cam.GetViewMatrix()));
+    glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(cam.GetProjectionMatrix()));
 
     glGenBuffers(1, &instanced_array);
     glBindBuffer(GL_ARRAY_BUFFER, instanced_array);

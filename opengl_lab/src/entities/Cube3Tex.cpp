@@ -143,7 +143,7 @@ void Cube3Tex::ReleaseVO() {
 	glDeleteBuffers(1, &VBO);
 }
 
-void Cube3Tex::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) {
+void Cube3Tex::Draw(const glm::mat4& model, Camera& cam) {
 	glUseProgram(Program);
 
 	// bind textures on corresponding texture units
@@ -158,8 +158,8 @@ void Cube3Tex::Draw(const glm::mat4& model, const glm::mat4& view, const glm::ma
 	unsigned int projectionLoc = glGetUniformLocation(Program, "projection");
 
 	glUniformMatrix4fv(modelLoc, 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(projection));
+	glUniformMatrix4fv(viewLoc, 1, GL_FALSE, glm::value_ptr(cam.GetViewMatrix()));
+	glUniformMatrix4fv(projectionLoc, 1, GL_FALSE, glm::value_ptr(cam.GetProjectionMatrix()));
 
 	glUniform1f(glGetUniformLocation(Program, "mixRatio"), mixRatio);
 

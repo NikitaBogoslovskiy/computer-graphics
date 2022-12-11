@@ -96,14 +96,14 @@ void Skybox::ReleaseVO() {
     glDeleteBuffers(1, &VBO);
 }
 
-void Skybox::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) {
+void Skybox::Draw(const glm::mat4& model, Camera& cam) {
     // draw skybox as last
     glDepthFunc(GL_LEQUAL);  // change depth function so depth test passes when values are equal to depth buffer's content
     glUseProgram(Program);
-    auto view_distorted = glm::mat4(glm::mat3(view)); // remove translation from the view matrix
+    auto view_distorted = glm::mat4(glm::mat3(cam.GetViewMatrix())); // remove translation from the view matrix
     
     glUniformMatrix4fv(glGetUniformLocation(Program, "view"), 1, GL_FALSE, glm::value_ptr(view_distorted));
-    glUniformMatrix4fv(glGetUniformLocation(Program, "projection"), 1, GL_FALSE, glm::value_ptr(projection));
+    glUniformMatrix4fv(glGetUniformLocation(Program, "projection"), 1, GL_FALSE, glm::value_ptr(cam.GetProjectionMatrix()));
     // skybox cube
     glBindVertexArray(VAO);
     glActiveTexture(GL_TEXTURE0);

@@ -1,5 +1,4 @@
 #include "app.h"
-
 void App::ResetClock()
 {
 	deltaTime = clock.getElapsedTime().asSeconds();
@@ -9,6 +8,7 @@ void App::ResetClock()
 
 void App::Init()
 {
+	/*
 	skybox = new Skybox();
 	auto ss = new SolarSystem(50);
 	ss->LoadModels("tree.obj", "vodica.jpg", "krosh.obj", "krosh.png");
@@ -17,13 +17,27 @@ void App::Init()
 	ss->Music().setVolume(100.0f);
 	scenes.push_back(ss);
 	cur_scene = 0;
+	*/
+	
+	auto le = new LightExhibition();
+	le->LoadModels({ {"tree.obj", 0, 0, "vodica.jpg"} });
+	le->PrepareData();
+	scenes.push_back(le);
+	cur_scene = 0;
+	/*
+	*/
 }
 
 void App::Draw()
 {
-	((SolarSystem*)scenes[0])->Draw(elapsedTime, camera.GetViewMatrix(), camera.GetProjectionMatrix());
-	// skybox should be rendered last for optimization
-	skybox->Draw(glm::mat4(1.0f), camera.GetViewMatrix(), camera.GetProjectionMatrix());
+	if (!scenes.empty()) {
+		currScene()->Draw(elapsedTime, camera);
+	}
+
+	if (skybox) {
+		// skybox should be rendered last for optimization
+		skybox->Draw(glm::mat4(1.0f), camera);
+	}
 }
 
 void App::Release()

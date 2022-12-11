@@ -18,5 +18,5 @@ public:
 
 	Tetrahedron();
 
-	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) override;
+	void Draw(const glm::mat4& model, Camera& cam) override;
 };

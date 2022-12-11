@@ -2,7 +2,7 @@
 
 in vec3 coord;
 in vec2 texCoord;
-in vec3 cc_normal;
+in vec3 normal;
 out vec2 TexCoord;
 
 uniform mat4 model;

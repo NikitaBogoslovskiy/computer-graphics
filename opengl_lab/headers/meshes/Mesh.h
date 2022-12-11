@@ -6,7 +6,7 @@
 #include <vector>
 #include "../stuff.h"
 
-class Mesh : public Entity 
+class Mesh : public Entity
 {
 protected:
 	/*
@@ -20,19 +20,21 @@ protected:
 	*/
 
 	GLuint Attrib_normal;
-	glm::mat4 model = glm::mat4(1.0f);
-	glm::mat4 view = glm::mat4(1.0f);
+	//glm::mat4 model = glm::mat4(1.0f);
+	//glm::mat4 view = glm::mat4(1.0f);
 
 	void InitVBO(); // VBO, IBO
-	void InitShader() override;
-	void ReleaseVO() override; // VBO, IBO, VAO
+	virtual void InitShader() override;
+	virtual void ReleaseVO() override; // VBO, IBO, VAO
 	
-	virtual void UpdateUniforms(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection);
+	virtual void UpdateUniforms(const glm::mat4& model, Camera& cam);
+
+	using vertexData = mVertex;
 public:
 	GLuint Attrib_texture;
 	std::vector<GLuint> textures;
 	std::vector<GLsizei> count; // for glMultiDrawElements 
-	std::vector<mVertex> mVs; // vertices(full packed)
+	std::vector<vertexData> mVs; // vertices(full packed)
 	std::vector<GLuint> indices; // for IBO
 	std::vector<GLvoid*> void_indices; // for glMultiDrawElements
 	Mesh(); 
@@ -42,10 +44,11 @@ public:
 	void InitTextures(char* path = (char*)"shaders/task3/lena.jpg");
 	void LoadTexture(const char* path, uint texturei);
 	void AddTexture(const char* path);
-	void ChangeShaders(const char* vertex_path, const char* fragment_path);
+	virtual void ChangeShaders(const char* vertex_path, const char* fragment_path);
 	void InitVO() override; // VAO
 
-	void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) final;
+	//void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) final;
+	void Draw(const glm::mat4& model, Camera& cam) final;
 
 	~Mesh();
 };

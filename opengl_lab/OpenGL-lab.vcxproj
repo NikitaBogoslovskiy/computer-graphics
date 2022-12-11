@@ -151,11 +151,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="headers\app.cpp" />
+    <ClCompile Include="src\meshes\IllumiMesh.cpp" />
     <ClCompile Include="src\entities\Cube2Tex.cpp" />
     <ClCompile Include="src\entities\Cube3Tex.cpp" />
     <ClCompile Include="src\entities\ColoredEllipse.cpp" />
     <ClCompile Include="src\entities\Entity.cpp" />
     <ClCompile Include="src\entities\Skybox.cpp" />
+    <ClCompile Include="src\scenes\LightExhibition.cpp" />
     <ClCompile Include="src\scenes\SolarSystem.cpp" />
     <ClCompile Include="src\meshes\DynamicMesh.cpp" />
     <ClCompile Include="src\meshes\Mesh.cpp" />
@@ -173,6 +175,9 @@
     <ClInclude Include="headers\entities\Entity.h" />
     <ClInclude Include="headers\entities\MixedCube.h" />
     <ClInclude Include="headers\entities\Skybox.h" />
+    <ClInclude Include="headers\lights\PointLightSource.h" />
+    <ClInclude Include="headers\meshes\IllumiMesh.h" />
+    <ClInclude Include="headers\scenes\LightExhibition.h" />
     <ClInclude Include="headers\scenes\SolarSystem.h" />
     <ClInclude Include="headers\main.h" />
     <ClInclude Include="headers\meshes\DynamicMesh.h" />
@@ -184,6 +189,10 @@
     <ClInclude Include="headers\stuff.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\mesh\default_d.frag" />
+    <None Include="shaders\mesh\default_d.vert" />
+    <None Include="shaders\mesh\default_l.frag" />
+    <None Include="shaders\mesh\default_l.vert" />
     <None Include="shaders\mesh\default_s.frag" />
     <None Include="shaders\mesh\default_s.vert" />
     <None Include="shaders\cubemap\cubemap.frag" />

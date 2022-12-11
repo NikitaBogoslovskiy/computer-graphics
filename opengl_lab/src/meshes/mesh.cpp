@@ -4,7 +4,7 @@ void Mesh::InitVBO()
 {
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mVertex) * mVs.size(), mVs.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData) * mVs.size(), mVs.data(), GL_STATIC_DRAW);
 
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
@@ -15,30 +15,7 @@ void Mesh::InitVBO()
 
 void Mesh::InitShader()
 {
-	Program = ShaderLoader::initProgram("shaders/mesh/default_s.vert", "shaders/mesh/default_s.frag");
-
-	const char* attr_name = "coord"; //имя в шейдере
-	Attrib_vertex = glGetAttribLocation(Program, attr_name);
-	if (Attrib_vertex == -1) {
-		printf("could not bind attrib %s\n", attr_name);
-		return;
-	}
-
-	const char* attr_name2 = "texCoord"; //имя в шейдере
-	Attrib_texture = glGetAttribLocation(Program, attr_name2);
-	if (Attrib_texture == -1) {
-		printf("could not bind attrib %s\n", attr_name2);
-		return;
-	}
-	/*
-	const char* attr_name3 = "normal";
-	Attrib_normal = glGetAttribLocation(Program, attr_name3);
-	if (Attrib_normal == -1) {
-		printf("could not bind attrib %s\n", attr_name3);
-		return;
-	}
-	*/
-	//checkOpenGLerror();
+	ChangeShaders("shaders/mesh/default_s.vert", "shaders/mesh/default_s.frag");
 }
 
 #include "../headers/pch.h"
@@ -54,8 +31,8 @@ void Mesh::InitVO()
 	glEnableVertexAttribArray(Attrib_vertex);
 	glVertexAttribPointer(Attrib_texture, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(Attrib_texture);
-	//glVertexAttribPointer(Attrib_normal, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(5 * sizeof(GLfloat)));
-	//glEnableVertexAttribArray(Attrib_normal);
+	glVertexAttribPointer(Attrib_normal, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(5 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(Attrib_normal);
 
 	glUniform1i(glGetUniformLocation(Program, "texture0"), 0);
 
@@ -115,6 +92,7 @@ Mesh::Mesh(const char* path)
 
 void Mesh::ChangeShaders(const char* vertex_path, const char* fragment_path)
 {
+	printf("loading %s, %s:\n", vertex_path, fragment_path);
 	Program = ShaderLoader::initProgram(vertex_path, fragment_path);
 
 	const char* attr_name = "coord"; //имя в шейдере
@@ -130,21 +108,20 @@ void Mesh::ChangeShaders(const char* vertex_path, const char* fragment_path)
 		printf("could not bind attrib %s\n", attr_name2);
 		return;
 	}
-	/*
 	const char* attr_name3 = "normal";
 	Attrib_normal = glGetAttribLocation(Program, attr_name3);
 	if (Attrib_normal == -1) {
 		printf("could not bind attrib %s\n", attr_name3);
 		return;
 	}
+	/*
 	*/
 }
 
-void Mesh::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection)
+void Mesh::Draw(const glm::mat4& model, Camera& cam)
 {
 	glUseProgram(Program);
-
-	this->UpdateUniforms(model, view, projection);
+	this->UpdateUniforms(model, cam);
 
 	glBindVertexArray(VAO);
 	glMultiDrawElements(GL_TRIANGLE_FAN, count.data(), GL_UNSIGNED_INT, void_indices.data(), count.size());
@@ -160,7 +137,7 @@ void Mesh::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& 
 	glUseProgram(0);
 }
 
-void Mesh::UpdateUniforms(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection)
+void Mesh::UpdateUniforms(const glm::mat4& model, Camera& cam)
 {
 	uint i = 0;
 	for (auto t : textures) {
@@ -308,7 +285,7 @@ void Mesh::AddTexture(const char* path)
 	int width, height, nrChannels;
 	//stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis. but ive 
 	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
-	if (*data)
+	if (data && *data)
 	{
 		glBindTexture(GL_TEXTURE_2D, textures.back());
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);

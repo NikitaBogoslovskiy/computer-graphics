@@ -6,6 +6,7 @@
 #include <iostream>
 #include "shader_loader.h"
 #include "../headers/entities/Skybox.h"
+#include "../headers/scenes/LightExhibition.h"
 #include "../headers/scenes/SolarSystem.h"
 #include "Camera.h"
 
@@ -62,7 +63,7 @@ public:
 	inline const float& getDeltaTime() const {
 		return deltaTime;
 	}
-	inline auto currScene() { return scenes[cur_scene]; }
+	inline Scene* currScene() { return scenes[cur_scene]; }
 	App(sf::Window* _window) { window = _window; }
 	void Init();
 	void Draw();

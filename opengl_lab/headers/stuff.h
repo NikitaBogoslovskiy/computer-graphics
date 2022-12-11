@@ -79,4 +79,27 @@ static bool operator!=(const coord& lhs, const coord& rhs) {
 	return !(lhs == rhs);
 }
 
+struct Material {
+	glm::vec4 ambient = glm::vec4(0.0f, 0.0f, 0.0f, 1.f);
+	glm::vec4 diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
+	glm::vec4 specular = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
+	glm::vec4 emission = glm::vec4(0.0f, 0.0f, 0.0f, 1.f);
+	float shininess = 67.f;
+};
+
+struct inModelData {
+	const char* obj_file;
+	const char* vShader_path;
+	const char* fShader_path;
+	const char* texture_path;
+};
+
+constexpr float PI = 3.14159265359f;
+constexpr float DPI = 6.28318530718f;
+constexpr float a30 = PI / 6;
+constexpr float a60 = PI / 3;
+constexpr float a90 = PI / 2;
+constexpr float a120 = a60 * 2;
+constexpr float a150 = a120 + a30;
+
 #endif // !STUFF_H
