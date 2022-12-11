@@ -8,10 +8,10 @@
 #include <math.h>
 #include <vector>
 #include "Eigen/Eigen"
-
+// i was curious about overloads. so here we have
 template <class T> class HVec
 {
-	std::vector<T> _data;
+	std::vector<T> _data; // lets try to use std::array instead of vector someday. dims should be templated as well. will be faster than vector
 	size_t _dims;
 
 public:
@@ -146,7 +146,7 @@ template <class T>
 HVec<T> HVec<T>::Normalized()
 {
 	T vecNorm = this->len();
-	return HVec<T> (_data) * (static_cast<T>(1.0) / vecNorm);
+	return HVec<T>(_data) * (static_cast<T>(1.0) / vecNorm);
 }
 
 template <class T>

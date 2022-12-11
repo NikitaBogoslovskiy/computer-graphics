@@ -26,16 +26,19 @@ bool PointLight::Illuminate(const HVec<double>& intersection,
 	const std::vector<GeometricBody*>& bodies,
 	HVec<double>& outColor, double& outIntensity)
 {
-	HVec<double> lightDir = (position - intersection).Normalized();
+	HVec<double> lightDir = (position - intersection);
+	double lightDist = lightDir.len();
+	lightDir.Normalize();
+
 	HVec<double> start = intersection;
 	Ray<double> rayToLight(start, start + lightDir);
 
 	HVec<double> curInt(3); HVec<double> curLocalNormal(3); HVec<double> curLocalColor(3);
-
 	bool foundLightBlocker = false;
 	for (auto& body : bodies) {
 		if (body == gb) continue;
 		if (foundLightBlocker = body->TestIntersection(rayToLight, curInt, curLocalNormal, curLocalColor)) break;
+		if ((curInt - start).len() > lightDist) foundLightBlocker = false;
 	}
 
 	if (foundLightBlocker) {
