@@ -140,7 +140,8 @@ namespace BLEV {
 			void ShowMeshTable(Mesh* mesh, size_t idx);
 			void ShowHorizonTable(FloatingHorizon* horizon, size_t idx);
 			void ShowGBodyTable(GeometricBody* gb, size_t idx);
-
+			void ShowLightTable(Light* light, size_t idx);
+			
 			void Show();
 
 			ObjectTable(BLEV::Data& data) : _data(data) {}
@@ -162,7 +163,7 @@ namespace BLEV {
 			size_t oldSize = 0;
 			ZBuffer zbuf;
 			LightBuffer lbuf;
-			CringeTracer cringulik;
+			//CringeTracer cringulik;
 
 			ImDrawList* draw_list;
 

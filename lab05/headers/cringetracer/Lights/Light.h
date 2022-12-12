@@ -8,6 +8,8 @@ public:
 	Light();
 	~Light();
 
+	// todo f: pyr -> position
+	HVec<double> pyr;
 	HVec<double> position;
 	HVec<double> color;
 	double intensity;
