@@ -17,9 +17,9 @@ void Plane::Draw(ImDrawList* dl, const ImVec2& offset, const Eigen::Matrix4f& vp
 }
 
 // boost::optional! aaa
-bool Plane::TestIntersection(const Ray<double>& ray, HVec<double>& intersection, 
-													 HVec<double>& localNormal, 
-													 HVec<double>& localColor)
+bool Plane::TestIntersection(const Ray<double>& ray, HVec<double>& intersection,
+	HVec<double>& localNormal,
+	HVec<double>& localColor)
 {
 	// MOVE RAY TO LOCAL COORDS OF PLANE
 	Ray<double> localRay = _tform.Transform(ray, false);
@@ -36,9 +36,7 @@ bool Plane::TestIntersection(const Ray<double>& ray, HVec<double>& intersection,
 
 	intersection = _tform.Transform(localRay.p1 + t * k, true);
 
-	// globalNormal - globalOrigin
-	localNormal = (_tform.Transform(HVec<double> {0.0, 0.0, -1.0}, true) - _tform.Transform(HVec<double> {0.0, 0.0, 0.0}, true))
-		.Normalized();
+	localNormal = _tform.TransformNormal(HVec<double> {0.0, 0.0, -1.0}).Normalized(); //- _tform.Transform(HVec<double> {0.0, 0.0, 0.0}, true))
 
 	localColor = _color;
 

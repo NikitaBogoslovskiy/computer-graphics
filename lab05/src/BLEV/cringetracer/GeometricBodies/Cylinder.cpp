@@ -46,7 +46,7 @@ bool Cylinder::TestIntersection(const Ray<double>& ray, HVec<double>& intPoint, 
 		poi.at(0) = p + v * t[0];
 		poi.at(1) = p + v * t[1];
 
-		landed.at(0) = (t.at(0) > 0.0) && (std::abs(poi.at(0).At(2)) < 1.0); 
+		landed.at(0) = (t.at(0) > 0.0) && (std::abs(poi.at(0).At(2)) < 1.0);
 		if (!landed.at(0)) t.at(0) = std::numeric_limits<double>::max();
 
 		landed.at(1) = (t.at(1) > 0.0) && (std::abs(poi.at(1).At(2)) < 1.0);
@@ -93,15 +93,14 @@ bool Cylinder::TestIntersection(const Ray<double>& ray, HVec<double>& intPoint, 
 	HVec<double> tPoi = poi.at(minIndex);
 	if (minIndex < 2) // intersected cylindric surface
 	{
-		localNormal = (_tform.Transform(HVec<double> { tPoi.At(0), tPoi.At(1), 0.0 }, true) - _tform.Transform(HVec<double> { 0.0, 0.0, 0.0 }, true))
-			.Normalized();
+		localNormal = _tform.TransformNormal(HVec<double> { tPoi.At(0), tPoi.At(1), 0.0 }).Normalized(); //- _tform.Transform(HVec<double> { 0.0, 0.0, 0.0 }, true))	
 	}
 	else
 	{
 		if (HMath<double>::CloseEnough(v.At(2), 0.0)) return false;
 		if (std::sqrt(std::pow(tPoi.At(0), 2.0) + std::pow(tPoi.At(1), 2.0)) >= 1.0) return false;
-		localNormal = (_tform.Transform(HVec<double> { 0.0, 0.0, tPoi.At(2) }, true) - _tform.Transform(HVec<double> { 0.0, 0.0, 0.0 }, true))
-			.Normalized();
+		localNormal = _tform.TransformNormal(HVec<double> { 0.0, 0.0, tPoi.At(2) }).Normalized(); //- _tform.Transform(HVec<double> { 0.0, 0.0, 0.0 }, true))
+
 	}
 
 	intPoint = _tform.Transform(tPoi, true);

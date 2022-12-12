@@ -86,15 +86,13 @@ bool Cone::TestIntersection(const Ray<double>& ray, HVec<double>& intPoint, HVec
 	if (minIndex < 2) // intersected cylindric surface
 	{
 		// local normal goes from pythagoras theorem
-		localNormal = (_tform.Transform(HVec<double> { tPoi.At(0), tPoi.At(1), -std::sqrt(std::pow(tPoi.At(0), 2.0) + std::pow(tPoi.At(1), 2.0)) }, true) - _tform.Transform(HVec<double> { 0.0, 0.0, 0.0 }, true))
-			.Normalized();
+		localNormal = _tform.TransformNormal(HVec<double> { tPoi.At(0), tPoi.At(1), -std::sqrt(std::pow(tPoi.At(0), 2.0) + std::pow(tPoi.At(1), 2.0)) }).Normalized(); //- _tform.Transform(HVec<double> { 0.0, 0.0, 0.0 }, true))
 	}
 	else
 	{
 		if (HMath<double>::CloseEnough(v.At(2), 0.0)) return false;
 		if (std::sqrt(std::pow(tPoi.At(0), 2.0) + std::pow(tPoi.At(1), 2.0)) >= 1.0) return false;
-		localNormal = (_tform.Transform(HVec<double> { 0.0, 0.0, 1.0 }, true) - _tform.Transform(HVec<double> { 0.0, 0.0, 0.0 }, true))
-			.Normalized();
+		localNormal = _tform.TransformNormal(HVec<double> { 0.0, 0.0, 1.0 }).Normalized(); //- _tform.Transform(HVec<double> { 0.0, 0.0, 0.0 }, true))
 	}
 
 	intPoint = _tform.Transform(tPoi, true);

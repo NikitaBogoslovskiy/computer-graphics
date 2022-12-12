@@ -74,7 +74,9 @@ bool Ellipsoid::TestIntersection(const Ray<double>& ray, HVec<double>& intersect
 	intersection = _tform.Transform(tempIntersection, true);
 
 	// MOVE CENTRE TO GLOBAL COORDS AND CALC NORMAL!
-	localNormal = (intersection - _tform.Transform(HVec<double> {0.0, 0.0, 0.0}, true)).Normalized();
+	//localNormal = (intersection - _tform.Transform(HVec<double> {0.0, 0.0, 0.0}, true)).Normalized();
+	localNormal = _tform.TransformNormal(tempIntersection).Normalized();
+
 	localColor = _color;
 	return true;
 }

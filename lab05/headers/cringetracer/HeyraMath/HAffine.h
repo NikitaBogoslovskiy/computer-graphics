@@ -4,6 +4,7 @@
 
 template <class T> class HAffine
 {
+	void ExtractLinearComponents();
 public:
 	HAffine();
 	HAffine(const Eigen::Matrix<T, 4, 4>& toGlobal, const Eigen::Matrix<T, 4, 4>& toLocal);
@@ -15,6 +16,7 @@ public:
 
 	const Eigen::Matrix<T, 4, 4>& Forward();
 	const Eigen::Matrix<T, 4, 4>& Backward();
+	const Eigen::Matrix<T, 3, 3>& GetNormalTransform();
 
 	static Eigen::Matrix<T, 4, 4> Translation(const HVec<T>& inVec);
 	static Eigen::Matrix<T, 4, 4> RotationX(const T& angle);
@@ -23,6 +25,7 @@ public:
 	static Eigen::Matrix<T, 4, 4> Scale(const HVec<T>& inVec);
 
 	HVec<T> Transform(const HVec<T>& inVec, bool toGlobal);
+	HVec<T> TransformNormal(const HVec<T>& inVec);
 	Ray<T> Transform(const Ray<T>& inRay, bool toGlobal);
 
 	friend HAffine<T> operator* (const HAffine<T>& lhs, const HAffine<T>& rhs);
@@ -30,7 +33,7 @@ public:
 	HAffine operator= (const HAffine& rhs);
 
 protected:
-
+	Eigen::Matrix<T, 3, 3> _linComp;
 	Eigen::Matrix<T, 4, 4> _toGlobal, _toLocal;
 };
 
@@ -47,15 +50,26 @@ inline HAffine<T> HAffine<T>::operator=(const HAffine& rhs)
 	{
 		_toGlobal = rhs._toGlobal;
 		_toLocal = rhs._toLocal;
+		ExtractLinearComponents();
 	}
 
 	return *this;
+}
+
+template<class T>
+inline void HAffine<T>::ExtractLinearComponents()
+{
+	for (size_t i = 0; i < 3; i++)
+		for (size_t j = 0; j < 3; j++)
+			_linComp(i, j) = _toGlobal(i, j);
+	_linComp = _linComp.inverse().transpose();
 }
 
 template <class T> HAffine<T>::HAffine()
 {
 	_toGlobal.setIdentity();
 	_toLocal.setIdentity();
+	ExtractLinearComponents();
 }
 
 template<class T>
@@ -63,12 +77,14 @@ inline HAffine<T>::HAffine(const Eigen::Matrix<T, 4, 4>& toGlobal, const Eigen::
 {
 	_toGlobal = toGlobal;
 	_toLocal = toLocal;
+	ExtractLinearComponents();
 }
 
 template<class T>
 inline HAffine<T>::HAffine(const HVec<T>& translation, const HVec<T>& rotation, const HVec<T>& scale)
 {
 	this->SetTransform(translation, rotation, scale);
+	ExtractLinearComponents();
 }
 
 template <class T> HAffine<T>::~HAffine()
@@ -99,6 +115,13 @@ inline HVec<T> HAffine<T>::Transform(const HVec<T>& inVec, bool toGlobal)
 	else {
 		temp = _toLocal * hVec;
 	}
+	return HVec<T> { temp(0, 0), temp(1, 0), temp(2, 0) };
+}
+
+template<class T>
+inline HVec<T> HAffine<T>::TransformNormal(const HVec<T>& inVec)
+{
+	Eigen::Matrix<T, 3, 1> temp = _linComp * Eigen::Matrix<T, 3, 1> { inVec.At(0), inVec.At(1), inVec.At(2) };
 	return HVec<T> { temp(0, 0), temp(1, 0), temp(2, 0) };
 }
 
@@ -180,4 +203,10 @@ template<class T>
 inline const Eigen::Matrix<T, 4, 4>& HAffine<T>::Backward()
 {
 	return _toLocal;
+}
+
+template<class T>
+inline const Eigen::Matrix<T, 3, 3>& HAffine<T>::GetNormalTransform()
+{
+	return _linComp;
 }
