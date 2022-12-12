@@ -2,18 +2,18 @@
 
 #define PIDIVTWO 1.5708
 
-PointLight::PointLight(const HVec<double>& inPosition, const HVec<double>& inColor, const double& inIntensity)
-{
-	color = inColor;
-	position = inPosition;
-	intensity = inIntensity;
-}
-
-
 PointLight::PointLight()
 {
 	color = HVec<double>{ 1.0, 1.0, 1.0 };
 	intensity = 1.0;
+}
+
+PointLight::PointLight(const HVec<double>& inPitchYaw, const double inR, const HVec<double>& inColor, const double inIntensity)
+{
+	r = inR;
+	updatePitchYaw(inPitchYaw);
+	color = inColor;
+	intensity = inIntensity;
 }
 
 PointLight::~PointLight()

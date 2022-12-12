@@ -8,11 +8,12 @@ public:
 	Light();
 	~Light();
 
-	// todo f: pyr -> position
-	HVec<double> pyr;
-	HVec<double> position;
-	HVec<double> color;
-	double intensity;
+	HVec<double> pitchYaw{ 0.0, 90.0 };
+	double r = 10.0;
+	HVec<double> color{ 1.0, 1.0, 1.0 };
+	double intensity = 1.0;
+
+	HVec<double> position{ 0.0, 0.0, 0.0 }; // "computed" property
 
 	virtual bool Illuminate(const HVec<double>& intersection,
 		const HVec<double>& localNormal,
@@ -20,6 +21,11 @@ public:
 		const std::vector<GeometricBody*>& bodies,
 		HVec<double>& outColor, double& outIntensity) = 0;
 
-private:
+	// requires r to be set
+	// updates pitchYaw and position
+	void updatePitchYaw(const HVec<double>& inPitchYaw);
+	void updateOriginDistance(const double R);
 
+private:
+	void rotateSource();
 };

@@ -1583,47 +1583,73 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 
 	ImGui::TableNextRow();
 	ImGui::TableSetColumnIndex(0);
-	ImGui::AlignTextToFramePadding();
 	bool node_open = ImGui::TreeNode("Light", "%d", idx);
 	ImGui::TableSetColumnIndex(1);
-	/*
-	HVec<double> position;
-	HVec<double> color;
-	double intensity;
-	*/
+
 	if (node_open)
 	{
-		ImGui::PushID(&(light->color));
-		ImGui::TableNextRow();
-		ImGui::TableSetColumnIndex(0);
+		// =================================== pitchYaw edit
+		ImGui::PushID(&(light->pitchYaw));
 
-		ImGui::Text("Color");
+		ImGui::TableNextRow();
+
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Position");
+		// pitch
 		ImGui::TableSetColumnIndex(1);
+		ImGui::PushItemWidth(70);
+		float pitch = (float)light->pitchYaw.At(0);
+		bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 1.f, -89.f, 89.f, "%.0f");
+		if (pitchHasChanged)
+		{
+			light->updatePitchYaw(HVec<double>{ (double)pitch, light->pitchYaw.At(1)});
+			needRefresh = true;
+		}
+		//yaw
+		float yaw = (float)light->pitchYaw.At(1);
+		bool yawHasChanged = ImGui::DragFloat("Yaw", &yaw, 5.f, 0.f, 3600.f, "%.0f");
+		if (yawHasChanged)
+		{
+			light->updatePitchYaw(HVec<double>{ light->pitchYaw.At(0), (double)yaw});
+			needRefresh = true;
+		}
+		// R 
+		float r = (float)light->r;
+		bool rHasChanged = ImGui::DragFloat("R", &r, 5.f, 0.f, 100.f, "%.0f");
+		if (rHasChanged)
+		{
+			light->updateOriginDistance((double)r);
+			needRefresh = true;
+		}
+		ImGui::PopID();
+
+		// =================================== color edit
+		ImGui::PushID(&(light->color));
+
+		ImGui::TableNextRow();
+
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Color");
+
+		ImGui::TableSetColumnIndex(1);
+		ImGui::PushItemWidth(70);
 		ImVec3 lightColor = { (float)light->color.At(0), (float)light->color.At(1), (float)light->color.At(2) };
 		bool colorHasChanged = ImGui::ColorEdit3("", (float*)&lightColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
 		if (colorHasChanged)
 		{
-			light->color = HVec<double>{ lightColor.x  , lightColor.y ,lightColor.z };
+			light->color = HVec<double>{ lightColor.x, lightColor.y, lightColor.z };
+			needRefresh = true;
+		}
+		// intensity
+		float fint = (float)light->intensity;
+		bool intensityHasChanged = ImGui::DragFloat("Intensity", &fint, 0.01f, 0.f, 1.f, "%.0f");
+		if (intensityHasChanged && (fint >= 0.f) && fint <= 1.f)
+		{
+			light->intensity = (double)fint;
 			needRefresh = true;
 		}
 		ImGui::PopID();
-		// todo yaw pitch 
-		// 
-		bool pitchHasChanged = ImGui::DragFloat("zFocus", &canvas.main_camera.zFocus(), 1.f, 400.f, 1000.f, "%.0f");
-		//ImGui::PushID(&(horizon->lowerColor));
-		//ImGui::TableNextRow();
-		//ImGui::TableSetColumnIndex(0);
-		//ImGui::Text("Lower Color");
-		//ImGui::TableSetColumnIndex(1);
-		//auto lowerColor = horizon->lowerColor / 255.;
-		//bool lowerHasChanged = ImGui::ColorEdit4("", (float*)&lowerColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
-		//auto lowerResult = lowerColor * 255;
-		//if (lowerHasChanged)
-		//{
-		//	horizon->lowerColor = lowerResult;
-		//	//needRefresh = true;
-		//}
-		//ImGui::PopID();
+
 
 		ImGui::TreePop();
 	}

@@ -5,7 +5,8 @@ class PointLight : public Light
 {
 public:
 	PointLight();
-	PointLight(const HVec<double>& inPosition, const HVec<double>& inColor, const double& inIntensity);
+	//PointLight(const HVec<double>& inPosition, const HVec<double>& inColor, const double& inIntensity);
+	PointLight(const HVec<double>& inPitchYaw, const double inR, const HVec<double>& inColor, const double inIntensity);
 	~PointLight();
 
 	bool Illuminate(const HVec<double>& intersection,

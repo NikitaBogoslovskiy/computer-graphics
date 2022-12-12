@@ -12,7 +12,7 @@
 
 Scene::Scene()
 {
-	materials = std::map<std::string, Material*> { // please move it so it become accessible to the interface
+	materials = std::map<std::string, Material*>{ // please move it so it become accessible to the interface
 			{"brick", new Material()},
 			{"lightBlueMatte", new Material(HVec<double> {0.25, 0.3, 0.8}, 5.0, 0.0)},
 			{"lightBlue", new Material(HVec<double> {0.25, 0.3, 0.8}, 10.0, 0.8)},
@@ -49,10 +49,19 @@ Scene::Scene()
 	//lights.push_back(new PointLight(HVec<double> {5.0, -5.0, 10.0}, HVec<double> { 159.f / 255.f, 44.f / 255.f, 214.f / 255.f }, 1.0));
 	//
 
+	/*
+	HVec<double> pitchYaw{ 0.0, 90.0 };
+	double r = 10.0;
+	HVec<double> color{ 1.0, 1.0, 1.0 };
+	double intensity = 1.0;
+
+	*/
 	//lights.push_back(new PointLight(HVec<double> {-5.0, -10.0, 5.0}, HVec<double> { 1.0, 1.0, 1.0 }, 1.0));
-	lights.push_back(new PointLight(HVec<double> {-5.0, -10.0, 5.0}, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
+	//lights.push_back(new PointLight(HVec<double> {-5.0, -10.0, 5.0}, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
 	//lights.push_back(new PointLight(HVec<double> {0.0, -10.0, -5.0}, HVec<double> { 0.0, 1.0, 0.0 }, 1.0));
-	lights.push_back(new PointLight(HVec<double> {5.0, -10.0, 5.0}, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));
+
+	lights.push_back(new PointLight(HVec<double> { -45.0, 90.0 }, 10.0, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
+	lights.push_back(new PointLight(HVec<double> { -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));
 }
 
 Scene::~Scene()
