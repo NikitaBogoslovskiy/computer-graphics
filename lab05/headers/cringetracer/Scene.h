@@ -12,7 +12,7 @@ public:
 	std::vector<GeometricBody*> bodies;
 	std::vector<Light*> lights;
 	std::map<std::string, Material*> materials;
-
+ 	
 	Scene();
 	~Scene();
 };

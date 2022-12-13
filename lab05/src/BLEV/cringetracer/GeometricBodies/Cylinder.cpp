@@ -15,7 +15,7 @@ void Cylinder::Draw(ImDrawList* dl, const ImVec2& offset, const Eigen::Matrix4f&
 {
 }
 
-bool Cylinder::TestIntersection(const Ray<double>& ray, HVec<double>& intPoint, HVec<double>& localNormal, HVec<double>& localColor)
+bool Cylinder::TestIntersection(const Ray<double>& ray, HVec<double>& intPoint, HVec<double>& localNormal, HVec<double>& localColor) const
 {
 	Ray<double> localRay = _tform.Transform(ray, false);
 	HVec<double> v = localRay.direction.Normalized();

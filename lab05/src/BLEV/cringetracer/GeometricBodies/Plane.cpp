@@ -19,7 +19,7 @@ void Plane::Draw(ImDrawList* dl, const ImVec2& offset, const Eigen::Matrix4f& vp
 // boost::optional! aaa
 bool Plane::TestIntersection(const Ray<double>& ray, HVec<double>& intersection,
 	HVec<double>& localNormal,
-	HVec<double>& localColor)
+	HVec<double>& localColor) const
 {
 	// MOVE RAY TO LOCAL COORDS OF PLANE
 	Ray<double> localRay = _tform.Transform(ray, false);

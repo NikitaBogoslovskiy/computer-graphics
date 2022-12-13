@@ -15,7 +15,7 @@ void Cone::Draw(ImDrawList* dl, const ImVec2& offset, const Eigen::Matrix4f& vp)
 {
 }
 
-bool Cone::TestIntersection(const Ray<double>& ray, HVec<double>& intPoint, HVec<double>& localNormal, HVec<double>& localColor)
+bool Cone::TestIntersection(const Ray<double>& ray, HVec<double>& intPoint, HVec<double>& localNormal, HVec<double>& localColor) const
 {
 	Ray<double> localRay = _tform.Transform(ray, false);
 	HVec<double> v = localRay.direction.Normalized();

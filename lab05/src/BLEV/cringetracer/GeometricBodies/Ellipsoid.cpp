@@ -47,7 +47,7 @@ void Ellipsoid::Draw(ImDrawList* dl, const ImVec2& offset, const Eigen::Matrix4f
 	}
 }
 
-bool Ellipsoid::TestIntersection(const Ray<double>& ray, HVec<double>& intersection, HVec<double>& localNormal, HVec<double>& localColor) {
+bool Ellipsoid::TestIntersection(const Ray<double>& ray, HVec<double>& intersection, HVec<double>& localNormal, HVec<double>& localColor) const {
 	// MOVE RAY TO LOCAL COORDS OF SPHERE
 	Ray<double> localRay = _tform.Transform(ray, false);
 
@@ -61,21 +61,31 @@ bool Ellipsoid::TestIntersection(const Ray<double>& ray, HVec<double>& intersect
 	double dSqrt = sqrtf(D);
 	double t1 = (-b + dSqrt) * 0.5;
 	double t2 = (-b - dSqrt) * 0.5;
-	if ((t1 < 0.0) || (t2 < 0.0)) return false;
+	if ((t1 < 0.0) && (t2 < 0.0)) return false; // part of body is behind eye
 
-	HVec<double> tempIntersection;
+	HVec<double> poi;
 	if (t1 < t2) {
-		tempIntersection = localRay.p1 + ndir * t1;
+		if (t1 > 0.0)
+			poi = localRay.p1 + ndir * t1;
+		else if (t2 > 0.0)
+			poi = localRay.p1 + ndir * t2;
+		else
+			return false;
 	}
 	else {
-		tempIntersection = localRay.p1 + ndir * t2;
+		if (t2 > 0.0)
+			poi = localRay.p1 + ndir * t2;
+		else if (t1 > 0.0)
+			poi = localRay.p1 + ndir * t1;
+		else
+			return false;
 	}
 	// MOVE INTERSECTION TO GLOBAL COORDS
-	intersection = _tform.Transform(tempIntersection, true);
+	intersection = _tform.Transform(poi, true);
 
 	// MOVE CENTRE TO GLOBAL COORDS AND CALC NORMAL!
 	//localNormal = (intersection - _tform.Transform(HVec<double> {0.0, 0.0, 0.0}, true)).Normalized();
-	localNormal = _tform.TransformNormal(tempIntersection).Normalized();
+	localNormal = _tform.TransformNormal(poi).Normalized();
 
 	localColor = _color;
 	return true;

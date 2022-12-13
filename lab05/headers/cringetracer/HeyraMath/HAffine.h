@@ -24,9 +24,9 @@ public:
 	static Eigen::Matrix<T, 4, 4> RotationZ(const T& angle);
 	static Eigen::Matrix<T, 4, 4> Scale(const HVec<T>& inVec);
 
-	HVec<T> Transform(const HVec<T>& inVec, bool toGlobal);
-	HVec<T> TransformNormal(const HVec<T>& inVec);
-	Ray<T> Transform(const Ray<T>& inRay, bool toGlobal);
+	HVec<T> Transform(const HVec<T>& inVec, bool toGlobal) const;
+	HVec<T> TransformNormal(const HVec<T>& inVec) const;
+	Ray<T> Transform(const Ray<T>& inRay, bool toGlobal) const;
 
 	friend HAffine<T> operator* (const HAffine<T>& lhs, const HAffine<T>& rhs);
 
@@ -105,7 +105,7 @@ template <class T> void HAffine<T>::SetTransform(const HVec<T>& translation, con
 }
 
 template<class T>
-inline HVec<T> HAffine<T>::Transform(const HVec<T>& inVec, bool toGlobal)
+inline HVec<T> HAffine<T>::Transform(const HVec<T>& inVec, bool toGlobal) const
 {
 	Eigen::Matrix<T, 4, 1> hVec{ inVec.At(0), inVec.At(1), inVec.At(2), (T)1 };
 	Eigen::Matrix<T, 4, 1> temp;
@@ -119,14 +119,14 @@ inline HVec<T> HAffine<T>::Transform(const HVec<T>& inVec, bool toGlobal)
 }
 
 template<class T>
-inline HVec<T> HAffine<T>::TransformNormal(const HVec<T>& inVec)
+inline HVec<T> HAffine<T>::TransformNormal(const HVec<T>& inVec) const
 {
 	Eigen::Matrix<T, 3, 1> temp = _linComp * Eigen::Matrix<T, 3, 1> { inVec.At(0), inVec.At(1), inVec.At(2) };
 	return HVec<T> { temp(0, 0), temp(1, 0), temp(2, 0) };
 }
 
 template<class T>
-inline Ray<T> HAffine<T>::Transform(const Ray<T>& inRay, bool toGlobal)
+inline Ray<T> HAffine<T>::Transform(const Ray<T>& inRay, bool toGlobal) const
 {
 	Ray<T> outRay;
 	outRay.p1 = HAffine<T>::Transform(inRay.p1, toGlobal);

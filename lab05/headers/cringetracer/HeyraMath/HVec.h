@@ -30,8 +30,8 @@ public:
 	const T& At(const size_t index) const;
 	void SetAt(const size_t index, T value);
 
-	T len();
-	HVec<T> Normalized();
+	T len() const;
+	HVec<T> Normalized() const;
 	void Normalize();
 
 	HVec<T> operator+ (const HVec<T>& rhs) const;
@@ -131,7 +131,7 @@ void HVec<T>::SetAt(const size_t index, T value)
 }
 
 template <class T>
-T HVec<T>::len()
+T HVec<T>::len() const
 {
 	T cumulativeSum = static_cast<T>(0.0);
 	for (size_t i = 0; i < _dims; ++i)
@@ -143,7 +143,7 @@ T HVec<T>::len()
 // ===========================================
 
 template <class T>
-HVec<T> HVec<T>::Normalized()
+HVec<T> HVec<T>::Normalized() const
 {
 	T vecNorm = this->len();
 	return HVec<T>(_data) * (static_cast<T>(1.0) / vecNorm);
