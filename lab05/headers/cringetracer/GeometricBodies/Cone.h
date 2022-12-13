@@ -2,8 +2,8 @@
 #include "GeometricBody.h"
 class Cone : public GeometricBody
 {
-	HVec<double> _centre;
-	double _rx, _h, _rz;
+	//HVec<double> _centre;
+	//double _rx, _h, _rz;
 public:
 	Cone(const HVec<double>& origin, const HVec<double>& rotation, const HVec<double>& scale, const ImVec3& inColor);
 	~Cone();

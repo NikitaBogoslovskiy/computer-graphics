@@ -920,6 +920,7 @@ void BLEV::Interface::F_Scene() {
 			char* nstr = console[6]->pseudo_console;
 			Validator::ValidateSphereArgs(nstr, x0, y0, z0, radius);
 			_data.cringulik.scene.bodies.push_back(new Sphere(x0, y0, z0, radius, sphereColor));
+			needRefresh = true;
 			//printf("%lf %lf %lf %lf", x0, y0, z0, radius);
 		}
 		catch (const std::exception& e)
@@ -1530,12 +1531,11 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 
 	ImGui::TableNextRow();
 	ImGui::TableSetColumnIndex(0);
-	ImGui::AlignTextToFramePadding();
-	bool node_open = ImGui::TreeNode("GBody", "gb%d", idx);
+	bool node_open = ImGui::TreeNode("GBody", "%d", idx);
 	ImGui::TableSetColumnIndex(1);
 
 	char primName[32];
-	strcpy(primName, "GBody %d");
+	strcpy(primName, PGBodyToChar(gb));
 	if (_data.chosen_gbodies.find(gb) != _data.chosen_gbodies.end()) {
 		ImGui::TextColored(ImVec4(255, 0, 0, 255), primName, idx);
 	}
@@ -1555,20 +1555,107 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 
 	if (node_open)
 	{
+		// =================================== Color
 		ImGui::PushID(&(gb->GetColor()));
-		//	ImGui::TableNextRow();
-		//	ImGui::TableSetColumnIndex(0);
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Color");
+		ImGui::TableSetColumnIndex(1);
+		ImGui::PushItemWidth(70);
+		ImVec3 newColor = { (float)gb->GetColor().At(0), (float)gb->GetColor().At(1), (float)gb->GetColor().At(2) };
+		bool colorHasChanged = ImGui::ColorEdit3("", (float*)&newColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+		if (colorHasChanged)
+		{
+			gb->SetColor(HVec<double>{ (double)newColor.x, (double)newColor.y, (double)newColor.z });
+			needRefresh = true;
+		}
+		ImGui::PopID();
 
-		//	ImGui::Text("Color");
-		//	ImGui::TableSetColumnIndex(1);
-		//	auto upperColor = gb->color / 255.;
-		//	bool upperHasChanged = ImGui::ColorEdit4("", (float*)&upperColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
-		//	auto upperResult = upperColor * 255;
-		//	if (upperHasChanged)
-		//	{
-		//		gb->color = upperResult;
-		//		//needRefresh = true;
-		//	}
+		// =================================== Origin
+		ImGui::PushID(&(gb->Origin));
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Origin");
+		// x
+		ImGui::TableSetColumnIndex(1);
+		ImGui::PushItemWidth(70);
+		float x = (float)gb->Origin.At(0);
+		bool xHasChanged = ImGui::DragFloat("X", &x, 0.5f, -10.f, 10.f, "%.1f");
+		if (xHasChanged)
+			gb->Origin.SetAt(0, (double)x);
+
+		// y
+		float y = (float)gb->Origin.At(1);
+		bool yHasChanged = ImGui::DragFloat("Y", &y, 0.5f, -10.f, 10.f, "%.1f");
+		if (yHasChanged)
+			gb->Origin.SetAt(1, (double)y);
+
+		// z
+		float z = (float)gb->Origin.At(2);
+		bool zHasChanged = ImGui::DragFloat("Z", &z, 0.5f, -10.f, 10.f, "%.1f");
+		if (zHasChanged)
+			gb->Origin.SetAt(2, (double)z);
+		ImGui::PopID();
+
+		// =================================== Rotation
+		ImGui::PushID(&(gb->Rotation));
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Rotation");
+		// x
+		ImGui::TableSetColumnIndex(1);
+		ImGui::PushItemWidth(70);
+		float pitch = (float)gb->Rotation.At(0);
+		bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 5.f, -360.f, 360.f, "%.1f");
+		if (pitchHasChanged)
+			gb->Rotation.SetAt(0, (double)pitch);
+
+		// y
+		float yaw = (float)gb->Rotation.At(1);
+		bool yawHasChanged = ImGui::DragFloat("Yaw", &yaw, 5.f, -360.f, 360.f, "%.1f");
+		if (yawHasChanged)
+			gb->Rotation.SetAt(1, (double)yaw);
+
+		// z
+		float roll = (float)gb->Rotation.At(2);
+		bool rollHasChanged = ImGui::DragFloat("Roll", &roll, 5.f, -360.f, 360.f, "%.1f");
+		if (rollHasChanged)
+			gb->Rotation.SetAt(2, (double)roll);
+		ImGui::PopID();
+
+		//// =================================== Scale
+		//ImGui::PushID(&(gb->Scale));
+		//ImGui::TableNextRow();
+		//ImGui::TableSetColumnIndex(0);
+		//ImGui::Text("Scale");
+		//// x
+		//ImGui::TableSetColumnIndex(1);
+		//ImGui::PushItemWidth(70);
+		//float sX = (float)gb->Scale.At(0);
+		//bool sxHasChanged = ImGui::DragFloat("X", &sX, 0.1f, 0.f, 10.f, "%.1f");
+		//if (sxHasChanged)
+		//	gb->Scale.SetAt(0, (double)sX);
+
+		//// y
+		//float sY = (float)gb->Scale.At(1);
+		//bool syHasChanged = ImGui::DragFloat("Y", &sY, 0.1f, 0.f, 10.f, "%.1f");
+		//if (syHasChanged)
+		//	gb->Scale.SetAt(1, (double)sY);
+
+		//// z
+		//float sZ = (float)gb->Scale.At(2);
+		//bool szHasChanged = ImGui::DragFloat("Z", &sZ, 0.1f, 0.f, 10.f, "%.1f");
+		//if (szHasChanged)
+		//	gb->Scale.SetAt(2, (double)sZ);
+
+		if (
+			xHasChanged || yHasChanged || zHasChanged 
+			|| pitchHasChanged || yawHasChanged || rollHasChanged 
+			//|| sxHasChanged || syHasChanged || szHasChanged
+			) {
+			gb->SetTransform();
+			needRefresh = true;
+		}
 		ImGui::PopID();
 
 		ImGui::TreePop();
@@ -1585,21 +1672,20 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 	ImGui::TableSetColumnIndex(0);
 	bool node_open = ImGui::TreeNode("Light", "%d", idx);
 	ImGui::TableSetColumnIndex(1);
+	ImGui::Text(PLightToChar(light));
 
 	if (node_open)
 	{
 		// =================================== pitchYaw edit
 		ImGui::PushID(&(light->pitchYaw));
-
 		ImGui::TableNextRow();
-
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text("Position");
 		// pitch
 		ImGui::TableSetColumnIndex(1);
 		ImGui::PushItemWidth(70);
 		float pitch = (float)light->pitchYaw.At(0);
-		bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 1.f, -89.f, 89.f, "%.0f");
+		bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 5.f, -89.f, 89.f, "%.0f");
 		if (pitchHasChanged)
 		{
 			light->updatePitchYaw(HVec<double>{ (double)pitch, light->pitchYaw.At(1)});
@@ -1615,7 +1701,7 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		}
 		// R 
 		float r = (float)light->r;
-		bool rHasChanged = ImGui::DragFloat("R", &r, 5.f, 0.f, 100.f, "%.0f");
+		bool rHasChanged = ImGui::DragFloat("R", &r, 1.f, 0.f, 100.f, "%.0f");
 		if (rHasChanged)
 		{
 			light->updateOriginDistance((double)r);
@@ -1642,7 +1728,7 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		}
 		// intensity
 		float fint = (float)light->intensity;
-		bool intensityHasChanged = ImGui::DragFloat("Intensity", &fint, 0.01f, 0.f, 1.f, "%.0f");
+		bool intensityHasChanged = ImGui::DragFloat("Intensity", &fint, 0.01f, 0.f, 1.f, "%.2f");
 		if (intensityHasChanged && (fint >= 0.f) && fint <= 1.f)
 		{
 			light->intensity = (double)fint;
@@ -1655,6 +1741,22 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 	}
 
 	ImGui::PopID();
+}
+
+const char* BLEV::Interface::ObjectTable::PGBodyToChar(GeometricBody* gb)
+{
+	if (dynamic_cast<Sphere*>(gb) != nullptr) return "Sphere";
+	if (dynamic_cast<Ellipsoid*>(gb) != nullptr) return "Ellipsoid";
+	if (dynamic_cast<Plane*>(gb) != nullptr) return "Plane";
+	if (dynamic_cast<Cylinder*>(gb) != nullptr) return "Cylinder";
+	if (dynamic_cast<Cone*>(gb) != nullptr) return "Cone";
+	return "Undefined";
+}
+
+const char* BLEV::Interface::ObjectTable::PLightToChar(Light* l)
+{
+	if (dynamic_cast<PointLight*>(l) != nullptr) return "Point light";
+	return "Light";
 }
 
 void BLEV::Interface::ObjectTable::Show()

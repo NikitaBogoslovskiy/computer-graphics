@@ -19,20 +19,22 @@ protected:
 	HAffine<double> _tform;
 
 public:
+	HVec<double> Origin;
+	HVec<double> Rotation;
+	HVec<double> Scale;
 
-	//std::shared_ptr<Material> Mtl; // well lets try
-	Material * Mtl = nullptr;
+	Material* Mtl = nullptr;
 
-	GeometricBody();
-	GeometricBody(const ImVec3& inColor);
+	GeometricBody(const HVec<double>& origin, const HVec<double>& rotation, const HVec<double>& scale, const ImVec3& inColor);
 	~GeometricBody();
 
 	inline bool HasMaterial() { return Mtl != nullptr; }
 	inline void SetMaterial(const Material* mtl) { Mtl = const_cast<Material*>(mtl); }
 
 	inline void SetTransform(const HAffine<double>& transformation) { _tform = transformation; }
-	inline void SetTransform(const HVec<double>& translation, const HVec<double>& rotation, const HVec<double>& scale) {
-		_tform = HAffine<double>(translation, rotation, scale);
+	inline void SetTransform() {
+		//_tform = HAffine<double>(translation, rotation, scale);
+		_tform = HAffine<double>(Origin, Rotation, Scale);
 	}
 	inline void SetColor(const HVec<double>& inColor) { _color = inColor; }
 

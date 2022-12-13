@@ -1,9 +1,10 @@
 #include "../headers/cringetracer/GeometricBodies/Plane.h"
 #include "../headers/cringetracer/HeyraMath/HMath.h"
 
-Plane::Plane(const HVec<double>& origin, const HVec<double>& rotation, const HVec<double>& scale, const ImVec3& inColor) : GeometricBody(inColor)
+Plane::Plane(const HVec<double>& origin, const HVec<double>& rotation, const HVec<double>& scale, const ImVec3& inColor) 
+	: GeometricBody(origin, rotation, scale, inColor)
 {
-	this->SetTransform(origin, rotation, scale);
+
 }
 
 Plane::~Plane()

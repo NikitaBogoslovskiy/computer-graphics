@@ -8,7 +8,11 @@
 #include "Validator.h"
 #include "cringetracer/Cringetracer.h"
 
+#include "cringetracer/Lights/PointLight.h"
 #include "cringetracer/GeometricBodies/Sphere.h"
+#include "cringetracer/GeometricBodies/Plane.h"
+#include "cringetracer/GeometricBodies/Cone.h"
+#include "cringetracer/GeometricBodies/Cylinder.h"
 
 namespace BLEV {
 	class Interface {
@@ -141,7 +145,8 @@ namespace BLEV {
 			void ShowHorizonTable(FloatingHorizon* horizon, size_t idx);
 			void ShowGBodyTable(GeometricBody* gb, size_t idx);
 			void ShowLightTable(Light* light, size_t idx);
-			
+			const char* PGBodyToChar(GeometricBody* gb);
+			const char* PLightToChar(Light* l);
 			void Show();
 
 			ObjectTable(BLEV::Data& data) : _data(data) {}

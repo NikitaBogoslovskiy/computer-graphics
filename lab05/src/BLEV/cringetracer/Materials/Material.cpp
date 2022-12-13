@@ -176,7 +176,7 @@ HVec<double> Material::ComputeTransparency(const std::vector<GeometricBody*>& bo
 			cosine2 = -HVec<double>::dot(n2, p2);
 		}
 		HVec<double> vRefr2 = r2 * p2 + (r2 * cosine2 - std::sqrt(1.0 - r2 * r2 * (1.0 - cosine2 * cosine2))) * n2;
-		Ray<double> rRefr2(rPoi + vRefr2 * 0.01, rPoi + vRefr2); // GOING INTO OBJECT. 0.01 OFFSET FROM SURFACE TO AVOID PICKING UP SAME INTERSECTION TWICE
+		Ray<double> rRefr2(rPoi + vRefr2 * 0.01, rPoi + vRefr2);
 
 		finalRay = rRefr2;
 	}

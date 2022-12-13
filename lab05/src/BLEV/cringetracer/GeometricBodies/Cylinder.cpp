@@ -1,10 +1,10 @@
 #include "cringetracer/GeometricBodies/Cylinder.h"
 #include "cringetracer/HeyraMath/HMath.h"
 
-Cylinder::Cylinder(const HVec<double>& origin, const HVec<double>& rotation, const HVec<double>& scale, const ImVec3& inColor) : GeometricBody(inColor)
+Cylinder::Cylinder(const HVec<double>& origin, const HVec<double>& rotation, const HVec<double>& scale, const ImVec3& inColor) 
+	: GeometricBody(origin, rotation, scale, inColor)
 {
-	this->SetTransform(origin, rotation, scale);
-	_rx = scale.At(0); _h = scale.At(1) * 2.0; _rz = scale.At(2);
+	//_rx = scale.At(0); _h = scale.At(1) * 2.0; _rz = scale.At(2);
 }
 
 Cylinder::~Cylinder()

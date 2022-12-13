@@ -25,14 +25,14 @@ Scene::Scene()
 	};
 
 	auto cone = new Cone(HVec<double> {0.0, -1.0, -3.0},
-		HVec<double> { M_PI * 0.5, 0.0, 0.0 },
+		HVec<double> { 90.0, 0.0, 0.0 },
 		HVec<double> {1.0, 1.0, 1.0},
 		ImVec3{ 0.4f, 0.6f, 0.8f });
 	cone->SetMaterial(materials["gold"]);
 	bodies.push_back(cone);
 
 	auto cone2 = new Cone(HVec<double> {2.0, -1.0, -3.0},
-		HVec<double> { M_PI * 0.5, 0.0, 0.0 },
+		HVec<double> { 90.0, 0.0, 0.0 },
 		HVec<double> {1.0, 1.0, 1.0},
 		ImVec3{ 0.4f, 0.6f, 0.8f });
 	cone2->SetMaterial(materials["lightBlue"]);
@@ -57,16 +57,14 @@ Scene::Scene()
 	el2->SetMaterial(materials["lightBlue"]);
 
 	auto plane = new Plane(HVec<double> {0.0, 0.75, 0.0},
-		HVec<double> { M_PI * 0.5, 0.0, 0.0 },
+		HVec<double> { 90.0, 0.0, 0.0 },
 		HVec<double> {10.0, 10.0, 10.0},
 		ImVec3{ 100.0f / 255.f, 100.0f / 255.f, 100.0f / 255.f });
 	plane->SetMaterial(materials["lightBlue"]);
+	bodies.push_back(plane);
 
 	//bodies.push_back(el1); 
 	//bodies.push_back(el2);  
-
-
-	bodies.push_back(plane);
 
 	lights.push_back(new PointLight(HVec<double> { -45.0, 90.0 }, 10.0, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
 	lights.push_back(new PointLight(HVec<double> { -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));

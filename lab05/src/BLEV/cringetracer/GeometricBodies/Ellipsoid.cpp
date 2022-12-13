@@ -2,30 +2,30 @@
 
 Ellipsoid::Ellipsoid(const double x0, const double y0, const double z0,
 	const double rX, const double rY, const double rZ,
-	const ImVec3& inColor) : GeometricBody(inColor)
+	const ImVec3& inColor)
+	: GeometricBody(HVec<double>{x0, y0, z0}, HVec<double>{ 0.0, 0.0, 0.0 }, HVec<double>{ rX, rY, rZ }, inColor)
 {
-	_centre = HVec<double>{ x0, y0, z0 };
-	_rx = rX; _ry = rY; _rz = rZ;
-	this->SetTransform(HAffine<double>(_centre, HVec<double>{ 0.0, 0.0, 0.0 }, HVec<double>{ _rx, _ry, _rz }));
+	//_centre = HVec<double>{ x0, y0, z0 };
+	//_rx = rX; _ry = rY; _rz = rZ;
 }
 
 Ellipsoid::~Ellipsoid() {}
-const double& Ellipsoid::RadiusX() { return _rx; }
-const double& Ellipsoid::RadiusY() { return _ry; }
-const double& Ellipsoid::RadiusZ() { return _rz; }
+const double& Ellipsoid::RadiusX() { return Scale.At(0); }
+const double& Ellipsoid::RadiusY() { return Scale.At(1); }
+const double& Ellipsoid::RadiusZ() { return Scale.At(2); }
 
-const HVec<double>& Ellipsoid::Centre() {
-	return _centre;
-}
+//const HVec<double>& Ellipsoid::Centre() {
+//	return Origin;
+//}
 
 void Ellipsoid::Draw(ImDrawList* dl, const ImVec2& offset, const Eigen::Matrix4f& vp) {
-	float rxFlt = static_cast<float> (_rx); // help
-	float ryFlt = static_cast<float> (_ry);
-	float rzFlt = static_cast<float> (_rz);
-	float xFlt = static_cast<float> (_centre.At(0));
-	float yFlt = static_cast<float> (_centre.At(1));
-	float zFlt = static_cast<float> (_centre.At(2));
-	Eigen::Vector4f bottom3d = vp * Eigen::Vector4f{ static_cast<float> (_centre.At(0) + rxFlt),  static_cast<float> (_centre.At(1)),  static_cast<float> (_centre.At(2)),  1.f };
+	float rxFlt = static_cast<float> (RadiusX()); // help
+	float ryFlt = static_cast<float> (RadiusY());
+	float rzFlt = static_cast<float> (RadiusZ());
+	float xFlt = static_cast<float> (Origin.At(0));
+	float yFlt = static_cast<float> (Origin.At(1));
+	float zFlt = static_cast<float> (Origin.At(2));
+	Eigen::Vector4f bottom3d = vp * Eigen::Vector4f{ static_cast<float> (Origin.At(0) + rxFlt),  static_cast<float> (Origin.At(1)),  static_cast<float> (Origin.At(2)),  1.f };
 	ImVec2 bottom2d = ImVec2(bottom3d(0) / bottom3d(3), bottom3d(1) / bottom3d(3)) + offset;
 
 	ImVec2 prev_point = bottom2d;

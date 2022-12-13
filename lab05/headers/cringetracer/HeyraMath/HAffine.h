@@ -97,9 +97,9 @@ template <class T> HAffine<T>::~HAffine()
 template <class T> void HAffine<T>::SetTransform(const HVec<T>& translation, const HVec<T>& rotation, const HVec<T>& scale)
 {
 	_toGlobal = HAffine<T>::Translation(translation)
-		* HAffine<T>::RotationX(rotation.At(0))
-		* HAffine<T>::RotationY(rotation.At(1))
-		* HAffine<T>::RotationZ(rotation.At(2))
+		* HAffine<T>::RotationX(DegreesToRadians(rotation.At(0)))
+		* HAffine<T>::RotationY(DegreesToRadians(rotation.At(1)))
+		* HAffine<T>::RotationZ(DegreesToRadians(rotation.At(2)))
 		* HAffine<T>::Scale(scale);
 	_toLocal = _toGlobal.inverse();
 }
