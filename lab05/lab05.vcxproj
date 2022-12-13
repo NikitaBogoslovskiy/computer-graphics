@@ -167,6 +167,7 @@
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_impl_opengl3.cpp" />
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\dependencies\imgui\imgui\imgui_widgets.cpp" />
+    <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Box.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Cone.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Cylinder.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\Materials\Material.cpp" />
@@ -197,6 +198,7 @@
     <ClInclude Include="headers\BLEV\Geometry.h" />
     <ClInclude Include="headers\BLEV\Interface.h" />
     <ClInclude Include="headers\BLEV\Validator.h" />
+    <ClInclude Include="headers\cringetracer\GeometricBodies\Box.h" />
     <ClInclude Include="headers\cringetracer\GeometricBodies\Cone.h" />
     <ClInclude Include="headers\cringetracer\GeometricBodies\Cylinder.h" />
     <ClInclude Include="headers\cringetracer\GeometricBodies\Ellipsoid.h" />

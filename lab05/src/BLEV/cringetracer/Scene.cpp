@@ -6,6 +6,7 @@
 #include "../headers/cringetracer/GeometricBodies/Plane.h"
 #include "../headers/cringetracer/GeometricBodies/Cylinder.h"
 #include "../headers/cringetracer/GeometricBodies/Cone.h"
+#include "../headers/cringetracer/GeometricBodies/Box.h"
 #include "../headers/cringetracer/Lights/PointLight.h"
 #include "../headers/cringetracer/Materials/Material.h"
 
@@ -18,7 +19,7 @@ Scene::Scene()
 		ImVec3{ 0.4f, 0.6f, 0.8f });
 	Material* gold;
 	if (materials.Lookup("gold", gold)) cone->SetMaterial(gold);
-	bodies.push_back(cone);
+	//bodies.push_back(cone);
 
 	// cone 2
 	auto cone2 = new Cone(HVec<double> {2.0, -1.0, -3.0},
@@ -28,7 +29,7 @@ Scene::Scene()
 
 	Material* lightBlue;
 	if (materials.Lookup("lightBlue", lightBlue)) cone2->SetMaterial(lightBlue);
-	bodies.push_back(cone2);
+	//bodies.push_back(cone2);
 	/*bodies.push_back(new Cylinder(HVec<double> {0.0, -0.5, 0.0},
 		HVec<double> { M_PI * 0.5, 0.0, 0.0 },
 		HVec<double> {1.0, 1.0, 1.0},
@@ -37,14 +38,14 @@ Scene::Scene()
 	// sph1
 	auto sph = new Sphere(0.0, 0.0, 0.5, 0.5, ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f });
 	Material* water;
-	if (materials.Lookup("mirror", water)) sph->SetMaterial(water);
-	bodies.push_back(sph);
+	if (materials.Lookup("water", water)) sph->SetMaterial(water);
+	//bodies.push_back(sph);
 
 	// sph2
 	auto sph2 = new Sphere(1.5, 0.0, 0.5, 0.5, ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f });
 	Material* air;
 	if (materials.Lookup("air", air)) sph2->SetMaterial(air);
-	bodies.push_back(sph2);
+	//bodies.push_back(sph2);
 
 	// eggs
 	auto el1 = new Ellipsoid(-1.5, 0.0, -0.5, 0.5, 0.75, 0.5, ImVec3{ 255.f / 255.f, 127.f / 255.f, 80.f / 255.f });
@@ -60,6 +61,13 @@ Scene::Scene()
 		ImVec3{ 100.0f / 255.f, 100.0f / 255.f, 100.0f / 255.f });
 	plane->SetMaterial(lightBlue);
 	bodies.push_back(plane);
+
+	auto cube = new Box(HVec<double> {0.0, -0.5, 0.0},
+		HVec<double> { 0.0, 0.0, 0.0 },
+		HVec<double> {0.5, 0.5, 0.5},
+		ImVec3{ 100.0f / 255.f, 100.0f / 255.f, 100.0f / 255.f });
+	cube->SetMaterial(lightBlue);
+	bodies.push_back(cube);
 
 	lights.push_back(new PointLight(HVec<double> { -45.0, 90.0 }, 10.0, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
 	lights.push_back(new PointLight(HVec<double> { -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));

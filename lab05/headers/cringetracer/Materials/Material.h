@@ -16,7 +16,7 @@ public:
 
 	inline static size_t MAX_REFLECTIONS = 3;
 
-	inline static double ambientIntensity = 0.1;
+	inline static double ambientIntensity = 0.2;
 	inline static HVec<double> ambientColor = HVec<double>{ 1.0, 1.0, 1.0 };
 
 	Material();

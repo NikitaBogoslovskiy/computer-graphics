@@ -1661,7 +1661,7 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 			_data.cringulik.scene.materials.mtlLibSize
 		);
 		if (mtlHasChanged) {
-			printf("hello %d\n", idx);
+			//printf("hello %d\n", idx);
 			Material* newMtl;
 			_data.cringulik.scene.materials.LookupByInd((size_t)mtlInd, newMtl);
 			gb->SetMaterial(newMtl);
@@ -1770,6 +1770,7 @@ const char* BLEV::Interface::ObjectTable::PGBodyToChar(GeometricBody* gb)
 	if (dynamic_cast<Plane*>(gb) != nullptr) return "Plane";
 	if (dynamic_cast<Cylinder*>(gb) != nullptr) return "Cylinder";
 	if (dynamic_cast<Cone*>(gb) != nullptr) return "Cone";
+	if (dynamic_cast<Box*>(gb) != nullptr) return "Cube";
 	return "Undefined";
 }
 

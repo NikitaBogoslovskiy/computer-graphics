@@ -19,9 +19,9 @@ protected:
 	HAffine<double> _tform;
 
 public:
-	HVec<double> Origin;
-	HVec<double> Rotation;
-	HVec<double> Scale;
+	HVec<double> Origin{ 0.0,0.0,0.0 };
+	HVec<double> Rotation{ 0.0,0.0,0.0 };
+	HVec<double> Scale{ 1.0,1.0,1.0 };
 
 	Material* Mtl = nullptr;
 

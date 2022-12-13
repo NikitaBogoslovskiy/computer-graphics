@@ -33,10 +33,10 @@ void CringeTracer::DoubleCameraInfo() {
 }
 
 void CringeTracer::UpdateScreenVectors() {
-	primaryVec = target - eye; primaryVec.Normalize();
+	primaryVec = (target - eye).Normalized();
 
-	u = HVec<double>::cross(primaryVec, up); u.Normalize();
-	v = HVec<double>::cross(u, primaryVec); v.Normalize();
+	u = HVec<double>::cross(primaryVec, up).Normalized();
+	v = HVec<double>::cross(u, primaryVec).Normalized();
 
 	centre = eye + screen_distance * primaryVec;
 
@@ -58,7 +58,7 @@ bool CringeTracer::CastRay(const Ray<double>& ray,
 	GeometricBody*& closestBody, HVec<double>& closestInt, HVec<double>& closestLocalNormal, HVec<double>& closestLocalColor)
 {
 	HVec<double> intersection(3), localNormal(3), localColor(3);
-	double minDist = 1e6;
+	double minDist = std::numeric_limits<double>::max();
 	closestBody = nullptr;
 
 	for (auto& body : scene.bodies) {

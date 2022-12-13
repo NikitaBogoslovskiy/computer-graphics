@@ -5,11 +5,17 @@ MtlLib::MtlLib()
 	materials = std::map<std::string, Material*>{
 		{ "none"  , nullptr},
 		{ "brick" , new Material()},
-		{ "lightBlueMatte" , new Material(HVec<double> {0.25, 0.3, 0.8}, 5.0, 0.0)},
+
 		{ "lightBlue" , new Material(HVec<double> {0.25, 0.3, 0.8}, 10.0, 0.8)},
-		{ "mint"  , new Material(HVec<double> { 110.0 / 255.0, 245.0 / 255.0, 128.0 / 255.0, }, 10.0, 0.5)},
-		{ "mirror"  , new Material(HVec<double> { 1.0, 1.0, 1.0, }, 0.0, 1.0)},
-		{ "gold"  , new Material(HVec<double> { 0.75164, 0.60648, 0.22648 }, 51.2, 0.2)},
+		{ "lightBlueMatte" , new Material(HVec<double> {0.25, 0.3, 0.8}, 5.0, 0.0)},
+
+		{ "mint"  , new Material(HVec<double> { 0.24, 0.7, 0.53 }, 10.0, 0.5)},
+		{ "mintMatte"  , new Material(HVec<double> { 0.24, 0.7, 0.53 }, 5.0, 0.0)},
+
+		{ "mirror"  , new Material(HVec<double> { 1.0, 1.0, 1.0, }, 5.0, 1.0)},
+		{ "gold"  , new Material(HVec<double> { 0.75164, 0.70648, 0.22648 }, 10.0, 0.5)},
+		{ "silver"  , new Material(HVec<double> { 0.5, 0.5, 0.8 }, 10.0, 0.5)},
+
 		{ "glass" , new Material(HVec<double> { 1.0, 1.0, 1.0, }, 32.0, 0.25, 0.75, 1.333)},
 		{ "air" , new Material(HVec<double> { 1.0, 1.0, 1.0, }, 0.0, 0.0, 1.0, 1.0)},
 		{ "water" , new Material(HVec<double> { 0.25, 0.3, 0.8 }, 10.0, 0.4, 1.0, 1.333)},

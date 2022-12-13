@@ -9,8 +9,8 @@ class MtlLib
 
 public:
 
-	const int8_t mtlLibSize = 10;
-	const char* mtlLibNames[10];
+	const int8_t mtlLibSize = 12;
+	const char* mtlLibNames[12];
 
 	MtlLib();
 	~MtlLib();
