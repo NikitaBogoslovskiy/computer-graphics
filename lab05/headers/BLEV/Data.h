@@ -26,6 +26,9 @@ namespace BLEV {
 		std::vector<Sphere*> spheres;
 		std::set<Sphere*> chosen_spheres;
 
+		std::vector<POL*> pls;
+		std::set<POL*> chosen_pls;
+
 		Mode chosenMode;
 		AddingLine adding_line;
 		PrimEditMode chosenPrimEditMode;

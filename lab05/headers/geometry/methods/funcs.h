@@ -158,4 +158,8 @@ static C sum(std::vector<C> vT) {
 	return t;
 }
 
+inline ImVec3 max3(float bound, const ImVec3& v3) {
+	return ImVec3(std::max(bound, v3.x), std::max(bound, v3.y), std::max(bound, v3.z));
+}
+
 #endif

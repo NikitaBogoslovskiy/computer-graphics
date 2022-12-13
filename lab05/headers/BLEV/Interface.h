@@ -133,6 +133,7 @@ namespace BLEV {
 			void ShowMeshTable(Mesh* mesh, size_t idx);
 			void ShowHorizonTable(FloatingHorizon* horizon, size_t idx);
 			void ShowSphereTable(Sphere* sphere, size_t idx);
+			void ShowPolTable(POL* pol, size_t idx);
 			void Show();
 
 			ObjectTable(BLEV::Data& data) : _data(data) {}
@@ -202,7 +203,9 @@ namespace BLEV {
 
 			void Show();
 
-			Canvas(BLEV::Data& data) : _data(data) {}
+			Canvas(BLEV::Data& data) : _data(data) {
+				rt = Raytracing(&data.pls);
+			}
 		} canvas {_data};
 	public:
 		void ShowContent();

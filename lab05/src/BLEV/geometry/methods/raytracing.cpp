@@ -1,17 +1,18 @@
 #include "../headers/geometry/methods/raytracing.h"
+#include <thread>
+Raytracing::Raytracing(){}
 
-Raytracing::Raytracing()
+Raytracing::Raytracing(const std::vector<POL*>* _pols)
 {
-	pols.push_back({ {400.f, 400.f, 400.f}, 1.f });
-	pols.push_back({ {400.f, -100.f, -200.f}, 0.5f });
+	pols = _pols;
 }
 
-Raytracing::Raytracing(int _width, int _height, const ImVec2& _offset)
+Raytracing::Raytracing(int _width, int _height, const ImVec2& _offset, const std::vector<POL*>* _pols)
 {
 	size = { _width, _height };
 	rays.resize(_width * _height);
 	offset = _offset;
-	pols.push_back({{400.f, 400.f, 400.f}, 1.f});
+	pols = _pols;
 }
 
 void Raytracing::clear()
@@ -46,7 +47,6 @@ void Raytracing::draw(ImDrawList* draw_list, const ImVec2& canvasOffset)
 
 void Raytracing::render(objects objs, Camera& cam)
 {
-	int i = 0;
 	float d = 400;
 	auto t = normilize(cam.direction());
 	auto b = normilize(cross_product(t, cam.up()));
@@ -56,12 +56,32 @@ void Raytracing::render(objects objs, Camera& cam)
 	ImVec3 qx = 2.f * gx / (size.width - 1) * b;
 	ImVec3 qy = 2.f * gy / (size.height - 1) * v;
 	ImVec3 p1m = cam.direction() - gx * b - gy * v; // cam.direction() = d * t
-	for (int y = 0; y < size.height; ++y) {
-		for (int x = 0; x < size.width; ++x, ++i) {
-			ImVec3&& pij = p1m + qy * y + qx * x;
-			ImVec3&& r = normilize(pij);
-			rays[i] = renderUnit(cam.eye(), r, objs, false, 4);
-		}
+	
+	int threadnum = 8;
+	std::vector<std::pair<int, int>> bounds(threadnum);
+	int h10 = size.height / threadnum;
+	for (size_t i = 0; i < threadnum - 1; i++)
+	{
+		bounds[i] = { i * h10, (i+1)*h10 };
+	}
+	bounds[threadnum - 1] = { (threadnum - 1) * h10, size.height};
+	std::vector<std::thread> ts;
+	for (auto& b : bounds)
+	{
+		ts.emplace_back([&]() {
+				int i = b.first * size.width;
+				for (int y = b.first; y < b.second; ++y) {
+					for (int x = 0; x < size.width; ++x, ++i) {
+						ImVec3&& pij = p1m + qy * y + qx * x;
+						ImVec3&& r = normilize(pij);
+						rays[i] =  
+						renderUnit(cam.eye(), r, objs, false, 4);
+					}
+				}
+			});
+	}
+	for (auto& t : ts) {
+		t.join();
 	}
 }
 
@@ -100,8 +120,8 @@ ImVec3 Raytracing::renderUnit(const ImVec3& sp, const ImVec3& rayDir, objects ob
 
 	//if (!insideMesh) 
 	{
-		for (POL& l : pols) {
-			auto L = l.pos - point;
+		for (const POL* l : *pols) {
+			auto L = l->pos - point;
 			float Ldist = length(L);
 			L = normilize(L);
 			auto dotLN = dot_product(L, minDistToPolygon.second);
@@ -125,14 +145,14 @@ ImVec3 Raytracing::renderUnit(const ImVec3& sp, const ImVec3& rayDir, objects ob
 			if (cont) continue;
 
 			// ambient
-			Iambient = by_element_product(material->ambient, l.i_a);
+			Iambient = by_element_product(material->ambient, l->i_a);
 
-			Idiffuse = dotLN * by_element_product(material->diffuse, l.i_d);
+			Idiffuse = dotLN * by_element_product(material->diffuse, l->i_d);
 	
 			auto R = 2 * dotLN * minDistToPolygon.second - L;
-			Ispecular = powf(dot_product(R, -rayDir), material->shine) * by_element_product(material->specular, l.i_s);
+			Ispecular = powf(dot_product(R, -rayDir), material->shine) * by_element_product(material->specular, l->i_s);
 		
-			Ilocal += l.att(length(l.pos - point)) * (by_element_product(Iambient + Idiffuse, toVec3(clr)) + by_element_product(Ispecular, { 255.f, 255.f, 255.f }));
+			Ilocal += l->att(length(l->pos - point)) * (by_element_product(Iambient + Idiffuse, toVec3(clr)) + by_element_product(Ispecular, { 255.f, 255.f, 255.f }));
 		}
 	}
 

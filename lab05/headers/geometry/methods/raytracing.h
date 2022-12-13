@@ -18,7 +18,7 @@ struct POL {
 	//ImVec3 attenuation = { 1.0f, 0.0014f, 0.000007f };
 	ImVec3 attenuation = { 0.77f, 0.0005f, 0.000003f };
 
-	inline float att(float d) {
+	inline float att(float d) const {
 		return 1.f / (attenuation[0] + attenuation[1] * d + attenuation[2] * d * d);
 	}
 	// color = white
@@ -30,7 +30,7 @@ class Raytracing {
 	wsize size;
 	ImVec2 offset;
 
-	std::vector<POL> pols;
+	const std::vector<POL*>* pols;
 
 	bool to_clear = false;
 
@@ -38,12 +38,12 @@ class Raytracing {
 		std::vector<Mesh*>& meshes;
 		std::vector<Sphere*>& spheres;
 	};
-
-	static constexpr float eps = 0.00001f;
+	static constexpr float eps = 0.1f;
 
 public:
 	Raytracing();
-	Raytracing(int width, int height, const ImVec2& offset);
+	Raytracing(const std::vector<POL*>* _pols);
+	Raytracing(int width, int height, const ImVec2& offset, const std::vector<POL*>* _pols);
 	void clear();
 	void resize(int width, int height);
 	void setOffset(const ImVec2& new_offset);
