@@ -11,60 +11,55 @@
 
 Scene::Scene()
 {
-	//http://devernay.free.fr/cours/opengl/materials.html
-	materials = std::map<std::string, Material*>{
-			{"brick", new Material()},
-			{"lightBlueMatte", new Material(HVec<double> {0.25, 0.3, 0.8}, 5.0, 0.0)},
-			{"lightBlue", new Material(HVec<double> {0.25, 0.3, 0.8}, 10.0, 0.8)},
-			{"mint", new Material(HVec<double> { 110.0 / 255.0, 245.0 / 255.0, 128.0 / 255.0, }, 10.0, 0.5)},
-			{"mirror", new Material(HVec<double> { 1.0, 1.0, 1.0, }, 0.0, 1.0)},
-			{"glass", new Material(HVec<double> { 1.0, 1.0, 1.0, }, 32.0, 0.25, 0.75, 1.333)},
-			{"air", new Material(HVec<double> { 1.0, 1.0, 1.0, }, 0.0, 0.0, 1.0, 1.0)},
-			{"water", new Material(HVec<double> { 0.25, 0.3, 0.8 }, 10.0, 0.4, 1.0, 1.333)},
-			{"gold", new Material(HVec<double> { 0.75164, 0.60648, 0.22648 }, 51.2, 0.2)}
-	};
-
+	// cone 1
 	auto cone = new Cone(HVec<double> {0.0, -1.0, -3.0},
 		HVec<double> { 90.0, 0.0, 0.0 },
 		HVec<double> {1.0, 1.0, 1.0},
 		ImVec3{ 0.4f, 0.6f, 0.8f });
-	cone->SetMaterial(materials["gold"]);
+	Material* gold;
+	if (materials.Lookup("gold", gold)) cone->SetMaterial(gold);
 	bodies.push_back(cone);
 
+	// cone 2
 	auto cone2 = new Cone(HVec<double> {2.0, -1.0, -3.0},
 		HVec<double> { 90.0, 0.0, 0.0 },
 		HVec<double> {1.0, 1.0, 1.0},
 		ImVec3{ 0.4f, 0.6f, 0.8f });
-	cone2->SetMaterial(materials["lightBlue"]);
+
+	Material* lightBlue;
+	if (materials.Lookup("lightBlue", lightBlue)) cone2->SetMaterial(lightBlue);
 	bodies.push_back(cone2);
 	/*bodies.push_back(new Cylinder(HVec<double> {0.0, -0.5, 0.0},
 		HVec<double> { M_PI * 0.5, 0.0, 0.0 },
 		HVec<double> {1.0, 1.0, 1.0},
 		ImVec3{ 0.4f, 0.6f, 0.8f }));*/
 
+	// sph1
 	auto sph = new Sphere(0.0, 0.0, 0.5, 0.5, ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f });
-	sph->SetMaterial(materials["water"]);
+	Material* water;
+	if (materials.Lookup("mirror", water)) sph->SetMaterial(water);
 	bodies.push_back(sph);
 
+	// sph2
 	auto sph2 = new Sphere(1.5, 0.0, 0.5, 0.5, ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f });
-	sph2->SetMaterial(materials["air"]);
+	Material* air;
+	if (materials.Lookup("air", air)) sph2->SetMaterial(air);
 	bodies.push_back(sph2);
 
+	// eggs
 	auto el1 = new Ellipsoid(-1.5, 0.0, -0.5, 0.5, 0.75, 0.5, ImVec3{ 255.f / 255.f, 127.f / 255.f, 80.f / 255.f });
-	el1->SetMaterial(materials["lightBlue"]);
+	el1->SetMaterial(lightBlue);
 
 	auto el2 = new Ellipsoid(1.5, 0.0, -0.5, 0.5, 0.75, 0.5, ImVec3{ 0.4f, 0.6f, 0.8f });
-	el2->SetMaterial(materials["lightBlue"]);
+	el2->SetMaterial(lightBlue);
 
+	// floor
 	auto plane = new Plane(HVec<double> {0.0, 0.75, 0.0},
 		HVec<double> { 90.0, 0.0, 0.0 },
 		HVec<double> {10.0, 10.0, 10.0},
 		ImVec3{ 100.0f / 255.f, 100.0f / 255.f, 100.0f / 255.f });
-	plane->SetMaterial(materials["lightBlue"]);
+	plane->SetMaterial(lightBlue);
 	bodies.push_back(plane);
-
-	//bodies.push_back(el1); 
-	//bodies.push_back(el2);  
 
 	lights.push_back(new PointLight(HVec<double> { -45.0, 90.0 }, 10.0, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
 	lights.push_back(new PointLight(HVec<double> { -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));

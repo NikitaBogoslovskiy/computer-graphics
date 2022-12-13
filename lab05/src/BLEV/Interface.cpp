@@ -1580,19 +1580,19 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 		ImGui::TableSetColumnIndex(1);
 		ImGui::PushItemWidth(70);
 		float x = (float)gb->Origin.At(0);
-		bool xHasChanged = ImGui::DragFloat("X", &x, 0.5f, -10.f, 10.f, "%.1f");
+		bool xHasChanged = ImGui::DragFloat("X", &x, 0.5f, -10.f, 10.f, "%.2f");
 		if (xHasChanged)
 			gb->Origin.SetAt(0, (double)x);
 
 		// y
 		float y = (float)gb->Origin.At(1);
-		bool yHasChanged = ImGui::DragFloat("Y", &y, 0.5f, -10.f, 10.f, "%.1f");
+		bool yHasChanged = ImGui::DragFloat("Y", &y, 0.5f, -10.f, 10.f, "%.2f");
 		if (yHasChanged)
 			gb->Origin.SetAt(1, (double)y);
 
 		// z
 		float z = (float)gb->Origin.At(2);
-		bool zHasChanged = ImGui::DragFloat("Z", &z, 0.5f, -10.f, 10.f, "%.1f");
+		bool zHasChanged = ImGui::DragFloat("Z", &z, 0.5f, -10.f, 10.f, "%.2f");
 		if (zHasChanged)
 			gb->Origin.SetAt(2, (double)z);
 		ImGui::PopID();
@@ -1606,19 +1606,19 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 		ImGui::TableSetColumnIndex(1);
 		ImGui::PushItemWidth(70);
 		float pitch = (float)gb->Rotation.At(0);
-		bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 5.f, -360.f, 360.f, "%.1f");
+		bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 5.f, -360.f, 360.f, "%.2f");
 		if (pitchHasChanged)
 			gb->Rotation.SetAt(0, (double)pitch);
 
 		// y
 		float yaw = (float)gb->Rotation.At(1);
-		bool yawHasChanged = ImGui::DragFloat("Yaw", &yaw, 5.f, -360.f, 360.f, "%.1f");
+		bool yawHasChanged = ImGui::DragFloat("Yaw", &yaw, 5.f, -360.f, 360.f, "%.2f");
 		if (yawHasChanged)
 			gb->Rotation.SetAt(1, (double)yaw);
 
 		// z
 		float roll = (float)gb->Rotation.At(2);
-		bool rollHasChanged = ImGui::DragFloat("Roll", &roll, 5.f, -360.f, 360.f, "%.1f");
+		bool rollHasChanged = ImGui::DragFloat("Roll", &roll, 5.f, -360.f, 360.f, "%.2f");
 		if (rollHasChanged)
 			gb->Rotation.SetAt(2, (double)roll);
 		ImGui::PopID();
@@ -1632,31 +1632,51 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 		//ImGui::TableSetColumnIndex(1);
 		//ImGui::PushItemWidth(70);
 		//float sX = (float)gb->Scale.At(0);
-		//bool sxHasChanged = ImGui::DragFloat("X", &sX, 0.1f, 0.f, 10.f, "%.1f");
+		//bool sxHasChanged = ImGui::DragFloat("X", &sX, 0.1f, 0.f, 10.f, "%.2f");
 		//if (sxHasChanged)
 		//	gb->Scale.SetAt(0, (double)sX);
-
 		//// y
 		//float sY = (float)gb->Scale.At(1);
-		//bool syHasChanged = ImGui::DragFloat("Y", &sY, 0.1f, 0.f, 10.f, "%.1f");
+		//bool syHasChanged = ImGui::DragFloat("Y", &sY, 0.1f, 0.f, 10.f, "%.2f");
 		//if (syHasChanged)
 		//	gb->Scale.SetAt(1, (double)sY);
-
 		//// z
 		//float sZ = (float)gb->Scale.At(2);
-		//bool szHasChanged = ImGui::DragFloat("Z", &sZ, 0.1f, 0.f, 10.f, "%.1f");
+		//bool szHasChanged = ImGui::DragFloat("Z", &sZ, 0.1f, 0.f, 10.f, "%.2f");
 		//if (szHasChanged)
 		//	gb->Scale.SetAt(2, (double)sZ);
 
+		// =================================== Material
+		ImGui::PushID(&(gb->Mtl));
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Material");
+		
+		ImGui::TableSetColumnIndex(1);
+		ImGui::PushItemWidth(70);
+		static int mtlInd;
+		_data.cringulik.scene.materials.GetInd(gb->Mtl, mtlInd);
+		bool mtlHasChanged = ImGui::Combo("##", &mtlInd, 
+			_data.cringulik.scene.materials.mtlLibNames, 
+			_data.cringulik.scene.materials.mtlLibSize
+		);
+		if (mtlHasChanged) {
+			printf("hello %d\n", idx);
+			Material* newMtl;
+			_data.cringulik.scene.materials.LookupByInd((size_t)mtlInd, newMtl);
+			gb->SetMaterial(newMtl);
+			needRefresh = true;
+		}
+		ImGui::PopID();
+
 		if (
-			xHasChanged || yHasChanged || zHasChanged 
-			|| pitchHasChanged || yawHasChanged || rollHasChanged 
+			xHasChanged || yHasChanged || zHasChanged
+			|| pitchHasChanged || yawHasChanged || rollHasChanged
 			//|| sxHasChanged || syHasChanged || szHasChanged
 			) {
 			gb->SetTransform();
 			needRefresh = true;
 		}
-		ImGui::PopID();
 
 		ImGui::TreePop();
 	}

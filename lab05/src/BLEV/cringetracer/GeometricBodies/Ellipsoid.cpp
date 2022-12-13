@@ -5,18 +5,13 @@ Ellipsoid::Ellipsoid(const double x0, const double y0, const double z0,
 	const ImVec3& inColor)
 	: GeometricBody(HVec<double>{x0, y0, z0}, HVec<double>{ 0.0, 0.0, 0.0 }, HVec<double>{ rX, rY, rZ }, inColor)
 {
-	//_centre = HVec<double>{ x0, y0, z0 };
-	//_rx = rX; _ry = rY; _rz = rZ;
+
 }
 
 Ellipsoid::~Ellipsoid() {}
 const double& Ellipsoid::RadiusX() { return Scale.At(0); }
 const double& Ellipsoid::RadiusY() { return Scale.At(1); }
 const double& Ellipsoid::RadiusZ() { return Scale.At(2); }
-
-//const HVec<double>& Ellipsoid::Centre() {
-//	return Origin;
-//}
 
 void Ellipsoid::Draw(ImDrawList* dl, const ImVec2& offset, const Eigen::Matrix4f& vp) {
 	float rxFlt = static_cast<float> (RadiusX()); // help
