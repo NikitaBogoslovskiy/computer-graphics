@@ -15,7 +15,7 @@ public:
 
 	HVec<double> position{ 0.0, 0.0, 0.0 }; // "computed" property
 
-	virtual bool Illuminate(const HVec<double>& intersection,
+	virtual bool ComputeLighting(const HVec<double>& intersection,
 		const HVec<double>& localNormal,
 		const GeometricBody* gb,
 		const std::vector<GeometricBody*>& bodies,

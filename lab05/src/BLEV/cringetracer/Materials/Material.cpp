@@ -28,7 +28,7 @@ HVec<double> Material::ComputeDiffuse(const std::vector<GeometricBody*>& bodies,
 	double outIntensity; HVec<double> diffuse(3), outColor(3);
 	bool illuminated = false;
 	for (auto& light : lights) {
-		if (!(light->Illuminate(closestInt, closestLocalNormal, closestBody, bodies, outColor, outIntensity))) continue;
+		if (!(light->ComputeLighting(closestInt, closestLocalNormal, closestBody, bodies, outColor, outIntensity))) continue;
 		diffuse += outColor * outIntensity;
 		illuminated = true;
 	}
@@ -156,6 +156,8 @@ HVec<double> Material::ComputeTransparency(const std::vector<GeometricBody*>& bo
 	}
 
 	HVec<double> vRefr1 = r1 * p1 + (r1 * cosine1 - std::sqrt(1.0 - r1 * r1 * (1.0 - cosine1 * cosine1))) * n1; // REFRACTED DIRECTION
+	
+	// maybe set member property of offset (like surface thickness)? would be interesting
 	Ray<double> rRefr(closestInt + vRefr1 * 0.01, closestInt + vRefr1); // THIS GOES INTO OBJECT AGAIN. 0.01 OFFSET FROM SURFACE TO AVOID PICKING UP SAME INTERSECTION TWICE
 
 	// and then test if this ray crushed into obj again

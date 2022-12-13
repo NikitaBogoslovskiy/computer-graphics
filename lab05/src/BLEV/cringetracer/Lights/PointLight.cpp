@@ -20,7 +20,7 @@ PointLight::~PointLight()
 {
 }
 
-bool PointLight::Illuminate(const HVec<double>& intersection,
+bool PointLight::ComputeLighting(const HVec<double>& intersection,
 	const HVec<double>& localNormal,
 	const GeometricBody* gb,
 	const std::vector<GeometricBody*>& bodies,
@@ -47,16 +47,21 @@ bool PointLight::Illuminate(const HVec<double>& intersection,
 		return false;
 	}
 
+	// actually did not notice any visual difference between these two methods. why not try both
 	// <(localNormal, lightRay)
-	double angle = acos(HVec<double>::dot(localNormal, lightDir)); // local normal is unit
-	// normal pointing away from light: no illumination
-	if (angle > PIDIVTWO) {
-		outColor = color;
-		outIntensity = 0.0;
-		return false;
-	}
+	//double angle = acos(HVec<double>::dot(localNormal, lightDir)); // local normal is unit
+	//// normal pointing away from light: no illumination
+	//if (angle > PIDIVTWO) {
+	//	outColor = color;
+	//	outIntensity = 0.0;
+	//	return false;
+	//}
+	//// intensity is linearly proportional to the angle between the normal and direction of the light for now
+	//outIntensity = intensity * (1.0 - (angle / PIDIVTWO));
+	//outColor = color;
+	//return true;
+
+	outIntensity = intensity * std::max(HVec<double>::dot(localNormal, lightDir), 0.0);
 	outColor = color;
-	// intensity is linearly proportional to the angle between the normal and direction of the light for now
-	outIntensity = intensity * (1.0 - (angle / PIDIVTWO));
-	return true;
+	return outIntensity != 0.0;
 }

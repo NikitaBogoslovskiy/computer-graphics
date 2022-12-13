@@ -9,7 +9,7 @@ public:
 	PointLight(const HVec<double>& inPitchYaw, const double inR, const HVec<double>& inColor, const double inIntensity);
 	~PointLight();
 
-	bool Illuminate(const HVec<double>& intersection,
+	bool ComputeLighting(const HVec<double>& intersection,
 		const HVec<double>& localNormal,
 		const GeometricBody* gb,
 		const std::vector<GeometricBody*>& bodies,
