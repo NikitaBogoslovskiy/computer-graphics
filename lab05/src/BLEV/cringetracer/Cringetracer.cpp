@@ -58,7 +58,7 @@ void CringeTracer::GetRayXY(const float x, const float y, Ray<double>& outRay) {
 bool CringeTracer::CastRay(const Ray<double>& ray,
 	GeometricBody*& closestBody, HVec<double>& closestInt, HVec<double>& closestLocalNormal, HVec<double>& closestLocalColor)
 {
-	HVec<double> intersection(3), localNormal(3), localColor(3);
+	HVec<double> intersection, localNormal, localColor;
 	double minDist = std::numeric_limits<double>::max();
 	closestBody = nullptr;
 

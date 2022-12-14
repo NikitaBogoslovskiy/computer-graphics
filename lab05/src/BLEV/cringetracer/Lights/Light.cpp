@@ -11,12 +11,12 @@ Light::~Light()
 void Light::updateOriginDistance(const double R)
 {
 	if (R < 0.0) return;
-	HVec<double> direction = (position - HVec<double> {0.0, 0.0, 0.0}).Normalized();
+	HVec<double> direction = (position - HVec<double>()).Normalized();
 	position = R * direction;
 	r = R; //caching
 }
 
-void Light::updatePitchYaw(const HVec<double>& inPitchYaw)
+void Light::updatePitchYaw(const HVec2<double>& inPitchYaw)
 {
 	pitchYaw.SetAt(0, std::min(std::max(inPitchYaw.At(0), -89.0), 89.0));
 

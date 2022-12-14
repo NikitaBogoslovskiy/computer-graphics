@@ -17,18 +17,18 @@ template <class T> struct Ray
 };
 
 template<class T>
-inline Ray<T>::Ray()
+inline Ray<T>::Ray() 
+	: p1((T)0.0, (T)0.0, (T)0.0), 
+	p2((T)0.0, (T)0.0, (T)1.0)
 {
-	p1 = HVec<T>{ (T)0.0, (T)0.0, (T)0.0 };
-	p2 = HVec<T>{ (T)0.0, (T)0.0, (T)1.0 };
 	direction = p2 - p1;
 }
 
 template<class T>
-inline Ray<T>::Ray(const HVec<T>& point1, const HVec<T>& point2)
+inline Ray<T>::Ray(const HVec<T>& point1, const HVec<T>& point2) : p1(point1), p2(point2)
 {
-	p1 = point1;
-	p2 = point2;
+	//p1 = point1;
+	//p2 = point2;
 	direction = p2 - p1;
 }
 

@@ -26,7 +26,8 @@ Material::~Material()
 HVec<double> Material::ComputeDiffuse(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
 	const GeometricBody* closestBody, const HVec<double>& closestInt, const HVec<double>& closestLocalNormal, const HVec<double>& closestLocalColor)
 {
-	double outIntensity; HVec<double> diffuse(3), outColor(3);
+	double outIntensity; 
+	HVec<double> diffuse, outColor;
 	bool illuminated = false;
 	for (auto& light : lights) {
 		if (!(light->ComputeLighting(closestInt, closestLocalNormal, closestBody, bodies, outColor, outIntensity))) continue;
@@ -45,9 +46,9 @@ HVec<double> Material::ComputeSpecular(const std::vector<GeometricBody*>& bodies
 	const Ray<double>& cameraRay,
 	const HVec<double>& closestInt, const HVec<double>& closestLocalNormal)
 {
-	if (Shininess <= 0.0) return HVec<double>(3);
+	if (Shininess <= 0.0) return HVec<double>();
 
-	HVec<double> specular(3);
+	HVec<double> specular;
 	for (auto& light : lights) {
 		double intensity = 0.0;
 
@@ -58,7 +59,7 @@ HVec<double> Material::ComputeSpecular(const std::vector<GeometricBody*>& bodies
 		HVec<double> start = closestInt + dirToLight * 0.001;
 		Ray<double> rayToLight(start, start + dirToLight);
 
-		HVec<double> poi(3), poiNormal(3), poiColor(3);
+		HVec<double> poi, poiNormal, poiColor;
 		bool foundLightBlocker = false;
 		for (auto& body : bodies) {
 			if (!(foundLightBlocker = body->TestIntersection(rayToLight, poi, poiNormal, poiColor))) continue;
@@ -111,7 +112,7 @@ bool Material::CastRay(const Ray<double>& ray, const std::vector<GeometricBody*>
 {
 	double minDist = 1e6;
 	bool foundRayBlocker = false;
-	HVec<double> poi(3), poiNormal(3), poiColor(3);
+	HVec<double> poi, poiNormal, poiColor;
 	for (auto& body : bodies) {
 		if (body == originBody) continue;
 		if (!(body->TestIntersection(ray, poi, poiNormal, poiColor))) continue;
@@ -133,14 +134,14 @@ HVec<double> Material::ComputeReflection(const std::vector<GeometricBody*>& bodi
 	const GeometricBody* originBody, const HVec<double>& closestInt, const HVec<double>& closestLocalNormal,
 	size_t REFLECTIONS_COUNT
 ) {
-	HVec<double> reflection(3);
+	HVec<double> reflection;
 	if (Reflectivity <= 0.0) return reflection;
 
 	HVec<double> d = inRay.direction;
 	HVec<double> reflectionDir = d - 2 * HVec<double>::dot(d, closestLocalNormal) * closestLocalNormal;
 	Ray<double> reflectionRay(closestInt, closestInt + reflectionDir); // 
 
-	HVec<double> poi(3), poiNormal(3), poiColor(3); GeometricBody* targetBody;
+	HVec<double> poi, poiNormal, poiColor; GeometricBody* targetBody;
 	bool foundReflectionTarget = CastRay(reflectionRay, bodies, originBody, targetBody, poi, poiNormal, poiColor);
 
 	if (foundReflectionTarget && (REFLECTIONS_COUNT++ < MAX_REFLECTIONS)) {
@@ -158,7 +159,7 @@ HVec<double> Material::ComputeReflection(const std::vector<GeometricBody*>& bodi
 HVec<double> Material::ComputeTransparency(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
 	const Ray<double>& inRay, const GeometricBody* closestBody, const HVec<double>& closestInt, const HVec<double>& closestLocalNormal, size_t REFLECTIONS_COUNT)
 {
-	if (Transparency <= 0.0) return HVec<double>(3);
+	if (Transparency <= 0.0) return HVec<double>();
 
 	HVec<double> p1 = inRay.direction.Normalized();
 	double r1 = 1.0 / IOR;
@@ -175,8 +176,8 @@ HVec<double> Material::ComputeTransparency(const std::vector<GeometricBody*>& bo
 	Ray<double> rRefr(closestInt + vRefr1 * 0.01, closestInt + vRefr1); // THIS GOES INTO OBJECT AGAIN. 0.01 OFFSET FROM SURFACE TO AVOID PICKING UP SAME INTERSECTION TWICE
 
 	// and then test if this ray crushed into obj again
-	HVec<double> fPoi(3), fNormal(3), fColor(3),
-		rPoi(3), rNormal(3), rColor(3);
+	HVec<double> fPoi, fNormal, fColor,
+		rPoi, rNormal, rColor;
 	Ray<double> finalRay;
 	if (closestBody->TestIntersection(rRefr, rPoi, rNormal, rColor)) { // checking intersection of ray rRefr with the same obj
 		// but we wont implement total internal reflection. this is pbr thing i dont care
@@ -197,7 +198,7 @@ HVec<double> Material::ComputeTransparency(const std::vector<GeometricBody*>& bo
 	else finalRay = rRefr;
 
 	GeometricBody* targetBody;
-	if (!CastRay(finalRay, bodies, closestBody, targetBody, fPoi, fNormal, fColor)) return HVec<double>(3);
+	if (!CastRay(finalRay, bodies, closestBody, targetBody, fPoi, fNormal, fColor)) return HVec<double>();
 
 	return targetBody->HasMaterial() ?
 		targetBody->Mtl->ComputeColor(bodies, lights, finalRay, targetBody, fPoi, fNormal, REFLECTIONS_COUNT)

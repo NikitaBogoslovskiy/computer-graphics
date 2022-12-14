@@ -4,13 +4,7 @@
 
 class Ellipsoid : public GeometricBody
 {
-	//ImU32 color;
-	//HVec<double> _centre;
-	//double _rx, _ry, _rz;
-
 public:
-
-
 	inline const double& RadiusX();
 	inline const double& RadiusY();
 	inline const double& RadiusZ();

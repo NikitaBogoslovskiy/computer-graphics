@@ -2,8 +2,6 @@
 #include "GeometricBody.h"
 class Cylinder : public GeometricBody
 {
-	//HVec<double> _centre;
-	//double _rx, _h, _rz;
 public:
 	Cylinder(const HVec<double>& origin, const HVec<double>& rotation, const HVec<double>& scale, const ImVec3& inColor);
 	~Cylinder();

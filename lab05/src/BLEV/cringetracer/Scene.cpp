@@ -85,8 +85,8 @@ void Scene::FillExampleScene2(Scene* inScene)
 	inScene->bodies.push_back(el1);
 	inScene->bodies.push_back(el2);
 
-	inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 165.0 }, 10.0, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
-	inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));
+	inScene->lights.push_back(new PointLight(HVec2<double>{ -45.0, 165.0 }, 10.0, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
+	inScene->lights.push_back(new PointLight(HVec2<double>{ -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));
 }
 
 void Scene::FillExampleScene1(Scene* inScene)
@@ -214,6 +214,6 @@ void Scene::FillExampleScene1(Scene* inScene)
 	//inScene->lights.push_back(new PointLight(HVec<double> { 0.0, 2.0, 0.0 }, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
 	//inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 90.0 }, 4.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));
 
-	inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 70.0 }, 10.0, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
-	inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));
+	inScene->lights.push_back(new PointLight(HVec2<double> { -45.0, 70.0 }, 10.0, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
+	inScene->lights.push_back(new PointLight(HVec2<double> { -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));
 }

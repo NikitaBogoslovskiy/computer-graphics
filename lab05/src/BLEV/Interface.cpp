@@ -1723,7 +1723,7 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 5.f, -89.f, 89.f, "%.0f");
 		if (pitchHasChanged)
 		{
-			light->updatePitchYaw(HVec<double>{ (double)pitch, light->pitchYaw.At(1)});
+			light->updatePitchYaw(HVec2<double>{ (double)pitch, light->pitchYaw.At(1)});
 			needRefresh = true;
 		}
 		//yaw
@@ -1731,7 +1731,7 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		bool yawHasChanged = ImGui::DragFloat("Yaw", &yaw, 5.f, 0.f, 3600.f, "%.0f");
 		if (yawHasChanged)
 		{
-			light->updatePitchYaw(HVec<double>{ light->pitchYaw.At(0), (double)yaw});
+			light->updatePitchYaw(HVec2<double>{ light->pitchYaw.At(0), (double)yaw});
 			needRefresh = true;
 		}
 		// R 

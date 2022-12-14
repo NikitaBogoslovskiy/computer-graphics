@@ -8,7 +8,7 @@ public:
 	Light();
 	~Light();
 
-	HVec<double> pitchYaw{ 0.0, 90.0 };
+	HVec2<double> pitchYaw{ 0.0, 90.0 };
 	double r = 10.0;
 	HVec<double> color{ 1.0, 1.0, 1.0 };
 	double intensity = 1.0;
@@ -23,7 +23,7 @@ public:
 
 	// requires r to be set
 	// updates pitchYaw and position
-	void updatePitchYaw(const HVec<double>& inPitchYaw);
+	void updatePitchYaw(const HVec2<double>& inPitchYaw);
 	void updateOriginDistance(const double R);
 
 private:
