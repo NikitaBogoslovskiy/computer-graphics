@@ -1,6 +1,8 @@
 #include "../headers/cringetracer/Materials/Material.h"
 #include "../headers/cringetracer/GeometricBodies/Plane.h"
 #include "../headers/cringetracer/GeometricBodies/Box.h"
+#include "../headers/cringetracer/GeometricBodies/LightSphere.h"
+
 Material::Material()
 {
 	Color = HVec<double>{ 178.0 / 255.0, 34.0 / 255.0, 34.0 / 255.0 };
@@ -26,13 +28,13 @@ Material::~Material()
 HVec<double> Material::ComputeDiffuse(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
 	const GeometricBody* closestBody, const HVec<double>& closestInt, const HVec<double>& closestLocalNormal, const HVec<double>& closestLocalColor)
 {
-	double outIntensity; 
+	double outIntensity;
 	HVec<double> diffuse, outColor;
-	bool illuminated = false;
+	//bool illuminated = false;
 	for (auto& light : lights) {
 		if (!(light->ComputeLighting(closestInt, closestLocalNormal, closestBody, bodies, outColor, outIntensity))) continue;
 		diffuse += outColor * outIntensity;
-		illuminated = true;
+		//illuminated = true;
 	}
 	return diffuse * closestLocalColor;
 	//return illuminated ?
@@ -62,6 +64,7 @@ HVec<double> Material::ComputeSpecular(const std::vector<GeometricBody*>& bodies
 		HVec<double> poi, poiNormal, poiColor;
 		bool foundLightBlocker = false;
 		for (auto& body : bodies) {
+			if (dynamic_cast<LightSphere*>(body) != nullptr) continue; // 1) light source body does not cast shadow
 			if (!(foundLightBlocker = body->TestIntersection(rayToLight, poi, poiNormal, poiColor))) continue;
 			if ((poi - start).len() > lightDist) foundLightBlocker = false;
 			if (foundLightBlocker) break;
@@ -78,7 +81,7 @@ HVec<double> Material::ComputeSpecular(const std::vector<GeometricBody*>& bodies
 				intensity = Reflectivity * std::pow(cosineRV, Shininess);
 			}
 		}
-		specular += light->color * intensity;
+		specular += light->intensity * light->color * intensity;
 	}
 
 	return specular;
@@ -110,7 +113,7 @@ bool Material::CastRay(const Ray<double>& ray, const std::vector<GeometricBody*>
 	const GeometricBody* originBody, GeometricBody*& targetBody,
 	HVec<double>& closestInt, HVec<double>& closestLocalNormal, HVec<double>& closestLocalColor)
 {
-	double minDist = 1e6;
+	double minDist = std::numeric_limits<double>::max();
 	bool foundRayBlocker = false;
 	HVec<double> poi, poiNormal, poiColor;
 	for (auto& body : bodies) {
@@ -148,8 +151,11 @@ HVec<double> Material::ComputeReflection(const std::vector<GeometricBody*>& bodi
 		if (targetBody->HasMaterial()) {
 			reflection = targetBody->Mtl->ComputeColor(bodies, lights, reflectionRay, targetBody, poi, poiNormal, REFLECTIONS_COUNT);
 		}
-		else {
+		else if (dynamic_cast<LightSphere*>(targetBody) == nullptr) {
 			reflection = Material::ComputeDiffuse(bodies, lights, targetBody, poi, poiNormal, targetBody->GetColor());
+		}
+		else { // 3) LIGHT_SOURCE is reflected
+			reflection = targetBody->GetColor();
 		}
 	}
 
@@ -180,8 +186,6 @@ HVec<double> Material::ComputeTransparency(const std::vector<GeometricBody*>& bo
 		rPoi, rNormal, rColor;
 	Ray<double> finalRay;
 	if (closestBody->TestIntersection(rRefr, rPoi, rNormal, rColor)) { // checking intersection of ray rRefr with the same obj
-		// but we wont implement total internal reflection. this is pbr thing i dont care
-		// just assuming 
 		HVec<double> p2 = rRefr.direction.Normalized();
 		HVec<double> n2 = rNormal;
 		double r2 = IOR;
@@ -200,8 +204,10 @@ HVec<double> Material::ComputeTransparency(const std::vector<GeometricBody*>& bo
 	GeometricBody* targetBody;
 	if (!CastRay(finalRay, bodies, closestBody, targetBody, fPoi, fNormal, fColor)) return HVec<double>();
 
-	return targetBody->HasMaterial() ?
+	return targetBody->HasMaterial() ? // 4) LIGHT_SOURCE is reflected in transparent objects
 		targetBody->Mtl->ComputeColor(bodies, lights, finalRay, targetBody, fPoi, fNormal, REFLECTIONS_COUNT)
-		:
-		Material::ComputeDiffuse(bodies, lights, targetBody, fPoi, fNormal, targetBody->GetColor());
+		: (dynamic_cast<LightSphere*>(targetBody) == nullptr) ?
+		Material::ComputeDiffuse(bodies, lights, targetBody, fPoi, fNormal, targetBody->GetColor())
+		: targetBody->GetColor();
+	;
 }

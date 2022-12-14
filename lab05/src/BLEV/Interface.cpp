@@ -1742,31 +1742,6 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 			light->updateOriginDistance((double)r);
 			needRefresh = true;
 		}
-		 
-
-		//// names are not proper but i dont care anymore
-		//float x = (float)light->position.At(0);
-		//bool xHasChanged = ImGui::DragFloat("X", &x, 0.1f, -100, 100.f, "%.1f");
-		//if (xHasChanged)
-		//{
-		//	light->position.SetAt(0, (double)x);
-		//	needRefresh = true;
-		//}
-		////yaw
-		//float y = (float)light->position.At(1);
-		//bool yHasChanged = ImGui::DragFloat("Y", &y, 0.1f, -100, 100.f, "%.1f");
-		//if (yHasChanged)
-		//{
-		//	light->position.SetAt(1, (double)y);
-		//	needRefresh = true;
-		//}
-		//float z = (float)light->position.At(2);
-		//bool zHasChanged = ImGui::DragFloat("Z", &z, 0.1f, -100, 100.f, "%.1f");
-		//if (zHasChanged)
-		//{
-		//	light->position.SetAt(2, (double)z);
-		//	needRefresh = true;
-		//}
 		ImGui::PopID();
 
 		// =================================== color edit
@@ -1783,7 +1758,7 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		bool colorHasChanged = ImGui::ColorEdit3("", (float*)&lightColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
 		if (colorHasChanged)
 		{
-			light->color = HVec<double>{ lightColor.x, lightColor.y, lightColor.z };
+			light->UpdateColor(lightColor);
 			needRefresh = true;
 		}
 		// intensity
@@ -1791,7 +1766,7 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		bool intensityHasChanged = ImGui::DragFloat("Intensity", &fint, 0.01f, 0.f, 1.f, "%.2f");
 		if (intensityHasChanged && (fint >= 0.f) && fint <= 1.f)
 		{
-			light->intensity = (double)fint;
+			light->UpdateIntensity((double)fint);
 			needRefresh = true;
 		}
 		ImGui::PopID();
@@ -1811,6 +1786,7 @@ const char* BLEV::Interface::ObjectTable::PGBodyToChar(GeometricBody* gb)
 	if (dynamic_cast<Cylinder*>(gb) != nullptr) return "Cylinder";
 	if (dynamic_cast<Cone*>(gb) != nullptr) return "Cone";
 	if (dynamic_cast<Box*>(gb) != nullptr) return "Cube";
+	if (dynamic_cast<LightSphere*>(gb) != nullptr) return "LightSphere";
 	return "Undefined";
 }
 

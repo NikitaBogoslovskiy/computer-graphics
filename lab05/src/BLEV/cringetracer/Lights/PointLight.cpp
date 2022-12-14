@@ -1,11 +1,14 @@
 #include "../headers/cringetracer/Lights/PointLight.h"
+#include "../headers/cringetracer/GeometricBodies/LightSphere.h"
 
 #define PIDIVTWO 1.5708
 
 PointLight::PointLight()
 {
+	position = HVec<double>{ 0.0, 0.0, 0.0 };
 	color = HVec<double>{ 1.0, 1.0, 1.0 };
 	intensity = 1.0;
+	LightSource = new LightSphere(position, 1.0, color);
 }
 
 PointLight::PointLight(const HVec<double>& inPosition, const HVec<double>& inColor, const double& inIntensity)
@@ -13,6 +16,7 @@ PointLight::PointLight(const HVec<double>& inPosition, const HVec<double>& inCol
 	position = inPosition;
 	color = inColor;
 	intensity = inIntensity;
+	LightSource = new LightSphere(position, 1.0, color);
 }
 
 PointLight::PointLight(const HVec2<double>& inPitchYaw, const double inR, const HVec<double>& inColor, const double inIntensity)
@@ -21,10 +25,12 @@ PointLight::PointLight(const HVec2<double>& inPitchYaw, const double inR, const 
 	updatePitchYaw(inPitchYaw);
 	color = inColor;
 	intensity = inIntensity;
+	LightSource = new LightSphere(position, 1.0, color);
 }
 
 PointLight::~PointLight()
 {
+	delete LightSource;
 }
 
 bool PointLight::ComputeLighting(const HVec<double>& intersection,
@@ -43,19 +49,12 @@ bool PointLight::ComputeLighting(const HVec<double>& intersection,
 	HVec<double> poi, poiNormal, poiColor;
 	bool foundLightBlocker = false;
 	for (auto& body : bodies) {
-		if (body == gb) continue;
-
+		if ((body == gb) || (dynamic_cast<LightSphere*>(body) != nullptr)) continue; // 1) light source body does not cast shadow
+		
 		if (!(foundLightBlocker = body->TestIntersection(rayToLight, poi, poiNormal, poiColor))) continue;
+		
 		if ((poi - start).len() > lightDist) foundLightBlocker = false;
 		if (foundLightBlocker) break;
-
-		/*foundLightBlocker = body->TestIntersection(rayToLight, curInt, curLocalNormal, curLocalColor);
-		if (foundLightBlocker) {
-			if ((curInt - start).len() > lightDist)
-				foundLightBlocker = false;
-		}
-		if (foundLightBlocker)
-			break;*/
 	}
 
 	if (foundLightBlocker) {

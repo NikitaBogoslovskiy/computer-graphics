@@ -4,7 +4,11 @@
 
 class Light
 {
+protected:
+
 public:
+
+	GeometricBody* LightSource = nullptr;
 	Light();
 	~Light();
 
@@ -13,7 +17,7 @@ public:
 	HVec<double> color{ 1.0, 1.0, 1.0 };
 	double intensity = 1.0;
 
-	HVec<double> position{ 0.0, 0.0, 0.0 }; // "computed" property
+	HVec<double> position; // "computed" property
 
 	virtual bool ComputeLighting(const HVec<double>& intersection,
 		const HVec<double>& localNormal,
@@ -25,6 +29,11 @@ public:
 	// updates pitchYaw and position
 	void updatePitchYaw(const HVec2<double>& inPitchYaw);
 	void updateOriginDistance(const double R);
+
+	bool HasLightSource();
+	void UpdateLightSourcePosition();
+	void UpdateColor(const ImVec3& inColor);
+	void UpdateIntensity(const double inIntensity);
 
 private:
 	void rotateSource();

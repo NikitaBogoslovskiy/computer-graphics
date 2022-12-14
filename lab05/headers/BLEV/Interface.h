@@ -14,6 +14,8 @@
 #include "cringetracer/GeometricBodies/Cone.h"
 #include "cringetracer/GeometricBodies/Cylinder.h"
 #include "cringetracer/GeometricBodies/Box.h"
+#include "cringetracer/GeometricBodies/LightSphere.h"
+
 namespace BLEV {
 	class Interface {
 		BLEV::Data& _data;

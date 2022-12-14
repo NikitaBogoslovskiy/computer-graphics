@@ -12,8 +12,8 @@
 
 Scene::Scene()
 {
-	//FillExampleScene1(this);
-	FillExampleScene2(this);
+	FillExampleScene1(this);
+	//FillExampleScene2(this);
 
 }
 
@@ -85,8 +85,17 @@ void Scene::FillExampleScene2(Scene* inScene)
 	inScene->bodies.push_back(el1);
 	inScene->bodies.push_back(el2);
 
-	inScene->lights.push_back(new PointLight(HVec2<double>{ -45.0, 165.0 }, 10.0, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
-	inScene->lights.push_back(new PointLight(HVec2<double>{ -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));
+	auto pl1 = new PointLight(HVec2<double>{ -45.0, 165.0 }, 10.0, HVec<double> { 1.0, 1.0, 1.0 }, 1.0);
+	auto pl2 = new PointLight(HVec2<double>{ -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0);
+	
+	Material* whiteMatte;
+	materials.Lookup("whiteMatte", whiteMatte);
+
+	inScene->lights.push_back(pl1);
+	inScene->bodies.push_back(pl1->LightSource);
+	
+	inScene->lights.push_back(pl2);
+	inScene->bodies.push_back(pl2->LightSource);
 }
 
 void Scene::FillExampleScene1(Scene* inScene)
@@ -196,11 +205,11 @@ void Scene::FillExampleScene1(Scene* inScene)
 		ImVec3{ 100.0f / 255.f, 100.0f / 255.f, 100.0f / 255.f });
 	cube2->SetMaterial(gold);
 
-	/*inScene->bodies.push_back(backWall);
+	inScene->bodies.push_back(backWall);
 	inScene->bodies.push_back(frontWall);
 	inScene->bodies.push_back(leftWall);
 	inScene->bodies.push_back(rightWall);
-	inScene->bodies.push_back(ceiling);*/
+	inScene->bodies.push_back(ceiling);
 	inScene->bodies.push_back(floor);
 
 	//inScene->bodies.push_back(el1);
@@ -214,6 +223,10 @@ void Scene::FillExampleScene1(Scene* inScene)
 	//inScene->lights.push_back(new PointLight(HVec<double> { 0.0, 2.0, 0.0 }, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
 	//inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 90.0 }, 4.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));
 
-	inScene->lights.push_back(new PointLight(HVec2<double> { -45.0, 70.0 }, 10.0, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
-	inScene->lights.push_back(new PointLight(HVec2<double> { -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));
+	auto light1 = new PointLight(HVec2<double> { -45.0, 70.0 }, 4.0, HVec<double> { 1.0, 0.0, 0.0 }, 1.0);
+	auto light2 = new PointLight(HVec2<double> { -45.0, 100.0 }, 4.5, HVec<double> { 0.0, 0.0, 1.0 }, 1.0);
+	inScene->bodies.push_back(light1->LightSource);
+	inScene->bodies.push_back(light2->LightSource);
+	inScene->lights.push_back(light1);
+	inScene->lights.push_back(light2);
 }

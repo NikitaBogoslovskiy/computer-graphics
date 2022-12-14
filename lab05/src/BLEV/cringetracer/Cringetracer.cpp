@@ -1,5 +1,6 @@
 #include "../headers/cringetracer/Cringetracer.h"
 #include "../headers/cringetracer/Materials/Material.h"
+#include "../headers/cringetracer/GeometricBodies/LightSphere.h"
 #include <omp.h>
 #include <algorithm>
 
@@ -16,8 +17,7 @@ void CringeTracer::SetCamera(Camera* _cam) {
 }
 
 void CringeTracer::SetOMPThreads() {
-	//_THREADS = std::max(2 * std::thread::hardware_concurrency() / 3, size_t(1));
-	_THREADS = 6;
+	_THREADS = std::max(2 * std::thread::hardware_concurrency() / 3, size_t(1));
 	printf("THREADS = %lu\n", _THREADS);
 	omp_set_num_threads(_THREADS);
 }
@@ -58,10 +58,9 @@ void CringeTracer::GetRayXY(const float x, const float y, Ray<double>& outRay) {
 bool CringeTracer::CastRay(const Ray<double>& ray,
 	GeometricBody*& closestBody, HVec<double>& closestInt, HVec<double>& closestLocalNormal, HVec<double>& closestLocalColor)
 {
-	HVec<double> intersection, localNormal, localColor;
 	double minDist = std::numeric_limits<double>::max();
 	closestBody = nullptr;
-
+	HVec<double> intersection, localNormal, localColor;
 	for (auto& body : scene.bodies) {
 		if (!(body->TestIntersection(ray, intersection, localNormal, localColor))) continue; // no intersection
 
@@ -88,18 +87,23 @@ void CringeTracer::SubRender(const size_t start, const size_t end, const size_t 
 
 			GetRayXY(normX, normY, img.rays[x][y]);
 
-			GeometricBody* closestBody = nullptr; HVec<double>  closestIntersection(3), closestLocalNormal(3), closestLocalColor(3);
+			GeometricBody* closestBody = nullptr;
+			HVec<double>  closestIntersection, closestLocalNormal, closestLocalColor;
 			if (!(CastRay(img.rays[x][y], closestBody, closestIntersection, closestLocalNormal, closestLocalColor))) continue;
 
-			HVec<double> finalColor(3);
+			HVec<double> finalColor;
 			if (closestBody->HasMaterial()) {
 				finalColor = closestBody->Mtl->ComputeColor(scene.bodies, scene.lights,
 					img.rays[x][y],
 					closestBody, closestIntersection, closestLocalNormal, 0);
 			}
-			else {
+			else if (dynamic_cast<LightSphere*>(closestBody) == nullptr){
 				finalColor = Material::ComputeDiffuse(scene.bodies, scene.lights,
 					closestBody, closestIntersection, closestLocalNormal, closestBody->GetColor()); // clumsy!!
+			}
+			else {
+				finalColor = 2.0 * closestBody->GetColor(); // 2) light source has no shading
+				//finalColor = closestBody->GetColor(); // 2) light source has no shading
 			}
 			img.SetPixel(x, y, finalColor);
 		}

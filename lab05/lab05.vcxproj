@@ -170,6 +170,7 @@
     <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Box.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Cone.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\Cylinder.cpp" />
+    <ClCompile Include="src\BLEV\cringetracer\GeometricBodies\LightSphere.cpp" />
     <ClCompile Include="src\BLEV\cringetracer\Materials\Material.cpp" />
     <ClCompile Include="headers\stuff\NFD\nfd_common.c" />
     <ClCompile Include="headers\stuff\NFD\nfd_win.cpp" />
@@ -203,6 +204,7 @@
     <ClInclude Include="headers\cringetracer\GeometricBodies\Cylinder.h" />
     <ClInclude Include="headers\cringetracer\GeometricBodies\Ellipsoid.h" />
     <ClInclude Include="headers\cringetracer\GeometricBodies\GeometricBody.h" />
+    <ClInclude Include="headers\cringetracer\GeometricBodies\LightSphere.h" />
     <ClInclude Include="headers\cringetracer\GeometricBodies\Plane.h" />
     <ClInclude Include="headers\cringetracer\HeyraMath\HAffine.h" />
     <ClInclude Include="headers\cringetracer\HeyraMath\HMat.h" />

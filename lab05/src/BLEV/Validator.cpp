@@ -15,8 +15,7 @@ void BLEV::Validator::ValidateSphereArgs(char* nstr, double& x0, double& y0, dou
 	if (sscanf(nstr, "%lf %lf %lf %lf", &x0, &y0, &z0, &radius) != 4) throw std::invalid_argument("Incorrect arguments format for interval input");
 	if (radius <= 0) throw std::invalid_argument("radius shouldnt be <= 0");
 }
-// i dont care about namings!!!
-void BLEV::Validator::ValidateLightArgs(char* nstr, double& x0, double& y0, double& z0) {
-	if (sscanf(nstr, "%lf %lf %lf %lf", &x0, &y0, &z0) != 3) throw std::invalid_argument("Incorrect arguments format for interval input");
 
+void BLEV::Validator::ValidateLightArgs(char* nstr, double& x0, double& y0, double& z0) {
+	if (sscanf(nstr, "%lf %lf %lf", &x0, &y0, &z0) != 3) throw std::invalid_argument("Incorrect argument amount for light");
 }

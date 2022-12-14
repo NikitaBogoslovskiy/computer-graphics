@@ -14,6 +14,8 @@ void Light::updateOriginDistance(const double R)
 	HVec<double> direction = (position - HVec<double>()).Normalized();
 	position = R * direction;
 	r = R; //caching
+	if (HasLightSource())
+		UpdateLightSourcePosition();
 }
 
 void Light::updatePitchYaw(const HVec2<double>& inPitchYaw)
@@ -25,6 +27,8 @@ void Light::updatePitchYaw(const HVec2<double>& inPitchYaw)
 		));
 
 	rotateSource();
+	if (HasLightSource())
+		UpdateLightSourcePosition();
 }
 
 void Light::rotateSource()
@@ -37,3 +41,31 @@ void Light::rotateSource()
 	position.SetAt(2, r * cosPitch * sin(yawRad));
 	//printf("%lf %lf %lf\n", position.At(0), position.At(1), position.At(2));
 }
+
+// all about light source body
+
+bool Light::HasLightSource()
+{
+	return LightSource != nullptr;
+}
+
+void Light::UpdateLightSourcePosition()
+{
+	LightSource->Origin.SetAt(0, position.x);
+	LightSource->Origin.SetAt(1, position.y);
+	LightSource->Origin.SetAt(2, position.z);
+	LightSource->SetTransform();
+}
+
+void Light::UpdateColor(const ImVec3& inColor)
+{
+	color = HVec<double>{ inColor.x, inColor.y, inColor.z };
+	LightSource->SetColor(color);
+}
+
+void Light::UpdateIntensity(const double inIntensity)
+{
+	intensity = inIntensity;
+	LightSource->SetColor(color * intensity);
+}
+

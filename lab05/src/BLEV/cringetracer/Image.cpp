@@ -9,7 +9,7 @@ Image::Image()
 Image::Image(const size_t& _xSize, const size_t& _ySize)
 {
 	Resize(xSize, ySize);
-	Clear();
+	//Clear();
 }
 
 void Image::Resize(const size_t& _xSize, const size_t& _ySize)
