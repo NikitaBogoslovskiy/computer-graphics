@@ -67,7 +67,8 @@ class Camera
 	}
 
 public:
-	inline static float DEF_POS = 4.f;
+	inline static float DEF_POS = 6.f;
+	inline static float DEF_POS2 = 2.49f;
 	enum Direction {
 		Forward,
 		Backward,

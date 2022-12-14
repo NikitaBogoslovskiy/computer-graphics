@@ -33,12 +33,12 @@ HVec<double> Material::ComputeDiffuse(const std::vector<GeometricBody*>& bodies,
 		diffuse += outColor * outIntensity;
 		illuminated = true;
 	}
-	//return diffuse * closestLocalColor;
-	return illuminated ?
-		diffuse * closestLocalColor
-		:
-		ambientColor * ambientIntensity * closestLocalColor //cache it
-		;
+	return diffuse * closestLocalColor;
+	//return illuminated ?
+	//	diffuse * closestLocalColor
+	//	:
+	//	ambientColor * ambientIntensity * closestLocalColor //cache it
+	//	;
 }
 
 HVec<double> Material::ComputeSpecular(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
@@ -50,22 +50,20 @@ HVec<double> Material::ComputeSpecular(const std::vector<GeometricBody*>& bodies
 	HVec<double> specular(3);
 	for (auto& light : lights) {
 		double intensity = 0.0;
-		HVec<double> dirToLight = (light->position - closestInt).Normalized();
-		HVec<double> pathStart = closestInt + dirToLight * 0.001;
-		Ray<double> rayToLight(pathStart, pathStart + dirToLight);
+
+		HVec<double> dirToLight = (light->position - closestInt);
+		double lightDist = dirToLight.len();
+		dirToLight.Normalize();
+
+		HVec<double> start = closestInt + dirToLight * 0.001;
+		Ray<double> rayToLight(start, start + dirToLight);
 
 		HVec<double> poi(3), poiNormal(3), poiColor(3);
 		bool foundLightBlocker = false;
 		for (auto& body : bodies) {
-			foundLightBlocker = body->TestIntersection(rayToLight, poi, poiNormal, poiColor);
-			if (foundLightBlocker) {
-				//printf("foundLightBlocker\n");
-				//std::cout << (dynamic_cast<Box*>(body) != nullptr) << std::endl;
-				break;
-			}
-			else {
-				//printf("no\n");
-			}
+			if (!(foundLightBlocker = body->TestIntersection(rayToLight, poi, poiNormal, poiColor))) continue;
+			if ((poi - start).len() > lightDist) foundLightBlocker = false;
+			if (foundLightBlocker) break;
 		}
 		if (!foundLightBlocker) {
 			HVec<double> d = rayToLight.direction;
@@ -103,8 +101,8 @@ HVec<double> Material::ComputeColor(const std::vector<GeometricBody*>& bodies, c
 
 	return transparency * Transparency
 		+ (Reflectivity * reflection + (1.0 - Reflectivity) * diffuse) * (1.0 - Transparency)
-		+ specular;
-	//+ ambientColor * ambientIntensity * this->Color;
+		+ specular
+		+ ambientColor * ambientIntensity * this->Color;
 }
 
 bool Material::CastRay(const Ray<double>& ray, const std::vector<GeometricBody*>& bodies,

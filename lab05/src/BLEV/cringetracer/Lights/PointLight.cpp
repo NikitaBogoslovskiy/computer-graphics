@@ -37,22 +37,25 @@ bool PointLight::ComputeLighting(const HVec<double>& intersection,
 	double lightDist = lightDir.len();
 	lightDir.Normalize();
 
-	HVec<double> start = intersection;
+	HVec<double> start = intersection + localNormal * 0.001;
 	Ray<double> rayToLight(start, start + lightDir);
 
-	HVec<double> curInt(3); HVec<double> curLocalNormal(3); HVec<double> curLocalColor(3);
+	HVec<double> poi(3); HVec<double> poiNormal(3); HVec<double> poiColor(3);
 	bool foundLightBlocker = false;
 	for (auto& body : bodies) {
 		if (body == gb) continue;
-		foundLightBlocker = body->TestIntersection(rayToLight, curInt, curLocalNormal, curLocalColor);
+
+		if (!(foundLightBlocker = body->TestIntersection(rayToLight, poi, poiNormal, poiColor))) continue;
+		if ((poi - start).len() > lightDist) foundLightBlocker = false;
+		if (foundLightBlocker) break;
+
+		/*foundLightBlocker = body->TestIntersection(rayToLight, curInt, curLocalNormal, curLocalColor);
 		if (foundLightBlocker) {
 			if ((curInt - start).len() > lightDist)
 				foundLightBlocker = false;
 		}
 		if (foundLightBlocker)
-			break;
-		//if (foundLightBlocker ) break;
-		//if ((curInt - start).len() > lightDist) foundLightBlocker = false;
+			break;*/
 	}
 
 	if (foundLightBlocker) {

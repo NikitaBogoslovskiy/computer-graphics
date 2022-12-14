@@ -1651,13 +1651,13 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 		ImGui::TableNextRow();
 		ImGui::TableSetColumnIndex(0);
 		ImGui::Text("Material");
-		
+
 		ImGui::TableSetColumnIndex(1);
 		ImGui::PushItemWidth(70);
 		static int mtlInd;
 		_data.cringulik.scene.materials.GetInd(gb->Mtl, mtlInd);
-		bool mtlHasChanged = ImGui::Combo("##", &mtlInd, 
-			_data.cringulik.scene.materials.mtlLibNames, 
+		bool mtlHasChanged = ImGui::Combo("##", &mtlInd,
+			_data.cringulik.scene.materials.mtlLibNames,
 			_data.cringulik.scene.materials.mtlLibSize
 		);
 		if (mtlHasChanged) {
@@ -1704,27 +1704,50 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		// pitch
 		ImGui::TableSetColumnIndex(1);
 		ImGui::PushItemWidth(70);
-		float pitch = (float)light->pitchYaw.At(0);
-		bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 5.f, -89.f, 89.f, "%.0f");
+		//float pitch = (float)light->pitchYaw.At(0);
+		//bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 5.f, -89.f, 89.f, "%.0f");
+		//if (pitchHasChanged)
+		//{
+		//	light->updatePitchYaw(HVec<double>{ (double)pitch, light->pitchYaw.At(1)});
+		//	needRefresh = true;
+		//}
+		////yaw
+		//float yaw = (float)light->pitchYaw.At(1);
+		//bool yawHasChanged = ImGui::DragFloat("Yaw", &yaw, 5.f, 0.f, 3600.f, "%.0f");
+		//if (yawHasChanged)
+		//{
+		//	light->updatePitchYaw(HVec<double>{ light->pitchYaw.At(0), (double)yaw});
+		//	needRefresh = true;
+		//}
+		//// R 
+		//float r = (float)light->r;
+		//bool rHasChanged = ImGui::DragFloat("R", &r, 0.5f, 1.f, 8.f, "%.2f");
+		//if (rHasChanged)
+		//{
+		//	light->updateOriginDistance((double)r);
+		//	needRefresh = true;
+		//}
+		// names are not proper but i dont care anymore
+		float pitch = (float)light->position.At(0);
+		bool pitchHasChanged = ImGui::DragFloat("X", &pitch, 5.f, -100, 100.f, "%.0f");
 		if (pitchHasChanged)
 		{
-			light->updatePitchYaw(HVec<double>{ (double)pitch, light->pitchYaw.At(1)});
+			light->position.SetAt(0, (double)pitch);
 			needRefresh = true;
 		}
 		//yaw
-		float yaw = (float)light->pitchYaw.At(1);
-		bool yawHasChanged = ImGui::DragFloat("Yaw", &yaw, 5.f, 0.f, 3600.f, "%.0f");
+		float yaw = (float)light->position.At(1);
+		bool yawHasChanged = ImGui::DragFloat("Y", &yaw, 5.f, -100, 100.f, "%.0f");
 		if (yawHasChanged)
 		{
-			light->updatePitchYaw(HVec<double>{ light->pitchYaw.At(0), (double)yaw});
+			light->position.SetAt(1, (double)yaw);
 			needRefresh = true;
 		}
-		// R 
-		float r = (float)light->r;
-		bool rHasChanged = ImGui::DragFloat("R", &r, 0.5f, 1.f, 8.f, "%.2f");
-		if (rHasChanged)
+		float z = (float)light->position.At(2);
+		bool zHasChanged = ImGui::DragFloat("Z", &z, 5.f, -100, 100.f, "%.0f");
+		if (zHasChanged)
 		{
-			light->updateOriginDistance((double)r);
+			light->position.SetAt(2, (double)z);
 			needRefresh = true;
 		}
 		ImGui::PopID();
@@ -2570,7 +2593,7 @@ void BLEV::Interface::Canvas::Body() {
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_X)) {
 				//main_camera.resetPosition(ImVec3(400.f, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
-				main_camera.setEyeAndPYR(ImVec3(Camera::DEF_POS, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
+				main_camera.setEyeAndPYR(ImVec3(Camera::DEF_POS2, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
 				needRefresh = true;
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_Y)) {
