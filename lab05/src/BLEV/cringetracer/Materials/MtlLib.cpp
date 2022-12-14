@@ -2,15 +2,28 @@
 
 MtlLib::MtlLib()
 {
-	materials = std::map<std::string, Material*>{
+	mtls = std::map<std::string, Material*>{
 		{ "none"  , nullptr},
 		{ "brick" , new Material()},
 
-		{ "lightBlue" , new Material(HVec<double> {0.25, 0.3, 0.8}, 10.0, 0.8)},
-		{ "lightBlueMatte" , new Material(HVec<double> {0.25, 0.3, 0.8}, 5.0, 0.0)},
+		{ "whiteMatte" , new Material(HVec<double> {1.0, 1.0, 1.0}, 0.05, 0.0)},
 
-		{ "mint"  , new Material(HVec<double> { 0.24, 0.7, 0.53 }, 10.0, 0.5)},
-		{ "mintMatte"  , new Material(HVec<double> { 0.24, 0.7, 0.53 }, 5.0, 0.0)},
+		{ "greenMatte" , new Material(HVec<double> { 0.0, 1.0, 0.0 }, 0.05, 0.0)},
+		
+		{ "orangeMatte" , new Material(HVec<double> { 1.0, 0.5, 0.0 }, 0.05, 0.0)},
+		{ "orangeReflective" , new Material(HVec<double> { 1.0, 0.5, 0.0 }, 10.0, 0.75)},
+
+		{ "blueMatte" , new Material(HVec<double> {0.125, 0.125, 1.0}, 0.05, 0.0)},
+		{ "blueReflective" , new Material(HVec<double> {0.125, 0.125, 1.0}, 10.0, 0.75)},
+
+		{ "redMatte" , new Material(HVec<double> {1.0, 0.125, 0.125}, 0.05, 0.0)},
+		{ "redReflective" , new Material(HVec<double> {1.0, 0.125, 0.125}, 10.0, 0.75)},
+
+		{ "lightBlueMatte" , new Material(HVec<double> {0.25, 0.3, 0.8}, 0.05, 0.0)},
+		{ "lightBlueReflective" , new Material(HVec<double> {0.25, 0.3, 0.8}, 10.0, 0.8)},
+		
+		{ "mintMatte"  , new Material(HVec<double> { 0.24, 0.7, 0.53 }, 0.05, 0.0)},
+		{ "mintReflective"  , new Material(HVec<double> { 0.24, 0.7, 0.53 }, 10.0, 0.5)},
 
 		{ "mirror"  , new Material(HVec<double> { 1.0, 1.0, 1.0, }, 5.0, 1.0)},
 		{ "gold"  , new Material(HVec<double> { 0.75164, 0.70648, 0.22648 }, 10.0, 0.5)},
@@ -21,8 +34,8 @@ MtlLib::MtlLib()
 		{ "water" , new Material(HVec<double> { 0.25, 0.3, 0.8 }, 10.0, 0.4, 1.0, 1.333)},
 	};
 
-	for (auto it = materials.begin(); it != materials.end(); ++it) {
-		mtlLibNames[std::distance(materials.begin(), it)] = (*it).first.c_str();
+	for (auto it = mtls.begin(); it != mtls.end(); ++it) {
+		mtlLibNames[std::distance(mtls.begin(), it)] = (*it).first.c_str();
 	}
 }
 
@@ -41,17 +54,17 @@ bool MtlLib::LookupByInd(const size_t mtlInd, Material*& outMtl) {
 
 bool MtlLib::Lookup(const char* name, Material*& outMtl)
 {
-	auto it = materials.find(name);
-	if (it == materials.end()) return false;
+	auto it = mtls.find(name);
+	if (it == mtls.end()) return false;
 	outMtl = (*it).second;
 	return true;
 }
 
 bool MtlLib::GetInd(const Material* outMtl, int& outInd)
 {
-	for (auto it = materials.begin(); it != materials.end(); ++it)
+	for (auto it = mtls.begin(); it != mtls.end(); ++it)
 		if (it->second == outMtl) {
-			outInd = std::distance(materials.begin(), it);
+			outInd = std::distance(mtls.begin(), it);
 			return true;
 		}
 	return false;

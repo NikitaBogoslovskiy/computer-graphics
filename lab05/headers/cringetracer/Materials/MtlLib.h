@@ -5,12 +5,12 @@
 class MtlLib
 {
 	//http://devernay.free.fr/cours/opengl/materials.html
-	std::map<std::string, Material*> materials;
+	std::map<std::string, Material*> mtls;
 
 public:
 
-	const int8_t mtlLibSize = 12;
-	const char* mtlLibNames[12];
+	const int8_t mtlLibSize = 19;
+	const char* mtlLibNames[19];
 
 	MtlLib();
 	~MtlLib();

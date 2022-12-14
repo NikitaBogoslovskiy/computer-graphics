@@ -1721,7 +1721,7 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		}
 		// R 
 		float r = (float)light->r;
-		bool rHasChanged = ImGui::DragFloat("R", &r, 1.f, 0.f, 100.f, "%.0f");
+		bool rHasChanged = ImGui::DragFloat("R", &r, 0.5f, 1.f, 8.f, "%.2f");
 		if (rHasChanged)
 		{
 			light->updateOriginDistance((double)r);
@@ -2570,12 +2570,12 @@ void BLEV::Interface::Canvas::Body() {
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_X)) {
 				//main_camera.resetPosition(ImVec3(400.f, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
-				main_camera.setEyeAndPYR(ImVec3(10.f, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
+				main_camera.setEyeAndPYR(ImVec3(Camera::DEF_POS, 0.f, 0.f), ImVec3(0.f, 0.f, 0.f));
 				needRefresh = true;
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_Y)) {
 				//main_camera.resetPosition(ImVec3(0.f, 400.f, 0.f), ImVec3(89.f, 0.f, 0.f));
-				main_camera.setEyeAndPYR(ImVec3(0.f, 10.f, 0.f), ImVec3(89.f, 0.f, 0.f));
+				main_camera.setEyeAndPYR(ImVec3(0.f, Camera::DEF_POS, 0.f), ImVec3(89.f, 0.f, 0.f));
 				needRefresh = true;
 			}
 			if (ImGui::IsKeyPressed(ImGuiKey_Z)) {

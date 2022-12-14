@@ -11,5 +11,5 @@ public:
 
 template <class T> bool HMath<T>::CloseEnough(const double x, const double y)
 {
-	return fabs(x - y) < EPS;
+	return std::abs(x - y) < EPS;
 }

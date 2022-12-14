@@ -67,6 +67,7 @@ class Camera
 	}
 
 public:
+	inline static float DEF_POS = 4.f;
 	enum Direction {
 		Forward,
 		Backward,
@@ -125,7 +126,7 @@ public:
 
 	inline void resetFlightSettings() {
 		this->_sensitivity = 0.1f;
-		this->_speed = 1000.f;
+		this->_speed = 50.f;
 		this->_isMouseDirty = false;
 	}
 
@@ -149,13 +150,13 @@ public:
 		this->_scale = Affine::identity();
 	}
 
-	inline void resetPosition(const ImVec3& eye = ImVec3(0.f, 0.f, 10.f), const ImVec3& pitchYawRoll = ImVec3(0.f, 90.f, 0.f), const ImVec3& target = ImVec3(0.f, 0.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
+	inline void resetPosition(const ImVec3& eye = ImVec3(0.f, 0.f, DEF_POS), const ImVec3& pitchYawRoll = ImVec3(0.f, 90.f, 0.f), const ImVec3& target = ImVec3(0.f, 0.f, 0.f), const ImVec3& up = ImVec3(0.f, 1.f, 0.f)) {
 		this->_target = target;
 		this->_up = up;
 		setEyeAndPYR(eye, pitchYawRoll);
 	}
 
-	void setEyeAndPYR(const ImVec3& eye = ImVec3(0.f, 0.f, 10.f), const ImVec3& pitchYawRoll = ImVec3(0.f, 90.f, 0.f)) {
+	void setEyeAndPYR(const ImVec3& eye = ImVec3(0.f, 0.f, DEF_POS), const ImVec3& pitchYawRoll = ImVec3(0.f, 90.f, 0.f)) {
 		this->_eye = eye;
 		this->_pyr = pitchYawRoll;
 		updateEyeRotation();

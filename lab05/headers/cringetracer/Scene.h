@@ -11,8 +11,10 @@ class Scene
 public:
 	std::vector<GeometricBody*> bodies;
 	std::vector<Light*> lights;
-	//std::map<std::string, Material*> materials;
-	MtlLib materials;
+	inline static MtlLib materials;
 	Scene();
 	~Scene();
+
+	static void FillExampleScene1(Scene* inScene);
+	static void FillExampleScene2(Scene* inScene);
 };

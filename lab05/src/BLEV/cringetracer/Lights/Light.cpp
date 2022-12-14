@@ -35,4 +35,5 @@ void Light::rotateSource()
 	position.SetAt(0, r * cosPitch * cos(yawRad));
 	position.SetAt(1, r * sin(pitchRad));
 	position.SetAt(2, r * cosPitch * sin(yawRad));
+	//printf("%lf %lf %lf\n", position.At(0), position.At(1), position.At(2));
 }

@@ -8,6 +8,13 @@ PointLight::PointLight()
 	intensity = 1.0;
 }
 
+PointLight::PointLight(const HVec<double>& inPosition, const HVec<double>& inColor, const double& inIntensity)
+{
+	position = inPosition;
+	color = inColor;
+	intensity = inIntensity;
+}
+
 PointLight::PointLight(const HVec<double>& inPitchYaw, const double inR, const HVec<double>& inColor, const double inIntensity)
 {
 	r = inR;
@@ -37,8 +44,15 @@ bool PointLight::ComputeLighting(const HVec<double>& intersection,
 	bool foundLightBlocker = false;
 	for (auto& body : bodies) {
 		if (body == gb) continue;
-		if (foundLightBlocker = body->TestIntersection(rayToLight, curInt, curLocalNormal, curLocalColor)) break;
-		if ((curInt - start).len() > lightDist) foundLightBlocker = false;
+		foundLightBlocker = body->TestIntersection(rayToLight, curInt, curLocalNormal, curLocalColor);
+		if (foundLightBlocker) {
+			if ((curInt - start).len() > lightDist)
+				foundLightBlocker = false;
+		}
+		if (foundLightBlocker)
+			break;
+		//if (foundLightBlocker ) break;
+		//if ((curInt - start).len() > lightDist) foundLightBlocker = false;
 	}
 
 	if (foundLightBlocker) {

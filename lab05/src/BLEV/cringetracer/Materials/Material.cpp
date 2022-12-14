@@ -1,5 +1,6 @@
 #include "../headers/cringetracer/Materials/Material.h"
-
+#include "../headers/cringetracer/GeometricBodies/Plane.h"
+#include "../headers/cringetracer/GeometricBodies/Box.h"
 Material::Material()
 {
 	Color = HVec<double>{ 178.0 / 255.0, 34.0 / 255.0, 34.0 / 255.0 };
@@ -32,12 +33,12 @@ HVec<double> Material::ComputeDiffuse(const std::vector<GeometricBody*>& bodies,
 		diffuse += outColor * outIntensity;
 		illuminated = true;
 	}
-	return diffuse * closestLocalColor;
-	//return illuminated ?
-		//diffuse * closestLocalColor
-	//	:
-		//ambientColor * ambientIntensity * closestLocalColor //cache it
-	//	;
+	//return diffuse * closestLocalColor;
+	return illuminated ?
+		diffuse * closestLocalColor
+		:
+		ambientColor * ambientIntensity * closestLocalColor //cache it
+		;
 }
 
 HVec<double> Material::ComputeSpecular(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
@@ -48,21 +49,36 @@ HVec<double> Material::ComputeSpecular(const std::vector<GeometricBody*>& bodies
 
 	HVec<double> specular(3);
 	for (auto& light : lights) {
+		double intensity = 0.0;
 		HVec<double> dirToLight = (light->position - closestInt).Normalized();
-		HVec<double> pathStart = closestInt + dirToLight * 0.001; // !!! OFFSET TO AVOID BLACK DOTS&&&&??? WOOWOWO
+		HVec<double> pathStart = closestInt + dirToLight * 0.001;
 		Ray<double> rayToLight(pathStart, pathStart + dirToLight);
 
-		HVec<double> poi(3), poiNormal(3), poiColor(3); bool foundLightBlocker = false;
+		HVec<double> poi(3), poiNormal(3), poiColor(3);
+		bool foundLightBlocker = false;
 		for (auto& body : bodies) {
-			if (foundLightBlocker = body->TestIntersection(rayToLight, poi, poiNormal, poiColor)) break;
+			foundLightBlocker = body->TestIntersection(rayToLight, poi, poiNormal, poiColor);
+			if (foundLightBlocker) {
+				//printf("foundLightBlocker\n");
+				//std::cout << (dynamic_cast<Box*>(body) != nullptr) << std::endl;
+				break;
+			}
+			else {
+				//printf("no\n");
+			}
 		}
-		if (foundLightBlocker) continue;
+		if (!foundLightBlocker) {
+			HVec<double> d = rayToLight.direction;
+			HVec<double> r = (d - 2 * HVec<double>::dot(d, closestLocalNormal) * closestLocalNormal).Normalized();
 
-		HVec<double> d = rayToLight.direction;
-		HVec<double> r = (d - 2 * HVec<double>::dot(d, closestLocalNormal) * closestLocalNormal).Normalized();
-		HVec<double> v = cameraRay.direction; //v.Normalize();
-		double cosineRV = HVec<double>::dot(r, v.Normalized());
-		double intensity = cosineRV > 0.0 ? Reflectivity * std::pow(cosineRV, Shininess) : 0.0;
+			HVec<double> v = cameraRay.direction.Normalized();
+			double cosineRV = HVec<double>::dot(r, v);
+
+			if (cosineRV > 0.0)
+			{
+				intensity = Reflectivity * std::pow(cosineRV, Shininess);
+			}
+		}
 		specular += light->color * intensity;
 	}
 
@@ -87,8 +103,8 @@ HVec<double> Material::ComputeColor(const std::vector<GeometricBody*>& bodies, c
 
 	return transparency * Transparency
 		+ (Reflectivity * reflection + (1.0 - Reflectivity) * diffuse) * (1.0 - Transparency)
-		+ specular
-		+ ambientColor * ambientIntensity * this->Color;
+		+ specular;
+	//+ ambientColor * ambientIntensity * this->Color;
 }
 
 bool Material::CastRay(const Ray<double>& ray, const std::vector<GeometricBody*>& bodies,
@@ -156,7 +172,7 @@ HVec<double> Material::ComputeTransparency(const std::vector<GeometricBody*>& bo
 	}
 
 	HVec<double> vRefr1 = r1 * p1 + (r1 * cosine1 - std::sqrt(1.0 - r1 * r1 * (1.0 - cosine1 * cosine1))) * n1; // REFRACTED DIRECTION
-	
+
 	// maybe set member property of offset (like surface thickness)? would be interesting
 	Ray<double> rRefr(closestInt + vRefr1 * 0.01, closestInt + vRefr1); // THIS GOES INTO OBJECT AGAIN. 0.01 OFFSET FROM SURFACE TO AVOID PICKING UP SAME INTERSECTION TWICE
 
