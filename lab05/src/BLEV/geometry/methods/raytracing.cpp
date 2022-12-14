@@ -1,6 +1,7 @@
 #include "../headers/geometry/methods/raytracing.h"
 #include <thread>
-Raytracing::Raytracing(){}
+Raytracing::Raytracing(){
+}
 
 Raytracing::Raytracing(const std::vector<POL*>* _pols)
 {
@@ -13,6 +14,14 @@ Raytracing::Raytracing(int _width, int _height, const ImVec2& _offset, const std
 	rays.resize(_width * _height);
 	offset = _offset;
 	pols = _pols;
+
+	bounds = std::vector<std::pair<int, int>>(threadnum);
+	int h10 = size.height / threadnum;
+	for (size_t i = 0; i < threadnum - 1; i++)
+	{
+		bounds[i] = { i * h10, (i + 1) * h10 };
+	}
+	bounds[threadnum - 1] = { (threadnum - 1) * h10, size.height };
 }
 
 void Raytracing::clear()
@@ -24,6 +33,14 @@ void Raytracing::resize(int _width, int _height)
 {
 	size = { _width, _height };
 	rays.resize(_width * _height);
+
+	bounds = std::vector<std::pair<int, int>>(threadnum);
+	int h10 = size.height / threadnum;
+	for (size_t i = 0; i < threadnum - 1; i++)
+	{
+		bounds[i] = { i * h10, (i + 1) * h10 };
+	}
+	bounds[threadnum - 1] = { (threadnum - 1) * h10, size.height };
 }
 
 void Raytracing::setOffset(const ImVec2& new_offset)
@@ -57,14 +74,6 @@ void Raytracing::render(objects objs, Camera& cam)
 	ImVec3 qy = 2.f * gy / (size.height - 1) * v;
 	ImVec3 p1m = cam.direction() - gx * b - gy * v; // cam.direction() = d * t
 	
-	int threadnum = 8;
-	std::vector<std::pair<int, int>> bounds(threadnum);
-	int h10 = size.height / threadnum;
-	for (size_t i = 0; i < threadnum - 1; i++)
-	{
-		bounds[i] = { i * h10, (i+1)*h10 };
-	}
-	bounds[threadnum - 1] = { (threadnum - 1) * h10, size.height};
 	std::vector<std::thread> ts;
 	for (auto& b : bounds)
 	{
@@ -75,7 +84,7 @@ void Raytracing::render(objects objs, Camera& cam)
 						ImVec3&& pij = p1m + qy * y + qx * x;
 						ImVec3&& r = normilize(pij);
 						rays[i] =  
-						renderUnit(cam.eye(), r, objs, false, 4);
+						renderUnit(cam.eye() + offset, r, objs, false, 4);
 					}
 				}
 			});
@@ -112,6 +121,17 @@ ImVec3 Raytracing::renderUnit(const ImVec3& sp, const ImVec3& rayDir, objects ob
 			material = sph;
 		}
 	}
+
+	//searching lights
+
+	for (const POL* pol : *pols) {
+		if (pol->length_from(sp, rayDir) < minDistToPolygon.first) {
+			return ImVec3((pol->i_a[0] + pol->i_d[0] + pol->i_s[0]) / 3.f * 255.f,
+				(pol->i_a[1] + pol->i_d[1] + pol->i_s[1]) / 3.f * 255.f,
+				(pol->i_a[2] + pol->i_d[2] + pol->i_s[2]) / 3.f * 255.f);
+		}
+	}
+
 	if (!ch) return { 0.f, 0.f, 0.f };
 
 	ImVec3 N = insideMesh ? -minDistToPolygon.second : minDistToPolygon.second;

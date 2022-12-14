@@ -9,6 +9,7 @@
 
 // point of light
 struct POL {
+public:
 	ImVec3 pos;
 
 	ImVec3 i_a = { 1.f, 1.f , 1.f }; // мощность фонового освещения
@@ -21,7 +22,27 @@ struct POL {
 	inline float att(float d) const {
 		return 1.f / (attenuation[0] + attenuation[1] * d + attenuation[2] * d * d);
 	}
-	// color = white
+	
+	float radius = 20.f; // visual
+
+	inline float length_from(const ImVec3& sp, const ImVec3& rayDir) const {
+		ImVec3 v = sp - pos;
+
+		float b = 2.0f * dot_product(rayDir, v);
+		float c = dot_product(v, v) - (radius * radius);
+
+		float discriminant = powf(b, 2.f) - 4.0f * c;
+
+		if (discriminant <= 0.0f)
+			return FLT_MAX;
+		
+		float closestT = (-b - sqrtf(discriminant)) / 2.0f;
+
+		if (closestT < 0.f) return FLT_MAX;
+
+		return closestT;
+	}
+
 };
 
 class Raytracing {
@@ -39,6 +60,9 @@ class Raytracing {
 		std::vector<Sphere*>& spheres;
 	};
 	static constexpr float eps = 0.1f;
+
+	int threadnum = 16;
+	std::vector<std::pair<int, int>> bounds;
 
 public:
 	Raytracing();
