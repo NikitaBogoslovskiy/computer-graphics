@@ -1719,52 +1719,54 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		// pitch
 		ImGui::TableSetColumnIndex(1);
 		ImGui::PushItemWidth(70);
-		//float pitch = (float)light->pitchYaw.At(0);
-		//bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 5.f, -89.f, 89.f, "%.0f");
-		//if (pitchHasChanged)
-		//{
-		//	light->updatePitchYaw(HVec<double>{ (double)pitch, light->pitchYaw.At(1)});
-		//	needRefresh = true;
-		//}
-		////yaw
-		//float yaw = (float)light->pitchYaw.At(1);
-		//bool yawHasChanged = ImGui::DragFloat("Yaw", &yaw, 5.f, 0.f, 3600.f, "%.0f");
-		//if (yawHasChanged)
-		//{
-		//	light->updatePitchYaw(HVec<double>{ light->pitchYaw.At(0), (double)yaw});
-		//	needRefresh = true;
-		//}
-		//// R 
-		//float r = (float)light->r;
-		//bool rHasChanged = ImGui::DragFloat("R", &r, 0.5f, 1.f, 8.f, "%.2f");
-		//if (rHasChanged)
-		//{
-		//	light->updateOriginDistance((double)r);
-		//	needRefresh = true;
-		//}
-		// names are not proper but i dont care anymore
-		float x = (float)light->position.At(0);
-		bool xHasChanged = ImGui::DragFloat("X", &x, 0.1f, -100, 100.f, "%.1f");
-		if (xHasChanged)
+		float pitch = (float)light->pitchYaw.At(0);
+		bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 5.f, -89.f, 89.f, "%.0f");
+		if (pitchHasChanged)
 		{
-			light->position.SetAt(0, (double)x);
+			light->updatePitchYaw(HVec<double>{ (double)pitch, light->pitchYaw.At(1)});
 			needRefresh = true;
 		}
 		//yaw
-		float y = (float)light->position.At(1);
-		bool yHasChanged = ImGui::DragFloat("Y", &y, 0.1f, -100, 100.f, "%.1f");
-		if (yHasChanged)
+		float yaw = (float)light->pitchYaw.At(1);
+		bool yawHasChanged = ImGui::DragFloat("Yaw", &yaw, 5.f, 0.f, 3600.f, "%.0f");
+		if (yawHasChanged)
 		{
-			light->position.SetAt(1, (double)y);
+			light->updatePitchYaw(HVec<double>{ light->pitchYaw.At(0), (double)yaw});
 			needRefresh = true;
 		}
-		float z = (float)light->position.At(2);
-		bool zHasChanged = ImGui::DragFloat("Z", &z, 0.1f, -100, 100.f, "%.1f");
-		if (zHasChanged)
+		// R 
+		float r = (float)light->r;
+		bool rHasChanged = ImGui::DragFloat("R", &r, 0.5f, 1.f, 8.f, "%.2f");
+		if (rHasChanged)
 		{
-			light->position.SetAt(2, (double)z);
+			light->updateOriginDistance((double)r);
 			needRefresh = true;
 		}
+		 
+
+		//// names are not proper but i dont care anymore
+		//float x = (float)light->position.At(0);
+		//bool xHasChanged = ImGui::DragFloat("X", &x, 0.1f, -100, 100.f, "%.1f");
+		//if (xHasChanged)
+		//{
+		//	light->position.SetAt(0, (double)x);
+		//	needRefresh = true;
+		//}
+		////yaw
+		//float y = (float)light->position.At(1);
+		//bool yHasChanged = ImGui::DragFloat("Y", &y, 0.1f, -100, 100.f, "%.1f");
+		//if (yHasChanged)
+		//{
+		//	light->position.SetAt(1, (double)y);
+		//	needRefresh = true;
+		//}
+		//float z = (float)light->position.At(2);
+		//bool zHasChanged = ImGui::DragFloat("Z", &z, 0.1f, -100, 100.f, "%.1f");
+		//if (zHasChanged)
+		//{
+		//	light->position.SetAt(2, (double)z);
+		//	needRefresh = true;
+		//}
 		ImGui::PopID();
 
 		// =================================== color edit

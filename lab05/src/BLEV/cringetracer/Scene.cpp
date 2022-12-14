@@ -12,7 +12,9 @@
 
 Scene::Scene()
 {
-	FillExampleScene1(this);
+	//FillExampleScene1(this);
+	FillExampleScene2(this);
+
 }
 
 Scene::~Scene()
@@ -32,13 +34,13 @@ void Scene::FillExampleScene2(Scene* inScene)
 	//bodies.push_back(cone);
 
 	// cone 2
-	auto cone2 = new Cone(HVec<double> {2.0, -1.0, -3.0},
+	auto cone2 = new Cylinder(HVec<double> {2.0, -1.0, -3.0},
 		HVec<double> { 90.0, 0.0, 0.0 },
 		HVec<double> {1.0, 1.0, 1.0},
 		ImVec3{ 0.4f, 0.6f, 0.8f });
 
 	Material* lightBlue;
-	if (materials.Lookup("lightBlue", lightBlue)) cone2->SetMaterial(lightBlue);
+	if (materials.Lookup("lightBlueReflective", lightBlue)) cone2->SetMaterial(lightBlue);
 	//bodies.push_back(cone2);
 	/*bodies.push_back(new Cylinder(HVec<double> {0.0, -0.5, 0.0},
 		HVec<double> { M_PI * 0.5, 0.0, 0.0 },
@@ -49,12 +51,12 @@ void Scene::FillExampleScene2(Scene* inScene)
 	auto sph = new Sphere(0.0, 0.0, 0.5, 0.5, ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f });
 	Material* water;
 	if (materials.Lookup("water", water)) sph->SetMaterial(water);
-	//bodies.push_back(sph);
+	inScene->bodies.push_back(sph);
 
 	// sph2
 	auto sph2 = new Sphere(1.5, 0.0, 0.5, 0.5, ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f });
 	Material* air;
-	if (materials.Lookup("air", air)) sph2->SetMaterial(air);
+	if (materials.Lookup("silver", air)) sph2->SetMaterial(air);
 	//bodies.push_back(sph2);
 
 	// eggs
@@ -77,9 +79,13 @@ void Scene::FillExampleScene2(Scene* inScene)
 		HVec<double> {0.5, 0.5, 0.5},
 		ImVec3{ 100.0f / 255.f, 100.0f / 255.f, 100.0f / 255.f });
 	cube->SetMaterial(lightBlue);
-	inScene->bodies.push_back(cube);
 
-	inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 80.0 }, 10.0, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
+	//inScene->bodies.push_back(cube);
+	inScene->bodies.push_back(cone);
+	inScene->bodies.push_back(el1);
+	inScene->bodies.push_back(el2);
+
+	inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 165.0 }, 10.0, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
 	inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));
 }
 
@@ -146,7 +152,7 @@ void Scene::FillExampleScene1(Scene* inScene)
 		HVec<double> { 0.0, 0.0, 0.0 },
 		HVec<double> { FLOOR_WIDTH, WALL_HEIGHT, 1.0 },
 		ImVec3{ 1.f, 1.f, 1.f });
-	backWall->SetMaterial(lightBlueReflective);
+	backWall->SetMaterial(redMatte);
 
 	auto frontWall = new Plane(HVec<double> {0.0, -WALL_HEIGHT + OFFSET, FLOOR_SIDE},
 		HVec<double> { 0.0, 0.0, 0.0 },
@@ -167,33 +173,47 @@ void Scene::FillExampleScene1(Scene* inScene)
 	rightWall->SetMaterial(blueMatte);
 
 
-	auto el1 = new Ellipsoid(-0.75, -0.75 * 0.5, -0.5, 0.5, 0.75, 0.5, ImVec3{ 255.f / 255.f, 127.f / 255.f, 80.f / 255.f });
+	//auto el1 = new Ellipsoid(-0.75, -0.75 * 0.5, -0.5, 0.5, 0.75, 0.5, ImVec3{ 255.f / 255.f, 127.f / 255.f, 80.f / 255.f });
+	//el1->SetMaterial(mintMatte);
+
+	auto el1 = new Sphere(-0.75, -0.5 * 0.5, -0.5, 0.5, ImVec3{ 255.f / 255.f, 127.f / 255.f, 80.f / 255.f });
 	el1->SetMaterial(mintMatte);
+
 	auto sph = new Sphere(0.0, -0.5 + OFFSET, 0.0,
 		0.5,
 		ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f });
 	sph->SetMaterial(orangeMatte);
-	auto cubeHD2 =1.0;
+	auto cubeHD2 = 1.0;
 	auto cube = new Box(HVec<double> {0.75, -cubeHD2 * 0.5 + OFFSET, -2.0},
 		HVec<double> { 0.0, 30.0, 0.0 },
 		HVec<double> {0.5, cubeHD2, 0.5},
 		ImVec3{ 1.f, 1.f, 1.f });
 	cube->SetMaterial(silver);
 
-	inScene->bodies.push_back(backWall);
+	auto cube2 = new Box(HVec<double> {2.0, -0.2, 2.0},
+		HVec<double> { 0.0, 0.0, 0.0 },
+		HVec<double> {0.2, 0.2, 0.2},
+		ImVec3{ 100.0f / 255.f, 100.0f / 255.f, 100.0f / 255.f });
+	cube2->SetMaterial(gold);
+
+	/*inScene->bodies.push_back(backWall);
 	inScene->bodies.push_back(frontWall);
 	inScene->bodies.push_back(leftWall);
 	inScene->bodies.push_back(rightWall);
-	inScene->bodies.push_back(ceiling);
+	inScene->bodies.push_back(ceiling);*/
 	inScene->bodies.push_back(floor);
 
-	inScene->bodies.push_back(el1);
+	//inScene->bodies.push_back(el1);
 	inScene->bodies.push_back(sph);
 	inScene->bodies.push_back(cube);
-	inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 90.0 }, 4.5, HVec<double> { 1.0, 1.0, 1.0 }, 1.0));
+	//inScene->bodies.push_back(cube2);
+	//inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 90.0 }, 4.5, HVec<double> { 1.0, 1.0, 1.0 }, 1.0));
 	//inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 90.0 }, 4.5, HVec<double> { 1.0, 1.0, 1.0 }, 1.0));
 
 	// const HVec<double>& inPosition, const HVec<double>& inColor, const double& inIntensity
 	//inScene->lights.push_back(new PointLight(HVec<double> { 0.0, 2.0, 0.0 }, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
 	//inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 90.0 }, 4.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));
+
+	inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 70.0 }, 10.0, HVec<double> { 1.0, 0.0, 0.0 }, 1.0));
+	inScene->lights.push_back(new PointLight(HVec<double> { -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0));
 }
