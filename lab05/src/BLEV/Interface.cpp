@@ -929,6 +929,21 @@ void BLEV::Interface::F_Scene() {
 			console[6]->feedback_color = ImVec4(255, 0, 0, 255);
 		}
 	}
+
+	if (ImGui::Button("Create light")) {
+		try
+		{
+			char* nstr = console[6]->pseudo_console;
+			Validator::ValidateLightArgs(nstr, x0, y0, z0);
+			_data.cringulik.scene.lights.push_back(new PointLight());
+			needRefresh = true;
+		}
+		catch (const std::exception& e)
+		{
+			console[6]->feedback = e.what();
+			console[6]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
 	if (!console[6]->feedback.empty()) {
 		ImGui::TextColored(console[6]->feedback_color, console[6]->feedback.c_str());
 	}
@@ -1728,23 +1743,23 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		//	needRefresh = true;
 		//}
 		// names are not proper but i dont care anymore
-		float pitch = (float)light->position.At(0);
-		bool pitchHasChanged = ImGui::DragFloat("X", &pitch, 5.f, -100, 100.f, "%.0f");
-		if (pitchHasChanged)
+		float x = (float)light->position.At(0);
+		bool xHasChanged = ImGui::DragFloat("X", &x, 0.1f, -100, 100.f, "%.1f");
+		if (xHasChanged)
 		{
-			light->position.SetAt(0, (double)pitch);
+			light->position.SetAt(0, (double)x);
 			needRefresh = true;
 		}
 		//yaw
-		float yaw = (float)light->position.At(1);
-		bool yawHasChanged = ImGui::DragFloat("Y", &yaw, 5.f, -100, 100.f, "%.0f");
-		if (yawHasChanged)
+		float y = (float)light->position.At(1);
+		bool yHasChanged = ImGui::DragFloat("Y", &y, 0.1f, -100, 100.f, "%.1f");
+		if (yHasChanged)
 		{
-			light->position.SetAt(1, (double)yaw);
+			light->position.SetAt(1, (double)y);
 			needRefresh = true;
 		}
 		float z = (float)light->position.At(2);
-		bool zHasChanged = ImGui::DragFloat("Z", &z, 5.f, -100, 100.f, "%.0f");
+		bool zHasChanged = ImGui::DragFloat("Z", &z, 0.1f, -100, 100.f, "%.1f");
 		if (zHasChanged)
 		{
 			light->position.SetAt(2, (double)z);

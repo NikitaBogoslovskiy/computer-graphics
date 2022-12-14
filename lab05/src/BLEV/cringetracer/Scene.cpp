@@ -173,7 +173,7 @@ void Scene::FillExampleScene1(Scene* inScene)
 		0.5,
 		ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f });
 	sph->SetMaterial(orangeMatte);
-	auto cubeHD2 = 0.75;
+	auto cubeHD2 =1.0;
 	auto cube = new Box(HVec<double> {0.75, -cubeHD2 * 0.5 + OFFSET, -2.0},
 		HVec<double> { 0.0, 30.0, 0.0 },
 		HVec<double> {0.5, cubeHD2, 0.5},
