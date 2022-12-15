@@ -1902,7 +1902,7 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		}
 		// R 
 		float r = (float)light->r;
-		bool rHasChanged = ImGui::DragFloat("R", &r, 0.5f, 1.f, 8.f, "%.2f");
+		bool rHasChanged = ImGui::DragFloat("R", &r, 0.5f, 0.1f, 100.f, "%.2f");
 		if (rHasChanged)
 		{
 			light->updateOriginDistance((double)r);
