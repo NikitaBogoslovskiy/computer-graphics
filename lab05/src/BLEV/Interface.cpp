@@ -2776,7 +2776,7 @@ void BLEV::Interface::Canvas::Body() {
 			if ((_data.chosenView == Cringetracer) && ImGui::IsMouseClicked(0)) {
 				GeometricBody* newChosenGB = nullptr;
 				HVec<double> poi, poiNormal, poiCol;
-				if (_data.cringulik.CastRay(_data.cringulik.img.rays[mouse_pos.x][mouse_pos.x], newChosenGB, poi, poiNormal, poiCol)) {
+				if (_data.cringulik.CastRay(_data.cringulik.img.rays[mouse_pos.x][mouse_pos.y], newChosenGB, poi, poiNormal, poiCol)) {
 					if (_data.chosen_gbodies.find(newChosenGB) == _data.chosen_gbodies.end()) {
 						_data.chosen_gbodies.insert(newChosenGB);
 					}
