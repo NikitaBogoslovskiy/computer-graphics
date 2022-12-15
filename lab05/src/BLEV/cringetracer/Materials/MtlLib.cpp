@@ -16,11 +16,13 @@ MtlLib::MtlLib()
 		{ "blueMatte" , new Material(HVec<double> {0.125, 0.125, 1.0}, 0.05, 0.0)},
 		{ "blueReflective" , new Material(HVec<double> {0.125, 0.125, 1.0}, 10.0, 0.75)},
 
-		{ "redMatte" , new Material(HVec<double> {1.0, 0.125, 0.125}, 0.05, 0.0)},
-		{ "redReflective" , new Material(HVec<double> {1.0, 0.125, 0.125}, 10.0, 0.75)},
+		{ "redMatte" , new Material(HVec<double> {1.0, 0.5, 0.31}, 0.05, 0.0)},
+		{ "redReflective" , new Material(HVec<double> {1.0, 0.5, 0.31}, 10.0, 0.75)},
 
-		{ "lightBlueMatte" , new Material(HVec<double> {0.25, 0.3, 0.8}, 0.05, 0.0)},
-		{ "lightBlueReflective" , new Material(HVec<double> {0.25, 0.3, 0.8}, 10.0, 0.8)},
+		//{ "lightBlueMatte" , new Material(HVec<double> {0.25, 0.3, 0.8}, 0.05, 0.0)},
+		//{ "lightBlueReflective" , new Material(HVec<double> {0.25, 0.3, 0.8}, 10.0, 0.8)},
+		{ "lightBlueMatte" , new Material(HVec<double> {0.0, 0.74, 1.0}, 0.05, 0.0)},
+		{ "lightBlueReflective" , new Material(HVec<double> {0.0, 0.74, 1.0}, 10.0, 0.8)},
 
 		{ "mintMatte"  , new Material(HVec<double> { 0.24, 0.7, 0.53 }, 0.05, 0.0)},
 		{ "mintReflective"  , new Material(HVec<double> { 0.24, 0.7, 0.53 }, 10.0, 0.5)},

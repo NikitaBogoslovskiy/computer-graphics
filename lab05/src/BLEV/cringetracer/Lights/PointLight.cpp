@@ -9,7 +9,7 @@ PointLight::PointLight()
 	position = HVec<double>{ 0.0, 0.0, 0.0 };
 	color = HVec<double>{ 1.0, 1.0, 1.0 };
 	intensity = 1.0;
-	LightSource = new LightSphere(position, 1.0, color);
+	LightSource = new LightSphere(position, 0.1, color);
 }
 
 PointLight::PointLight(const HVec<double>& inPosition, const HVec<double>& inColor, const double& inIntensity)
@@ -17,7 +17,7 @@ PointLight::PointLight(const HVec<double>& inPosition, const HVec<double>& inCol
 	position = inPosition;
 	color = inColor;
 	intensity = inIntensity;
-	LightSource = new LightSphere(position, 1.0, color);
+	LightSource = new LightSphere(position, 0.1, color);
 }
 
 PointLight::PointLight(const HVec2<double>& inPitchYaw, const double inR, const HVec<double>& inColor, const double inIntensity)
@@ -26,7 +26,7 @@ PointLight::PointLight(const HVec2<double>& inPitchYaw, const double inR, const 
 	updatePitchYaw(inPitchYaw);
 	color = inColor;
 	intensity = inIntensity;
-	LightSource = new LightSphere(position, 1.0, color);
+	LightSource = new LightSphere(position, 0.1, color);
 }
 
 PointLight::PointLight(const HVec2<double>& inPitchYaw, const double inR, const ImVec3& inColor, const double inIntensity)
@@ -35,7 +35,7 @@ PointLight::PointLight(const HVec2<double>& inPitchYaw, const double inR, const 
 	updatePitchYaw(inPitchYaw);
 	color = HVec<double>{ inColor.x, inColor.y, inColor.z };
 	intensity = inIntensity;
-	LightSource = new LightSphere(position, 1.0, color);
+	LightSource = new LightSphere(position, 0.1, color);
 }
 
 PointLight::~PointLight()

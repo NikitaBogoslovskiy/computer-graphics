@@ -1014,7 +1014,7 @@ void BLEV::Interface::F_Scene() {
 		{
 			char* nstr6 = console[8]->pseudo_console;
 			Validator::ValidatePlaneArgs(nstr6, plx0, ply0, plz0, plrx, plry);
-			_data.cringulik.scene->bodies.push_back(new Plane(HVec<double> { plx0, ply0, plz0}, HVec<double> {0.0, 0.0, 0.0}, HVec<double> {plrx, plry, 0.0}, objColor));
+			_data.cringulik.scene->bodies.push_back(new Plane(HVec<double> { plx0, ply0, plz0}, HVec<double> {0.0, 0.0, 0.0}, HVec<double> {plrx, plry, 1.0}, objColor));
 			needRefresh = true;
 		}
 		catch (const std::exception& e)
@@ -1736,19 +1736,19 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 		ImGui::TableSetColumnIndex(1);
 		ImGui::PushItemWidth(70);
 		float x = (float)gb->Origin.At(0);
-		bool xHasChanged = ImGui::DragFloat("X", &x, 0.5f, -10.f, 10.f, "%.2f");
+		bool xHasChanged = ImGui::DragFloat("X", &x, 0.5f, -1000.f, 1000.f, "%.2f");
 		if (xHasChanged)
 			gb->Origin.SetAt(0, (double)x);
 
 		// y
 		float y = (float)gb->Origin.At(1);
-		bool yHasChanged = ImGui::DragFloat("Y", &y, 0.5f, -10.f, 10.f, "%.2f");
+		bool yHasChanged = ImGui::DragFloat("Y", &y, 0.5f, -1000.f, 1000.f, "%.2f");
 		if (yHasChanged)
 			gb->Origin.SetAt(1, (double)y);
 
 		// z
 		float z = (float)gb->Origin.At(2);
-		bool zHasChanged = ImGui::DragFloat("Z", &z, 0.5f, -10.f, 10.f, "%.2f");
+		bool zHasChanged = ImGui::DragFloat("Z", &z, 0.5f, -1000.f, 1000.f, "%.2f");
 		if (zHasChanged)
 			gb->Origin.SetAt(2, (double)z);
 		ImGui::PopID();
@@ -1762,19 +1762,19 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 		ImGui::TableSetColumnIndex(1);
 		ImGui::PushItemWidth(70);
 		float pitch = (float)gb->Rotation.At(0);
-		bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 5.f, -360.f, 360.f, "%.2f");
+		bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 5.f, -3600.f, 3600.f, "%.2f");
 		if (pitchHasChanged)
 			gb->Rotation.SetAt(0, (double)pitch);
 
 		// y
 		float yaw = (float)gb->Rotation.At(1);
-		bool yawHasChanged = ImGui::DragFloat("Yaw", &yaw, 5.f, -360.f, 360.f, "%.2f");
+		bool yawHasChanged = ImGui::DragFloat("Yaw", &yaw, 5.f, -3600.f, 3600.f, "%.2f");
 		if (yawHasChanged)
 			gb->Rotation.SetAt(1, (double)yaw);
 
 		// z
 		float roll = (float)gb->Rotation.At(2);
-		bool rollHasChanged = ImGui::DragFloat("Roll", &roll, 5.f, -360.f, 360.f, "%.2f");
+		bool rollHasChanged = ImGui::DragFloat("Roll", &roll, 5.f, -3600.f, 3600.f, "%.2f");
 		if (rollHasChanged)
 			gb->Rotation.SetAt(2, (double)roll);
 		ImGui::PopID();
@@ -1850,6 +1850,16 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 	ImGui::TableSetColumnIndex(1);
 	ImGui::Text(PLightToChar(light));
 
+	ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
+	if (ImGui::BeginPopup("context")) {
+
+		if (ImGui::MenuItem("Delete light", NULL, false, true)) {
+			_data.chosen_lights.erase(light);
+			_data.cringulik.scene->lights.erase(std::remove(_data.cringulik.scene->lights.begin(), _data.cringulik.scene->lights.end(), light), _data.cringulik.scene->lights.end());
+			needRefresh = true;
+		}
+		ImGui::EndPopup();
+	}
 	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
 		if (_data.chosen_lights.find(light) == _data.chosen_lights.end()) {
 			_data.chosen_lights.insert(light);
