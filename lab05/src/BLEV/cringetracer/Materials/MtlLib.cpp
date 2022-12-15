@@ -6,7 +6,7 @@ MtlLib::MtlLib()
 		{ "none"  , nullptr},
 		{ "brick" , new Material()},
 
-		{ "whiteMatte" , new Material(HVec<double> {1.0, 1.0, 1.0}, 0.05, 0.0)},
+		{ "whiteMatte" , new Material(HVec<double> {1.0, 1.0, 1.0}, 0.1, 0.0)},
 
 		{ "greenMatte" , new Material(HVec<double> { 0.0, 1.0, 0.0 }, 0.05, 0.0)},
 
