@@ -28,9 +28,10 @@ class CringeTracer
 public:
 
 	Camera* cam;
-	Image img;
-	Scene scene;
+	Scene* scene;
 
+	Image img;
+	
 	CringeTracer();
 	void Update();
 

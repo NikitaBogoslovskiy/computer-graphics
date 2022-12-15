@@ -9,7 +9,7 @@ MtlLib::MtlLib()
 		{ "whiteMatte" , new Material(HVec<double> {1.0, 1.0, 1.0}, 0.05, 0.0)},
 
 		{ "greenMatte" , new Material(HVec<double> { 0.0, 1.0, 0.0 }, 0.05, 0.0)},
-		
+
 		{ "orangeMatte" , new Material(HVec<double> { 1.0, 0.5, 0.0 }, 0.05, 0.0)},
 		{ "orangeReflective" , new Material(HVec<double> { 1.0, 0.5, 0.0 }, 10.0, 0.75)},
 
@@ -21,7 +21,7 @@ MtlLib::MtlLib()
 
 		{ "lightBlueMatte" , new Material(HVec<double> {0.25, 0.3, 0.8}, 0.05, 0.0)},
 		{ "lightBlueReflective" , new Material(HVec<double> {0.25, 0.3, 0.8}, 10.0, 0.8)},
-		
+
 		{ "mintMatte"  , new Material(HVec<double> { 0.24, 0.7, 0.53 }, 0.05, 0.0)},
 		{ "mintReflective"  , new Material(HVec<double> { 0.24, 0.7, 0.53 }, 10.0, 0.5)},
 
@@ -29,9 +29,10 @@ MtlLib::MtlLib()
 		{ "gold"  , new Material(HVec<double> { 0.75164, 0.70648, 0.22648 }, 10.0, 0.5)},
 		{ "silver"  , new Material(HVec<double> { 0.5, 0.5, 0.8 }, 10.0, 0.5)},
 
-		{ "glass" , new Material(HVec<double> { 1.0, 1.0, 1.0, }, 32.0, 0.25, 0.75, 1.6)},
+		{ "glass" , new Material(HVec<double> { 1.0, 1.0, 1.0, }, 32.0, 0.25, 1.0, 1.6)},
 		{ "air" , new Material(HVec<double> { 1.0, 1.0, 1.0, }, 0.0, 0.0, 1.0, 1.0)},
 		{ "water" , new Material(HVec<double> { 0.25, 0.3, 0.8 }, 10.0, 0.8, 1.0, 1.333)},
+		{ "emerald" , new Material(HVec<double> { 0.07568, 0.91424, 0.07568 }, 10.0, 0.8, 1.0, 1.333)},
 	};
 
 	for (auto it = mtls.begin(); it != mtls.end(); ++it) {

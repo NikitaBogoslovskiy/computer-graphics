@@ -1,5 +1,6 @@
 #include "../headers/cringetracer/Lights/PointLight.h"
 #include "../headers/cringetracer/GeometricBodies/LightSphere.h"
+#include "../headers/cringetracer/Materials/Material.h"
 
 #define PIDIVTWO 1.5708
 
@@ -28,14 +29,22 @@ PointLight::PointLight(const HVec2<double>& inPitchYaw, const double inR, const 
 	LightSource = new LightSphere(position, 1.0, color);
 }
 
+PointLight::PointLight(const HVec2<double>& inPitchYaw, const double inR, const ImVec3& inColor, const double inIntensity)
+{
+	r = inR;
+	updatePitchYaw(inPitchYaw);
+	color = HVec<double>{ inColor.x, inColor.y, inColor.z };
+	intensity = inIntensity;
+	LightSource = new LightSphere(position, 1.0, color);
+}
+
 PointLight::~PointLight()
 {
 	delete LightSource;
 }
 
-bool PointLight::ComputeLighting(const HVec<double>& intersection,
-	const HVec<double>& localNormal,
-	const GeometricBody* gb,
+bool PointLight::ComputeLighting(
+	const HVec<double>& intersection, const HVec<double>& localNormal, const GeometricBody* gb,
 	const std::vector<GeometricBody*>& bodies,
 	HVec<double>& outColor, double& outIntensity)
 {
@@ -48,14 +57,33 @@ bool PointLight::ComputeLighting(const HVec<double>& intersection,
 
 	HVec<double> poi, poiNormal, poiColor;
 	bool foundLightBlocker = false;
+	GeometricBody* lightBlocker = nullptr;
 	for (auto& body : bodies) {
 		if (body == gb) continue;
-		//if (dynamic_cast<LightSphere*>(body) != nullptr) continue; // 1) light source body does not cast shadow
+		if (!body->Show) continue;
+		if (dynamic_cast<LightSphere*>(body) != nullptr) continue; // 1) light source body does not cast shadow
+
 		if (!(foundLightBlocker = body->TestIntersection(rayToLight, poi, poiNormal, poiColor))) continue;
 		if ((poi - start).len() > lightDist) foundLightBlocker = false;
-		if (foundLightBlocker) break;
+		if (foundLightBlocker) {
+			lightBlocker = body;
+			break;
+		}
 	}
 
+	//if (foundLightBlocker) {
+	//	if (lightBlocker->HasMaterial() && lightBlocker->Mtl->Transparency > 0.0) {
+	//		//outColor = intensity * color + (1.0 - intensity) * lightBlocker->Mtl->Color;
+	//		outColor = 0.5 * color + 0.5 * lightBlocker->Mtl->Diffuse;
+	//		outIntensity = intensity;
+	//		return true;
+	//	}
+	//	else {
+	//		outColor = color;
+	//		outIntensity = 0.0;
+	//		return false;
+	//	}
+	//}
 	if (foundLightBlocker) {
 		outColor = color;
 		outIntensity = 0.0;

@@ -26,8 +26,11 @@ namespace BLEV {
 		std::set<FloatingHorizon*> chosen_horizons;
 		
 		CringeTracer cringulik;
-		std::set<GeometricBody*> chosen_gbodies;
+		std::vector<Scene*> scenes;
 
+		std::set<GeometricBody*> chosen_gbodies;
+		std::set<Light*> chosen_lights;
+	
 		Mode chosenMode;
 		AddingLine adding_line;
 		PrimEditMode chosenPrimEditMode;
@@ -66,6 +69,9 @@ namespace BLEV {
 								  &BLEVmath::sinxPlusCosz,
 								  &BLEVmath::squaresSum,
 								  &BLEVmath::cone };
+
+		const uint8_t sceneNamesSize = 2;
+		const char* sceneNames[2]{ "Cornell box", "Just space" };
 	};
 }
 

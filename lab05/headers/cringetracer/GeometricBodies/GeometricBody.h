@@ -18,9 +18,9 @@ protected:
 	HVec<double> _color; // values: 0..255
 	HAffine<double> _tform;
 
-
-
 public:
+
+	bool Show = true;
 
 	HVec<double> Origin{ 0.0,0.0,0.0 };
 	HVec<double> Rotation{ 0.0,0.0,0.0 };

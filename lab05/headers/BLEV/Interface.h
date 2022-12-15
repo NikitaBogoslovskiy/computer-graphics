@@ -58,9 +58,12 @@ namespace BLEV {
 
 			new ConsoleFields(),
 			new ConsoleFields(),
+			new ConsoleFields(),
+			new ConsoleFields(),
+			new ConsoleFields(),
 		};
 
-		struct TextFilters{
+		struct TextFilters {
 			static int FilterLetters(ImGuiInputTextCallbackData* data)
 			{
 				if (data->EventChar < 256 && strchr("ABCDEFGHIJKLMNOPQRSTUVWXYZ", (char)data->EventChar))
@@ -90,6 +93,7 @@ namespace BLEV {
 		void F_Classify();
 
 		void F_Camera();
+
 		void F_Scene();
 
 		void F_QuickHull();
@@ -97,7 +101,7 @@ namespace BLEV {
 
 		// union
 		void F_Shells();
-		
+
 
 		struct B_method_open {
 			//bool b_rotate_open = false;
@@ -105,7 +109,7 @@ namespace BLEV {
 			//bool b_scale_open = false;
 			//bool b_reflect_open = false;
 			bool b_edit_open = false;
-			
+
 			bool b_displace_open = false;
 			bool b_union_open = false;
 			bool b_lsys_open = false;
@@ -123,7 +127,7 @@ namespace BLEV {
 	private:
 		struct Global_visual_params {
 			VisualParams vp;
-			float color4f[4]{1.f, 1.f, 0.f, 1.f};
+			float color4f[4]{ 1.f, 1.f, 0.f, 1.f };
 		} global_vp;
 
 		struct Menu {
@@ -137,7 +141,7 @@ namespace BLEV {
 			void Show(B_method_open&, Global_visual_params&);
 
 			Menu(BLEV::Data& data) : _data(data) {}
-		} menu {_data};
+		} menu{ _data };
 		struct ObjectTable {
 			BLEV::Data& _data;
 
@@ -152,7 +156,7 @@ namespace BLEV {
 			void Show();
 
 			ObjectTable(BLEV::Data& data) : _data(data) {}
-		} obj_table {_data};
+		} obj_table{ _data };
 		struct Canvas {
 			const float MIN_WIDTH = 50.f;
 			const float MIN_HEIGHT = 50.f;
@@ -160,7 +164,7 @@ namespace BLEV {
 			BLEV::Data& _data;
 
 			Camera main_camera;
-			Eigen::Matrix4f vp; 
+			Eigen::Matrix4f vp;
 			ImVec2 prev_point = ImVec2(0.f, 0.f);
 			ImVec2 deltaMouse = ImVec2(0.f, 0.f);
 			float deltaTime = 0.0f;	// Time between current frame and last frame
@@ -219,7 +223,7 @@ namespace BLEV {
 			void Show();
 
 			Canvas(BLEV::Data& data) : _data(data) {}
-		} canvas {_data};
+		} canvas{ _data };
 	public:
 		void PrepareCringetracer();
 		void ShowContent();

@@ -877,7 +877,6 @@ void BLEV::Interface::F_FloatingHorizon() {
 
 	ImGui::EndGroup();
 
-
 	if (ImGui::Button("Create horizon")) {
 		try
 		{
@@ -897,45 +896,30 @@ void BLEV::Interface::F_FloatingHorizon() {
 }
 
 void BLEV::Interface::F_Scene() {
-	double x0, y0, z0, radius;
+	std::vector<Scene*>::iterator sceneIt = std::find(_data.scenes.begin(), _data.scenes.end(), _data.cringulik.scene);
+	static int sceneId = std::distance(_data.scenes.begin(), sceneIt);
+	bool sceneHasChanged = ImGui::Combo("Scene", &sceneId, _data.sceneNames, _data.sceneNamesSize);
+	if (sceneHasChanged) {
+		_data.cringulik.scene = _data.scenes[sceneId];
+		_data.chosen_gbodies.clear();
+		needRefresh = true;
+	}
+	static ImVec3 objColor{ 0.4f, 0.6f, 0.8f };
+	bool colorHasChanged = ImGui::ColorEdit3("", (float*)&objColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+	ImGui::Separator();
+
 	ImGui::BeginGroup();
+	double sphx0, sphy0, sphz0, sphradius;
 	ImGui::SetNextItemWidth(-FLT_MIN);
-	ImGui::InputText("##ConsoleRanges", console[6]->pseudo_console, 100);
+	ImGui::InputText("##ConsoleRanges1", console[6]->pseudo_console, 100);
 	HelpPrevItem("x0 y0 z0 radius");
-
-	static ImVec3 sphereColor{ 0.4f, 0.6f, 0.8f };
-	bool colorHasChanged = ImGui::ColorEdit3("", (float*)&sphereColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
-	//auto lowerResult = sphereColor * 255;
-	//if (colorHasChanged)
-	//{
-		//horizon->lowerColor = lowerResult;
-		//needRefresh = true;
-	//}
-
 	ImGui::EndGroup();
-
 	if (ImGui::Button("Create sphere")) {
 		try
 		{
-			char* nstr = console[6]->pseudo_console;
-			Validator::ValidateSphereArgs(nstr, x0, y0, z0, radius);
-			_data.cringulik.scene.bodies.push_back(new Sphere(x0, y0, z0, radius, sphereColor));
-			needRefresh = true;
-			//printf("%lf %lf %lf %lf", x0, y0, z0, radius);
-		}
-		catch (const std::exception& e)
-		{
-			console[6]->feedback = e.what();
-			console[6]->feedback_color = ImVec4(255, 0, 0, 255);
-		}
-	}
-
-	if (ImGui::Button("Create light")) {
-		try
-		{
-			char* nstr = console[6]->pseudo_console;
-			Validator::ValidateLightArgs(nstr, x0, y0, z0);
-			_data.cringulik.scene.lights.push_back(new PointLight());
+			char* nstr1 = console[6]->pseudo_console;
+			Validator::ValidateSphereArgs(nstr1, sphx0, sphy0, sphz0, sphradius);
+			_data.cringulik.scene->bodies.push_back(new Sphere(sphx0, sphy0, sphz0, sphradius, objColor));
 			needRefresh = true;
 		}
 		catch (const std::exception& e)
@@ -946,6 +930,128 @@ void BLEV::Interface::F_Scene() {
 	}
 	if (!console[6]->feedback.empty()) {
 		ImGui::TextColored(console[6]->feedback_color, console[6]->feedback.c_str());
+	}
+	ImGui::Separator();
+
+	ImGui::BeginGroup();
+	double osx0, osy0, osz0, osrx, osry, osrz;
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	ImGui::InputText("##ConsoleRanges2", console[7]->pseudo_console, 100);
+	HelpPrevItem("x0 y0 z0 rX rY rZ");
+
+	if (ImGui::Button("Create ellipsoid")) {
+		try
+		{
+			char* nstr2 = console[7]->pseudo_console;
+			Validator::ValidateOS(nstr2, osx0, osy0, osz0, osrx, osry, osrz);
+			_data.cringulik.scene->bodies.push_back(new Ellipsoid(osx0, osy0, osz0, osrx, osry, osrz, objColor));
+			needRefresh = true;
+		}
+		catch (const std::exception& e)
+		{
+			console[7]->feedback = e.what();
+			console[7]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+
+	if (ImGui::Button("Create box")) {
+		try
+		{
+			char* nstr3 = console[7]->pseudo_console;
+			Validator::ValidateOS(nstr3, osx0, osy0, osz0, osrx, osry, osrz);
+			_data.cringulik.scene->bodies.push_back(new Box(HVec<double> {osx0, osy0, osz0}, HVec<double> {0.0, 0.0, 0.0}, HVec<double> {osrx, osry, osrz}, objColor));
+			needRefresh = true;
+		}
+		catch (const std::exception& e)
+		{
+			console[7]->feedback = e.what();
+			console[7]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+
+	if (ImGui::Button("Create cylinder")) {
+		try
+		{
+			char* nstr4 = console[7]->pseudo_console;
+			Validator::ValidateOS(nstr4, osx0, osy0, osz0, osrx, osry, osrz);
+			_data.cringulik.scene->bodies.push_back(new Cylinder(HVec<double> {osx0, osy0, osz0}, HVec<double> {0.0, 0.0, 0.0}, HVec<double> {osrx, osry, osrz}, objColor));
+			needRefresh = true;
+		}
+		catch (const std::exception& e)
+		{
+			console[7]->feedback = e.what();
+			console[7]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+
+	if (ImGui::Button("Create cone")) {
+		try
+		{
+			char* nstr5 = console[7]->pseudo_console;
+			Validator::ValidateOS(nstr5, osx0, osy0, osz0, osrx, osry, osrz);
+			_data.cringulik.scene->bodies.push_back(new Cone(HVec<double> {osx0, osy0, osz0}, HVec<double> {0.0, 0.0, 0.0}, HVec<double> {osrx, osry, osrz}, objColor));
+			needRefresh = true;
+		}
+		catch (const std::exception& e)
+		{
+			console[7]->feedback = e.what();
+			console[7]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+	if (!console[7]->feedback.empty()) {
+		ImGui::TextColored(console[7]->feedback_color, console[7]->feedback.c_str());
+	}
+	ImGui::EndGroup(); ImGui::Separator();
+
+	ImGui::BeginGroup();
+	double plx0, ply0, plz0, plrx, plry;
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	ImGui::InputText("##ConsoleRanges3", console[8]->pseudo_console, 100);
+	HelpPrevItem("x0 y0 z0 u v");
+	ImGui::EndGroup();
+	if (ImGui::Button("Create plane")) {
+		try
+		{
+			char* nstr6 = console[8]->pseudo_console;
+			Validator::ValidatePlaneArgs(nstr6, plx0, ply0, plz0, plrx, plry);
+			_data.cringulik.scene->bodies.push_back(new Plane(HVec<double> { plx0, ply0, plz0}, HVec<double> {0.0, 0.0, 0.0}, HVec<double> {plrx, plry, 0.0}, objColor));
+			needRefresh = true;
+		}
+		catch (const std::exception& e)
+		{
+			console[8]->feedback = e.what();
+			console[8]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+	if (!console[8]->feedback.empty()) {
+		ImGui::TextColored(console[8]->feedback_color, console[8]->feedback.c_str());
+	}
+	ImGui::Separator();
+
+	ImGui::BeginGroup();
+	double inPitch, inYaw, inR, inIntensity;
+	ImGui::SetNextItemWidth(-FLT_MIN);
+	ImGui::InputText("##ConsoleRanges4", console[9]->pseudo_console, 100);
+	HelpPrevItem("inPitch inYaw inR inIntensity");
+	ImGui::EndGroup();
+	if (ImGui::Button("Create light")) {
+		try
+		{
+			char* nstr7 = console[9]->pseudo_console;
+			Validator::ValidateLightArgs(nstr7, inPitch, inYaw, inR, inIntensity);
+			auto newPl = new PointLight(HVec2<double>{inPitch, inYaw}, inR, objColor, inIntensity);
+			_data.cringulik.scene->lights.push_back(newPl);
+			_data.cringulik.scene->bodies.push_back(newPl->LightSource);
+			needRefresh = true;
+		}
+		catch (const std::exception& e)
+		{
+			console[9]->feedback = e.what();
+			console[9]->feedback_color = ImVec4(255, 0, 0, 255);
+		}
+	}
+	if (!console[9]->feedback.empty()) {
+		ImGui::TextColored(console[9]->feedback_color, console[10]->feedback.c_str());
 	}
 }
 
@@ -1018,6 +1124,12 @@ void BLEV::Interface::PrepareCringetracer() {
 	//_data.gbodies = &canvas.cringulik.scene.bodies;
 	_data.cringulik.SetCamera(&canvas.main_camera);
 	_data.cringulik.SetOMPThreads();
+
+	_data.scenes.push_back(new Scene());
+	_data.scenes.push_back(new Scene());
+	Scene::FillExampleScene1(_data.scenes.at(0));
+	Scene::FillExampleScene2(_data.scenes.at(1));
+	_data.cringulik.scene = _data.scenes.at(0);
 }
 
 void BLEV::Interface::ShowContent()
@@ -1549,6 +1661,20 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 	bool node_open = ImGui::TreeNode("GBody", "%d", idx);
 	ImGui::TableSetColumnIndex(1);
 
+	if (dynamic_cast<LightSphere*>(gb) != nullptr) {
+		ImGui::Text("LightSphere", idx);
+		if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+			if (_data.chosen_gbodies.find(gb) == _data.chosen_gbodies.end()) {
+				_data.chosen_gbodies.insert(gb);
+			}
+			else {
+				_data.chosen_gbodies.erase(gb);
+			}
+		}
+		ImGui::PopID();
+		return;
+	}
+
 	char primName[32];
 	strcpy(primName, PGBodyToChar(gb));
 	if (_data.chosen_gbodies.find(gb) != _data.chosen_gbodies.end()) {
@@ -1556,6 +1682,17 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 	}
 	else {
 		ImGui::Text(primName, idx);
+	}
+
+	ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
+	if (ImGui::BeginPopup("context")) {
+
+		if (ImGui::MenuItem("Delete object", NULL, false, true)) {
+			_data.chosen_gbodies.erase(gb);
+			_data.cringulik.scene->bodies.erase(std::remove(_data.cringulik.scene->bodies.begin(), _data.cringulik.scene->bodies.end(), gb), _data.cringulik.scene->bodies.end());
+			needRefresh = true;
+		}
+		ImGui::EndPopup();
 	}
 
 	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
@@ -1566,7 +1703,11 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 			_data.chosen_gbodies.erase(gb);
 		}
 	}
+
 	ImGui::SameLine();
+	if (ImGui::Checkbox(" ", &gb->Show)) {
+		needRefresh = true;
+	}
 
 	if (node_open)
 	{
@@ -1670,15 +1811,15 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 		ImGui::TableSetColumnIndex(1);
 		ImGui::PushItemWidth(70);
 		static int mtlInd;
-		_data.cringulik.scene.materials.GetInd(gb->Mtl, mtlInd);
+		_data.cringulik.scene->materials.GetInd(gb->Mtl, mtlInd);
 		bool mtlHasChanged = ImGui::Combo("##", &mtlInd,
-			_data.cringulik.scene.materials.mtlLibNames,
-			_data.cringulik.scene.materials.mtlLibSize
+			_data.cringulik.scene->materials.mtlLibNames,
+			_data.cringulik.scene->materials.mtlLibSize
 		);
 		if (mtlHasChanged) {
 			//printf("hello %d\n", idx);
 			Material* newMtl;
-			_data.cringulik.scene.materials.LookupByInd((size_t)mtlInd, newMtl);
+			_data.cringulik.scene->materials.LookupByInd((size_t)mtlInd, newMtl);
 			gb->SetMaterial(newMtl);
 			needRefresh = true;
 		}
@@ -1709,6 +1850,21 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 	ImGui::TableSetColumnIndex(1);
 	ImGui::Text(PLightToChar(light));
 
+	if (ImGui::IsItemClicked(ImGuiMouseButton_Left)) {
+		if (_data.chosen_lights.find(light) == _data.chosen_lights.end()) {
+			_data.chosen_lights.insert(light);
+		}
+		else {
+			_data.chosen_lights.erase(light);
+		}
+	}
+
+	ImGui::SameLine();
+	if (ImGui::Checkbox(" ", &light->Show)) {
+		light->LightSource->Show = light->Show;
+		needRefresh = true;
+	}
+
 	if (node_open)
 	{
 		// =================================== pitchYaw edit
@@ -1720,7 +1876,7 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		ImGui::TableSetColumnIndex(1);
 		ImGui::PushItemWidth(70);
 		float pitch = (float)light->pitchYaw.At(0);
-		bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 5.f, -89.f, 89.f, "%.0f");
+		bool pitchHasChanged = ImGui::DragFloat("Pitch", &pitch, 5.f, -3600.f, 3600.f, "%.0f");
 		if (pitchHasChanged)
 		{
 			light->updatePitchYaw(HVec2<double>{ (double)pitch, light->pitchYaw.At(1)});
@@ -1826,14 +1982,14 @@ void BLEV::Interface::ObjectTable::Show()
 			//ImGui::Separator();
 		}
 
-		for (size_t i = 0; i < _data.cringulik.scene.bodies.size(); i++)
+		for (size_t i = 0; i < _data.cringulik.scene->bodies.size(); i++)
 		{
-			ShowGBodyTable(_data.cringulik.scene.bodies.at(i), i);
+			ShowGBodyTable(_data.cringulik.scene->bodies.at(i), i);
 			//ImGui::Separator();
 		}
-		for (size_t i = 0; i < _data.cringulik.scene.lights.size(); i++)
+		for (size_t i = 0; i < _data.cringulik.scene->lights.size(); i++)
 		{
-			ShowLightTable(_data.cringulik.scene.lights.at(i), i);
+			ShowLightTable(_data.cringulik.scene->lights.at(i), i);
 			//ImGui::Separator();
 		}
 
@@ -2142,7 +2298,7 @@ void BLEV::Interface::Canvas::DrawObjects() {
 
 	if (_data.chosenView == ViewMode::Wireframe)
 	{
-		for (auto& bbody : _data.cringulik.scene.bodies) {
+		for (auto& bbody : _data.cringulik.scene->bodies) {
 			bbody->Draw(draw_list, origin, vp);
 		}
 		for (auto mesh : _data.meshes) {
@@ -2616,9 +2772,23 @@ void BLEV::Interface::Canvas::Body() {
 				ProcessCamMouseInput(main_camera, deltaMouse);
 				ProcessCamKeyboardInput(main_camera, deltaTime);
 			}
+
+			if ((_data.chosenView == Cringetracer) && ImGui::IsMouseClicked(0)) {
+				GeometricBody* newChosenGB = nullptr;
+				HVec<double> poi, poiNormal, poiCol;
+				if (_data.cringulik.CastRay(_data.cringulik.img.rays[mouse_pos.x][mouse_pos.x], newChosenGB, poi, poiNormal, poiCol)) {
+					if (_data.chosen_gbodies.find(newChosenGB) == _data.chosen_gbodies.end()) {
+						_data.chosen_gbodies.insert(newChosenGB);
+					}
+					else {
+						_data.chosen_gbodies.erase(newChosenGB);
+					}
+				}
+			}
 		}
 
-		SwitchModes();
+		if (_data.chosenView != Cringetracer)
+			SwitchModes();
 
 		if (is_active && ImGui::IsMouseDragging(ImGuiMouseButton_Right, b_context_menu_enabled ? -1.0f : 0.0f))
 		{

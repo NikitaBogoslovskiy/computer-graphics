@@ -12,7 +12,7 @@
 
 Scene::Scene()
 {
-	FillExampleScene2(this);
+	//FillExampleScene2(this);
 	//FillExampleScene1(this);
 
 }
@@ -90,7 +90,7 @@ void Scene::FillExampleScene2(Scene* inScene)
 	auto pl2 = new PointLight(HVec2<double>{ -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0);
 
 	inScene->lights.push_back(pl1);
-	//inScene->bodies.push_back(pl1->LightSource);
+	inScene->bodies.push_back(pl1->LightSource);
 
 	//inScene->lights.push_back(pl2);
 	//inScene->bodies.push_back(pl2->LightSource);
@@ -191,7 +191,7 @@ void Scene::FillExampleScene1(Scene* inScene)
 		ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f });
 	sph->SetMaterial(orangeMatte);
 	auto cubeHD2 = 1.0;
-	auto cube = new Box(HVec<double> {0.75, -cubeHD2 * 0.5 + OFFSET, -2.0},
+	auto cube = new Box(HVec<double> {0.75, -cubeHD2 + OFFSET, -2.0},
 		HVec<double> { 0.0, 30.0, 0.0 },
 		HVec<double> {0.5, cubeHD2, 0.5},
 		ImVec3{ 1.f, 1.f, 1.f });

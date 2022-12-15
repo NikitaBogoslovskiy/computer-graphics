@@ -28,7 +28,9 @@ public:
 		const double transparency = 0.0, const double ior = 1.0);
 	~Material();
 
-	HVec<double> Color;
+	HVec<double> Diffuse;
+	//HVec<double> Ambient;
+	//HVec<double> Specular;
 	double Shininess;
 	double Reflectivity;
 	double Transparency;

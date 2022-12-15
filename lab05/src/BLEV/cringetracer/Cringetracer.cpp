@@ -62,7 +62,8 @@ bool CringeTracer::CastRay(const Ray<double>& ray,
 	closestBody = nullptr;
 	HVec<double> poi, poiNormal, poiColor;
 	//HVec<double> intersection, localNormal, localColor;
-	for (auto& body : scene.bodies) {
+	for (auto& body : scene->bodies) {
+		if (!body->Show) continue;
 		if (!(body->TestIntersection(ray, poi, poiNormal, poiColor))) continue; // no intersection
 		
 		double dist = (poi - ray.p1).len();
@@ -90,22 +91,22 @@ void CringeTracer::SubRender(const size_t start, const size_t end, const size_t 
 			GeometricBody* closestBody = nullptr;
 			HVec<double>  closestIntersection, closestLocalNormal, closestLocalColor;
 			if (!(CastRay(img.rays[x][y], closestBody, closestIntersection, closestLocalNormal, closestLocalColor))) continue;
+			if (!closestBody->Show) continue;
 
 			HVec<double> finalColor;
 			if (closestBody->HasMaterial()) {
-				finalColor = closestBody->Mtl->ComputeColor(scene.bodies, scene.lights,
+				finalColor = closestBody->Mtl->ComputeColor(scene->bodies, scene->lights,
 					img.rays[x][y],
 					closestBody, closestIntersection, closestLocalNormal, 0);
 			}
-			//else if (dynamic_cast<LightSphere*>(closestBody) == nullptr) {
-			else {
-				finalColor = Material::ComputeDiffuse(scene.bodies, scene.lights,
-					closestBody, closestIntersection, closestLocalNormal, closestBody->GetColor()); // clumsy!!
-			}
+			else if (dynamic_cast<LightSphere*>(closestBody) == nullptr) {
 			//else {
-			//	finalColor = 2.0 * closestBody->GetColor(); // 2) light source has no shading
-			//	//finalColor = closestBody->GetColor(); // 2) light source has no shading
-			//}
+				finalColor = Material::ComputeDiffuse(scene->bodies, scene->lights,
+					closestBody, closestIntersection, closestLocalNormal, closestBody->GetColor()); // clumsy!!
+			} 
+			else {
+				finalColor = closestBody->GetColor(); // 2) light source has no shading
+			}
 			img.SetPixel(x, y, finalColor);
 		}
 	}

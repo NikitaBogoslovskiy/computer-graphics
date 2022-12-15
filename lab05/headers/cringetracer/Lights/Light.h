@@ -7,6 +7,7 @@ class Light
 protected:
 
 public:
+	bool Show = true;
 
 	GeometricBody* LightSource = nullptr;
 	Light();
