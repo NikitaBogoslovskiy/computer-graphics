@@ -1639,27 +1639,27 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 		ImGui::PopID();
 
 		//// =================================== Scale
-		//ImGui::PushID(&(gb->Scale));
-		//ImGui::TableNextRow();
-		//ImGui::TableSetColumnIndex(0);
-		//ImGui::Text("Scale");
-		//// x
-		//ImGui::TableSetColumnIndex(1);
-		//ImGui::PushItemWidth(70);
-		//float sX = (float)gb->Scale.At(0);
-		//bool sxHasChanged = ImGui::DragFloat("X", &sX, 0.1f, 0.f, 10.f, "%.2f");
-		//if (sxHasChanged)
-		//	gb->Scale.SetAt(0, (double)sX);
-		//// y
-		//float sY = (float)gb->Scale.At(1);
-		//bool syHasChanged = ImGui::DragFloat("Y", &sY, 0.1f, 0.f, 10.f, "%.2f");
-		//if (syHasChanged)
-		//	gb->Scale.SetAt(1, (double)sY);
-		//// z
-		//float sZ = (float)gb->Scale.At(2);
-		//bool szHasChanged = ImGui::DragFloat("Z", &sZ, 0.1f, 0.f, 10.f, "%.2f");
-		//if (szHasChanged)
-		//	gb->Scale.SetAt(2, (double)sZ);
+		ImGui::PushID(&(gb->Scale));
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Scale");
+		// x
+		ImGui::TableSetColumnIndex(1);
+		ImGui::PushItemWidth(70);
+		float sX = (float)gb->Scale.At(0);
+		bool sxHasChanged = ImGui::DragFloat("X", &sX, 0.1f, 0.f, 10.f, "%.2f");
+		if (sxHasChanged)
+			gb->Scale.SetAt(0, (double)sX);
+		// y
+		float sY = (float)gb->Scale.At(1);
+		bool syHasChanged = ImGui::DragFloat("Y", &sY, 0.1f, 0.f, 10.f, "%.2f");
+		if (syHasChanged)
+			gb->Scale.SetAt(1, (double)sY);
+		// z
+		float sZ = (float)gb->Scale.At(2);
+		bool szHasChanged = ImGui::DragFloat("Z", &sZ, 0.1f, 0.f, 10.f, "%.2f");
+		if (szHasChanged)
+			gb->Scale.SetAt(2, (double)sZ);
 
 		// =================================== Material
 		ImGui::PushID(&(gb->Mtl));
@@ -1687,7 +1687,7 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 		if (
 			xHasChanged || yHasChanged || zHasChanged
 			|| pitchHasChanged || yawHasChanged || rollHasChanged
-			//|| sxHasChanged || syHasChanged || szHasChanged
+			|| sxHasChanged || syHasChanged || szHasChanged
 			) {
 			gb->SetTransform();
 			needRefresh = true;

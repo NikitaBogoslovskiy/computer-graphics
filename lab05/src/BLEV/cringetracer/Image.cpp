@@ -43,18 +43,26 @@ void Image::Clear()
 }
 
 void Image::Draw(ImDrawList* dl, const ImVec2& canvasOffset) {
-	CalcMaxes();
+	/*CalcMaxes();*/
 
 	for (size_t x = 0; x < xSize; ++x)
 	{
 		for (size_t y = 0; y < ySize; ++y)
 		{
-			dl->AddRectFilled(
+			/*dl->AddRectFilled(
 				ImVec2(x, y) + canvasOffset,
 				ImVec2(x + 1, y + 1) + canvasOffset,
 				IM_COL32(static_cast<ImU32>((rChannel.at(x).at(y) / _Max) * 255.0),
 					static_cast<ImU32>((gChannel.at(x).at(y) / _Max) * 255.0),
 					static_cast<ImU32>((bChannel.at(x).at(y) / _Max) * 255.0),
+					255)
+			);*/
+			dl->AddRectFilled(
+				ImVec2(x, y) + canvasOffset,
+				ImVec2(x + 1, y + 1) + canvasOffset,
+				IM_COL32(static_cast<ImU32>(std::min(rChannel.at(x).at(y), 1.0) * 255.0),
+					static_cast<ImU32>(std::min(gChannel.at(x).at(y), 1.0) * 255.0),
+					static_cast<ImU32>(std::min(bChannel.at(x).at(y), 1.0) * 255.0),
 					255)
 			);
 		}

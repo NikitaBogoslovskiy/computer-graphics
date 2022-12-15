@@ -31,18 +31,25 @@ HVec<double> Material::ComputeDiffuse(const std::vector<GeometricBody*>& bodies,
 {
 	double outIntensity;
 	HVec<double> diffuse, outColor;
-	//bool illuminated = false;
+	bool illuminated = false;
 	for (auto& light : lights) {
 		if (!(light->ComputeLighting(closestInt, closestLocalNormal, closestBody, bodies, outColor, outIntensity))) continue;
 		diffuse += outColor * outIntensity;
-		//illuminated = true;
+		illuminated = true;
 	}
 	return diffuse * closestLocalColor;
+	/*if (illuminated) {
+		return diffuse * closestLocalColor;
+	}
+	else {
+
+	}*/
+
 	//return illuminated ?
-	//	diffuse * closestLocalColor
-	//	:
-	//	ambientColor * ambientIntensity * closestLocalColor //cache it
-	//	;
+	//diffuse * closestLocalColor
+	//:
+	//ambientColor * ambientIntensity * closestLocalColor //cache it
+	//;
 }
 
 HVec<double> Material::ComputeSpecular(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
@@ -110,12 +117,11 @@ HVec<double> Material::ComputeColor(const std::vector<GeometricBody*>& bodies, c
 		+ /*ambientColor **/ ambientIntensity * this->Color;// should try different ambient colors for materials
 }
 
-bool Material::CastRay(const Ray<double>& ray, const std::vector<GeometricBody*>& bodies,
-	const GeometricBody* originBody, GeometricBody*& targetBody,
-	HVec<double>& closestInt, HVec<double>& closestLocalNormal, HVec<double>& closestLocalColor)
+bool Material::CastRay(const Ray<double>& ray, 
+	const std::vector<GeometricBody*>& bodies, const GeometricBody* originBody, 
+	GeometricBody*& targetBody, HVec<double>& closestInt, HVec<double>& closestLocalNormal, HVec<double>& closestLocalColor)
 {
 	double minDist = std::numeric_limits<double>::max();
-	//bool foundRayBlocker = false;
 	targetBody = nullptr;
 	HVec<double> poi, poiNormal, poiColor;
 	for (auto& body : bodies) {
@@ -130,7 +136,6 @@ bool Material::CastRay(const Ray<double>& ray, const std::vector<GeometricBody*>
 		closestLocalNormal = poiNormal;
 		closestLocalColor = poiColor;
 	}
-	//return foundRayBlocker;
 	return targetBody != nullptr;
 }
 

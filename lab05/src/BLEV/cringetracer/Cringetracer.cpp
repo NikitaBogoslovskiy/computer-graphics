@@ -60,16 +60,18 @@ bool CringeTracer::CastRay(const Ray<double>& ray,
 {
 	double minDist = std::numeric_limits<double>::max();
 	closestBody = nullptr;
-	HVec<double> intersection, localNormal, localColor;
+	HVec<double> poi, poiNormal, poiColor;
+	//HVec<double> intersection, localNormal, localColor;
 	for (auto& body : scene.bodies) {
-		if (!(body->TestIntersection(ray, intersection, localNormal, localColor))) continue; // no intersection
-		double dist = (intersection - ray.p1).len();
+		if (!(body->TestIntersection(ray, poi, poiNormal, poiColor))) continue; // no intersection
+		
+		double dist = (poi - ray.p1).len();
 		if (dist >= minDist) continue;
 		minDist = dist;
 		closestBody = body;
-		closestInt = intersection;
-		closestLocalNormal = localNormal;
-		closestLocalColor = localColor;
+		closestInt = poi;
+		closestLocalNormal = poiNormal;
+		closestLocalColor = poiColor;
 	}
 
 	return closestBody != nullptr;

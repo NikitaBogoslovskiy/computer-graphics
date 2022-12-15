@@ -18,7 +18,7 @@ protected:
 	HVec<double> _color; // values: 0..255
 	HAffine<double> _tform;
 
-	
+
 
 public:
 
@@ -26,22 +26,12 @@ public:
 	HVec<double> Rotation{ 0.0,0.0,0.0 };
 	HVec<double> Scale{ 1.0,1.0,1.0 };
 
-	bool _hasMaterial = false;
-	Material* Mtl = nullptr;
-
 	GeometricBody(const HVec<double>& origin, const HVec<double>& rotation, const HVec<double>& scale, const ImVec3& inColor);
 	~GeometricBody();
 
-	inline bool HasMaterial() { return _hasMaterial; }
-	inline void SetMaterial(const Material* mtl) { 
-		if (mtl == nullptr) {
-			_hasMaterial = false;
-			Mtl = nullptr;
-			return;
-		}
-		_hasMaterial = true;
-		Mtl = const_cast<Material*>(mtl); 
-	}
+	Material* Mtl = nullptr;
+	inline bool HasMaterial() { return Mtl != nullptr; }
+	inline void SetMaterial(const Material* mtl) { Mtl = const_cast<Material*>(mtl); }
 
 	inline void SetTransform(const HAffine<double>& transformation) { _tform = transformation; }
 	inline void SetTransform() {
