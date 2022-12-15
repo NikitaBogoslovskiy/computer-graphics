@@ -43,16 +43,15 @@ bool PointLight::ComputeLighting(const HVec<double>& intersection,
 	double lightDist = lightDir.len();
 	lightDir.Normalize();
 
-	HVec<double> start = intersection + localNormal * 0.001;
+	HVec<double> start = intersection + localNormal * 0.01;
 	Ray<double> rayToLight(start, start + lightDir);
 
 	HVec<double> poi, poiNormal, poiColor;
 	bool foundLightBlocker = false;
 	for (auto& body : bodies) {
-		if ((body == gb) || (dynamic_cast<LightSphere*>(body) != nullptr)) continue; // 1) light source body does not cast shadow
-		
+		if (body == gb) continue;
+		//if (dynamic_cast<LightSphere*>(body) != nullptr) continue; // 1) light source body does not cast shadow
 		if (!(foundLightBlocker = body->TestIntersection(rayToLight, poi, poiNormal, poiColor))) continue;
-		
 		if ((poi - start).len() > lightDist) foundLightBlocker = false;
 		if (foundLightBlocker) break;
 	}

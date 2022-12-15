@@ -26,7 +26,8 @@ Material::~Material()
 }
 
 HVec<double> Material::ComputeDiffuse(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
-	const GeometricBody* closestBody, const HVec<double>& closestInt, const HVec<double>& closestLocalNormal, const HVec<double>& closestLocalColor)
+	const GeometricBody* closestBody,
+	const HVec<double>& closestInt, const HVec<double>& closestLocalNormal, const HVec<double>& closestLocalColor)
 {
 	double outIntensity;
 	HVec<double> diffuse, outColor;
@@ -64,7 +65,7 @@ HVec<double> Material::ComputeSpecular(const std::vector<GeometricBody*>& bodies
 		HVec<double> poi, poiNormal, poiColor;
 		bool foundLightBlocker = false;
 		for (auto& body : bodies) {
-			if (dynamic_cast<LightSphere*>(body) != nullptr) continue; // 1) light source body does not cast shadow
+			//if (dynamic_cast<LightSphere*>(body) != nullptr) continue; // 1) light source body does not cast shadow
 			if (!(foundLightBlocker = body->TestIntersection(rayToLight, poi, poiNormal, poiColor))) continue;
 			if ((poi - start).len() > lightDist) foundLightBlocker = false;
 			if (foundLightBlocker) break;
@@ -106,7 +107,7 @@ HVec<double> Material::ComputeColor(const std::vector<GeometricBody*>& bodies, c
 	return transparency * Transparency
 		+ (Reflectivity * reflection + (1.0 - Reflectivity) * diffuse) * (1.0 - Transparency)
 		+ specular
-		+ ambientColor * ambientIntensity * this->Color;
+		+ /*ambientColor **/ ambientIntensity * this->Color;// should try different ambient colors for materials
 }
 
 bool Material::CastRay(const Ray<double>& ray, const std::vector<GeometricBody*>& bodies,
@@ -114,22 +115,23 @@ bool Material::CastRay(const Ray<double>& ray, const std::vector<GeometricBody*>
 	HVec<double>& closestInt, HVec<double>& closestLocalNormal, HVec<double>& closestLocalColor)
 {
 	double minDist = std::numeric_limits<double>::max();
-	bool foundRayBlocker = false;
+	//bool foundRayBlocker = false;
+	targetBody = nullptr;
 	HVec<double> poi, poiNormal, poiColor;
 	for (auto& body : bodies) {
 		if (body == originBody) continue;
 		if (!(body->TestIntersection(ray, poi, poiNormal, poiColor))) continue;
-		foundRayBlocker = true;
+
 		double dist = (poi - ray.p1).len();
-		if (dist < minDist) {
-			minDist = dist;
-			targetBody = body;
-			closestInt = poi;
-			closestLocalNormal = poiNormal;
-			closestLocalColor = poiColor;
-		}
+		if (dist >= minDist) continue;
+		minDist = dist;
+		targetBody = body;
+		closestInt = poi;
+		closestLocalNormal = poiNormal;
+		closestLocalColor = poiColor;
 	}
-	return foundRayBlocker;
+	//return foundRayBlocker;
+	return targetBody != nullptr;
 }
 
 HVec<double> Material::ComputeReflection(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
@@ -144,19 +146,21 @@ HVec<double> Material::ComputeReflection(const std::vector<GeometricBody*>& bodi
 	HVec<double> reflectionDir = d - 2 * HVec<double>::dot(d, closestLocalNormal) * closestLocalNormal;
 	Ray<double> reflectionRay(closestInt, closestInt + reflectionDir); // 
 
-	HVec<double> poi, poiNormal, poiColor; GeometricBody* targetBody;
+	HVec<double> poi, poiNormal, poiColor;
+	GeometricBody* targetBody = nullptr;
 	bool foundReflectionTarget = CastRay(reflectionRay, bodies, originBody, targetBody, poi, poiNormal, poiColor);
 
 	if (foundReflectionTarget && (REFLECTIONS_COUNT++ < MAX_REFLECTIONS)) {
 		if (targetBody->HasMaterial()) {
 			reflection = targetBody->Mtl->ComputeColor(bodies, lights, reflectionRay, targetBody, poi, poiNormal, REFLECTIONS_COUNT);
 		}
-		else if (dynamic_cast<LightSphere*>(targetBody) == nullptr) {
+		//else if (dynamic_cast<LightSphere*>(targetBody) == nullptr) {
+		else {
 			reflection = Material::ComputeDiffuse(bodies, lights, targetBody, poi, poiNormal, targetBody->GetColor());
 		}
-		else { // 3) LIGHT_SOURCE is reflected
-			reflection = targetBody->GetColor();
-		}
+		//else { // 3) LIGHT_SOURCE is reflected
+			//reflection = targetBody->GetColor();
+		//}
 	}
 
 	return reflection;
@@ -179,7 +183,7 @@ HVec<double> Material::ComputeTransparency(const std::vector<GeometricBody*>& bo
 	HVec<double> vRefr1 = r1 * p1 + (r1 * cosine1 - std::sqrt(1.0 - r1 * r1 * (1.0 - cosine1 * cosine1))) * n1; // REFRACTED DIRECTION
 
 	// maybe set member property of offset (like surface thickness)? would be interesting
-	Ray<double> rRefr(closestInt + vRefr1 * 0.01, closestInt + vRefr1); // THIS GOES INTO OBJECT AGAIN. 0.01 OFFSET FROM SURFACE TO AVOID PICKING UP SAME INTERSECTION TWICE
+	Ray<double> rRefr(closestInt + vRefr1 * OFFSET, closestInt + vRefr1); // THIS GOES INTO OBJECT AGAIN. OFFSET FROM SURFACE TO AVOID PICKING UP SAME INTERSECTION TWICE
 
 	// and then test if this ray crushed into obj again
 	HVec<double> fPoi, fNormal, fColor,
@@ -195,19 +199,24 @@ HVec<double> Material::ComputeTransparency(const std::vector<GeometricBody*>& bo
 			cosine2 = -HVec<double>::dot(n2, p2);
 		}
 		HVec<double> vRefr2 = r2 * p2 + (r2 * cosine2 - std::sqrt(1.0 - r2 * r2 * (1.0 - cosine2 * cosine2))) * n2;
-		Ray<double> rRefr2(rPoi + vRefr2 * 0.01, rPoi + vRefr2);
+		Ray<double> rRefr2(rPoi + vRefr2 * OFFSET, rPoi + vRefr2);
 
 		finalRay = rRefr2;
 	}
 	else finalRay = rRefr;
 
-	GeometricBody* targetBody;
+	GeometricBody* targetBody = nullptr;
 	if (!CastRay(finalRay, bodies, closestBody, targetBody, fPoi, fNormal, fColor)) return HVec<double>();
 
+	//return targetBody->HasMaterial() ? // 4) LIGHT_SOURCE is reflected in transparent objects
+	//	targetBody->Mtl->ComputeColor(bodies, lights, finalRay, targetBody, fPoi, fNormal, REFLECTIONS_COUNT)
+	//	: (dynamic_cast<LightSphere*>(targetBody) == nullptr) ?
+	//	Material::ComputeDiffuse(bodies, lights, targetBody, fPoi, fNormal, targetBody->GetColor())
+	//	: targetBody->GetColor();
+	//;
 	return targetBody->HasMaterial() ? // 4) LIGHT_SOURCE is reflected in transparent objects
 		targetBody->Mtl->ComputeColor(bodies, lights, finalRay, targetBody, fPoi, fNormal, REFLECTIONS_COUNT)
-		: (dynamic_cast<LightSphere*>(targetBody) == nullptr) ?
-		Material::ComputeDiffuse(bodies, lights, targetBody, fPoi, fNormal, targetBody->GetColor())
-		: targetBody->GetColor();
+		:
+		Material::ComputeDiffuse(bodies, lights, targetBody, fPoi, fNormal, targetBody->GetColor());
 	;
 }

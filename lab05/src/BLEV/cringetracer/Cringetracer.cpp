@@ -63,10 +63,8 @@ bool CringeTracer::CastRay(const Ray<double>& ray,
 	HVec<double> intersection, localNormal, localColor;
 	for (auto& body : scene.bodies) {
 		if (!(body->TestIntersection(ray, intersection, localNormal, localColor))) continue; // no intersection
-
 		double dist = (intersection - ray.p1).len();
 		if (dist >= minDist) continue;
-
 		minDist = dist;
 		closestBody = body;
 		closestInt = intersection;
@@ -97,14 +95,15 @@ void CringeTracer::SubRender(const size_t start, const size_t end, const size_t 
 					img.rays[x][y],
 					closestBody, closestIntersection, closestLocalNormal, 0);
 			}
-			else if (dynamic_cast<LightSphere*>(closestBody) == nullptr){
+			//else if (dynamic_cast<LightSphere*>(closestBody) == nullptr) {
+			else {
 				finalColor = Material::ComputeDiffuse(scene.bodies, scene.lights,
 					closestBody, closestIntersection, closestLocalNormal, closestBody->GetColor()); // clumsy!!
 			}
-			else {
-				finalColor = 2.0 * closestBody->GetColor(); // 2) light source has no shading
-				//finalColor = closestBody->GetColor(); // 2) light source has no shading
-			}
+			//else {
+			//	finalColor = 2.0 * closestBody->GetColor(); // 2) light source has no shading
+			//	//finalColor = closestBody->GetColor(); // 2) light source has no shading
+			//}
 			img.SetPixel(x, y, finalColor);
 		}
 	}
@@ -117,6 +116,8 @@ void CringeTracer::Render() {
 	double yFact = 1.0 / (static_cast<double>(ySize) / 2.0);
 
 	const size_t chunkSize = xSize / _THREADS;
+	//SubRender(0, xSize, xSize, ySize, xFact, yFact);
+
 #pragma omp parallel for
 	for (int i = 0; i < _THREADS; ++i)
 	{

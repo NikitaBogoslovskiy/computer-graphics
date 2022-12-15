@@ -29,9 +29,9 @@ MtlLib::MtlLib()
 		{ "gold"  , new Material(HVec<double> { 0.75164, 0.70648, 0.22648 }, 10.0, 0.5)},
 		{ "silver"  , new Material(HVec<double> { 0.5, 0.5, 0.8 }, 10.0, 0.5)},
 
-		{ "glass" , new Material(HVec<double> { 1.0, 1.0, 1.0, }, 32.0, 0.25, 0.75, 1.333)},
+		{ "glass" , new Material(HVec<double> { 1.0, 1.0, 1.0, }, 32.0, 0.25, 0.75, 1.6)},
 		{ "air" , new Material(HVec<double> { 1.0, 1.0, 1.0, }, 0.0, 0.0, 1.0, 1.0)},
-		{ "water" , new Material(HVec<double> { 0.25, 0.3, 0.8 }, 10.0, 0.4, 1.0, 1.333)},
+		{ "water" , new Material(HVec<double> { 0.25, 0.3, 0.8 }, 10.0, 0.8, 1.0, 1.333)},
 	};
 
 	for (auto it = mtls.begin(); it != mtls.end(); ++it) {

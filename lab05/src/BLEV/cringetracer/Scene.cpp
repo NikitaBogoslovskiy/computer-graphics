@@ -12,8 +12,8 @@
 
 Scene::Scene()
 {
-	FillExampleScene1(this);
-	//FillExampleScene2(this);
+	FillExampleScene2(this);
+	//FillExampleScene1(this);
 
 }
 
@@ -51,7 +51,7 @@ void Scene::FillExampleScene2(Scene* inScene)
 	auto sph = new Sphere(0.0, 0.0, 0.5, 0.5, ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f });
 	Material* water;
 	if (materials.Lookup("water", water)) sph->SetMaterial(water);
-	inScene->bodies.push_back(sph);
+
 
 	// sph2
 	auto sph2 = new Sphere(1.5, 0.0, 0.5, 0.5, ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f });
@@ -74,28 +74,26 @@ void Scene::FillExampleScene2(Scene* inScene)
 	plane->SetMaterial(lightBlue);
 	inScene->bodies.push_back(plane);
 
-	auto cube = new Box(HVec<double> {0.0, -0.5, 0.0},
+	auto cube = new Box(HVec<double> {0.0, -2.0, -3.0},
 		HVec<double> { 0.0, 0.0, 0.0 },
-		HVec<double> {0.5, 0.5, 0.5},
+		HVec<double> {1.0, 1.0, 1.0},
 		ImVec3{ 100.0f / 255.f, 100.0f / 255.f, 100.0f / 255.f });
 	cube->SetMaterial(lightBlue);
 
-	//inScene->bodies.push_back(cube);
+	inScene->bodies.push_back(sph);
+	inScene->bodies.push_back(cube);
 	inScene->bodies.push_back(cone);
 	inScene->bodies.push_back(el1);
 	inScene->bodies.push_back(el2);
 
 	auto pl1 = new PointLight(HVec2<double>{ -45.0, 165.0 }, 10.0, HVec<double> { 1.0, 1.0, 1.0 }, 1.0);
 	auto pl2 = new PointLight(HVec2<double>{ -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0);
-	
-	Material* whiteMatte;
-	materials.Lookup("whiteMatte", whiteMatte);
 
 	inScene->lights.push_back(pl1);
-	inScene->bodies.push_back(pl1->LightSource);
-	
-	inScene->lights.push_back(pl2);
-	inScene->bodies.push_back(pl2->LightSource);
+	//inScene->bodies.push_back(pl1->LightSource);
+
+	//inScene->lights.push_back(pl2);
+	//inScene->bodies.push_back(pl2->LightSource);
 }
 
 void Scene::FillExampleScene1(Scene* inScene)

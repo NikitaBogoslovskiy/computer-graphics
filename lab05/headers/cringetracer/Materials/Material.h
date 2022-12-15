@@ -8,16 +8,18 @@
 class Material {
 
 protected:
+	inline static double OFFSET = 0.01;
 
 	bool CastRay(const Ray<double>& ray, const std::vector<GeometricBody*>& bodies,
 		const GeometricBody* originBody, GeometricBody*& targetBody,
 		HVec<double>& closestInt, HVec<double>& closestLocalNormal, HVec<double>& closestLocalColor);
+
 public:
 
 	inline static size_t MAX_REFLECTIONS = 3;
 
 	inline static double ambientIntensity = 0.1;
-	inline static HVec<double> ambientColor = HVec<double>{ 1.0, 1.0, 1.0 };
+	inline static HVec<double> ambientColor{ 1.0, 1.0, 1.0 };
 
 	Material();
 	Material(const HVec<double>& color,
