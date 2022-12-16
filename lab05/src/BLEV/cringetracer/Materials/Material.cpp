@@ -3,120 +3,14 @@
 #include "../headers/cringetracer/GeometricBodies/Box.h"
 #include "../headers/cringetracer/GeometricBodies/LightSphere.h"
 
-Material::Material()
-{
-	Diffuse = HVec<double>{ 178.0 / 255.0, 34.0 / 255.0, 34.0 / 255.0 };
-	Shininess = 0.0;
-	Reflectivity = 0.0;
-	Transparency = 0.0;
-	IOR = 1.0;
-}
+Material::Material() {}
 
-Material::Material(const HVec<double>& color, const double shininess, const double reflectivity, const double transparency, const double ior)
-{
-	Diffuse = color;
-	Shininess = shininess;
-	Reflectivity = reflectivity;
-	Transparency = transparency;
-	IOR = ior;
-}
+Material::Material(const HVec<double>& ambient, const HVec<double>& diffuse, const HVec<double>& specular, const double shininess,
+	const double reflectivity, const double opacity, const double ior)
+	: Ambient(ambient), Diffuse(diffuse), Specular(specular),
+	Shininess(shininess), Reflectivity(reflectivity), Opacity(opacity), IOR(ior) {}
 
-Material::Material(const HVec<double>& ambient, const double ambientIntensity,
-	const HVec<double>& diffuse, const double diffuseIntensity,
-	const HVec<double>& specular, const double reflectivity,
-	const double shininess,
-	const double transparency, const double ior) : 
-	Ambient(ambient), AmbientIntensity(ambientIntensity),
-	Diffuse(diffuse), DiffuseIntensity(diffuseIntensity),
-	Specular(specular), Reflectivity(reflectivity),
-	Shininess(shininess),
-	Transparency(transparency), IOR(ior)
-{
-	/*Diffuse = color;
-	Shininess = shininess;
-	Reflectivity = reflectivity;
-	Transparency = transparency;
-	IOR = ior;*/
-}
-
-Material::~Material()
-{
-}
-
-HVec<double> Material::ComputeDiffuse(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
-	const GeometricBody* closestBody,
-	const HVec<double>& closestInt, const HVec<double>& closestLocalNormal, const HVec<double>& closestLocalColor)
-{
-	double outIntensity;
-	HVec<double> diffuse, outColor;
-	bool illuminated = false;
-	for (auto& light : lights) {
-		if (!light->Show) continue;
-		if (!(light->ComputeLighting(closestInt, closestLocalNormal, closestBody, bodies, outColor, outIntensity))) continue;
-		diffuse += outColor * outIntensity;
-		illuminated = true;
-	}
-	return diffuse * closestLocalColor;
-	/*if (illuminated) {
-		return diffuse * closestLocalColor;
-	}
-	else {
-
-	}*/
-
-	//return illuminated ?
-	//diffuse * closestLocalColor
-	//:
-	//ambientColor * ambientIntensity * closestLocalColor //cache it
-	//;
-}
-
-HVec<double> Material::ComputeSpecular(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
-	const Ray<double>& cameraRay,
-	const HVec<double>& closestInt, const HVec<double>& closestLocalNormal)
-{
-	if (Shininess <= 0.0) return HVec<double>();
-
-	HVec<double> specular;
-	for (auto& light : lights) {
-		if (!light->Show) continue;
-		double intensity = 0.0;
-
-		HVec<double> dirToLight = (light->position - closestInt);
-		double lightDist = dirToLight.len();
-		dirToLight.Normalize();
-
-		HVec<double> start = closestInt + dirToLight * 0.001;
-		Ray<double> rayToLight(start, start + dirToLight);
-
-		HVec<double> poi, poiNormal, poiColor;
-		bool foundLightBlocker = false;
-		for (auto& body : bodies) {
-			if (!body->Show) continue;
-
-			if (dynamic_cast<LightSphere*>(body) != nullptr) continue; // 1) light source body does not cast shadow
-			if (!(foundLightBlocker = body->TestIntersection(rayToLight, poi, poiNormal, poiColor))) continue;
-
-			if ((poi - start).len() > lightDist) foundLightBlocker = false;
-			if (foundLightBlocker) break;
-		}
-		if (!foundLightBlocker) {
-			HVec<double> d = rayToLight.direction;
-			HVec<double> r = (d - 2 * HVec<double>::dot(d, closestLocalNormal) * closestLocalNormal).Normalized();
-
-			HVec<double> v = cameraRay.direction.Normalized();
-			double cosineRV = HVec<double>::dot(r, v);
-
-			if (cosineRV > 0.0)
-			{
-				intensity = Reflectivity * std::pow(cosineRV, Shininess);
-			}
-		}
-		specular += light->intensity * light->color * intensity;
-	}
-
-	return specular;
-}
+Material::~Material() {}
 
 HVec<double> Material::ComputeColor(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
 	const Ray<double>& cameraRay,
@@ -129,15 +23,16 @@ HVec<double> Material::ComputeColor(const std::vector<GeometricBody*>& bodies, c
 
 	return Reflectivity * reflection + (1 - Reflectivity) * diffuse + specular;*/
 
+	HVec<double> ambient = ComputeAmbient(lights);
 	HVec<double> diffuse = ComputeDiffuse(bodies, lights, closestBody, closestInt, closestLocalNormal, this->Diffuse);
 	HVec<double> reflection = ComputeReflection(bodies, lights, cameraRay, closestBody, closestInt, closestLocalNormal, REFLECTIONS_COUNT);
 	HVec<double> specular = ComputeSpecular(bodies, lights, cameraRay, closestInt, closestLocalNormal);
 	HVec<double> transparency = ComputeTransparency(bodies, lights, cameraRay, closestBody, closestInt, closestLocalNormal, REFLECTIONS_COUNT);
 
-	return transparency * Transparency
-		+ (Reflectivity * reflection + (1.0 - Reflectivity) * diffuse) * (1.0 - Transparency)
+	return transparency * (1.0 - Opacity)
+		+ (Reflectivity * reflection + (1.0 - Reflectivity) * diffuse) * (1.0 - (1.0 - Opacity))
 		+ specular
-		+ /*ambientColor **/ ambientIntensity * this->Diffuse;// should try different ambient colors for materials
+		+ ambient;
 }
 
 bool Material::CastRay(const Ray<double>& ray,
@@ -161,6 +56,74 @@ bool Material::CastRay(const Ray<double>& ray,
 		closestLocalColor = poiColor;
 	}
 	return targetBody != nullptr;
+}
+
+HVec<double> Material::ComputeDiffuse(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
+	const GeometricBody* closestBody,
+	const HVec<double>& closestInt, const HVec<double>& closestLocalNormal, const HVec<double>& closestLocalColor)
+{
+	double outIntensity;
+	HVec<double> diffuse, outColor;
+	for (auto& light : lights) {
+		if (!light->Show) continue;
+		if (!(light->ComputeLighting(closestInt, closestLocalNormal, closestBody, bodies, outColor, outIntensity))) continue;
+		diffuse += outColor * light->intensity * outIntensity;
+	}
+	return diffuse * closestLocalColor;
+}
+
+HVec<double> Material::ComputeAmbient(const std::vector<Light*>& lights)
+{
+	HVec<double> ambient;
+	for (auto& light : lights) {
+		if (!light->Show) continue;
+		ambient += light->color * light->intensity;
+	}
+	return ambient * Ambient;
+}
+
+HVec<double> Material::ComputeSpecular(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
+	const Ray<double>& cameraRay,
+	const HVec<double>& closestInt, const HVec<double>& closestLocalNormal)
+{
+	if (Shininess <= 0.0) return HVec<double>();
+	HVec<double> specular;
+	HVec<double> vDir = cameraRay.direction.Normalized();
+
+	for (auto& light : lights) {
+		if (!light->Show) continue;
+
+		HVec<double> dirToLight = (light->position - closestInt);
+		double lightDist = dirToLight.len();
+		dirToLight.Normalize();
+
+		HVec<double> start = closestInt + dirToLight * 0.001;
+		Ray<double> rayToLight(start, start + dirToLight);
+
+		HVec<double> poi, poiNormal, poiColor;
+		bool foundLightBlocker = false;
+		for (auto& body : bodies) {
+			if (!body->Show) continue;
+
+			if (dynamic_cast<LightSphere*>(body) != nullptr) continue; // 1) light source body does not cast shadow
+			if (!(foundLightBlocker = body->TestIntersection(rayToLight, poi, poiNormal, poiColor))) continue;
+
+			if ((poi - start).len() > lightDist) foundLightBlocker = false;
+			if (foundLightBlocker) break;
+		}
+
+		if (foundLightBlocker) continue;
+
+		HVec<double> d = rayToLight.direction;
+		HVec<double> rDir = (d - 2 * HVec<double>::dot(d, closestLocalNormal) * closestLocalNormal).Normalized();
+
+		double cosineRV = std::max(HVec<double>::dot(rDir, vDir), 0.0);
+		double specIntensity = Reflectivity * std::pow(cosineRV, Shininess);
+
+		specular += light->intensity * light->color * specIntensity;
+	}
+
+	return specular * this->Specular;
 }
 
 HVec<double> Material::ComputeReflection(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
@@ -199,7 +162,7 @@ HVec<double> Material::ComputeReflection(const std::vector<GeometricBody*>& bodi
 HVec<double> Material::ComputeTransparency(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
 	const Ray<double>& inRay, const GeometricBody* closestBody, const HVec<double>& closestInt, const HVec<double>& closestLocalNormal, size_t REFLECTIONS_COUNT)
 {
-	if (Transparency <= 0.0) return HVec<double>();
+	if (GetTransparency() <= 0.0) return HVec<double>();
 
 	HVec<double> p1 = inRay.direction.Normalized();
 	double r1 = 1.0 / IOR;

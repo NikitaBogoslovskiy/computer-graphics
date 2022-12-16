@@ -18,7 +18,8 @@ void CringeTracer::SetCamera(Camera* _cam) {
 
 void CringeTracer::SetOMPThreads() {
 	//_THREADS = std::max(2 * std::thread::hardware_concurrency() / 3, size_t(1));
-	_THREADS = 6;
+	size_t cores = std::thread::hardware_concurrency();
+	_THREADS = 0.0625 * cores * cores - 0.75 * cores + 8;
 	printf("THREADS = %lu\n", _THREADS);
 	omp_set_num_threads(_THREADS);
 }

@@ -30,7 +30,7 @@ void Scene::FillExampleScene2(Scene* inScene)
 		HVec<double> {1.0, 1.0, 1.0},
 		ImVec3{ 0.4f, 0.6f, 0.8f });
 	Material* gold;
-	if (materials.Lookup("gold", gold)) cone->SetMaterial(gold);
+	if (materials.Lookup("Gold", gold)) cone->SetMaterial(gold);
 	//bodies.push_back(cone);
 
 	// cone 2
@@ -40,7 +40,7 @@ void Scene::FillExampleScene2(Scene* inScene)
 		ImVec3{ 0.4f, 0.6f, 0.8f });
 
 	Material* lightBlue;
-	if (materials.Lookup("lightBlueReflective", lightBlue)) cone2->SetMaterial(lightBlue);
+	if (materials.Lookup("PlasticCyan", lightBlue)) cone2->SetMaterial(lightBlue);
 	//bodies.push_back(cone2);
 	/*bodies.push_back(new Cylinder(HVec<double> {0.0, -0.5, 0.0},
 		HVec<double> { M_PI * 0.5, 0.0, 0.0 },
@@ -50,13 +50,13 @@ void Scene::FillExampleScene2(Scene* inScene)
 		// sph1
 	auto sph = new Sphere(0.0, 0.0, 0.5, 0.5, ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f });
 	Material* water;
-	if (materials.Lookup("water", water)) sph->SetMaterial(water);
+	if (materials.Lookup("Water", water)) sph->SetMaterial(water);
 
 
 	// sph2
 	auto sph2 = new Sphere(1.5, 0.0, 0.5, 0.5, ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f });
 	Material* air;
-	if (materials.Lookup("silver", air)) sph2->SetMaterial(air);
+	if (materials.Lookup("Silver", air)) sph2->SetMaterial(air);
 	//bodies.push_back(sph2);
 
 	// eggs
@@ -90,7 +90,7 @@ void Scene::FillExampleScene2(Scene* inScene)
 	auto pl2 = new PointLight(HVec2<double>{ -45.0, 100.0 }, 10.0, HVec<double> { 0.0, 0.0, 1.0 }, 1.0);
 
 	inScene->lights.push_back(pl1);
-	inScene->bodies.push_back(pl1->LightSource);
+	//inScene->bodies.push_back(pl1->LightSource);
 
 	//inScene->lights.push_back(pl2);
 	//inScene->bodies.push_back(pl2->LightSource);
@@ -111,25 +111,28 @@ void Scene::FillExampleScene1(Scene* inScene)
 		* whiteMatte,
 		* lightBlueMatte,
 		* blueMatte,
-		* emerald
+		* emerald,
+		* ruby,
+		* pearl
 		;
 
-	materials.Lookup("lightBlueReflective", lightBlueReflective);
-	materials.Lookup("gold", gold);
-	materials.Lookup("silver", silver);
-	materials.Lookup("mirror", mirror);
+	//materials.Lookup("lightBlueReflective", lightBlueReflective);
+	materials.Lookup("Gold", gold);
+	materials.Lookup("Silver", silver);
 
-	// ================ transparency 
-	materials.Lookup("water", water);
-	materials.Lookup("emerald", emerald);
-	// ===================== mattes
-	materials.Lookup("mintMatte", mintMatte);
-	materials.Lookup("orangeMatte", orangeMatte);
-	materials.Lookup("greenMatte", greenMatte);
-	materials.Lookup("redMatte", redMatte);
-	materials.Lookup("whiteMatte", whiteMatte);
-	materials.Lookup("lightBlueMatte", lightBlueMatte);
-	materials.Lookup("blueMatte", blueMatte);
+	//// ================ transparency 
+	materials.Lookup("Water", water);
+	materials.Lookup("Emerald", emerald);
+	materials.Lookup("Ruby", ruby);
+	materials.Lookup("Pearl", pearl);
+	//// ===================== mattes
+	//materials.Lookup("mintMatte", mintMatte);
+	//materials.Lookup("orangeMatte", orangeMatte);
+	//materials.Lookup("greenMatte", greenMatte);
+	materials.Lookup("RubberRed", redMatte);
+	materials.Lookup("RubberWhite", whiteMatte);
+	materials.Lookup("RubberCyan", lightBlueMatte);
+	materials.Lookup("RubberGreen", mintMatte);
 
 	constexpr double OFFSET = 4.0;
 	constexpr double NINETY = 90.0;
@@ -181,12 +184,12 @@ void Scene::FillExampleScene1(Scene* inScene)
 	auto el1 = new Ellipsoid(-0.75, -0.5, -0.5,
 		0.5, 0.75, 0.5,
 		ImVec3{ 255.f / 255.f, 127.f / 255.f, 80.f / 255.f });
-	el1->SetMaterial(lightBlueReflective);
+	el1->SetMaterial(pearl);
 
 	auto sph = new Sphere(0.0, 0.5, 0.0,
 		0.5,
 		ImVec3{ 152.f / 255.f, 251.f / 255.f, 152.f / 255.f });
-	sph->SetMaterial(water);
+	sph->SetMaterial(ruby);
 
 	auto cube = new Box(HVec<double> {0.75, 0.0, -2.0},
 		HVec<double> { 0.0, 20.0, 0.0 },
@@ -220,7 +223,7 @@ void Scene::FillExampleScene1(Scene* inScene)
 
 	auto light1 = new PointLight(HVec2<double> { -45.0, 70.0 }, 4.0, HVec<double> { 1.0, 1.0, 1.0 }, 1.0);
 	//auto light2 = new PointLight(HVec2<double> { -45.0, 120.0 }, 4.5, HVec<double> { 0.0, 0.0, 1.0 }, 1.0);
-	inScene->bodies.push_back(light1->LightSource);
+	//inScene->bodies.push_back(light1->LightSource);
 	inScene->lights.push_back(light1);
 
 	//inScene->bodies.push_back(light2->LightSource);

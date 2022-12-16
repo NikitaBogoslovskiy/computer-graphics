@@ -1041,7 +1041,7 @@ void BLEV::Interface::F_Scene() {
 			Validator::ValidateLightArgs(nstr7, inPitch, inYaw, inR, inIntensity);
 			auto newPl = new PointLight(HVec2<double>{inPitch, inYaw}, inR, objColor, inIntensity);
 			_data.cringulik.scene->lights.push_back(newPl);
-			_data.cringulik.scene->bodies.push_back(newPl->LightSource);
+			//_data.cringulik.scene->bodies.push_back(newPl->LightSource);
 			needRefresh = true;
 		}
 		catch (const std::exception& e)
