@@ -26,13 +26,24 @@ public:
 		const double shininess,
 		const double reflectivity,
 		const double transparency = 0.0, const double ior = 1.0);
+	Material(const HVec<double>& ambient, const double ambientIntensity,
+		const HVec<double>& diffuse, const double diffuseIntensity,
+		const HVec<double>& specular, const double reflectivity,
+		const double shininess,
+		const double transparency = 0.0, const double ior = 1.0);
 	~Material();
 
+	HVec<double> Ambient;
+	double AmbientIntensity;
+
 	HVec<double> Diffuse;
-	//HVec<double> Ambient;
-	//HVec<double> Specular;
-	double Shininess;
+	double DiffuseIntensity;
+
+	HVec<double> Specular;
 	double Reflectivity;
+
+	double Shininess;
+	
 	double Transparency;
 	double IOR;
 

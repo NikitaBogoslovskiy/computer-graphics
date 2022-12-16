@@ -21,6 +21,24 @@ Material::Material(const HVec<double>& color, const double shininess, const doub
 	IOR = ior;
 }
 
+Material::Material(const HVec<double>& ambient, const double ambientIntensity,
+	const HVec<double>& diffuse, const double diffuseIntensity,
+	const HVec<double>& specular, const double reflectivity,
+	const double shininess,
+	const double transparency, const double ior) : 
+	Ambient(ambient), AmbientIntensity(ambientIntensity),
+	Diffuse(diffuse), DiffuseIntensity(diffuseIntensity),
+	Specular(specular), Reflectivity(reflectivity),
+	Shininess(shininess),
+	Transparency(transparency), IOR(ior)
+{
+	/*Diffuse = color;
+	Shininess = shininess;
+	Reflectivity = reflectivity;
+	Transparency = transparency;
+	IOR = ior;*/
+}
+
 Material::~Material()
 {
 }
