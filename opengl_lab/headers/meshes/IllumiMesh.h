@@ -7,7 +7,11 @@
 
 class IllumiMesh : public Mesh {
 	Material material;
+
 	const PLS* pls;
+	const DirLight* dirLight;
+	const SpotLight* spotLight;
+
 	struct TransformLoc {
 		GLuint model;
 		GLuint view;
@@ -30,6 +34,26 @@ class IllumiMesh : public Mesh {
 		GLuint specular;
 		GLuint attenuation;
 	} plsLoc;
+
+	struct DirLoc {
+		GLuint direction;
+		GLuint ambient;
+		GLuint diffuse;
+		GLuint specular;
+	} dirLoc;
+
+	struct SPLoc {
+		GLuint position;
+		GLuint direction;
+
+		GLuint cutOff;
+		GLuint outerCutOff;
+
+		GLuint ambient;
+		GLuint diffuse;
+		GLuint specular;
+		GLuint attenuation;
+	} spsLoc;
 public:
 	IllumiMesh();
 	IllumiMesh(const char* obj_path);
@@ -37,6 +61,8 @@ public:
 	virtual void InitShader() override;
 	virtual void ChangeShaders(const char* vertex_path, const char* fragment_path) override;
 	void SetPLS(const PLS* const pls);
+	void SetSpotLight(const SpotLight* const _spotLight);
+	void SetDirLight(const DirLight* const _dirLight);
 };
 
 #endif //!ILLUMI_MESH_H

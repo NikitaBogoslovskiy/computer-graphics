@@ -12,6 +12,9 @@ void LightExhibition::LoadModels(const std::vector<inModelData>& inParams)
 		mesh_type* m = new mesh_type();
 		m->Load(imd.obj_file);
 		m->SetPLS(&pls);
+		m->SetDirLight(&dls);
+		m->SetSpotLight(&sps);
+
 		if (imd.vShader_path && *imd.vShader_path) {
 			m->ChangeShaders(imd.vShader_path, imd.fShader_path);
 		}
@@ -41,8 +44,17 @@ void LightExhibition::Draw(float time_coefficient, Camera& cam)
 {
 	auto r = 5.f;
 	pls.position.x = r * cos(time_coefficient);
-	pls.position.y = 10.f;
+	pls.position.y = 2.f; //change it to something cool
 	pls.position.z = r * sin(time_coefficient);
+
+	dls.direction = glm::normalize(glm::vec3(r * cos(time_coefficient), 2.f, r * sin(time_coefficient)));
+	//	printf("%f %f %f\n", dls.direction.x, dls.direction.y, dls.direction.z);
+	/*printf("==>\n%f %f %f\n%f %f %f\n%f %f %f\n\n", dls.ambient.x, dls.ambient.y, dls.ambient.z,
+		dls.diffuse.x, dls.diffuse.y, dls.diffuse.z,
+		dls.specular.x, dls.specular.y, dls.specular.z);*/
+
+	sps.position = cam.GetPosition();
+	sps.direction = cam.GetDirection();
 
 	//pls.diffuse = glm::vec4(abs(sin(time_coefficient)), abs(sin(time_coefficient)), abs(cos(time_coefficient)), 1.0);
 	//pls.ambient = glm::vec4(pls.diffuse * glm::vec4(glm::vec3(0.5f), 1.0));

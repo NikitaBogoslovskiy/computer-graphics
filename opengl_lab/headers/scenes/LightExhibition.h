@@ -14,9 +14,10 @@ class LightExhibition : public Scene {
 
 	//**lights
 	PLS pls;		// *point light source
-	//PrLS prls;	// *projector light source
-	//DLS pls;		// *direction light source
 	LightCube lc;
+	DirLight dls;
+	SpotLight sps;
+
 
 public:
 	LightExhibition();

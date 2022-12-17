@@ -147,8 +147,6 @@ void App::PollEvents(sf::Window& window)
 				mousePos.x = halfsize.x;
 				mousePos.y = halfsize.y;
 			}
-
-
 		}
 		else if (event.type == sf::Event::Resized) {
 			glViewport(0, 0, event.size.width, event.size.height);

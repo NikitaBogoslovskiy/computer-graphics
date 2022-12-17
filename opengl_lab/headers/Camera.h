@@ -78,6 +78,10 @@ public:
 		return Position;
 	}
 
+	const inline glm::vec3& GetDirection() const {
+		return Front;
+	}
+
 	// ================================================================== interface api
 
 	void ProcessKeyboard(Direction direction, const float& deltaTime)
