@@ -3,7 +3,7 @@
 #define ILLUMI_MESH_H
 
 #include "Mesh.h"
-#include "../lights/PointLightSource.h"
+#include "../lights/LightCasters.h"
 
 class IllumiMesh : public Mesh {
 	Material material;

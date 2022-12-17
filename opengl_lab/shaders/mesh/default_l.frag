@@ -1,53 +1,133 @@
 #version 330 core
 
+in Vertex {
+	vec3 FragPos;
+	vec3 Normal; 
+	vec2 TexCoord; 
+	vec3 viewDir;
+} vert;
+
 out vec4 FragColor;
 
+uniform vec3 viewPos;
 uniform sampler2D texture0;
 
-uniform vec4 ambient;
-uniform vec4 diffuse;
-uniform vec4 specular;
-uniform vec4 emission;
-uniform float shininess;
+struct Material {
+    vec4 ambient;
+	vec4 diffuse;
+	vec4 specular;
+	vec4 emission;
+	float shininess;
+};
+uniform Material mtl;
 
-uniform vec4 pls_position;
-uniform vec4 pls_ambient;
-uniform vec4 pls_diffuse;
-uniform vec4 pls_specular;
-uniform vec3 pls_attenuation;
+struct PointLight {
+    vec4 position;
 
-in Vertex {
-	vec2 TexCoord; 
-	vec3 normal; 
-	vec3 rayToPLS; 
-	vec3 viewDir;
-	float distance; 
-	vec3 FragPos;
-} Vert;
+	vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
+    vec3 attenuation;
+};
+uniform PointLight pls;
+
+struct DirLight {
+    vec3 direction;
+	
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
+};
+uniform DirLight dls;
+
+struct SpotLight {
+    vec3 position;
+    vec3 direction;
+    float cutOff; // COSINE OF INNER CONE
+    float outerCutOff; // OUTER CONE
+						// FOR PENUMBRA BETWEEN INNER AND OUTER CONES
+    vec4 ambient;
+    vec4 diffuse;
+    vec4 specular;
+	vec3 attenuation;
+};
+
+vec4 PointIllumination(PointLight pls, vec3 normal, vec3 viewDir);
+vec4 DirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n);
 
 void main()
 {
-	vec3 normal_n = normalize(Vert.normal);
-	vec3 lightDir_n = normalize(Vert.rayToPLS);
-	vec3 viewDir_n = normalize(Vert.viewDir);
+	vec3 normal_n = normalize(vert.Normal);
+	vec3 viewDir_n = normalize(vert.viewDir);
 
-	float att = 1.0 / (pls_attenuation[0] + pls_attenuation[1] * Vert.distance + pls_attenuation[2] * Vert.distance * Vert.distance);
-	
-	FragColor = emission;
+	FragColor = (mtl.emission + PointIllumination(pls, normal_n, viewDir_n)) * texture(texture0, vert.TexCoord);
+}
+
+vec4 PointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n)
+{
+	vec3 lightDir_n = vec3(pls.position) - vert.FragPos;
+	float dist = length(lightDir_n);
+	lightDir_n = normalize(lightDir_n);
+
+	float att = 1.0 / (pls.attenuation[0] + pls.attenuation[1] * dist + pls.attenuation[2] * dist * dist);
 	
 	// ambient
-	FragColor += ambient * pls_ambient * att;
+	vec4 result = mtl.ambient * pls.ambient;// * att;
 
 	// diffuse
 	float Ndot = max(0.0, dot(normal_n, lightDir_n));
-	FragColor += diffuse * pls_diffuse * Ndot * att;
+	result += mtl.diffuse * pls.diffuse * Ndot * att;
 	
 	// specular
 	vec3 reflectDir = reflect(-lightDir_n, normal_n);
-	float RdotVpow = pow(max(0.0, dot(viewDir_n, reflectDir)), shininess);
+	float RdotVpow = pow(max(0.0, dot(viewDir_n, reflectDir)), mtl.shininess);
+	result += mtl.specular * pls.specular * RdotVpow * att;
 
-	//float RdotVpow = max(1.0, pow(dot(reflect(-lightDir_n, normal_n), viewDir_n), shininess));
-	FragColor += specular * pls_specular * RdotVpow * att;
-
-	FragColor *= texture(texture0, Vert.TexCoord);
+	return result;
 }
+
+vec4 DirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n)
+{
+    vec3 lightDir_n = normalize(-dls.direction);
+
+	// ambient
+	vec4 result = dls.ambient * mtl.ambient;
+
+    // diffuse
+    float dInt = max(0.0, dot(normal_n, lightDir_n));
+	result += dInt * dls.diffuse * mtl.diffuse;
+
+    // specular 
+    vec3 reflectDir = reflect(-lightDir_n, normal_n);
+    float sInt = pow(max(0.0, dot(viewDir_n, reflectDir)), mtl.shininess);
+	result += sInt * dls.specular * mtl.specular;
+    
+    return result;
+}
+
+vec4 CalcSpotLight(SpotLight sps, vec3 normal_n, vec3 viewDir_n)
+{
+    vec3 lightDir_n = sps.position - vert.FragPos;
+    float dist = length(lightDir_n);
+    lightDir_n = normalize(lightDir_n);
+    float att = 1.0 / (pls.attenuation[0] + pls.attenuation[1] * dist + pls.attenuation[2] * dist * dist);
+
+    // ambient
+    vec4 result = sps.ambient * mtl.ambient;
+
+    // diffuse
+    float dInt = max(0.0, dot(normal_n, lightDir_n));
+    result += dInt * sps.diffuse * mtl.diffuse;
+
+    // specular
+    vec3 reflectDir = reflect(-lightDir_n, normal_n);
+    float sInt = pow(max(0.0, dot(viewDir_n, reflectDir)), mtl.shininess);
+    result += sInt * sps.specular * mtl.specular;
+
+    // spotlight intensity
+    float eps = sps.cutOff - sps.outerCutOff; // lower angle - bigger cos
+    float theta = dot(lightDir_n, normalize(-sps.direction)); 
+    float intensity = clamp((theta - sps.outerCutOff) / eps, 0.0, 1.0);
+
+    return result * att * intensity;;
+}   

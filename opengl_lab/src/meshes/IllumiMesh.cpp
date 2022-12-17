@@ -21,29 +21,29 @@ void IllumiMesh::ChangeShaders(const char* vertex_path, const char* fragment_pat
 	if (trLoc.projection == -1) printf("\033[0;31mcould not bind attrib projection\033[0m\n");
 	if (trLoc.viewPos == -1) printf("\033[0;31mcould not bind attrib viewPos\033[0m\n");
 
-	matLoc.ambient = glGetUniformLocation(Program, "ambient");
-	matLoc.diffuse = glGetUniformLocation(Program, "diffuse");
-	matLoc.specular = glGetUniformLocation(Program, "specular");
-	matLoc.emission = glGetUniformLocation(Program, "emission");
-	matLoc.shininess = glGetUniformLocation(Program, "shininess");
+	matLoc.ambient = glGetUniformLocation(Program, "mtl.ambient");
+	matLoc.diffuse = glGetUniformLocation(Program, "mtl.diffuse");
+	matLoc.specular = glGetUniformLocation(Program, "mtl.specular");
+	matLoc.emission = glGetUniformLocation(Program, "mtl.emission");
+	matLoc.shininess = glGetUniformLocation(Program, "mtl.shininess");
 
-	if (matLoc.ambient == -1) printf("\033[0;31mcould not bind attrib ambient\033[0m\n");
-	if (matLoc.diffuse == -1) printf("\033[0;31mcould not bind attrib diffuse\033[0m\n");
-	if (matLoc.specular == -1) printf("\033[0;31mcould not bind attrib specular\033[0m\n");
-	if (matLoc.emission == -1) printf("\033[0;31mcould not bind attrib emission\033[0m\n");
-	if (matLoc.shininess == -1) printf("\033[0;31mcould not bind attrib shininess\033[0m\n");
+	if (matLoc.ambient == -1) printf("\033[0;31mcould not bind attrib mtl.ambient\033[0m\n");
+	if (matLoc.diffuse == -1) printf("\033[0;31mcould not bind attrib mtl.diffuse\033[0m\n");
+	if (matLoc.specular == -1) printf("\033[0;31mcould not bind attrib mtl.specular\033[0m\n");
+	if (matLoc.emission == -1) printf("\033[0;31mcould not bind attrib mtl.emission\033[0m\n");
+	if (matLoc.shininess == -1) printf("\033[0;31mcould not bind attrib mtl.shininess\033[0m\n");
 
-	plsLoc.position = glGetUniformLocation(Program, "pls_position");
-	plsLoc.ambient = glGetUniformLocation(Program, "pls_ambient");
-	plsLoc.diffuse = glGetUniformLocation(Program, "pls_diffuse");
-	plsLoc.specular = glGetUniformLocation(Program, "pls_specular");
-	plsLoc.attenuation = glGetUniformLocation(Program, "pls_attenuation");
+	plsLoc.position = glGetUniformLocation(Program, "pls.position");
+	plsLoc.ambient = glGetUniformLocation(Program, "pls.ambient");
+	plsLoc.diffuse = glGetUniformLocation(Program, "pls.diffuse");
+	plsLoc.specular = glGetUniformLocation(Program, "pls.specular");
+	plsLoc.attenuation = glGetUniformLocation(Program, "pls.attenuation");
 
-	if (plsLoc.position == -1) printf("\033[0;31mcould not bind attrib pls_position\033[0m\n");
-	if (plsLoc.ambient == -1) printf("\033[0;31mcould not bind attrib pls_ambient\033[0m\n");
-	if (plsLoc.diffuse == -1) printf("\033[0;31mcould not bind attrib pls_diffuse\033[0m\n");
-	if (plsLoc.specular == -1) printf("\033[0;31mcould not bind attrib pls_specular\033[0m\n");
-	if (plsLoc.attenuation == -1) printf("\033[0;31mcould not bind attrib pls_attenuation\033[0m\n");
+	if (plsLoc.position == -1) printf("\033[0;31mcould not bind attrib pls.position\033[0m\n");
+	if (plsLoc.ambient == -1) printf("\033[0;31mcould not bind attrib pls.ambient\033[0m\n");
+	if (plsLoc.diffuse == -1) printf("\033[0;31mcould not bind attrib pls.diffuse\033[0m\n");
+	if (plsLoc.specular == -1) printf("\033[0;31mcould not bind attrib pls.specular\033[0m\n");
+	if (plsLoc.attenuation == -1) printf("\033[0;31mcould not bind attrib pls.attenuation\033[0m\n");
 
 	printf("\033[0;32m====  IllumiMesh::ChangeShaders success ====\033[0m\n");
 }

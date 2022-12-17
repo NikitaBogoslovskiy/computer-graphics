@@ -177,7 +177,7 @@
     <ClInclude Include="headers\entities\LightCube.h" />
     <ClInclude Include="headers\entities\MixedCube.h" />
     <ClInclude Include="headers\entities\Skybox.h" />
-    <ClInclude Include="headers\lights\PointLightSource.h" />
+    <ClInclude Include="headers\lights\LightCasters.h" />
     <ClInclude Include="headers\meshes\IllumiMesh.h" />
     <ClInclude Include="headers\scenes\LightExhibition.h" />
     <ClInclude Include="headers\scenes\SolarSystem.h" />

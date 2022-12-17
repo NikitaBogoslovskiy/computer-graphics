@@ -3,7 +3,7 @@
 #include "Scene.h"
 #include "../meshes/IllumiMesh.h"
 #include "../meshes/DynamicMesh.h"
-#include "../lights/PointLightSource.h"
+#include "../lights/LightCasters.h"
 #include "../entities/LightCube.h"
 
 class LightExhibition : public Scene {
