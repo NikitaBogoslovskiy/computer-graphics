@@ -5,7 +5,7 @@
 #include "../pch.h"
 
 struct PointLightSource {
-	glm::vec4 position = glm::vec4(400.f, 1000.f, 400.f, 1.f);
+	glm::vec4 position = glm::vec4(0.f, 0.f, 0.f, 1.f);
 	glm::vec4 ambient = glm::vec4(1.f);
 	glm::vec4 diffuse = glm::vec4(1.f);
 	glm::vec4 specular = glm::vec4(1.f);

@@ -21,15 +21,18 @@ out Vertex {
 	vec3 rayToPLS; 
 	vec3 viewDir;
 	float distance; 
+	vec3 FragPos;
 } Vert;
 
 void main()
 {
-	gl_Position = projection * view * model * vec4(coord, 1.0);
-	
+	Vert.FragPos = vec3(model * vec4(coord, 1.0));
+	Vert.normal = mat3(transpose(inverse(model))) * normal;
 	Vert.TexCoord = texCoord;
-	Vert.normal = normal;
-	Vert.rayToPLS = pls_position.xyz - coord;
+	
+	Vert.rayToPLS = pls_position.xyz - Vert.FragPos;
+	Vert.viewDir = viewPos - Vert.FragPos;
 	Vert.distance = length(Vert.rayToPLS);
-	Vert.viewDir = viewPos - coord;
+
+	gl_Position = projection * view * vec4(Vert.FragPos, 1.0);
 }

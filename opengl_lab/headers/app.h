@@ -43,6 +43,9 @@ class App {
 		bool is_up = false;
 		bool is_down = false;
 
+		bool is_arrow_up = false;
+		bool is_arrow_down = false;
+
 		bool is_lshift = false;
 		bool is_lctrl = false;
 

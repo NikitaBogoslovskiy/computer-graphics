@@ -15,7 +15,9 @@ void Mesh::InitVBO()
 
 void Mesh::InitShader()
 {
+	printf("== Mesh::InitShader ==\n");
 	ChangeShaders("shaders/mesh/default_s.vert", "shaders/mesh/default_s.frag");
+	printf("== Mesh::InitShader end ==\n\n");
 }
 
 #include "../headers/pch.h"
@@ -92,30 +94,30 @@ Mesh::Mesh(const char* path)
 
 void Mesh::ChangeShaders(const char* vertex_path, const char* fragment_path)
 {
-	printf("loading %s, %s:\n", vertex_path, fragment_path);
+	printf("\033[0;33m===  Mesh::ChangeShaders ===\033[0m\n");
+	printf("loading %s, %s...\n", vertex_path, fragment_path);
 	Program = ShaderLoader::initProgram(vertex_path, fragment_path);
 
 	const char* attr_name = "coord"; //имя в шейдере
 	Attrib_vertex = glGetAttribLocation(Program, attr_name);
 	if (Attrib_vertex == -1) {
-		printf("could not bind attrib %s\n", attr_name);
+		printf("\033[0;31mcould not bind attrib %s\033[0m\n", attr_name);
 		return;
 	}
 
 	const char* attr_name2 = "texCoord"; //имя в шейдере
 	Attrib_texture = glGetAttribLocation(Program, attr_name2);
 	if (Attrib_texture == -1) {
-		printf("could not bind attrib %s\n", attr_name2);
+		printf("\033[0;31mcould not bind attrib %s\033[0m\n", attr_name2);
 		return;
 	}
 	const char* attr_name3 = "normal";
 	Attrib_normal = glGetAttribLocation(Program, attr_name3);
 	if (Attrib_normal == -1) {
-		printf("could not bind attrib %s\n", attr_name3);
+		printf("\033[0;31mcould not bind attrib %s\033[0m\n", attr_name3);
 		return;
 	}
-	/*
-	*/
+	printf("\033[0;32m===  Mesh::ChangeShaders success ===\033[0m\n");
 }
 
 void Mesh::Draw(const glm::mat4& model, Camera& cam)

@@ -151,6 +151,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="headers\app.cpp" />
+    <ClCompile Include="src\entities\LightCube.cpp" />
     <ClCompile Include="src\meshes\IllumiMesh.cpp" />
     <ClCompile Include="src\entities\Cube2Tex.cpp" />
     <ClCompile Include="src\entities\Cube3Tex.cpp" />
@@ -173,6 +174,7 @@
     <ClInclude Include="headers\entities\Cube3Tex.h" />
     <ClInclude Include="headers\entities\ColoredEllipse.h" />
     <ClInclude Include="headers\entities\Entity.h" />
+    <ClInclude Include="headers\entities\LightCube.h" />
     <ClInclude Include="headers\entities\MixedCube.h" />
     <ClInclude Include="headers\entities\Skybox.h" />
     <ClInclude Include="headers\lights\PointLightSource.h" />
@@ -189,6 +191,8 @@
     <ClInclude Include="headers\stuff.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\lights\LightCube.frag" />
+    <None Include="shaders\lights\LightCube.vert" />
     <None Include="shaders\mesh\default_d.frag" />
     <None Include="shaders\mesh\default_d.vert" />
     <None Include="shaders\mesh\default_l.frag" />

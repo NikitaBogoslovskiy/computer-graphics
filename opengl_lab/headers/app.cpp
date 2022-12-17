@@ -18,7 +18,7 @@ void App::Init()
 	scenes.push_back(ss);
 	cur_scene = 0;
 	*/
-	
+
 	auto le = new LightExhibition();
 	le->LoadModels({ {"tree.obj", 0, 0, "vodica.jpg"} });
 	le->PrepareData();
@@ -84,6 +84,14 @@ void App::PollEvents(sf::Window& window)
 				is_playing = true;
 				break;
 
+			case sf::Keyboard::Up:
+				settings.is_arrow_up = true;
+				break;
+
+			case sf::Keyboard::Down:
+				settings.is_arrow_down = true;
+				break;
+
 			default:
 				break;
 			}
@@ -105,6 +113,14 @@ void App::PollEvents(sf::Window& window)
 
 			case sf::Keyboard::D:
 				settings.is_right = false;
+				break;
+
+			case sf::Keyboard::Up:
+				settings.is_arrow_up = false;
+				break;
+
+			case sf::Keyboard::Down:
+				settings.is_arrow_down = false;
 				break;
 
 			default:
@@ -143,5 +159,8 @@ void App::PollEvents(sf::Window& window)
 	if (settings.is_right) camera.ProcessKeyboard(Camera::RIGHT, deltaTime);
 	if (settings.is_up)    camera.ProcessKeyboard(Camera::FORWARD, deltaTime);
 	if (settings.is_down)  camera.ProcessKeyboard(Camera::BACKWARD, deltaTime);
+	if (settings.is_arrow_up)    camera.IncVelocity();
+	if (settings.is_arrow_down)  camera.DecVelocity();
+
 	if (settings.is_cam_active) camera.ProcessMouseMovement(mouseDelta);
 }

@@ -4,17 +4,19 @@
 #include "../meshes/IllumiMesh.h"
 #include "../meshes/DynamicMesh.h"
 #include "../lights/PointLightSource.h"
+#include "../entities/LightCube.h"
 
 class LightExhibition : public Scene {
 	//using mesh_type = IllumiMesh;
 	using mesh_type = IllumiMesh;
-	
+
 	std::vector<mesh_type*> objects;
 
 	//**lights
 	PLS pls;		// *point light source
 	//PrLS prls;	// *projector light source
 	//DLS pls;		// *direction light source
+	LightCube lc;
 
 public:
 	LightExhibition();

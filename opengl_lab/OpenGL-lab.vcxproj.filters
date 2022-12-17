@@ -57,13 +57,13 @@
     <ClCompile Include="headers\app.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="headers\scenes\LightExhibition.h">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="src\meshes\IllumiMesh.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\scenes\LightExhibition.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entities\LightCube.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -131,6 +131,12 @@
     <ClInclude Include="headers\meshes\IllumiMesh.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="headers\scenes\LightExhibition.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\entities\LightCube.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="shaders\task3\tt_cube.frag" />
@@ -145,5 +151,7 @@
     <None Include="shaders\mesh\default_l.vert" />
     <None Include="shaders\mesh\default_d.frag" />
     <None Include="shaders\mesh\default_d.vert" />
+    <None Include="shaders\lights\LightCube.vert" />
+    <None Include="shaders\lights\LightCube.frag" />
   </ItemGroup>
 </Project>

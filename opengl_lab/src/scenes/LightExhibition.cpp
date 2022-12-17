@@ -39,7 +39,14 @@ void LightExhibition::PrepareData()
 }
 void LightExhibition::Draw(float time_coefficient, Camera& cam)
 {
+	auto r = 5.f;
+	pls.position.x = r * cos(time_coefficient);
+	pls.position.y = 10.f;
+	pls.position.z = r * sin(time_coefficient);
 
+	//pls.diffuse = glm::vec4(abs(sin(time_coefficient)), abs(sin(time_coefficient)), abs(cos(time_coefficient)), 1.0);
+	//pls.ambient = glm::vec4(pls.diffuse * glm::vec4(glm::vec3(0.5f), 1.0));
+	lc.SetColor(pls.diffuse);
 
 	for (mesh_type* o : objects) {
 		auto _model = glm::mat4(1.0f);
@@ -47,4 +54,9 @@ void LightExhibition::Draw(float time_coefficient, Camera& cam)
 		_model = glm::scale(_model, glm::vec3(0.25f));
 		o->Draw(_model, cam);
 	}
+
+	auto plModel = glm::translate(glm::mat4(1.0f), glm::vec3(pls.position));
+	plModel = glm::scale(plModel, glm::vec3(1.f));
+
+	lc.Draw(plModel, cam);
 }
