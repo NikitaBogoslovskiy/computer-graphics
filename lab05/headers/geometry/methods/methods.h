@@ -7,5 +7,6 @@
 #include "linal.h"
 #include "zbuffer.h"
 #include "light_buffer.h"
+#include "raytracing.h"
 
 #endif // !__METHODS_H__

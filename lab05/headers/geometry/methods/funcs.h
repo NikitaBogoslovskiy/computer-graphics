@@ -33,7 +33,6 @@ inline ImVec4 operator*(const float& lhs, const ImVec4& rhs) { return ImVec4(lhs
 inline bool operator==(const ImVec4& lhs, const ImVec4& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z && lhs.w == rhs.w; }
 inline bool operator!=(const ImVec4& lhs, const ImVec4& rhs) { return !(lhs == rhs); }
 
-
 inline ImU32 GetColorV4U32(const ImVec4& curr_color) {
 	return IM_COL32(curr_color.x, curr_color.y, curr_color.z, curr_color.w);
 }
@@ -104,6 +103,20 @@ inline ImVec3 operator*(const float& lhs, const ImVec3& rhs) { return ImVec3(lhs
 inline ImVec3 operator*(const ImVec3& lhs, const float& rhs) { return rhs * lhs; }
 inline bool operator==(const ImVec3& lhs, const ImVec3& rhs) { return lhs.x == rhs.x && lhs.y == rhs.y && lhs.z == rhs.z; }
 inline ImVec3 operator/(const ImVec3& lhs, const float& rhs) { return ImVec3(lhs.x / rhs, lhs.y / rhs, lhs.z / rhs); }
+inline ImVec3 operator-(const ImVec3& rhs) { return (ImVec3(0, 0, 0) - rhs); }
+
+inline ImVec3 toVec3(const ImVec4& v4) {
+	return { v4.x, v4.y, v4.z };
+}
+
+inline void clamp(ImVec3& v3, float min = 0.f, float max = 1.f) {
+	if (v3.x > max) v3.x = max;
+	else if (v3.x < min) v3.x = min;
+	if (v3.y > max) v3.y = max;
+	else if (v3.y < min) v3.y = min;
+	if (v3.z > max) v3.z = max;
+	else if (v3.z < min) v3.z= min;
+}
 
 inline ImVec3 cross_product(const ImVec3& lhs, const ImVec3& rhs) {
 	return ImVec3(lhs.y * rhs.z - lhs.z * rhs.y, lhs.z * rhs.x - lhs.x * rhs.z, lhs.x * rhs.y - lhs.y * rhs.x);
@@ -111,6 +124,10 @@ inline ImVec3 cross_product(const ImVec3& lhs, const ImVec3& rhs) {
 
 inline float dot_product(const ImVec3& lhs, const ImVec3& rhs) {
 	return lhs.x * rhs.x + lhs.y * rhs.y + lhs.z * rhs.z;
+}
+
+inline ImVec3 by_element_product(const ImVec3& lhs, const ImVec3& rhs) {
+	return { lhs.x * rhs.x, lhs.y * rhs.y, lhs.z * rhs.z };
 }
 
 inline float length(const ImVec3& v3) {
@@ -121,6 +138,16 @@ inline ImVec3 normilize(const ImVec3& v3) {
 	return v3 / length(v3);
 }
 
+/*
+inline ImVec3 normilize(ImVec3&& v3) {
+	return v3 / length(v3);
+}
+*/
+
+inline ImU32 GetColorV3U32(const ImVec3& curr_color) {
+	return IM_COL32(curr_color.x, curr_color.y, curr_color.z, 255.f);
+}
+
 // sometime in future, but now just this
 template<class C>
 static C sum(std::vector<C> vT) {
@@ -129,6 +156,10 @@ static C sum(std::vector<C> vT) {
 		t += vt;
 	}
 	return t;
+}
+
+inline ImVec3 max3(float bound, const ImVec3& v3) {
+	return ImVec3(std::max(bound, v3.x), std::max(bound, v3.y), std::max(bound, v3.z));
 }
 
 #endif
