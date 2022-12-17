@@ -59,7 +59,7 @@ class Raytracing {
 		std::vector<Mesh*>& meshes;
 		std::vector<Sphere*>& spheres;
 	};
-	static constexpr float eps = 0.1f;
+	static constexpr float eps = 0.01f;
 
 	int threadnum = 16;
 	std::vector<std::pair<int, int>> bounds;

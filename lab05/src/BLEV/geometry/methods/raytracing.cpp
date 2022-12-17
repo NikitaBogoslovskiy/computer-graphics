@@ -135,6 +135,7 @@ ImVec3 Raytracing::renderUnit(const ImVec3& sp, const ImVec3& rayDir, objects ob
 	if (!ch) return { 0.f, 0.f, 0.f };
 
 	ImVec3 N = insideMesh ? -minDistToPolygon.second : minDistToPolygon.second;
+	ImVec3& Nout = minDistToPolygon.second;
 	ImVec3 point = sp + rayDir * minDistToPolygon.first;
 	const ImVec4& clr = material->getFaceColor();
 
@@ -149,7 +150,7 @@ ImVec3 Raytracing::renderUnit(const ImVec3& sp, const ImVec3& rayDir, objects ob
 			bool cont = false;
 			for (const Mesh* m : objs.meshes)
 			{
-				if (m->is_intersected_with_light(point + eps * L, L, !insideMesh, Ldist)) {
+				if (m->is_intersected_with_light(point + eps * Nout, L, !insideMesh, Ldist)) {
 					cont = true;
 					break;
 				}
@@ -157,7 +158,7 @@ ImVec3 Raytracing::renderUnit(const ImVec3& sp, const ImVec3& rayDir, objects ob
 			if (cont) continue;
 			for (const Sphere* sph : objs.spheres)
 			{
-				if (sph->is_intersected_with_light(point + eps * L, L, !insideMesh, Ldist)) {
+				if (sph->is_intersected_with_light(point + eps * Nout, L, !insideMesh, Ldist)) {
 					cont = true;
 					break;
 				}
