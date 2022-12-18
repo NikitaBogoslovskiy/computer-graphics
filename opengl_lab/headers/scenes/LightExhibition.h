@@ -24,5 +24,8 @@ public:
 	void LoadModels(const std::vector<inModelData>& inParams);
 	void PrepareData();
 	void Draw(float time_coefficient, Camera& cam) final;
+	void SwitchFlashlight();
+	void SwitchLamp();
+	void SwitchSun();
 };
 

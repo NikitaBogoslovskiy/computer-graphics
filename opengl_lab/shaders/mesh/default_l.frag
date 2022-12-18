@@ -41,6 +41,8 @@ uniform struct PointLight {
     vec4 diffuse;
     vec4 specular;
     vec3 attenuation;
+
+    float intensity;
 } pls;
 
 uniform struct DirLight {
@@ -49,6 +51,8 @@ uniform struct DirLight {
     vec4 ambient;
     vec4 diffuse;
     vec4 specular;
+
+    float intensity;
 } dls;
 
 uniform struct SpotLight {
@@ -61,6 +65,8 @@ uniform struct SpotLight {
     vec4 diffuse;
     vec4 specular;
 	vec3 attenuation;
+
+    float intensity;
 } sps;
 
 vec4 PointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n);
@@ -73,11 +79,12 @@ void main()
 	vec3 viewDir_n = normalize(vert.viewDir);
 
     // well we may iterate over all lightcasters
-	FragColor = (mtl.emission 
-    + PointIllumination(pls, normal_n, viewDir_n)
-    + DirIllumination(dls, normal_n, viewDir_n)
-    + SpotIllumination(sps, normal_n, viewDir_n)
-    ) * texture(texture0, vert.TexCoord);
+	FragColor = mtl.emission 
+        + pls.intensity * PointIllumination(pls, normal_n, viewDir_n)
+        + dls.intensity * DirIllumination(dls, normal_n, viewDir_n)
+        + sps.intensity * SpotIllumination(sps, normal_n, viewDir_n)
+    ;
+    FragColor *= texture(texture0, vert.TexCoord);
 }
 
 vec4 PointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n)
@@ -143,6 +150,8 @@ vec4 SpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n)
     result += sInt * sps.specular * mtl.specular;
 
     // spotlight intensity
+
+    // that thing needs remake with spotExponent and stuff.
     float eps = sps.cutOff - sps.outerCutOff; // lower angle - bigger cos
     float theta = dot(lightDir_n, normalize(-sps.direction)); 
     float intensity = clamp((theta - sps.outerCutOff) / eps, 0.0, 1.0);

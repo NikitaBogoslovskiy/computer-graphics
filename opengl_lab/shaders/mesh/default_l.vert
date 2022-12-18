@@ -40,6 +40,8 @@ uniform struct PointLight {
     vec4 diffuse;
     vec4 specular;
     vec3 attenuation;
+
+	float intensity;
 } pls;
 
 uniform struct SpotLight {
@@ -52,6 +54,8 @@ uniform struct SpotLight {
     vec4 diffuse;
     vec4 specular;
 	vec3 attenuation;
+
+	float intensity;
 } sps;
 
 // actually should pull here lightDirs for the lights but now whatever
@@ -67,6 +71,8 @@ void main()
 	pointParams.lightDir = vec3(pls.position) - vPos3;
 	pointParams.dist = length(pointParams.lightDir);
 
+	// actually its interesting which way is better
+	// if statement based on isOn or just recomputing these everytime
 	spotParams.lightDir = vec3(sps.position) - vPos3;
 	spotParams.dist = length(spotParams.lightDir);
 

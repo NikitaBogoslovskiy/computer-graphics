@@ -53,10 +53,12 @@ void App::PollEvents(sf::Window& window)
 	mouseDelta.y = 0;
 
 	while (window.pollEvent(event)) {
+
 		if (event.type == sf::Event::Closed) {
 			window.close();
 		}
 		else if (event.type == sf::Event::KeyPressed) {
+			LightExhibition* le = dynamic_cast<LightExhibition*>(currScene());
 			switch (event.key.code)
 			{
 			case sf::Keyboard::W:
@@ -84,6 +86,21 @@ void App::PollEvents(sf::Window& window)
 			case sf::Keyboard::Q:
 				is_playing = true;
 				break;
+
+			case sf::Keyboard::F: {
+				if (!le) break;
+				le->SwitchFlashlight();
+			} break;
+
+			case sf::Keyboard::G: {
+				if (!le) break;
+				le->SwitchSun();
+			} break;
+
+			case sf::Keyboard::H: {
+				if (!le) break;
+				le->SwitchLamp();
+			} break;
 
 			case sf::Keyboard::Up:
 				settings.is_arrow_up = true;

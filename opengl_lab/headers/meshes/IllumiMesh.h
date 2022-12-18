@@ -33,6 +33,8 @@ class IllumiMesh : public Mesh {
 		GLuint diffuse;
 		GLuint specular;
 		GLuint attenuation;
+
+		GLuint intensity;
 	} plsLoc;
 
 	struct DirLoc {
@@ -40,7 +42,9 @@ class IllumiMesh : public Mesh {
 		GLuint ambient;
 		GLuint diffuse;
 		GLuint specular;
-	} dirLoc;
+
+		GLuint intensity;
+	} dlsLoc;
 
 	struct SPLoc {
 		GLuint position;
@@ -53,6 +57,8 @@ class IllumiMesh : public Mesh {
 		GLuint diffuse;
 		GLuint specular;
 		GLuint attenuation;
+
+		GLuint intensity;
 	} spsLoc;
 public:
 	IllumiMesh();
