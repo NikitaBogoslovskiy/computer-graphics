@@ -69,9 +69,16 @@ uniform struct SpotLight {
     float intensity;
 } sps;
 
-vec4 PointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n);
-vec4 DirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n);
-vec4 SpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n);
+vec4 PhongPointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n);
+vec4 ToonPointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n);
+
+vec4 PhongDirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n);
+vec4 ToonDirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n);
+
+vec4 PhongSpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n);
+vec4 ToonSpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n);
+
+float ToonCoeff(vec3 normal_n, vec3 lightDir_n);
 
 void main() 
 {
@@ -79,15 +86,29 @@ void main()
 	vec3 viewDir_n = normalize(vert.viewDir);
 
     // well we may iterate over all lightcasters
-	FragColor = mtl.emission 
-        + pls.intensity * PointIllumination(pls, normal_n, viewDir_n)
-        + dls.intensity * DirIllumination(dls, normal_n, viewDir_n)
-        + sps.intensity * SpotIllumination(sps, normal_n, viewDir_n)
+	
+    /*FragColor = mtl.emission * texture(texture0, vert.TexCoord)
+        + pls.intensity * PhongPointIllumination(pls, normal_n, viewDir_n)
+        + dls.intensity * PhongDirIllumination(dls, normal_n, viewDir_n)
+        + sps.intensity * PhongSpotIllumination(sps, normal_n, viewDir_n)
+    ;*/
+    
+
+    FragColor = mtl.emission
+        + pls.intensity * ToonPointIllumination(pls, normal_n, viewDir_n)
+        + dls.intensity * ToonDirIllumination(dls, normal_n, viewDir_n)
+        + sps.intensity * ToonSpotIllumination(sps, normal_n, viewDir_n)
     ;
-    FragColor *= texture(texture0, vert.TexCoord);
 }
 
-vec4 PointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n)
+float ToonCoeff(vec3 normal_n, vec3 lightDir_n) {
+    float diff = 0.2 + max (0.0, dot (normal_n, lightDir_n));
+    return  0.3 + 0.7 * float(diff >= 0.4) + 0.3 * float(diff >= 0.7);
+}
+
+// POINT ILLUMINATION ====================================================
+
+vec4 PhongPointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n)
 {
 	vec3 lightDir_n = normalize(pointParams.lightDir);
 
@@ -107,10 +128,18 @@ vec4 PointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n)
 	float RdotVpow = pow(max(0.0, dot(viewDir_n, reflectDir)), mtl.shininess);
 	result += mtl.specular * pls.specular * RdotVpow;
 
-	return result * att;
+	return result * att * texture(texture0, vert.TexCoord);
 }
 
-vec4 DirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n)
+vec4 ToonPointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n)
+{
+	vec3 lightDir_n = normalize(pointParams.lightDir);
+    return  mtl.diffuse * pls.diffuse * ToonCoeff(normal_n, lightDir_n);
+}
+
+// DIRECTED ILLUMINATION ====================================================
+
+vec4 PhongDirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n)
 {
     vec3 lightDir_n = normalize(-dls.direction);
 
@@ -126,10 +155,18 @@ vec4 DirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n)
     float sInt = pow(max(0.0, dot(viewDir_n, reflectDir)), mtl.shininess);
 	result += sInt * dls.specular * mtl.specular;
     
-    return result;
+    return result * texture(texture0, vert.TexCoord);
 }
 
-vec4 SpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n)
+vec4 ToonDirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n)
+{
+    vec3 lightDir_n = normalize(-dls.direction);
+    return  mtl.diffuse * pls.diffuse * ToonCoeff(normal_n, lightDir_n);
+}
+
+// SPOT ILLUMINATION ====================================================
+
+vec4 PhongSpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n)
 {
     vec3 lightDir_n = normalize(spotParams.lightDir);
 
@@ -156,5 +193,19 @@ vec4 SpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n)
     float theta = dot(lightDir_n, normalize(-sps.direction)); 
     float intensity = clamp((theta - sps.outerCutOff) / eps, 0.0, 1.0);
 
-    return result * att * intensity;
+    return result * att * intensity * texture(texture0, vert.TexCoord);
 }   
+
+vec4 ToonSpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n)
+{
+    vec3 lightDir_n = normalize(spotParams.lightDir);
+
+    // that thing needs remake with spotExponent and stuff.
+    float eps = sps.cutOff - sps.outerCutOff; // lower angle - bigger cos
+    float theta = dot(lightDir_n, normalize(-sps.direction)); 
+    //float intensity = clamp((theta - sps.outerCutOff) / eps, 0.0, 1.0);
+
+    float intensity = float(theta >= sps.cutOff);
+
+    return  mtl.diffuse * pls.diffuse * intensity * ToonCoeff(normal_n, lightDir_n);
+}
