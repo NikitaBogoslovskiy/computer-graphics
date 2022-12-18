@@ -24,10 +24,10 @@ void IllumiMesh::ChangeShaders(const char* vertex_path, const char* fragment_pat
 	printf("\033[0;33m====  IllumiMesh::ChangeShaders ====\033[0m\n");
 	Mesh::ChangeShaders(vertex_path, fragment_path);
 	// retrieve the matrix uniform locations
-	trLoc.model = glGetUniformLocation(Program, "model");
-	trLoc.view = glGetUniformLocation(Program, "view");
-	trLoc.projection = glGetUniformLocation(Program, "projection");
-	trLoc.viewPos = glGetUniformLocation(Program, "viewPos");
+	trLoc.model = glGetUniformLocation(Program, "transform.model");
+	trLoc.view = glGetUniformLocation(Program, "transform.view");
+	trLoc.projection = glGetUniformLocation(Program, "transform.projection");
+	trLoc.viewPos = glGetUniformLocation(Program, "transform.viewPos");
 
 	if (trLoc.model == -1) printf("\033[0;31mcould not bind attrib model\033[0m\n");
 	if (trLoc.view == -1) printf("\033[0;31mcould not bind attrib view\033[0m\n");

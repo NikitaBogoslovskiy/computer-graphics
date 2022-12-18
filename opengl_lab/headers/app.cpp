@@ -21,6 +21,7 @@ void App::Init()
 
 	auto le = new LightExhibition();
 	le->LoadModels({ {"tree.obj", 0, 0, "vodica.jpg"} });
+	//le->LoadModels({ {"krosh.obj", 0, 0, "krosh.png"} });
 	le->PrepareData();
 	scenes.push_back(le);
 	cur_scene = 0;

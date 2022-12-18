@@ -1,46 +1,57 @@
 #version 330 core
 
+// IN ================
+
 in Vertex {
-	vec3 FragPos;
 	vec3 Normal; 
 	vec2 TexCoord; 
 	vec3 viewDir;
 } vert;
 
+in PointParams {
+	vec3 lightDir;
+	float dist;
+} pointParams;
+
+in SpotParams {
+	vec3 lightDir;
+	float dist;
+} spotParams;
+
+// OUT ===============
+
 out vec4 FragColor;
 
-//uniform vec3 viewPos;
+// UNIFORMS ===============
+
 uniform sampler2D texture0;
 
-struct Material {
+uniform struct Material {
     vec4 ambient;
 	vec4 diffuse;
 	vec4 specular;
 	vec4 emission;
 	float shininess;
-};
-uniform Material mtl;
+} mtl;
 
-struct PointLight {
+uniform struct PointLight {
     vec4 position;
 
 	vec4 ambient;
     vec4 diffuse;
     vec4 specular;
     vec3 attenuation;
-};
-uniform PointLight pls;
+} pls;
 
-struct DirLight {
+uniform struct DirLight {
     vec3 direction;
 	
     vec4 ambient;
     vec4 diffuse;
     vec4 specular;
-};
-uniform DirLight dls;
+} dls;
 
-struct SpotLight {
+uniform struct SpotLight {
     vec3 position;
     vec3 direction;
     float cutOff;       // COSINE OF INNER CONE
@@ -50,8 +61,7 @@ struct SpotLight {
     vec4 diffuse;
     vec4 specular;
 	vec3 attenuation;
-};
-uniform SpotLight sps;
+} sps;
 
 vec4 PointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n);
 vec4 DirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n);
@@ -61,7 +71,6 @@ void main()
 {
 	vec3 normal_n = normalize(vert.Normal);
 	vec3 viewDir_n = normalize(vert.viewDir);
-    //vec3 viewDir_n = normalize(viewPos - vert.FragPos); // desperate attempts 
 
     // well we may iterate over all lightcasters
 	FragColor = (mtl.emission 
@@ -73,11 +82,11 @@ void main()
 
 vec4 PointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n)
 {
-	vec3 lightDir_n = vec3(pls.position) - vert.FragPos;
-	float dist = length(lightDir_n);
-	lightDir_n = normalize(lightDir_n);
+	vec3 lightDir_n = normalize(pointParams.lightDir);
 
-	float att = 1.0 / (pls.attenuation[0] + pls.attenuation[1] * dist + pls.attenuation[2] * dist * dist);
+	float att = 1.0 / (pls.attenuation[0] 
+    + pls.attenuation[1] * pointParams.dist 
+    + pls.attenuation[2] * pointParams.dist * pointParams.dist);
 	
 	// ambient
 	vec4 result = mtl.ambient * pls.ambient;
@@ -115,10 +124,11 @@ vec4 DirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n)
 
 vec4 SpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n)
 {
-    vec3 lightDir_n = sps.position - vert.FragPos;
-    float dist = length(lightDir_n);
-    lightDir_n = normalize(lightDir_n);
-    float att = 1.0 / (sps.attenuation[0] + sps.attenuation[1] * dist + sps.attenuation[2] * dist * dist);
+    vec3 lightDir_n = normalize(spotParams.lightDir);
+
+    float att = 1.0 / (sps.attenuation[0] 
+    + sps.attenuation[1] * spotParams.dist 
+    + sps.attenuation[2] * spotParams.dist * spotParams.dist);
 
     // ambient
     vec4 result = sps.ambient * mtl.ambient;
