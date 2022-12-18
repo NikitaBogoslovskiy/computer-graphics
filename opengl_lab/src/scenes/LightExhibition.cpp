@@ -47,12 +47,6 @@ void LightExhibition::Draw(float time_coefficient, Camera& cam)
 	pls.position.y = 2.f; //change it to something cool
 	pls.position.z = r * sin(time_coefficient);
 
-	dls.direction = glm::normalize(glm::vec3(r * cos(time_coefficient), 2.f, r * sin(time_coefficient)));
-	//	printf("%f %f %f\n", dls.direction.x, dls.direction.y, dls.direction.z);
-	/*printf("==>\n%f %f %f\n%f %f %f\n%f %f %f\n\n", dls.ambient.x, dls.ambient.y, dls.ambient.z,
-		dls.diffuse.x, dls.diffuse.y, dls.diffuse.z,
-		dls.specular.x, dls.specular.y, dls.specular.z);*/
-
 	sps.position = cam.GetPosition();
 	sps.direction = cam.GetDirection();
 

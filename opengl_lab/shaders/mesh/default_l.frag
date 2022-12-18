@@ -55,7 +55,7 @@ uniform SpotLight sps;
 
 vec4 PointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n);
 vec4 DirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n);
-vec4 CalcSpotLight(SpotLight sps, vec3 normal_n, vec3 viewDir_n);
+vec4 SpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n);
 
 void main() 
 {
@@ -67,7 +67,7 @@ void main()
 	FragColor = (mtl.emission 
     + PointIllumination(pls, normal_n, viewDir_n)
     + DirIllumination(dls, normal_n, viewDir_n)
-    +  CalcSpotLight(sps, normal_n, viewDir_n)
+    + SpotIllumination(sps, normal_n, viewDir_n)
     ) * texture(texture0, vert.TexCoord);
 }
 
@@ -113,7 +113,7 @@ vec4 DirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n)
     return result;
 }
 
-vec4 CalcSpotLight(SpotLight sps, vec3 normal_n, vec3 viewDir_n)
+vec4 SpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n)
 {
     vec3 lightDir_n = sps.position - vert.FragPos;
     float dist = length(lightDir_n);

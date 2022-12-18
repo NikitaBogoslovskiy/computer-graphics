@@ -19,7 +19,7 @@ using uint = unsigned int;
 struct p3ui32 {
 	using T = uint;
 	T e1, e2, e3;
-	
+
 	T& x() { return e1; }
 	T& y() { return e2; }
 	T& z() { return e3; }
@@ -80,10 +80,10 @@ static bool operator!=(const coord& lhs, const coord& rhs) {
 }
 
 struct Material {
-	glm::vec4 ambient = glm::vec4(0.0f, 0.0f, 0.0f, 1.f);
+	glm::vec4 ambient = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
 	glm::vec4 diffuse = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
 	glm::vec4 specular = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
-	glm::vec4 emission = glm::vec4(0.0f, 0.0f, 0.0f, 1.f);
+	glm::vec4 emission = glm::vec4(0.1f, 0.1f, 0.1f, 1.f);
 	float shininess = 67.f;
 };
 

@@ -60,6 +60,18 @@ void IllumiMesh::ChangeShaders(const char* vertex_path, const char* fragment_pat
 	if (plsLoc.specular == -1) printf("\033[0;31mcould not bind attrib pls.specular\033[0m\n");
 	if (plsLoc.attenuation == -1) printf("\033[0;31mcould not bind attrib pls.attenuation\033[0m\n");
 
+	// === directional light
+
+	dirLoc.direction = glGetUniformLocation(Program, "dls.direction");
+	dirLoc.ambient = glGetUniformLocation(Program, "pls.ambient");
+	dirLoc.diffuse = glGetUniformLocation(Program, "pls.diffuse");
+	dirLoc.specular = glGetUniformLocation(Program, "pls.specular");
+
+	if (dirLoc.direction == -1) printf("\033[0;31mcould not bind attrib dls.direction\033[0m\n");
+	if (dirLoc.ambient == -1) printf("\033[0;31mcould not bind attrib dls.ambient\033[0m\n");
+	if (dirLoc.diffuse == -1) printf("\033[0;31mcould not bind attrib dls.diffuse\033[0m\n");
+	if (dirLoc.specular == -1) printf("\033[0;31mcould not bind attrib dls.specular\033[0m\n");
+
 	// === spot light
 
 	spsLoc.position = glGetUniformLocation(Program, "sps.position");
