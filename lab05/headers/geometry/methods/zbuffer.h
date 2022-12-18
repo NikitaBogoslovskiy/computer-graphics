@@ -8,25 +8,6 @@
 #include <array>
 #include <iostream>
 
-struct PointDepth
-{
-	int x;
-	float depth;
-	//bool isIncident;
-	bool operator<(const PointDepth& rhs) const
-	{
-		return x < rhs.x;
-	}
-};
-using ColorMatrix = std::vector<std::vector<ImVec4>>;
-using DepthMatrix = std::vector<std::vector<float>>;
-using Region = std::unordered_map<int, std::array<PointDepth, 2>>;
-
-struct PDUV : PointDepth {
-	ImVec2 uv;
-};
-
-using RegionUV = std::unordered_map<int, PDUV[2]>;
 
 class ZBuffer
 {

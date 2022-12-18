@@ -1133,6 +1133,22 @@ void BLEV::Interface::Menu::ShowAddingMenu()
 			_data.torch = new Torch();
 			_data.meshes.push_back(_data.torch);
 		}
+		if (ImGui::MenuItem("PointLight (RT)")) {
+			_data.rt_entities.push_back(new RTPointLight(ImVec3(0, 150, 0), 20));
+			//_data.rt_entities.push_back(new RTPointLight(ImVec3(0, -100, 0), 40));
+			//_data.rt_entities.push_back(new RTPointLight(ImVec3(-100, 0, 0), 40));
+			//_data.rt_entities.push_back(new RTPointLight(ImVec3(100, 0, 0), 40));
+		}
+		if (ImGui::MenuItem("Sphere (RT)")) {
+			auto s = new RTSphere(ImVec3(0, 50, 0), 50);
+			s->setSurfaceColor(ImVec4(0, 255, 0, 255));
+			_data.rt_entities.push_back(s);
+		}
+		if (ImGui::MenuItem("Cube (RT)")) {
+			auto s = new RTCube(ImVec3(0, 40, 0), 80);
+			s->setSurfaceColor(ImVec4(0, 255, 0, 255));
+			_data.rt_entities.push_back(s);
+		}
 		ImGui::EndMenu();
 	}
 }
@@ -1840,6 +1856,23 @@ void BLEV::Interface::Canvas::DrawObjects() {
 		}
 		lbuf.draw(draw_list, p[0]);
 	}
+	else if (_data.chosenView == ViewMode::RayTracing)
+	{
+		if (needShift) {
+			rtbuf.setOffset(scrolling);
+			needShift = false;
+		}
+		if (needResize) {
+			rtbuf.resize(size.x, size.y);
+			needResize = false;
+		}
+		if (needRefresh) {
+			rtbuf.clear();
+			rtbuf.fillBuffers(_data.rt_entities, main_camera.direction(), main_camera.up(), main_camera.eye(), main_camera.target(), size);
+			needRefresh = false;
+		}
+		rtbuf.draw(draw_list, p[0]);
+	}
 
 	if (_data.rotate_axis != nullptr)
 		_data.rotate_axis->draw(draw_list, origin, vp);
@@ -2079,6 +2112,7 @@ void BLEV::Interface::Canvas::ShowContextMenu()
 				_data.meshes.clear();
 				_data.horizons.clear();
 				_data.chosen_horizons.clear();
+				_data.rt_entities.clear();
 
 				_data.torch = nullptr;
 				delete _data.rotate_axis;

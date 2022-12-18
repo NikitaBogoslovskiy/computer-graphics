@@ -151,6 +151,7 @@ namespace BLEV {
 			size_t oldSize = 0;
 			ZBuffer zbuf;
 			LightBuffer lbuf;
+			RTBuffer rtbuf;
 
 			ImDrawList* draw_list;
 

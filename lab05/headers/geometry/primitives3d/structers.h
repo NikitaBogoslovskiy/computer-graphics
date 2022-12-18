@@ -161,4 +161,31 @@ struct CringeImage {
     }
 };
 
+struct Ray
+{
+    ImVec3 origin;
+    ImVec3 direction;
+};
+
+struct PointDepth
+{
+    int x;
+    float depth;
+    //bool isIncident;
+    bool operator<(const PointDepth& rhs) const
+    {
+        return x < rhs.x;
+    }
+};
+using ColorMatrix = std::vector<std::vector<ImVec4>>;
+using DepthMatrix = std::vector<std::vector<float>>;
+using Region = std::unordered_map<int, std::array<PointDepth, 2>>;
+
+struct PDUV : PointDepth {
+    ImVec2 uv;
+};
+
+using RegionUV = std::unordered_map<int, PDUV[2]>;
+
+
 //typedef Eigen::Product<Eigen::Matrix4f, Eigen::Matrix4f, 0> Matrix4fProduct;

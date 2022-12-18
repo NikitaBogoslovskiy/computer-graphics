@@ -20,6 +20,8 @@ namespace BLEV {
 		std::vector<Mesh*> meshes;
 		std::set<Mesh*> chosen_meshes;
 
+		std::vector<RTEntity*> rt_entities;
+
 		std::vector<FloatingHorizon*> horizons;
 		std::set<FloatingHorizon*> chosen_horizons;
 
@@ -42,8 +44,8 @@ namespace BLEV {
 		const uint8_t classificationTypeSize = 3;
 		const char* classificationType[3]{ "Point and Edge", "Point and Convex Polygon", "Point and Non-convex Polygon" };
 
-		static const uint8_t viewModesSize = 3;
-		const char* viewModes[viewModesSize]{ "Wireframe", "Flat Color", "Gouraud Shading" };
+		static const uint8_t viewModesSize = 4;
+		const char* viewModes[viewModesSize]{ "Wireframe", "Flat Color", "Gouraud Shading", "Ray Tracing" };
 
 		const uint8_t cameraModesSize = 2;
 		const char* cameraModes[2]{ "Perspective", "Axonometric" };

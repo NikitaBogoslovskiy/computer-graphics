@@ -29,7 +29,8 @@ namespace BLEV {
 	enum ViewMode {
 		Wireframe,
 		FlatColor,
-		GouraudShading
+		GouraudShading,
+		RayTracing
 	};
 }
 

@@ -9,5 +9,8 @@
 #include "mesh_graph.h"
 #include "torch.h"
 #include "floating_horizon.h"
+#include "rtsphere.h"
+#include "rt_point_light.h"
+#include "rtcube.h"
 
 #endif // !__PRIMITIVES_3D_H__
