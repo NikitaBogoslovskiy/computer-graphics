@@ -39,12 +39,16 @@ void IllumiMesh::ChangeShaders(const char* vertex_path, const char* fragment_pat
 	matLoc.specular = glGetUniformLocation(Program, "mtl.specular");
 	matLoc.emission = glGetUniformLocation(Program, "mtl.emission");
 	matLoc.shininess = glGetUniformLocation(Program, "mtl.shininess");
+	matLoc.roughness = glGetUniformLocation(Program, "mtl.roughness");
+	matLoc.reflectivity = glGetUniformLocation(Program, "mtl.reflectivity");
 
 	if (matLoc.ambient == -1) printf("\033[0;31mcould not bind attrib mtl.ambient\033[0m\n");
 	if (matLoc.diffuse == -1) printf("\033[0;31mcould not bind attrib mtl.diffuse\033[0m\n");
 	if (matLoc.specular == -1) printf("\033[0;31mcould not bind attrib mtl.specular\033[0m\n");
 	if (matLoc.emission == -1) printf("\033[0;31mcould not bind attrib mtl.emission\033[0m\n");
 	if (matLoc.shininess == -1) printf("\033[0;31mcould not bind attrib mtl.shininess\033[0m\n");
+	if (matLoc.roughness == -1) printf("\033[0;31mcould not bind attrib mtl.roughness\033[0m\n");
+	if (matLoc.reflectivity == -1) printf("\033[0;31mcould not bind attrib mtl.reflectivity\033[0m\n");
 
 	// point light ================================================================================= 
 
@@ -118,6 +122,8 @@ void IllumiMesh::UpdateUniforms(const glm::mat4& model, Camera& cam)
 	glUniform4fv(matLoc.specular, 1, glm::value_ptr(material.specular));
 	glUniform4fv(matLoc.emission, 1, glm::value_ptr(material.emission));
 	glUniform1f(matLoc.shininess, material.shininess);
+	glUniform1f(matLoc.roughness, material.roughness);
+	glUniform1f(matLoc.reflectivity, material.reflectivity);
 
 	if (pls != nullptr) {
 		glUniform4fv(plsLoc.position, 1, glm::value_ptr(pls->position));

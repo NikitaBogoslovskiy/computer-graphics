@@ -25,6 +25,8 @@ class IllumiMesh : public Mesh {
 		GLuint specular;
 		GLuint emission;
 		GLuint shininess;
+		GLuint roughness;
+		GLuint reflectivity;
 	} matLoc;
 
 	struct PLSLoc {

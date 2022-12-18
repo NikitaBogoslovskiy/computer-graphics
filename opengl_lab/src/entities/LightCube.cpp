@@ -86,8 +86,6 @@ void LightCube::InitVO()
 
 	glBindBuffer(GL_ARRAY_BUFFER, 0);
 	glBindVertexArray(0);
-
-	//  glEnableVertexAttribArray(0);
 }
 
 void LightCube::ReleaseVO()

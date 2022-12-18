@@ -17,11 +17,13 @@ out Vertex {
 out PointParams {
 	vec3 lightDir;
 	float dist;
+	vec3 lvBisector;
 } pointParams;
 
 out SpotParams {
 	vec3 lightDir;
 	float dist;
+	vec3 lvBisector;
 } spotParams;
 
 // UNIFORMS ===============
@@ -64,17 +66,17 @@ void main()
 	vec4 vPos4 = transform.model * vec4(coord, 1.0);
 	vec3 vPos3 = vec3(vPos4);
 
-	vert.Normal = mat3(transpose(inverse(transform.model))) * normal;
+	vert.Normal = mat3(transpose(inverse(transform.model))) * normal; // todo pull normal transform matrix formation to cpu
 	vert.TexCoord = texCoord;
-	vert.viewDir = transform.viewPos - vPos3;
+	vert.viewDir = normalize(transform.viewPos - vPos3);
 	
 	pointParams.lightDir = vec3(pls.position) - vPos3;
 	pointParams.dist = length(pointParams.lightDir);
+	pointParams.lvBisector = normalize(pointParams.lightDir) + vert.viewDir;
 
-	// actually its interesting which way is better
-	// if statement based on isOn or just recomputing these everytime
 	spotParams.lightDir = vec3(sps.position) - vPos3;
 	spotParams.dist = length(spotParams.lightDir);
+	spotParams.lvBisector = normalize(spotParams.lightDir) + vert.viewDir;
 
 	gl_Position = transform.projection * transform.view * vPos4;
 }

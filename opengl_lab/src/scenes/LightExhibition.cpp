@@ -50,9 +50,9 @@ void LightExhibition::Draw(float time_coefficient, Camera& cam)
 		pls.position.z = r * sin(time_coefficient);
 
 		// cool colors.
-		pls.diffuse = glm::vec4(abs(sin(time_coefficient)), abs(cos(time_coefficient)), abs(cos(time_coefficient)), 1.0);
-		pls.ambient = glm::vec4(pls.diffuse * glm::vec4(glm::vec3(0.5f), 1.0));
-		lc.SetColor(pls.diffuse);
+		//pls.diffuse = glm::vec4(abs(sin(time_coefficient)), abs(cos(time_coefficient)), abs(cos(time_coefficient)), 1.0);
+		//pls.ambient = glm::vec4(pls.diffuse * glm::vec4(glm::vec3(0.5f), 1.0));
+		//lc.SetColor(pls.diffuse);
 
 		lc.Draw(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pls.position)),
 			glm::vec3(1.f)

@@ -85,6 +85,8 @@ struct Material {
 	glm::vec4 specular = glm::vec4(0.5f, 0.5f, 0.5f, 1.f);
 	glm::vec4 emission = glm::vec4(0.1f, 0.1f, 0.1f, 1.f);
 	float shininess = 67.f;
+	float roughness = 0.01;
+	float reflectivity = 0.8;
 };
 
 struct inModelData {
