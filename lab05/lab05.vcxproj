@@ -218,6 +218,7 @@
     <ClInclude Include="headers\cringetracer\Materials\MtlLib.h" />
     <ClInclude Include="headers\cringetracer\Ray.h" />
     <ClInclude Include="headers\cringetracer\Scene.h" />
+    <ClInclude Include="headers\cringetracer\Structs.h" />
     <ClInclude Include="headers\geometry\methods\blev_math.h" />
     <ClInclude Include="headers\cringetracer\Cringetracer.h" />
     <ClInclude Include="headers\geometry\primitives3d\floating_horizon.h" />

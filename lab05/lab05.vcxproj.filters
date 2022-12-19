@@ -338,6 +338,9 @@
     <ClInclude Include="headers\cringetracer\GeometricBodies\LightSphere.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="headers\cringetracer\Structs.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\dependencies\Eigen\Eigen\Cholesky">

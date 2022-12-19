@@ -3,8 +3,8 @@
 
 class PointLight : public Light
 {
-	HVec<double> _att{ 0.6, 0.00007, 0.0000014 };
-
+	//HVec<double> _att{ 0.6, 0.00007, 0.0000014 };
+	HVec<double> _att{ 1.0,	0.0014,	0.000007 };
 public:
 
 	inline const HVec<double>& GetAttenuation() { return _att; }

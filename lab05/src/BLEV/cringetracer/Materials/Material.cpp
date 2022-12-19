@@ -2,7 +2,7 @@
 #include "../headers/cringetracer/GeometricBodies/Plane.h"
 #include "../headers/cringetracer/GeometricBodies/Box.h"
 #include "../headers/cringetracer/GeometricBodies/LightSphere.h"
-
+#include "../headers/cringetracer/Lights/PointLight.h"
 Material::Material() {}
 
 Material::Material(const HVec<double>& ambient, const HVec<double>& diffuse, const HVec<double>& specular, const double shininess,
@@ -23,16 +23,17 @@ HVec<double> Material::ComputeColor(const std::vector<GeometricBody*>& bodies, c
 
 	return Reflectivity * reflection + (1 - Reflectivity) * diffuse + specular;*/
 
-	HVec<double> ambient = ComputeAmbient(lights);
+	HVec<double> ambient = ComputeAmbient(closestInt, lights);
 	HVec<double> diffuse = ComputeDiffuse(bodies, lights, closestBody, closestInt, closestLocalNormal, this->Diffuse);
 	HVec<double> reflection = ComputeReflection(bodies, lights, cameraRay, closestBody, closestInt, closestLocalNormal, REFLECTIONS_COUNT);
 	HVec<double> specular = ComputeSpecular(bodies, lights, cameraRay, closestInt, closestLocalNormal);
 	HVec<double> transparency = ComputeTransparency(bodies, lights, cameraRay, closestBody, closestInt, closestLocalNormal, REFLECTIONS_COUNT);
 
-	return transparency * (1.0 - Opacity)
+	/*return transparency * (1.0 - Opacity)
 		+ (Reflectivity * reflection + (1.0 - Reflectivity) * diffuse) * (1.0 - (1.0 - Opacity))
 		+ specular
-		+ ambient;
+		+ ambient;*/
+	return ambient + diffuse + specular + Reflectivity * reflection + (1.0 - Opacity) * transparency;
 }
 
 bool Material::CastRay(const Ray<double>& ray,
@@ -67,18 +68,30 @@ HVec<double> Material::ComputeDiffuse(const std::vector<GeometricBody*>& bodies,
 	for (auto& light : lights) {
 		if (!light->Show) continue;
 		if (!(light->ComputeLighting(closestInt, closestLocalNormal, closestBody, bodies, outColor, outIntensity))) continue;
-		diffuse += light->diffuse * light->intensity * outIntensity;
+
+		double lightDist = (light->position - closestInt).len();
+		auto pl = dynamic_cast<PointLight*>(light);
+		double att = (pl == nullptr) ? 1.0 : 1.0 / (pl->GetAttenuation()[0] + pl->GetAttenuation()[1] * lightDist + pl->GetAttenuation()[2] * lightDist * lightDist);
+		//double att = 1.0;
+		diffuse += att * light->diffuse * light->intensity * outIntensity;
 	}
 	return diffuse * closestLocalColor;
 }
 
-HVec<double> Material::ComputeAmbient(const std::vector<Light*>& lights)
+HVec<double> Material::ComputeAmbient(const HVec<double>& closestInt, const std::vector<Light*>& lights)
 {
 	HVec<double> ambient;
 	for (auto& light : lights) {
 		if (!light->Show) continue;
-		ambient += light->ambient * light->intensity;
+
+		//double lightDist = (light->position - closestInt).len();
+		//auto pl = dynamic_cast<PointLight*>(light);
+		//double att = (pl == nullptr) ? 1.0 : 1.0 / (pl->GetAttenuation()[0] + pl->GetAttenuation()[1] * lightDist + pl->GetAttenuation()[2] * lightDist * lightDist);
+		double att = 1.0;
+
+		ambient += att * light->ambient * light->intensity;
 	}
+	//printf("%lf %lf %lf\n", ambient.x, ambient.y, ambient.z );
 	return ambient * Ambient;
 }
 
@@ -120,7 +133,11 @@ HVec<double> Material::ComputeSpecular(const std::vector<GeometricBody*>& bodies
 		double cosineRV = std::max(HVec<double>::dot(rDir, vDir), 0.0);
 		double specIntensity = Reflectivity * std::pow(cosineRV, Shininess);
 
-		specular += light->intensity * light->specular * specIntensity;
+		auto pl = dynamic_cast<PointLight*>(light);
+		double att = (pl == nullptr) ? 1.0 : 1.0 / (pl->GetAttenuation()[0] + pl->GetAttenuation()[1] * lightDist + pl->GetAttenuation()[2] * lightDist * lightDist);
+
+		//double att = 1.0;
+		specular += att * light->intensity * light->specular * specIntensity;
 	}
 
 	return specular * this->Specular;
@@ -201,15 +218,15 @@ HVec<double> Material::ComputeTransparency(const std::vector<GeometricBody*>& bo
 	GeometricBody* targetBody = nullptr;
 	if (!CastRay(finalRay, bodies, closestBody, targetBody, fPoi, fNormal, fColor)) return HVec<double>();
 
+	return targetBody->HasMaterial() ?
+		targetBody->Mtl->ComputeColor(bodies, lights, finalRay, targetBody, fPoi, fNormal, REFLECTIONS_COUNT)
+		: (dynamic_cast<LightSphere*>(targetBody) == nullptr) ?
+		Material::ComputeDiffuse(bodies, lights, targetBody, fPoi, fNormal, targetBody->GetColor())
+		: targetBody->GetColor();
+	;
 	//return targetBody->HasMaterial() ? // 4) LIGHT_SOURCE is reflected in transparent objects
 	//	targetBody->Mtl->ComputeColor(bodies, lights, finalRay, targetBody, fPoi, fNormal, REFLECTIONS_COUNT)
-	//	: (dynamic_cast<LightSphere*>(targetBody) == nullptr) ?
-	//	Material::ComputeDiffuse(bodies, lights, targetBody, fPoi, fNormal, targetBody->GetColor())
-	//	: targetBody->GetColor();
+	//	:
+	//	Material::ComputeDiffuse(bodies, lights, targetBody, fPoi, fNormal, targetBody->GetColor());
 	//;
-	return targetBody->HasMaterial() ? // 4) LIGHT_SOURCE is reflected in transparent objects
-		targetBody->Mtl->ComputeColor(bodies, lights, finalRay, targetBody, fPoi, fNormal, REFLECTIONS_COUNT)
-		:
-		Material::ComputeDiffuse(bodies, lights, targetBody, fPoi, fNormal, targetBody->GetColor());
-	;
 }

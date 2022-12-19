@@ -45,7 +45,7 @@ public:
 		const GeometricBody* closestBody, const HVec<double>& closestInt, const HVec<double>& closestLocalNormal,
 		size_t REFLECTIONS_COUNT);
 
-	HVec<double> ComputeAmbient(const std::vector<Light*>& lights);
+	HVec<double> ComputeAmbient(const HVec<double>& closestInt, const std::vector<Light*>& lights);
 
 	static HVec<double> ComputeDiffuse(const std::vector<GeometricBody*>& bodies, const std::vector<Light*>& lights,
 		const GeometricBody* closestBody,
