@@ -16,6 +16,7 @@ class IllumiMesh : public Mesh {
 		GLuint model;
 		GLuint view;
 		GLuint projection;
+		GLuint normalTr;
 		GLuint viewPos;
 	} trLoc;
 

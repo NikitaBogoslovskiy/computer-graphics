@@ -27,11 +27,13 @@ void IllumiMesh::ChangeShaders(const char* vertex_path, const char* fragment_pat
 	trLoc.model = glGetUniformLocation(Program, "transform.model");
 	trLoc.view = glGetUniformLocation(Program, "transform.view");
 	trLoc.projection = glGetUniformLocation(Program, "transform.projection");
+	trLoc.normalTr = glGetUniformLocation(Program, "transform.normalTr");
 	trLoc.viewPos = glGetUniformLocation(Program, "transform.viewPos");
 
 	if (trLoc.model == -1) printf("\033[0;31mcould not bind attrib model\033[0m\n");
 	if (trLoc.view == -1) printf("\033[0;31mcould not bind attrib view\033[0m\n");
 	if (trLoc.projection == -1) printf("\033[0;31mcould not bind attrib projection\033[0m\n");
+	if (trLoc.normalTr == -1) printf("\033[0;31mcould not bind attrib normalTr\033[0m\n");
 	if (trLoc.viewPos == -1) printf("\033[0;31mcould not bind attrib viewPos\033[0m\n");
 
 	matLoc.ambient = glGetUniformLocation(Program, "mtl.ambient");
@@ -109,12 +111,15 @@ void IllumiMesh::ChangeShaders(const char* vertex_path, const char* fragment_pat
 
 void IllumiMesh::UpdateUniforms(const glm::mat4& model, Camera& cam)
 {
+	auto view = cam.GetViewMatrix();
 	auto proj = cam.GetProjectionMatrix();
+	auto normalTr = glm::transpose(glm::inverse(glm::mat3(model)));
 	Mesh::UpdateUniforms(model, cam);
 
 	glUniformMatrix4fv(trLoc.model, 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(trLoc.view, 1, GL_FALSE, glm::value_ptr(cam.GetViewMatrix()));
+	glUniformMatrix4fv(trLoc.view, 1, GL_FALSE, glm::value_ptr(view));
 	glUniformMatrix4fv(trLoc.projection, 1, GL_FALSE, glm::value_ptr(proj));
+	glUniformMatrix3fv(trLoc.normalTr, 1, GL_FALSE, glm::value_ptr(normalTr));
 	glUniform3fv(trLoc.viewPos, 1, glm::value_ptr(cam.GetPosition()));
 
 	glUniform4fv(matLoc.ambient, 1, glm::value_ptr(material.ambient));

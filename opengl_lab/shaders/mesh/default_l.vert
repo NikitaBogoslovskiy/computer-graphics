@@ -32,6 +32,7 @@ uniform struct Transform {
 	mat4 model;
 	mat4 view;
 	mat4 projection;
+	mat3 normalTr;
 	vec3 viewPos; // global coords
 } transform;
 
@@ -66,7 +67,7 @@ void main()
 	vec4 vPos4 = transform.model * vec4(coord, 1.0);
 	vec3 vPos3 = vec3(vPos4);
 
-	vert.Normal = mat3(transpose(inverse(transform.model))) * normal; // todo pull normal transform matrix formation to cpu
+	vert.Normal = transform.normalTr * normal;
 	vert.TexCoord = texCoord;
 	vert.viewDir = normalize(transform.viewPos - vPos3);
 	
