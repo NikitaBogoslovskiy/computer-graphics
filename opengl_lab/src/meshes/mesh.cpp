@@ -191,7 +191,7 @@ void Mesh::Load(const char* path)
 			vt.push_back(_vt);
 		}
 		else if (type == "vn") {
-			coord _vn;
+			normal _vn;
 			if (!(iss >> _vn.x >> _vn.y >> _vn.z)) {
 				printf("File can't be read by our simple parser\n");
 				return;
@@ -207,27 +207,35 @@ void Mesh::Load(const char* path)
 				iss2 >> inds.v() >> slash >> inds.vt() >> slash >> inds.vn();
 				bool do_create_new = false;
 				if (v[inds.v() - 1].second.empty()) do_create_new = true;
+				do_create_new = true;
+				/*
 				for (auto _mv : v[inds.v() - 1].second) {
 					// check vt
 					// if not equal create new mV
+					
 					if (vt[inds.vt() - 1] != mVs[_mv].vt) {
 						do_create_new = true;
 						break;
 					}
+					
 					// check vn
 					// if not equal create new mV
+					
 					if (vn[inds.vn() - 1] != mVs[_mv].vn) {
 						do_create_new = true;
 						break;
 					}
+					
 					indices.push_back(_mv);
 					break;
 				}
+				*/
 				if (do_create_new) {
 					mVs.push_back({
 						v[inds.v() - 1].first,
-						vt[inds.vt() - 1],
-						vn[inds.vn() - 1] });
+						(inds.vt() ? vt[inds.vt() - 1] : vertex_texture{randf(), randf()}),
+						(inds.vn() ? vn[inds.vn() - 1] : normal(randf(), randf(), randf()).normilize() )
+						});
 					v[inds.v() - 1].second.push_back(mVs.size() - 1);
 					indices.push_back(mVs.size() - 1);
 				}

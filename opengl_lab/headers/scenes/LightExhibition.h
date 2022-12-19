@@ -1,13 +1,12 @@
 #pragma once
 
 #include "Scene.h"
-#include "../meshes/IllumiMesh.h"
-#include "../meshes/DynamicMesh.h"
+#include "../meshes/Meshes.h"
 #include "../lights/PointLightSource.h"
 
 class LightExhibition : public Scene {
 	//using mesh_type = IllumiMesh;
-	using mesh_type = IllumiMesh;
+	using mesh_type = PartedIllumiMesh;
 	
 	std::vector<mesh_type*> objects;
 

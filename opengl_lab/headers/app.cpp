@@ -20,7 +20,7 @@ void App::Init()
 	*/
 	
 	auto le = new LightExhibition();
-	le->LoadModels({ {"tree.obj", 0, 0, "vodica.jpg"} });
+	le->LoadModels({ {"tree.obj", 0, 0, "vodica.jpg"}, {"bunny.obj", 0, 0, "vodica.jpg"} });
 	le->PrepareData();
 	scenes.push_back(le);
 	cur_scene = 0;

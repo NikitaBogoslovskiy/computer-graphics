@@ -7,6 +7,7 @@
 
 class IllumiMesh : public Mesh {
 	Material material;
+protected:
 	const PLS* pls;
 	struct TransformLoc {
 		GLuint model;
