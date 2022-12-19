@@ -96,23 +96,26 @@ void main()
 
     // well we may iterate over all lightcasters
 	
-    FragColor = mtl.emission * texture(texture0, vert.TexCoord)
+    FragColor = (mtl.emission
         + pls.intensity * PhongPointIllumination(pls, normal_n, viewDir_n)
         + dls.intensity * PhongDirIllumination(dls, normal_n, viewDir_n)
         + sps.intensity * PhongSpotIllumination(sps, normal_n, viewDir_n)
+        ) * texture(texture0, vert.TexCoord)
     ;
 
-    //FragColor = mtl.emission
-    //    + pls.intensity * ToonPointIllumination(pls, normal_n, viewDir_n)
-    //    + dls.intensity * ToonDirIllumination(dls, normal_n, viewDir_n)
-    //    + sps.intensity * ToonSpotIllumination(sps, normal_n, viewDir_n)
-    //;
-
-    //FragColor = mtl.emission * texture(texture0, vert.TexCoord)
-    //  + pls.intensity * CookTorrancePointIllumination(pls, normal_n,viewDir_n)
-    //  + dls.intensity * CookTorranceDirIllumination(dls, normal_n, viewDir_n)
-    //  + sps.intensity * CookTorranceSpotIllumination(sps, normal_n, viewDir_n)
-    //;
+   //FragColor = (mtl.emission
+   //    + pls.intensity * ToonPointIllumination(pls, normal_n, viewDir_n)
+   //    + dls.intensity * ToonDirIllumination(dls, normal_n, viewDir_n)
+   //    + sps.intensity * ToonSpotIllumination(sps, normal_n, viewDir_n)
+   //    ) * texture(texture0, vert.TexCoord)
+   //;
+   //
+   //FragColor = (mtl.emission
+   //  + pls.intensity * CookTorrancePointIllumination(pls, normal_n,viewDir_n)
+   //  + dls.intensity * CookTorranceDirIllumination(dls, normal_n, viewDir_n)
+   //  + sps.intensity * CookTorranceSpotIllumination(sps, normal_n, viewDir_n)
+   //  ) * texture(texture0, vert.TexCoord)
+   //;
     
 }
 
@@ -133,7 +136,7 @@ vec4 _phongIllum( vec4 lightAmbient, vec4 lightDiffuse, vec4 lightSpecular,
 	float sInt = pow(max(0.0, dot(viewDir_n, reflectDir)), mtl.shininess);
 	result += sInt * mtl.specular * lightSpecular;
 
-	return result * texture(texture0, vert.TexCoord);
+	return result;
 }
 vec4 PhongPointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n)
 {
@@ -226,7 +229,7 @@ vec4 _cookTorranceIllum(vec4 lightAmbient, vec4 lightDiffuse, vec4 lightSpecular
     vec4 diff = mtl.diffuse * lightDiffuse * max ( 0.0, nl );
     vec4 spec = mtl.specular * lightSpecular * max ( 0.0, ct );
 
-	return (amb + diff + spec) * texture(texture0, vert.TexCoord);
+	return (amb + diff + spec);
 }
 
 vec4 CookTorrancePointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n)
