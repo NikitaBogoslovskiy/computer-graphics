@@ -905,7 +905,9 @@ void BLEV::Interface::F_Scene() {
 		needRefresh = true;
 	}
 	static ImVec3 objColor{ 0.4f, 0.6f, 0.8f };
+	ImGui::PushID(&objColor);
 	bool colorHasChanged = ImGui::ColorEdit3("", (float*)&objColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+	ImGui::PopID();
 	ImGui::Separator();
 
 	ImGui::BeginGroup();
@@ -1707,8 +1709,7 @@ void BLEV::Interface::ObjectTable::ShowGBodyTable(GeometricBody* gb, size_t idx)
 
 	ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
 	if (ImGui::BeginPopup("context")) {
-
-		if (ImGui::MenuItem("Delete object", NULL, false, true)) {
+		if (ImGui::MenuItem("Delete", NULL, false, true)) {
 			_data.chosen_gbodies.erase(gb);
 			_data.cringulik.scene->bodies.erase(std::remove(_data.cringulik.scene->bodies.begin(), _data.cringulik.scene->bodies.end(), gb), _data.cringulik.scene->bodies.end());
 			needRefresh = true;
@@ -1874,9 +1875,14 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 	ImGui::OpenPopupOnItemClick("context", ImGuiPopupFlags_MouseButtonRight);
 	if (ImGui::BeginPopup("context")) {
 
-		if (ImGui::MenuItem("Delete light", NULL, false, true)) {
+		if (ImGui::MenuItem("Delete", NULL, false, true)) {
 			_data.chosen_lights.erase(light);
 			_data.cringulik.scene->lights.erase(std::remove(_data.cringulik.scene->lights.begin(), _data.cringulik.scene->lights.end(), light), _data.cringulik.scene->lights.end());
+
+			auto lsource = std::find(_data.cringulik.scene->bodies.begin(), _data.cringulik.scene->bodies.end(), light->LightSource);
+			if (lsource != _data.cringulik.scene->bodies.end()) {
+				_data.cringulik.scene->bodies.erase(lsource);
+			}
 			needRefresh = true;
 		}
 		ImGui::EndPopup();
@@ -1932,7 +1938,6 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		ImGui::PopID();
 
 		// =================================== color edit
-		ImGui::PushID(&(light->ambient));
 
 		ImGui::TableNextRow();
 
@@ -1941,30 +1946,29 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 
 		ImGui::TableSetColumnIndex(1);
 		ImGui::PushItemWidth(70);
+		ImGui::PushID(&(light->ambient));
 		ImVec3 lightAmbient = { (float)light->ambient.At(0), (float)light->ambient.At(1), (float)light->ambient.At(2) };
-		bool ambHasChanged = ImGui::ColorEdit3("", (float*)&lightAmbient, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+		bool ambHasChanged = ImGui::ColorEdit3("Ambient", (float*)&lightAmbient, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
 		if (ambHasChanged)
 		{
 			light->UpdateAmbient(lightAmbient);
 			needRefresh = true;
 		}
 		ImGui::PopID();
-		ImGui::SameLine();
 
 		ImGui::PushID(&(light->diffuse));
 		ImVec3 lightDiffuse = { (float)light->diffuse.At(0), (float)light->diffuse.At(1), (float)light->diffuse.At(2) };
-		bool diffHasChanged = ImGui::ColorEdit3("", (float*)&lightDiffuse, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+		bool diffHasChanged = ImGui::ColorEdit3("Diffuse", (float*)&lightDiffuse, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
 		if (diffHasChanged)
 		{
 			light->UpdateDiffuse(lightDiffuse);
 			needRefresh = true;
 		}
 		ImGui::PopID();
-		ImGui::SameLine();
 
 		ImGui::PushID(&(light->specular));
 		ImVec3 lightSpecular = { (float)light->specular.At(0), (float)light->specular.At(1), (float)light->specular.At(2) };
-		bool specHasChanged = ImGui::ColorEdit3("", (float*)&lightSpecular, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+		bool specHasChanged = ImGui::ColorEdit3("Specular", (float*)&lightSpecular, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
 		if (specHasChanged)
 		{
 			light->UpdateSpecular(lightSpecular);
@@ -1972,10 +1976,18 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		}
 		ImGui::PopID();
 
+
+		// =================================== intensity
 		ImGui::PushID(&(light->intensity));
-		// intensity
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		ImGui::Text("Intensity");
+
+		ImGui::TableSetColumnIndex(1);
+		ImGui::PushItemWidth(70);
+
 		float fint = (float)light->intensity;
-		bool intensityHasChanged = ImGui::DragFloat("Intensity", &fint, 0.01f, 0.f, 1.f, "%.2f");
+		bool intensityHasChanged = ImGui::DragFloat("", &fint, 0.01f, 0.f, 1.f, "%.2f");
 		if (intensityHasChanged && (fint >= 0.f) && fint <= 1.f)
 		{
 			light->UpdateIntensity((double)fint);
@@ -1983,6 +1995,40 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		}
 		ImGui::PopID();
 
+		PointLight* pl = dynamic_cast<PointLight*>(light);
+		if (pl != nullptr) {
+			ImGui::PushID(&(pl->GetAttenuation()));
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Attenuation");
+
+			ImGui::TableSetColumnIndex(1);
+			ImGui::PushItemWidth(70);
+			float constant = (float)pl->GetAttenuation().At(0);
+			bool constantHasChanged = ImGui::DragFloat("Constant", &constant, 10e-6, 0.f, 1.f, "%.7f");
+			if (constantHasChanged)
+			{
+				pl->SetAttenuation(0, constant);
+				needRefresh = true;
+			}
+			//yaw
+			float linear = (float)pl->GetAttenuation().At(1);
+			bool linearHasChanged = ImGui::DragFloat("Linear", &linear, 10e-6, 0.f, 1.f, "%.7f");
+			if (linearHasChanged)
+			{
+				pl->SetAttenuation(1, linear);
+				needRefresh = true;
+			}
+			// R 
+			float quadratic = (float)pl->GetAttenuation().At(2);
+			bool quadraticHasChanged = ImGui::DragFloat("Quadratic", &quadratic, 10e-6, 0.f, 1.f, "%.7f");
+			if (quadraticHasChanged)
+			{
+				pl->SetAttenuation(2, quadratic);
+				needRefresh = true;
+			}
+			ImGui::PopID();
+		}
 
 		ImGui::TreePop();
 	}

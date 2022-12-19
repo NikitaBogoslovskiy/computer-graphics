@@ -3,9 +3,20 @@
 
 class PointLight : public Light
 {
+	HVec<double> _att{ 0.6, 0.00007, 0.0000014 };
+
 public:
 
-	HVec<double> attenuation{ 0.6, 0.00007, 0.0000014 };
+	inline const HVec<double>& GetAttenuation() { return _att; }
+	inline void SetAttenuation(const size_t ind, const double value) {
+		if ((ind < 0) || (ind > 2)) return;
+		double _dot = 0;
+		for (size_t i = 0; i < 3; i++) {
+			_dot += (i == ind) ? value * value : _att[i] * _att[i];
+		}
+		if (_dot == 0.0) return;
+		_att[ind] = value;
+	}
 
 	PointLight();
 
