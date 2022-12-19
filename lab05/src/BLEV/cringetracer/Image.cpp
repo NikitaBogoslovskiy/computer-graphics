@@ -76,6 +76,20 @@ void Image::SetPixel(const size_t x, const size_t y, const HVec<double>& color)
 	bChannel.at(x).at(y) = color.At(2);
 }
 
+void Image::IncPixel(const size_t x, const size_t y, const HVec<double>& color)
+{
+	rChannel.at(x).at(y) += color.At(0);
+	gChannel.at(x).at(y) += color.At(1);
+	bChannel.at(x).at(y) += color.At(2);
+}
+
+void Image::MultPixel(const size_t x, const size_t y, const double multiplier)
+{
+	rChannel.at(x).at(y) *= multiplier;
+	gChannel.at(x).at(y) *= multiplier;
+	bChannel.at(x).at(y) *= multiplier;
+}
+
 void Image::CalcMaxes()
 {
 	_maxRed = 0.0;

@@ -67,7 +67,7 @@ HVec<double> Material::ComputeDiffuse(const std::vector<GeometricBody*>& bodies,
 	for (auto& light : lights) {
 		if (!light->Show) continue;
 		if (!(light->ComputeLighting(closestInt, closestLocalNormal, closestBody, bodies, outColor, outIntensity))) continue;
-		diffuse += outColor * light->intensity * outIntensity;
+		diffuse += light->diffuse * light->intensity * outIntensity;
 	}
 	return diffuse * closestLocalColor;
 }
@@ -77,7 +77,7 @@ HVec<double> Material::ComputeAmbient(const std::vector<Light*>& lights)
 	HVec<double> ambient;
 	for (auto& light : lights) {
 		if (!light->Show) continue;
-		ambient += light->color * light->intensity;
+		ambient += light->ambient * light->intensity;
 	}
 	return ambient * Ambient;
 }
@@ -120,7 +120,7 @@ HVec<double> Material::ComputeSpecular(const std::vector<GeometricBody*>& bodies
 		double cosineRV = std::max(HVec<double>::dot(rDir, vDir), 0.0);
 		double specIntensity = Reflectivity * std::pow(cosineRV, Shininess);
 
-		specular += light->intensity * light->color * specIntensity;
+		specular += light->intensity * light->specular * specIntensity;
 	}
 
 	return specular * this->Specular;
@@ -151,9 +151,9 @@ HVec<double> Material::ComputeReflection(const std::vector<GeometricBody*>& bodi
 		else if (dynamic_cast<LightSphere*>(targetBody) == nullptr) {
 			reflection = Material::ComputeDiffuse(bodies, lights, targetBody, poi, poiNormal, targetBody->GetColor());
 		}
-		//else { // 3) LIGHT_SOURCE is reflected
-			//reflection = targetBody->GetColor();
-		//}
+		else { // 3) LIGHT_SOURCE is reflected
+			reflection = targetBody->GetColor();
+		}
 	}
 
 	return reflection;

@@ -58,15 +58,26 @@ void Light::UpdateLightSourcePosition()
 	LightSource->SetTransform();
 }
 
-void Light::UpdateColor(const ImVec3& inColor)
+void Light::UpdateAmbient(const ImVec3& inColor)
 {
-	color = HVec<double>{ inColor.x, inColor.y, inColor.z };
-	LightSource->SetColor(color);
+	ambient = HVec<double>{ inColor.x, inColor.y, inColor.z };
+}
+
+void Light::UpdateDiffuse(const ImVec3& inColor)
+{
+	diffuse = HVec<double>{ inColor.x, inColor.y, inColor.z };
+	LightSource->SetColor(diffuse * specular);
+}
+
+void Light::UpdateSpecular(const ImVec3& inColor)
+{
+	specular = HVec<double>{ inColor.x, inColor.y, inColor.z };
+	LightSource->SetColor(diffuse * specular);
 }
 
 void Light::UpdateIntensity(const double inIntensity)
 {
 	intensity = inIntensity;
-	LightSource->SetColor(color * intensity);
+	LightSource->SetColor(diffuse * specular * intensity);
 }
 

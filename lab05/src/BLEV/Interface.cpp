@@ -1033,15 +1033,36 @@ void BLEV::Interface::F_Scene() {
 	ImGui::SetNextItemWidth(-FLT_MIN);
 	ImGui::InputText("##ConsoleRanges4", console[9]->pseudo_console, 100);
 	HelpPrevItem("inPitch inYaw inR inIntensity");
+
+	static ImVec3 inAmbient{ 0.1f, 0.1f, 0.1f };
+	ImGui::PushID(&(inAmbient));
+	bool ambHasChanged = ImGui::ColorEdit3("", (float*)&inAmbient, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+	ImGui::PopID();
+	ImGui::SameLine();
+
+	static ImVec3 inDiffuse{ 1.0f, 1.0f, 1.0f };
+	ImGui::PushID(&(inDiffuse));
+	bool diffHasChanged = ImGui::ColorEdit3("", (float*)&inDiffuse, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+	ImGui::PopID(); ImGui::SameLine();
+
+	static ImVec3 inSpecular{ 1.0f, 1.0f, 1.0f };
+	ImGui::PushID(&(inSpecular));
+	bool specHasChanged = ImGui::ColorEdit3("", (float*)&inSpecular, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+	ImGui::PopID();
+
 	ImGui::EndGroup();
 	if (ImGui::Button("Create light")) {
 		try
 		{
 			char* nstr7 = console[9]->pseudo_console;
 			Validator::ValidateLightArgs(nstr7, inPitch, inYaw, inR, inIntensity);
-			auto newPl = new PointLight(HVec2<double>{inPitch, inYaw}, inR, objColor, inIntensity);
+			auto newPl = new PointLight(HVec2<double>{inPitch, inYaw}, inR,
+				inAmbient,
+				inDiffuse,
+				inSpecular,
+				inIntensity);
 			_data.cringulik.scene->lights.push_back(newPl);
-			//_data.cringulik.scene->bodies.push_back(newPl->LightSource);
+			_data.cringulik.scene->bodies.push_back(newPl->LightSource);
 			needRefresh = true;
 		}
 		catch (const std::exception& e)
@@ -1911,7 +1932,7 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 		ImGui::PopID();
 
 		// =================================== color edit
-		ImGui::PushID(&(light->color));
+		ImGui::PushID(&(light->ambient));
 
 		ImGui::TableNextRow();
 
@@ -1920,13 +1941,38 @@ void BLEV::Interface::ObjectTable::ShowLightTable(Light* light, size_t idx)
 
 		ImGui::TableSetColumnIndex(1);
 		ImGui::PushItemWidth(70);
-		ImVec3 lightColor = { (float)light->color.At(0), (float)light->color.At(1), (float)light->color.At(2) };
-		bool colorHasChanged = ImGui::ColorEdit3("", (float*)&lightColor, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
-		if (colorHasChanged)
+		ImVec3 lightAmbient = { (float)light->ambient.At(0), (float)light->ambient.At(1), (float)light->ambient.At(2) };
+		bool ambHasChanged = ImGui::ColorEdit3("", (float*)&lightAmbient, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+		if (ambHasChanged)
 		{
-			light->UpdateColor(lightColor);
+			light->UpdateAmbient(lightAmbient);
 			needRefresh = true;
 		}
+		ImGui::PopID();
+		ImGui::SameLine();
+
+		ImGui::PushID(&(light->diffuse));
+		ImVec3 lightDiffuse = { (float)light->diffuse.At(0), (float)light->diffuse.At(1), (float)light->diffuse.At(2) };
+		bool diffHasChanged = ImGui::ColorEdit3("", (float*)&lightDiffuse, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+		if (diffHasChanged)
+		{
+			light->UpdateDiffuse(lightDiffuse);
+			needRefresh = true;
+		}
+		ImGui::PopID();
+		ImGui::SameLine();
+
+		ImGui::PushID(&(light->specular));
+		ImVec3 lightSpecular = { (float)light->specular.At(0), (float)light->specular.At(1), (float)light->specular.At(2) };
+		bool specHasChanged = ImGui::ColorEdit3("", (float*)&lightSpecular, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs);
+		if (specHasChanged)
+		{
+			light->UpdateSpecular(lightSpecular);
+			needRefresh = true;
+		}
+		ImGui::PopID();
+
+		ImGui::PushID(&(light->intensity));
 		// intensity
 		float fint = (float)light->intensity;
 		bool intensityHasChanged = ImGui::DragFloat("Intensity", &fint, 0.01f, 0.f, 1.f, "%.2f");

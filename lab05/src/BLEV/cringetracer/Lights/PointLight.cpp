@@ -7,35 +7,71 @@
 PointLight::PointLight()
 {
 	position = HVec<double>{ 0.0, 0.0, 0.0 };
-	color = HVec<double>{ 1.0, 1.0, 1.0 };
 	intensity = 1.0;
-	LightSource = new LightSphere(position, 0.1, color);
+	LightSource = new LightSphere(position, 0.1, diffuse * specular);
 }
 
-PointLight::PointLight(const HVec<double>& inPosition, const HVec<double>& inColor, const double& inIntensity)
+PointLight::PointLight(const HVec<double>& inPosition)
 {
 	position = inPosition;
-	color = inColor;
-	intensity = inIntensity;
-	LightSource = new LightSphere(position, 0.1, color);
+	LightSource = new LightSphere(position, 0.1, diffuse * specular);
 }
 
-PointLight::PointLight(const HVec2<double>& inPitchYaw, const double inR, const HVec<double>& inColor, const double inIntensity)
+PointLight::PointLight(const HVec2<double>& inPitchYaw, const double inR)
 {
 	r = inR;
 	updatePitchYaw(inPitchYaw);
-	color = inColor;
-	intensity = inIntensity;
-	LightSource = new LightSphere(position, 0.1, color);
+	LightSource = new LightSphere(position, 0.1, diffuse * specular);
 }
 
-PointLight::PointLight(const HVec2<double>& inPitchYaw, const double inR, const ImVec3& inColor, const double inIntensity)
+PointLight::PointLight(const HVec<double>& inPosition,
+	const HVec<double>& inAmbient,
+	const HVec<double>& inDiffuse,
+	const HVec<double>& inSpecular,
+	const double inIntensity) {
+	position = inPosition;
+
+	ambient = inAmbient;
+	diffuse = inDiffuse;
+	specular = inSpecular;
+
+	intensity = inIntensity;
+	LightSource = new LightSphere(position, 0.1, diffuse * specular);
+}
+
+PointLight::PointLight(const HVec2<double>& inPitchYaw, const double inR,
+	const HVec<double>& inAmbient,
+	const HVec<double>& inDiffuse,
+	const HVec<double>& inSpecular,
+	const double inIntensity) {
+	r = inR;
+	updatePitchYaw(inPitchYaw);
+
+	ambient = inAmbient;
+	diffuse = inDiffuse;
+	specular = inSpecular;
+
+	intensity = inIntensity;
+	LightSource = new LightSphere(position, 0.1, diffuse * specular);
+}
+
+PointLight::PointLight(const HVec2<double>& inPitchYaw, const double inR,
+
+	const ImVec3& inAmbient,
+	const ImVec3& inDiffuse,
+	const ImVec3& inSpecular,
+
+	const double inIntensity)
 {
 	r = inR;
 	updatePitchYaw(inPitchYaw);
-	color = HVec<double>{ inColor.x, inColor.y, inColor.z };
+
+	ambient = HVec<double>(inAmbient);
+	diffuse = HVec<double>(inDiffuse);
+	specular = HVec<double>(inSpecular);
+
 	intensity = inIntensity;
-	LightSource = new LightSphere(position, 0.1, color);
+	LightSource = new LightSphere(position, 0.1, diffuse * specular);
 }
 
 PointLight::~PointLight()
@@ -71,40 +107,27 @@ bool PointLight::ComputeLighting(
 		}
 	}
 
-	//if (foundLightBlocker) {
-	//	if (lightBlocker->HasMaterial() && lightBlocker->Mtl->Transparency > 0.0) {
-	//		//outColor = intensity * color + (1.0 - intensity) * lightBlocker->Mtl->Color;
-	//		outColor = 0.5 * color + 0.5 * lightBlocker->Mtl->Diffuse;
-	//		outIntensity = intensity;
-	//		return true;
-	//	}
-	//	else {
-	//		outColor = color;
-	//		outIntensity = 0.0;
-	//		return false;
-	//	}
-	//}
 	if (foundLightBlocker) {
-		outColor = color;
+		//outColor = color;
 		outIntensity = 0.0;
 		return false;
 	}
 
-	// actually did not notice any visual difference between these two methods. why not try both
-	// <(localNormal, lightRay)
-	double angle = acos(HVec<double>::dot(localNormal, lightDir)); // local normal is unit
-	// normal pointing away from light: no illumination
-	if (angle > PIDIVTWO) {
-		outColor = color;
-		outIntensity = 0.0;
-		return false;
-	}
-	// intensity is linearly proportional to the angle between the normal and direction of the light for now
-	outIntensity = intensity * (1.0 - (angle / PIDIVTWO));
-	outColor = color;
-	return true;
-
-	//outIntensity = intensity * std::max(HVec<double>::dot(localNormal, lightDir), 0.0);
+	//// actually did not notice any visual difference between these two methods. why not try both
+	//// <(localNormal, lightRay)
+	//double angle = acos(HVec<double>::dot(localNormal, lightDir)); // local normal is unit
+	//// normal pointing away from light: no illumination
+	//if (angle > PIDIVTWO) {
+	//	outColor = color;
+	//	outIntensity = 0.0;
+	//	return false;
+	//}
+	//// intensity is linearly proportional to the angle between the normal and direction of the light for now
+	//outIntensity = intensity * (1.0 - (angle / PIDIVTWO));
 	//outColor = color;
-	//return outIntensity != 0.0;
+	//return true;
+
+	outIntensity = intensity * std::max(HVec<double>::dot(localNormal, lightDir), 0.0);
+	//outColor = color;
+	return outIntensity > 0.0;
 }

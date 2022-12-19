@@ -23,6 +23,9 @@ public:
 	Image(const size_t& xSize, const size_t& ySize);
 	~Image();
 	void SetPixel(const size_t x, const size_t y, const HVec<double>& color);
+	void IncPixel(const size_t x, const size_t y, const HVec<double>& color);
+	void MultPixel(const size_t x, const size_t y, const double multiplier);
+
 	void Draw(ImDrawList* dl, const ImVec2& canvasOffset);
 	void Clear();
 	void Resize(const size_t& _xSize, const size_t& _ySize);
