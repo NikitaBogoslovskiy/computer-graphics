@@ -13,13 +13,15 @@
 #define yellow 1.0,1.0,0.0,1.0
 #define black 0.0,0.0,0.0,1.0
 
+#define ff first.first
+#define fs first.second
 
 using uint = unsigned int;
 
 struct p3ui32 {
 	using T = uint;
-	T e1, e2, e3;
-
+	T e1 = 0, e2 = 0, e3 = 0;
+	
 	T& x() { return e1; }
 	T& y() { return e2; }
 	T& z() { return e3; }
@@ -48,7 +50,24 @@ struct vertex_texture {
 	GLfloat v;
 	//GLfloat w = 1.f;
 };
-using normal = coord;
+struct normal : public coord {
+	normal(){};
+	normal(GLfloat&& _x, GLfloat&& _y, GLfloat&& _z) {
+		x = std::move(_x);
+		y = std::move(_y);
+		z = std::move(_z);
+	}
+	inline GLfloat length() const {
+		return sqrtf(powf(x, 2.f) + powf(y, 2.f) + powf(z, 2.f));
+	}
+	inline normal& normilize() {
+		GLfloat len = length();
+		x /= len;
+		y /= len;
+		z /= len;
+		return *this;
+	}
+};
 
 struct color {
 	GLfloat r;
@@ -103,5 +122,9 @@ constexpr float a60 = PI / 3;
 constexpr float a90 = PI / 2;
 constexpr float a120 = a60 * 2;
 constexpr float a150 = a120 + a30;
+
+static GLfloat&& randf() {
+	return rand() / 32'767.f;
+}
 
 #endif // !STUFF_H

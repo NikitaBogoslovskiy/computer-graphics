@@ -8,7 +8,7 @@ void IllumiMesh::InitShader() {
 
 IllumiMesh::IllumiMesh()
 {
-	InitShader();
+	//InitShader(); NO MORE INIT SHADERS IN CONSTRUCTORS USING 1000000000000000000 WRAPPER CLASSES
 }
 
 IllumiMesh::IllumiMesh(const char* obj_path)

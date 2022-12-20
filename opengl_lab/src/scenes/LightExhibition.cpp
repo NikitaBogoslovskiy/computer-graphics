@@ -10,6 +10,7 @@ void LightExhibition::LoadModels(const std::vector<inModelData>& inParams)
 {
 	for (auto& imd : inParams) {
 		mesh_type* m = new mesh_type();
+		m->InitShader();
 		m->Load(imd.obj_file);
 		m->SetPLS(&pls);
 		lc.SetColor(pls.specular);

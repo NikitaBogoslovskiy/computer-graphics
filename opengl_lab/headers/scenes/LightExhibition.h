@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Scene.h"
+#include "../meshes/PartedIllumiMesh.h"
 #include "../meshes/IllumiMesh.h"
 #include "../meshes/DynamicMesh.h"
 #include "../lights/LightCasters.h"
@@ -8,8 +9,8 @@
 
 class LightExhibition : public Scene {
 	//using mesh_type = IllumiMesh;
-	using mesh_type = IllumiMesh;
-
+	using mesh_type = PartedIllumiMesh;
+	
 	std::vector<mesh_type*> objects;
 
 	//**lights

@@ -7,7 +7,7 @@
 
 class IllumiMesh : public Mesh {
 	Material material;
-
+protected:
 	const PLS* pls;
 	const DirLight* dirLight;
 	const SpotLight* spotLight;

@@ -4,7 +4,6 @@
 
 #include "../entities/Entity.h"
 #include <vector>
-#include "../stuff.h"
 
 class Mesh : public Entity
 {
@@ -40,7 +39,7 @@ public:
 	Mesh(); 
 	Mesh(const char* obj_path);
 
-	void Load(const char* path);
+	virtual void Load(const char* path);
 	void InitTextures(char* path = (char*)"shaders/task3/lena.jpg");
 	void LoadTexture(const char* path, uint texturei);
 	void AddTexture(const char* path);
@@ -48,7 +47,7 @@ public:
 	void InitVO() override; // VAO
 
 	//void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) final;
-	void Draw(const glm::mat4& model, Camera& cam) final;
+	virtual void Draw(const glm::mat4& model, Camera& cam) override;
 
 	~Mesh();
 };
