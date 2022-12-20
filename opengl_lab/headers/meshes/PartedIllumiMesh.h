@@ -1,4 +1,3 @@
-#pragma once
 #ifndef PARTEDILLUMIMESH_H
 #define PARTEDILLUMIMESH_H
 
@@ -17,7 +16,7 @@ public:
 	PartedIllumiMesh();
 	PartedIllumiMesh(const char* obj_path);
 	virtual void Load(const char* path) override;
-	virtual void UpdateUniforms(const glm::mat4& model, Camera& cam) override;
+	//virtual void UpdateUniforms(const glm::mat4& model, Camera& cam) override;
 	virtual void Draw(const glm::mat4& model, Camera& cam) override;
 };
 #endif //!PARTEDILLUMIMESH_H

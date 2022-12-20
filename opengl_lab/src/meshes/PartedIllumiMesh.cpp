@@ -202,34 +202,9 @@ void PartedIllumiMesh::Load(const char* path)
 	}
 }
 
-void PartedIllumiMesh::UpdateUniforms(const glm::mat4& model, Camera& cam)
-{
-	auto proj = cam.GetProjectionMatrix();
-	Mesh::UpdateUniforms(model, cam);
-
-	glUniformMatrix4fv(trLoc.model, 1, GL_FALSE, glm::value_ptr(model));
-	glUniformMatrix4fv(trLoc.view, 1, GL_FALSE, glm::value_ptr(cam.GetViewMatrix()));
-	glUniformMatrix4fv(trLoc.projection, 1, GL_FALSE, glm::value_ptr(proj));
-	glUniform3fv(trLoc.viewPos, 1, glm::value_ptr(cam.GetPosition()));
-
-
-	glUniform4fv(matLoc.ambient, 1, glm::value_ptr(materials[current_material].ambient));
-	glUniform4fv(matLoc.diffuse, 1, glm::value_ptr(materials[current_material].diffuse));
-	glUniform4fv(matLoc.specular, 1, glm::value_ptr(materials[current_material].specular));
-	glUniform4fv(matLoc.emission, 1, glm::value_ptr(materials[current_material].emission));
-	glUniform1f(matLoc.shininess, materials[current_material].shininess);
-
-	if (pls) {
-		glUniform4fv(plsLoc.position, 1, glm::value_ptr(pls->position));
-		glUniform4fv(plsLoc.ambient, 1, glm::value_ptr(pls->ambient));
-		glUniform4fv(plsLoc.diffuse, 1, glm::value_ptr(pls->diffuse));
-		glUniform4fv(plsLoc.specular, 1, glm::value_ptr(pls->specular));
-		glUniform3fv(plsLoc.attenuation, 1, glm::value_ptr(pls->attenuation));
-	}
-}
-
 void PartedIllumiMesh::Draw(const glm::mat4& model, Camera& cam)
 {
+	//printf("\033[0;31mPartedIllumiMesh::Draw\033[0m\n");
 	glUseProgram(Program);
 	this->UpdateUniforms(model, cam);
 

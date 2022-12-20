@@ -1,9 +1,7 @@
 ﻿#include "../headers/meshes/IllumiMesh.h"
 
 void IllumiMesh::InitShader() {
-	printf("== IllumiMesh::InitShader ==\n");
 	ChangeShaders("shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag");
-	printf("== IllumiMesh::InitShader end ==\n");
 }
 
 IllumiMesh::IllumiMesh()
@@ -111,6 +109,7 @@ void IllumiMesh::ChangeShaders(const char* vertex_path, const char* fragment_pat
 
 void IllumiMesh::UpdateUniforms(const glm::mat4& model, Camera& cam)
 {
+	//printf("\033[0;33m=>  IllumiMesh::UpdateUniforms =\033[0m\n");
 	auto view = cam.GetViewMatrix();
 	auto proj = cam.GetProjectionMatrix();
 	auto normalTr = glm::transpose(glm::inverse(glm::mat3(model)));

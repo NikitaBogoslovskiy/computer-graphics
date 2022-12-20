@@ -17,7 +17,7 @@ using PLS = PointLightSource;
 using PoingLight = PointLightSource;
 
 struct DirLight {
-	glm::vec3 direction = glm::vec3(0.f, -1.0f, 0.0f);
+	glm::vec3 direction = glm::vec3(0.f, 0.0f, 1.0f);
 
 	glm::vec4 ambient = glm::vec4(0.3f, 0.3f, 0.3f, 1.0);
 	glm::vec4 diffuse = glm::vec4(1.0f, 1.0, 1.0f, 1.0);

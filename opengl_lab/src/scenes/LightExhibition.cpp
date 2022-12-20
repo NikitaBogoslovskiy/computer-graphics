@@ -1,9 +1,11 @@
 #include "../headers/scenes/LightExhibition.h"
 #include "../headers/pch.h"
+#include "../headers/entities/Skybox.h"
 #include <ctime>
 
 LightExhibition::LightExhibition()
 {
+	skybox = new Skybox();
 }
 
 void LightExhibition::LoadModels(const std::vector<inModelData>& inParams)
@@ -12,11 +14,12 @@ void LightExhibition::LoadModels(const std::vector<inModelData>& inParams)
 		mesh_type* m = new mesh_type();
 		m->InitShader();
 		m->Load(imd.obj_file);
+
 		m->SetPLS(&pls);
 		lc.SetColor(pls.specular);
-
 		m->SetDirLight(&dls);
 		m->SetSpotLight(&sps);
+
 		if (imd.vShader_path && *imd.vShader_path) {
 			m->ChangeShaders(imd.vShader_path, imd.fShader_path);
 		}
@@ -70,6 +73,11 @@ void LightExhibition::Draw(float time_coefficient, Camera& cam)
 		_model = glm::translate(_model, o->position);
 		_model = glm::scale(_model, glm::vec3(0.25f));
 		o->Draw(_model, cam);
+	}
+
+	if (skybox) {
+		// skybox should be rendered last for optimization
+		skybox->Draw(glm::mat4(1.0f), cam);
 	}
 }
 

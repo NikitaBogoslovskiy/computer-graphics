@@ -58,7 +58,6 @@ class App {
 	} settings;
 
 	int cur_scene;
-	Entity* skybox;
 	std::vector<Scene*> scenes;
 public:
 	bool is_playing = false;

@@ -23,7 +23,7 @@ void App::Init()
 	le->LoadModels({
 		//{"tree.obj", 0, 0, "vodica.jpg"}
 		{"MirTanka/Tanks.obj", 0, 0, "MirTanka/Tank.png"}
-		//{"MirTanka/Tree.obj", 0, 0, "MirTanka/Tree.png"}
+		//,{"MirTanka/Tree.obj", 0, 0, "MirTanka/Tree.png"}
 		});
 	le->PrepareData();
 	scenes.push_back(le);
@@ -38,10 +38,10 @@ void App::Draw()
 		currScene()->Draw(elapsedTime, camera);
 	}
 
-	if (skybox) {
-		// skybox should be rendered last for optimization
-		skybox->Draw(glm::mat4(1.0f), camera);
-	}
+	//if (skybox) {
+	//	// skybox should be rendered last for optimization
+	//	skybox->Draw(glm::mat4(1.0f), camera);
+	//}
 }
 
 void App::Release()
