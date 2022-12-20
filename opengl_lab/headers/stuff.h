@@ -106,6 +106,8 @@ struct Material {
 	float shininess = 67.f;
 	float roughness = 0.01;
 	float reflectivity = 0.8;
+	std::string map_Kd = "";
+	GLuint illumi = 7;
 };
 
 struct inModelData {

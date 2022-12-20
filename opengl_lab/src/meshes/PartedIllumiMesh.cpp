@@ -8,7 +8,7 @@ void PartedIllumiMesh::LoadMaterials(const char* mtllib_path, std::map<const cha
 	printf("PartedIllumiMesh::LoadMaterials\n");
 	mat_table->clear();
 	materials.clear();
-	materials.push_back(Material()); // default
+	//materials.push_back(Material()); // default
 
 	std::ifstream infile(mtllib_path);
 	if (!infile.is_open()) {
@@ -61,6 +61,11 @@ void PartedIllumiMesh::LoadMaterials(const char* mtllib_path, std::map<const cha
 		}
 		else if (type == "map_Kd") {
 			// load texture
+			iss >> materials.back().map_Kd;
+		}
+		else if (type == "illumi") {
+			// load smth connected with shaders
+			iss >> materials.back().illumi;
 		}
 	}
 
