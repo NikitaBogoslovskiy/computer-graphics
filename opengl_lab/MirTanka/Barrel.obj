@@ -1,6 +1,6 @@
 # Blender 3.3.1
 # www.blender.org
-mtllib Barrel.mtl
+mtllib MirTanka/Barrel.mtl
 o Barrel
 v 0.000000 1.349525 -0.549185
 v 0.107141 1.349525 -0.538632

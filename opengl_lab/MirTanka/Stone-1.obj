@@ -1,6 +1,6 @@
 # Blender 3.3.1
 # www.blender.org
-mtllib Stone-1.mtl
+mtllib MirTanka/Stone-1.mtl
 o Stone-1
 v -0.495089 -0.000000 0.625401
 v -0.644207 0.000000 -0.680945

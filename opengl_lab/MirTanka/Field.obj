@@ -1,6 +1,6 @@
 # Blender 3.3.1
 # www.blender.org
-mtllib Field.mtl
+mtllib MirTanka/Field.mtl
 o Field
 v -20.186291 0.013135 20.000000
 v 19.813711 0.013135 20.000000

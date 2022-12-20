@@ -1,6 +1,6 @@
 # Blender 3.3.1
 # www.blender.org
-mtllib ChristmasTree.mtl
+mtllib MirTanka/ChristmasTree.mtl
 o ChristmasTree
 v -0.144294 0.956587 -2.397335
 v 0.025182 2.741162 -0.312404

@@ -1,6 +1,6 @@
 # Blender 3.3.1
 # www.blender.org
-mtllib Tree.mtl
+mtllib MirTanka/Tree.mtl
 o Tree
 v -0.652589 0.787401 0.513390
 v -0.536981 2.180848 0.591221

@@ -34,14 +34,14 @@ void LightExhibition::LoadModels(const std::vector<inModelData>& inParams)
 
 void LightExhibition::PrepareData()
 {
-	if (objects.size() > 1) {
-		float dPhi = DPI / objects.size();
-		for (size_t i = 0; i < objects.size(); i++)
+	if (objects.size() >= 2) {
+		//objects[0]->position = { 0.0,0.0,0.0 }; // field
+		//objects[1]->position = { 0.0,0.0,0.0 }; // christmas tree
+		float r = 2.f;
+		float dPhi = DPI / (objects.size() - 2);
+		for (size_t i = 2; i < objects.size(); i++)
 		{
-			// we can swap sin with cos, it doest matter
-			objects[i]->position.x = 50.f * sinf(i * dPhi);
-			objects[i]->position.y = 50.f * cosf(i * dPhi);
-			objects[i]->position.z = 0.f;
+			objects[i]->position = { r * sinf(i * dPhi), 0.0, r * cosf(i * dPhi) };
 		}
 	}
 }
@@ -54,9 +54,9 @@ void LightExhibition::Draw(float time_coefficient, Camera& cam)
 		pls.position.z = r * sin(time_coefficient);
 
 		// cool colors.
-		//pls.diffuse = glm::vec4(abs(sin(time_coefficient)), abs(cos(time_coefficient)), abs(cos(time_coefficient)), 1.0);
-		//pls.ambient = glm::vec4(pls.diffuse * glm::vec4(glm::vec3(0.5f), 1.0));
-		//lc.SetColor(pls.diffuse);
+		pls.diffuse = glm::vec4(abs(sin(time_coefficient)), abs(cos(time_coefficient)), abs(cos(time_coefficient)), 1.0);
+		pls.ambient = glm::vec4(pls.diffuse * glm::vec4(glm::vec3(0.5f), 1.0));
+		lc.SetColor(pls.diffuse);
 
 		lc.Draw(glm::scale(glm::translate(glm::mat4(1.0f), glm::vec3(pls.position)),
 			glm::vec3(1.f)
@@ -71,6 +71,7 @@ void LightExhibition::Draw(float time_coefficient, Camera& cam)
 	for (mesh_type* o : objects) {
 		auto _model = glm::mat4(1.0f);
 		_model = glm::translate(_model, o->position);
+		//_model = glm::rotate(_model, glm::radians(time_coefficient * 500.f), glm::vec3(0.0f, 1.0f, 0.0f));
 		_model = glm::scale(_model, glm::vec3(0.25f));
 		o->Draw(_model, cam);
 	}
