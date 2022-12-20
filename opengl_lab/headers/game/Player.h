@@ -25,7 +25,7 @@ class Player
 			sin(glm::radians(Yaw))
 		));
 
-		printf("%lf %lf %lf\n", Front.x, Front.y, Front.z);
+		//printf("%lf %lf %lf\n", Front.x, Front.y, Front.z);
 	}
 
 	float VELOCITY = 1.F;
@@ -39,26 +39,24 @@ class Player
 	void UpdateMeshRotation() {
 		_mesh->rotation = glm::vec3(Pitch, Yaw, Roll);
 	}
-public:
-	void IncVelocity() {
-		VELOCITY += 1.f;
-	}
 
-	void DecVelocity() {
-		auto newVel = VELOCITY - 1.f;
-		VELOCITY = std::max(newVel, 0.f);
-	}
-	void SetMesh(PartedIllumiMesh* mesh) { _mesh = mesh; }
+public:
 
 	enum Direction { FORWARD, BACKWARD, LEFT, RIGHT };
 
+	inline void SetMesh(PartedIllumiMesh* mesh) { _mesh = mesh; }
+	inline void IncVelocity() { VELOCITY += 1.f; }
+
+	inline void DecVelocity() {
+		auto newVel = VELOCITY - 1.f;
+		VELOCITY = std::max(newVel, 0.f);
+	}
+
 	Player(const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f),
-		const glm::vec3& worldUp = glm::vec3(0.0f, 1.0f, 0.0f),
-		const glm::vec3& front = glm::vec3(0.0f, 0.0f, -1.0f)) : Yaw(0.f)
+		const glm::vec3& worldUp = glm::vec3(0.0f, 1.0f, 0.0f)) : Yaw(0.f)
 	{
 		Position = position;
 		WorldUp = worldUp;
-		Front = front;
 		updateVectors();
 	}
 

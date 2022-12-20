@@ -6,6 +6,7 @@ class Player;
 
 class Camera {
 
+protected:
 	glm::vec3 Position; //in world coordinates
 
 	glm::vec3 Front;
@@ -21,7 +22,7 @@ class Camera {
 	float MouseSensitivity;
 	float FOV_Angle;
 
-	void updateCameraVectors()
+	virtual void updateCameraVectors()
 	{
 		Front = glm::normalize(glm::vec3(cos(glm::radians(Yaw)) * cos(glm::radians(Pitch)), sin(glm::radians(Pitch)), sin(glm::radians(Yaw)) * cos(glm::radians(Pitch))));
 		Right = glm::normalize(glm::cross(Front, WorldUp));
@@ -45,17 +46,15 @@ public:
 	};
 
 	Camera(const glm::vec3& position = glm::vec3(0.0f, 2.5f, 5.0f),
-		const glm::vec3& worldUp = glm::vec3(0.0f, 1.0f, 0.0f),
-		const glm::vec3& front = glm::vec3(0.0f, 0.0f, -1.0f))
+		const glm::vec3& worldUp = glm::vec3(0.0f, 1.0f, 0.0f))
 		: Velocity(5.f), MouseSensitivity(0.1f), FOV_Angle(45.f), Yaw(-90.f), Pitch(-10.f)
 	{
 		Position = position;
 		WorldUp = worldUp;
-		Front = front;
 		updateCameraVectors();
 	}
 
-	inline const glm::mat4& GetViewMatrix()
+	inline virtual const glm::mat4& GetViewMatrix()
 	{
 		if (needsUpdateView) {
 			view = glm::lookAt(Position, Position + Front, Up);
@@ -99,7 +98,7 @@ public:
 		needsUpdateView = true;
 	}
 
-	void ProcessMouseMovement(const glm::vec2& offset)
+	virtual void ProcessMouseMovement(const glm::vec2& offset)
 	{
 		Yaw += offset.x * MouseSensitivity;
 		Pitch -= offset.y * MouseSensitivity;
@@ -112,7 +111,7 @@ public:
 		needsUpdateView = true;
 	}
 
-	void ProcessMouseScroll(const float& scroll)
+	virtual void ProcessMouseScroll(const float& scroll)
 	{
 		FOV_Angle -= scroll * 10.f;
 		if (FOV_Angle < 1.0f) FOV_Angle = 1.0f;

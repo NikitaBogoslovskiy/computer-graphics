@@ -46,7 +46,7 @@ void App::Init()
 void App::Draw()
 {
 	if (!scenes.empty()) {
-		currScene()->Draw(elapsedTime, camera);
+		currScene()->Draw(elapsedTime, *camera);
 	}
 }
 
@@ -156,7 +156,7 @@ void App::PollEvents(sf::Window& window)
 		}
 		else if (event.type == sf::Event::MouseWheelMoved)
 		{
-			camera.ProcessMouseScroll(event.mouseWheel.delta);
+			camera->ProcessMouseScroll(event.mouseWheel.delta);
 		}
 		else if (event.type == sf::Event::MouseMoved)
 		{
@@ -182,6 +182,7 @@ void App::PollEvents(sf::Window& window)
 	ProcessUserInput();
 	if (settings.is_arrow_up)    player.IncVelocity();
 	if (settings.is_arrow_down)  player.DecVelocity();
+	if (settings.is_cam_active) camera->ProcessMouseMovement(mouseDelta);
 }
 
 void App::ProcessUserInput()

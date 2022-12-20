@@ -8,13 +8,14 @@
 #include "../headers/entities/Skybox.h"
 #include "../headers/scenes/LightExhibition.h"
 #include "../headers/scenes/SolarSystem.h"
-#include "Camera.h"
+//#include "Camera.h"
+#include "game/Camera3P.h"
 
 class App {
 	sf::Window* window;
 
 	sf::Clock clock;
-	Camera camera;
+	Camera* camera;
 
 	float elapsedTime;
 	float deltaTime;
@@ -67,7 +68,10 @@ public:
 	void ResetClock();
 	inline const float& getDeltaTime() const { return deltaTime; }
 	inline Scene* currScene() { return scenes[cur_scene]; }
-	App(sf::Window* _window) { window = _window; }
+	App(sf::Window* _window) {
+		camera = new Camera3P(&player);
+		window = _window;
+	}
 	void Init();
 	void Draw();
 	void Release();
