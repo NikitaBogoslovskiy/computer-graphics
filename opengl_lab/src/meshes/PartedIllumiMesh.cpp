@@ -5,6 +5,7 @@
 
 void PartedIllumiMesh::LoadMaterials(const char* mtllib_path, std::map<const char*, int>* mat_table)
 {
+	printf("PartedIllumiMesh::LoadMaterials\n");
 	mat_table->clear();
 	materials.clear();
 	materials.push_back(Material()); // default
@@ -68,7 +69,7 @@ void PartedIllumiMesh::LoadMaterials(const char* mtllib_path, std::map<const cha
 
 PartedIllumiMesh::PartedIllumiMesh()
 {
-	InitShader();
+	//InitShader(); NO MORE INIT SHADERS IN CONSTRUCTORS USING 1000000000000000000 WRAPPER CLASSES
 }
 
 PartedIllumiMesh::PartedIllumiMesh(const char* obj_path)
@@ -81,6 +82,7 @@ PartedIllumiMesh::PartedIllumiMesh(const char* obj_path)
 
 void PartedIllumiMesh::Load(const char* path)
 {
+	printf("PartedIllumiMesh::Load\n");
 	std::deque<std::pair<coord, std::deque<GLuint>>> v; // vertices
 	std::deque<vertex_texture> vt; // textures
 	std::deque<normal> vn; // normals
@@ -132,11 +134,11 @@ void PartedIllumiMesh::Load(const char* path)
 			LoadMaterials((iss >> temp, temp.c_str()), &materials_table);
 		}
 		else if (type == "usemtl") {
-			mesh_indecies.push_back({ {count.size(), mVs.size()}, materials_table[(iss >> temp, temp.c_str())]});
+			mesh_indecies.push_back({ {count.size(), mVs.size()}, materials_table[(iss >> temp, temp.c_str())] });
 		}
 		else if (type == "f") {
 			if (mesh_indecies.empty()) {
-				mesh_indecies.push_back({{0, 0}, 0});
+				mesh_indecies.push_back({ {0, 0}, 0 });
 				if (materials.empty()) {
 					materials.push_back(Material());
 				}
@@ -236,7 +238,7 @@ void PartedIllumiMesh::Draw(const glm::mat4& model, Camera& cam)
 	{
 		current_material = pmi.second;
 		glMultiDrawElements(GL_TRIANGLE_FAN, count.data() + pmi.ff, GL_UNSIGNED_INT, void_indices.data() + pmi.fs, count.size() + pmi.ff);
-	}	
+	}
 
 	glBindVertexArray(0);
 	glUseProgram(0);

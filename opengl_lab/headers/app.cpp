@@ -18,9 +18,13 @@ void App::Init()
 	scenes.push_back(ss);
 	cur_scene = 0;
 	*/
-	
+
 	auto le = new LightExhibition();
-	le->LoadModels({ {"tree.obj", 0, 0, "vodica.jpg"}, {"bunny.obj", 0, 0, "vodica.jpg"} });
+	le->LoadModels({
+		//{"tree.obj", 0, 0, "vodica.jpg"}
+		{"MirTanka/Tanks.obj", 0, 0, "MirTanka/Tank.png"}
+		//{"MirTanka/Tree.obj", 0, 0, "MirTanka/Tree.png"}
+		});
 	le->PrepareData();
 	scenes.push_back(le);
 	cur_scene = 0;

@@ -51,6 +51,7 @@ void Mesh::ReleaseVO()
 
 void Mesh::InitTextures(char* path)
 {
+	printf("Mesh::InitTextures %s\n", path);
 	textures.push_back(0);
 
 	glGenTextures(1, &textures.back());
@@ -65,7 +66,7 @@ void Mesh::InitTextures(char* path)
 	int width, height, nrChannels;
 	//stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis. but ive 
 	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
-	if (*data)
+	if (data)
 	{
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
@@ -79,7 +80,7 @@ void Mesh::InitTextures(char* path)
 
 Mesh::Mesh()
 {
-	InitShader();
+	//InitShader(); NO MORE INIT SHADERS IN CONSTRUCTORS USING 1000000000000000000 WRAPPER CLASSES
 }
 
 Mesh::Mesh(const char* path)
@@ -212,20 +213,20 @@ void Mesh::Load(const char* path)
 				for (auto _mv : v[inds.v() - 1].second) {
 					// check vt
 					// if not equal create new mV
-					
+
 					if (vt[inds.vt() - 1] != mVs[_mv].vt) {
 						do_create_new = true;
 						break;
 					}
-					
+
 					// check vn
 					// if not equal create new mV
-					
+
 					if (vn[inds.vn() - 1] != mVs[_mv].vn) {
 						do_create_new = true;
 						break;
 					}
-					
+
 					indices.push_back(_mv);
 					break;
 				}
@@ -234,7 +235,7 @@ void Mesh::Load(const char* path)
 					mVs.push_back({
 						v[inds.v() - 1].first,
 						(inds.vt() ? vt[inds.vt() - 1] : vertex_texture{randf(), randf()}),
-						(inds.vn() ? vn[inds.vn() - 1] : normal(randf(), randf(), randf()).normilize() )
+						(inds.vn() ? vn[inds.vn() - 1] : normal(randf(), randf(), randf()).normilize())
 						});
 					v[inds.v() - 1].second.push_back(mVs.size() - 1);
 					indices.push_back(mVs.size() - 1);
@@ -260,14 +261,18 @@ void Mesh::Load(const char* path)
 
 void Mesh::LoadTexture(const char* path, uint texturei)
 {
+	printf("Mesh::LoadTexture %s\n", path);
+
 	if (textures.size() <= texturei) {
 		printf("undefined texture number\n");
 		return;
 	}
 	int width, height, nrChannels;
+
 	//stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis. but ive 
 	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
-	if (*data)
+	//if (*data)
+	if (data)
 	{
 		glBindTexture(GL_TEXTURE_2D, textures[texturei]);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -282,6 +287,7 @@ void Mesh::LoadTexture(const char* path, uint texturei)
 
 void Mesh::AddTexture(const char* path)
 {
+	printf("Mesh::AddTexture %s\n", path);
 	if (textures.size() == 32) {
 		printf("Textures are full\n");
 		return;
@@ -293,7 +299,8 @@ void Mesh::AddTexture(const char* path)
 	int width, height, nrChannels;
 	//stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis. but ive 
 	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
-	if (data && *data)
+	//if (data && *data)
+	if (data)
 	{
 		glBindTexture(GL_TEXTURE_2D, textures.back());
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);

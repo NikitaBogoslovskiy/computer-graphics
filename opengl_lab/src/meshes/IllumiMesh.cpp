@@ -51,11 +51,11 @@ void IllumiMesh::SetPLS(const PLS* const _pls)
 
 IllumiMesh::IllumiMesh()
 {
-	InitShader();
+	//InitShader(); NO MORE INIT SHADERS IN CONSTRUCTORS USING 1000000000000000000 WRAPPER CLASSES
 }
 
 IllumiMesh::IllumiMesh(const char* obj_path)
-{	
+{
 	Load(obj_path);
 	InitTextures();
 	InitShader();
@@ -76,7 +76,7 @@ void IllumiMesh::UpdateUniforms(const glm::mat4& model, Camera& cam)
 	glUniform4fv(matLoc.ambient, 1, glm::value_ptr(material.ambient));
 	glUniform4fv(matLoc.diffuse, 1, glm::value_ptr(material.diffuse));
 	glUniform4fv(matLoc.specular, 1, glm::value_ptr(material.specular));
-	glUniform4fv(matLoc.emission, 1,  glm::value_ptr(material.emission));
+	glUniform4fv(matLoc.emission, 1, glm::value_ptr(material.emission));
 	glUniform1f(matLoc.shininess, material.shininess);
 
 	if (pls) {
