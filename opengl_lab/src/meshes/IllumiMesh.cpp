@@ -19,7 +19,10 @@ IllumiMesh::IllumiMesh(const char* obj_path)
 
 void IllumiMesh::ChangeShaders(const char* vertex_path, const char* fragment_path)
 {
+#ifdef DEBUG 
 	printf("\033[0;33m====  IllumiMesh::ChangeShaders ====\033[0m\n");
+#endif
+
 	Mesh::ChangeShaders(vertex_path, fragment_path);
 	// retrieve the matrix uniform locations
 	trLoc.model = glGetUniformLocation(Program, "transform.model");
@@ -103,8 +106,11 @@ void IllumiMesh::ChangeShaders(const char* vertex_path, const char* fragment_pat
 	if (spsLoc.attenuation == -1) printf("\033[0;31mcould not bind attrib sps.attenuation\033[0m\n");
 	if (spsLoc.intensity == -1) printf("\033[0;31mcould not bind attrib sps.intensity\033[0m\n");
 
+#ifdef DEBUG 
 	// ретурны бы дописать
 	printf("\033[0;32m====  IllumiMesh::ChangeShaders success ====\033[0m\n");
+#endif
+
 }
 
 void IllumiMesh::UpdateUniforms(const glm::mat4& model, Camera& cam)

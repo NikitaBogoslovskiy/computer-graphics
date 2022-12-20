@@ -66,6 +66,9 @@
     <ClCompile Include="src\entities\LightCube.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="src\meshes\PartedIllumiMesh.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\entities\Entity.h">
@@ -125,9 +128,6 @@
     <ClInclude Include="headers\pch.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="headers\lights\PointLightSource.h">
-      <Filter>Файлы заголовков</Filter>
-    </ClInclude>
     <ClInclude Include="headers\meshes\IllumiMesh.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
@@ -135,6 +135,15 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\entities\LightCube.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\lights\LightCasters.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\meshes\Meshes.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\meshes\PartedIllumiMesh.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
@@ -153,5 +162,7 @@
     <None Include="shaders\mesh\default_d.vert" />
     <None Include="shaders\lights\LightCube.vert" />
     <None Include="shaders\lights\LightCube.frag" />
+    <None Include="shaders\mesh\CookTorrance.frag" />
+    <None Include="shaders\mesh\Toon.frag" />
   </ItemGroup>
 </Project>

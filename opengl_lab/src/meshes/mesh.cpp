@@ -53,7 +53,10 @@ void Mesh::ReleaseVO()
 
 void Mesh::InitTextures(char* path)
 {
+#ifdef DEBUG 
 	printf("Mesh::InitTextures %s\n", path);
+#endif
+
 	textures.push_back(0);
 
 	glGenTextures(1, &textures.back());
@@ -95,7 +98,10 @@ Mesh::Mesh(const char* path)
 
 void Mesh::ChangeShaders(const char* vertex_path, const char* fragment_path)
 {
+#ifdef DEBUG 
 	printf("\033[0;33m===  Mesh::ChangeShaders ===\033[0m\n");
+#endif
+
 	printf("loading %s, %s...\n", vertex_path, fragment_path);
 	Program = ShaderLoader::initProgram(vertex_path, fragment_path);
 
@@ -118,7 +124,10 @@ void Mesh::ChangeShaders(const char* vertex_path, const char* fragment_path)
 		printf("\033[0;31mcould not bind attrib %s\033[0m\n", attr_name3);
 		return;
 	}
+#ifdef DEBUG 
 	printf("\033[0;32m===  Mesh::ChangeShaders success ===\033[0m\n");
+#endif
+
 }
 
 void Mesh::Draw(const glm::mat4& model, Camera& cam)

@@ -5,7 +5,10 @@
 
 void PartedIllumiMesh::LoadMaterials(const char* mtllib_path, std::map<const char*, int>* mat_table)
 {
+#ifdef DEBUG 
 	printf("PartedIllumiMesh::LoadMaterials\n");
+#endif
+
 	mat_table->clear();
 	materials.clear();
 	//materials.push_back(Material()); // default
@@ -87,7 +90,10 @@ PartedIllumiMesh::PartedIllumiMesh(const char* obj_path)
 
 void PartedIllumiMesh::Load(const char* path)
 {
+#ifdef DEBUG 
 	printf("PartedIllumiMesh::Load\n");
+#endif
+
 	std::deque<std::pair<coord, std::deque<GLuint>>> v; // vertices
 	std::deque<vertex_texture> vt; // textures
 	std::deque<normal> vn; // normals

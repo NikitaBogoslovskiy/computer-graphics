@@ -196,6 +196,7 @@
   <ItemGroup>
     <None Include="shaders\lights\LightCube.frag" />
     <None Include="shaders\lights\LightCube.vert" />
+    <None Include="shaders\mesh\CookTorrance.frag" />
     <None Include="shaders\mesh\default_d.frag" />
     <None Include="shaders\mesh\default_d.vert" />
     <None Include="shaders\mesh\default_l.frag" />
@@ -204,6 +205,7 @@
     <None Include="shaders\mesh\default_s.vert" />
     <None Include="shaders\cubemap\cubemap.frag" />
     <None Include="shaders\cubemap\cubemap.vert" />
+    <None Include="shaders\mesh\Toon.frag" />
     <None Include="shaders\task3\tt_cube.frag" />
     <None Include="shaders\task3\tt_cube.vert" />
     <None Include="shaders\task4\ellipse.frag" />
