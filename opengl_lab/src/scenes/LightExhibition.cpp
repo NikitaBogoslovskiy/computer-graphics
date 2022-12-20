@@ -30,6 +30,7 @@ void LightExhibition::LoadModels(const std::vector<inModelData>& inParams)
 		//objects.push_back(m);
 		objects.push_back(std::move(m));
 	}
+	if (_player) _player->SetMesh(objects[0]);
 }
 
 void LightExhibition::PrepareData()
@@ -69,9 +70,8 @@ void LightExhibition::Draw(float time_coefficient, Camera& cam)
 	}
 
 	for (mesh_type* o : objects) {
-		auto _model = glm::mat4(1.0f);
-		_model = glm::translate(_model, o->position);
-		//_model = glm::rotate(_model, glm::radians(time_coefficient * 500.f), glm::vec3(0.0f, 1.0f, 0.0f));
+		auto _model = glm::translate(glm::mat4(1.0f), o->position);
+		_model = glm::rotate(_model, glm::radians(o->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
 		_model = glm::scale(_model, glm::vec3(0.25f));
 		o->Draw(_model, cam);
 	}
@@ -80,6 +80,11 @@ void LightExhibition::Draw(float time_coefficient, Camera& cam)
 		// skybox should be rendered last for optimization
 		skybox->Draw(glm::mat4(1.0f), cam);
 	}
+}
+
+void LightExhibition::SetPlayer(Player* player)
+{
+	_player = player;
 }
 
 void LightExhibition::SwitchLamp() { pls.intensity = !pls.intensity; } //huehehehehuehe

@@ -152,6 +152,7 @@
   <ItemGroup>
     <ClCompile Include="headers\app.cpp" />
     <ClCompile Include="src\entities\LightCube.cpp" />
+    <ClCompile Include="src\game\Player.cpp" />
     <ClCompile Include="src\meshes\IllumiMesh.cpp" />
     <ClCompile Include="src\entities\Cube2Tex.cpp" />
     <ClCompile Include="src\entities\Cube3Tex.cpp" />
@@ -178,6 +179,7 @@
     <ClInclude Include="headers\entities\LightCube.h" />
     <ClInclude Include="headers\entities\MixedCube.h" />
     <ClInclude Include="headers\entities\Skybox.h" />
+    <ClInclude Include="headers\game\Player.h" />
     <ClInclude Include="headers\lights\LightCasters.h" />
     <ClInclude Include="headers\meshes\IllumiMesh.h" />
     <ClInclude Include="headers\meshes\Meshes.h" />

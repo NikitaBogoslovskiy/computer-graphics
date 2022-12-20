@@ -59,18 +59,20 @@ class App {
 
 	int cur_scene;
 	std::vector<Scene*> scenes;
+
+	Player player;
+
 public:
 	bool is_playing = false;
 	void ResetClock();
-	inline const float& getDeltaTime() const {
-		return deltaTime;
-	}
+	inline const float& getDeltaTime() const { return deltaTime; }
 	inline Scene* currScene() { return scenes[cur_scene]; }
 	App(sf::Window* _window) { window = _window; }
 	void Init();
 	void Draw();
 	void Release();
 	void PollEvents(sf::Window& window);
+	void ProcessUserInput();
 };
 
 #endif // !APP_H

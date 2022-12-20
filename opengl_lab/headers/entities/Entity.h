@@ -30,8 +30,10 @@ public:
 	Entity() {}
 
 	float velocity = 0.1f;
-	coord offset = { 0.0f, 0.0f, 0.f };
+	coord offset = { 0.0f, 0.0f, 0.f }; // why the fck it is here
+
 	glm::vec3 position;
+	glm::vec3 rotation;
 
 	virtual void Draw(const glm::mat4& model, Camera& cam) = 0;
 

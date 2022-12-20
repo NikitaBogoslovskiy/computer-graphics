@@ -2,6 +2,8 @@
 
 #include "pch.h"
 
+class Player;
+
 class Camera {
 
 	glm::vec3 Position; //in world coordinates
@@ -32,6 +34,8 @@ class Camera {
 	bool needsUpdateView = true;
 	bool needsUpdateProjection = true;
 
+	Player* player;
+
 public:
 	enum Direction {
 		FORWARD,
@@ -40,15 +44,10 @@ public:
 		RIGHT
 	};
 
-	void IncVelocity() {
-		Velocity += 1.0;
-	}
-	void DecVelocity() {
-		auto newVel = Velocity - 1.0;
-		if (newVel > 0.0) Velocity = newVel;
-	}
-	Camera(const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f), const glm::vec3& worldUp = glm::vec3(0.0f, 1.0f, 0.0f), const glm::vec3& front = glm::vec3(0.0f, 0.0f, -1.0f))
-		: Velocity(5.f), MouseSensitivity(0.1f), FOV_Angle(45.f), Yaw(-90.f), Pitch(0.f)
+	Camera(const glm::vec3& position = glm::vec3(0.0f, 2.5f, 5.0f),
+		const glm::vec3& worldUp = glm::vec3(0.0f, 1.0f, 0.0f),
+		const glm::vec3& front = glm::vec3(0.0f, 0.0f, -1.0f))
+		: Velocity(5.f), MouseSensitivity(0.1f), FOV_Angle(45.f), Yaw(-90.f), Pitch(-10.f)
 	{
 		Position = position;
 		WorldUp = worldUp;
@@ -56,7 +55,7 @@ public:
 		updateCameraVectors();
 	}
 
-	const inline glm::mat4& GetViewMatrix()
+	inline const glm::mat4& GetViewMatrix()
 	{
 		if (needsUpdateView) {
 			view = glm::lookAt(Position, Position + Front, Up);
@@ -65,7 +64,7 @@ public:
 		return view;
 	}
 
-	const inline glm::mat4& GetProjectionMatrix()
+	inline const glm::mat4& GetProjectionMatrix()
 	{
 		if (needsUpdateProjection) {
 			projection = glm::perspective(glm::radians(FOV_Angle), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
@@ -87,6 +86,7 @@ public:
 	void ProcessKeyboard(Direction direction, const float& deltaTime)
 	{
 		float velocity = Velocity * deltaTime;
+
 		if (direction == FORWARD)
 			Position += Front * velocity;
 		if (direction == BACKWARD)

@@ -20,11 +20,14 @@ void App::Init()
 	*/
 
 	auto le = new LightExhibition();
+	le->SetPlayer(&player);
 	le->LoadModels({
+		// i wont even care 'bout passing models properly. 
+			{"MirTanka/Tanks.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Tank.png"},
+
 			{"MirTanka/Field.obj", 0, 0, "MirTanka/Field.png"},
 			{"MirTanka/ChristmasTree.obj", 0, 0, "MirTanka/ChristmasTree.png"},
 			{"MirTanka/Stone-1.obj", 0, 0, "MirTanka/Stone-1.png"},
-			{"MirTanka/Tanks.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Tank.png"},
 
 			{"MirTanka/Barrel.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Barrel.png"},
 			{"MirTanka/Barrel.obj", "shaders/mesh/default_l.vert", "shaders/mesh/Toon.frag", "MirTanka/Barrel.png"},
@@ -45,11 +48,6 @@ void App::Draw()
 	if (!scenes.empty()) {
 		currScene()->Draw(elapsedTime, camera);
 	}
-
-	//if (skybox) {
-	//	// skybox should be rendered last for optimization
-	//	skybox->Draw(glm::mat4(1.0f), camera);
-	//}
 }
 
 void App::Release()
@@ -181,13 +179,15 @@ void App::PollEvents(sf::Window& window)
 			glViewport(0, 0, event.size.width, event.size.height);
 		}
 	}
+	ProcessUserInput();
+	if (settings.is_arrow_up)    player.IncVelocity();
+	if (settings.is_arrow_down)  player.DecVelocity();
+}
 
-	if (settings.is_left)  camera.ProcessKeyboard(Camera::LEFT, deltaTime);
-	if (settings.is_right) camera.ProcessKeyboard(Camera::RIGHT, deltaTime);
-	if (settings.is_up)    camera.ProcessKeyboard(Camera::FORWARD, deltaTime);
-	if (settings.is_down)  camera.ProcessKeyboard(Camera::BACKWARD, deltaTime);
-	if (settings.is_arrow_up)    camera.IncVelocity();
-	if (settings.is_arrow_down)  camera.DecVelocity();
-
-	if (settings.is_cam_active) camera.ProcessMouseMovement(mouseDelta);
+void App::ProcessUserInput()
+{
+	if (settings.is_left)  player.ProcessKeyboard(Player::LEFT, deltaTime);
+	if (settings.is_right) player.ProcessKeyboard(Player::RIGHT, deltaTime);
+	if (settings.is_up)    player.ProcessKeyboard(Player::FORWARD, deltaTime);
+	if (settings.is_down)  player.ProcessKeyboard(Player::BACKWARD, deltaTime);
 }
