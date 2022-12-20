@@ -21,15 +21,15 @@ void App::Init()
 
 	auto le = new LightExhibition();
 	le->LoadModels({
-			{"MirTanka/Field.obj", 0, 0, "MirTanka/Field.png"}
-		,	{"MirTanka/ChristmasTree.obj", 0, 0, "MirTanka/ChristmasTree.png"}
-		,	{"MirTanka/Tanks.obj", 0, 0, "MirTanka/Tank.png"}
-		,	{"MirTanka/Stone-1.obj", 0, 0, "MirTanka/Stone-1.png"}
-		,	{"MirTanka/Barrel.obj", 0, 0, "MirTanka/Barrel.png"}
-		,	{"MirTanka/Barrel.obj", 0, 0, "MirTanka/Barrel.png"}
-		,	{"MirTanka/Barrel.obj", 0, 0, "MirTanka/Barrel.png"}
-		,	{"MirTanka/Tree.obj", 0, 0, "MirTanka/Tree.png"}
-		,	{"MirTanka/Stone-2.obj", 0, 0, "MirTanka/Stone-1.png"}
+		//{"MirTanka/Field.obj", 0, 0, "MirTanka/Field.png"}	,	
+		{"MirTanka/ChristmasTree.obj", 0, 0, "MirTanka/ChristmasTree.png"}
+	,	{"MirTanka/Stone-1.obj", 0, 0, "MirTanka/Stone-1.png"}
+	,	{"MirTanka/Tanks.obj", 0, 0, "MirTanka/Tank.png"}
+	,	{"MirTanka/Barrel.obj", 0, 0, "MirTanka/Barrel.png"}
+	,	{"MirTanka/Barrel.obj", 0, 0, "MirTanka/Barrel.png"}
+	,	{"MirTanka/Barrel.obj", 0, 0, "MirTanka/Barrel.png"}
+	,	{"MirTanka/Tree.obj", 0, 0, "MirTanka/Tree.png"}
+	,	{"MirTanka/Stone-2.obj", 0, 0, "MirTanka/Stone-1.png"}
 
 		});
 	le->PrepareData();
