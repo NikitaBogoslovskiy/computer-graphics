@@ -15,10 +15,9 @@ void LightExhibition::LoadModels(const std::vector<inModelData>& inParams)
 		m->InitShader();
 		m->Load(imd.obj_file);
 
-		m->SetPLS(&pls);
-		lc.SetColor(pls.specular);
+		m->SetPLS(&pls); lc.SetColor(pls.specular);
 		m->SetDirLight(&dls);
-		m->SetSpotLight(&sps);
+		m->SetSpotLight(0, &(_player->hl[0])); m->SetSpotLight(1, &(_player->hl[1]));
 
 		if (imd.vShader_path && *imd.vShader_path) {
 			m->ChangeShaders(imd.vShader_path, imd.fShader_path);
@@ -64,10 +63,6 @@ void LightExhibition::Draw(float time_coefficient, Camera& cam)
 		),
 			cam);
 	}
-	if (sps.intensity > 0.0) {
-		sps.position = cam.GetPosition();
-		sps.direction = cam.GetDirection();
-	}
 
 	for (mesh_type* o : objects) {
 		auto _model = glm::translate(glm::mat4(1.0f), o->position);
@@ -89,4 +84,3 @@ void LightExhibition::SetPlayer(Player* player)
 
 void LightExhibition::SwitchLamp() { pls.intensity = !pls.intensity; } //huehehehehuehe
 void LightExhibition::SwitchSun() { dls.intensity = !dls.intensity; } //huehehehehuehe
-void LightExhibition::SwitchFlashlight() { sps.intensity = !sps.intensity; } //huehehehehuehe

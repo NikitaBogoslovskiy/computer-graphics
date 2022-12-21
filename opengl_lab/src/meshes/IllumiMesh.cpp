@@ -84,27 +84,48 @@ void IllumiMesh::ChangeShaders(const char* vertex_path, const char* fragment_pat
 	if (dlsLoc.intensity == -1) printf("\033[0;31mcould not bind attrib dls.intensity\033[0m\n");
 
 	// spot light =================================================================================
+	for (size_t i = 0; i < HEADLIGHTS_SZ; i++) {
+		char buffer[64]; // OOF
 
-	spsLoc.position = glGetUniformLocation(Program, "sps.position");
-	spsLoc.direction = glGetUniformLocation(Program, "sps.direction");
-	spsLoc.cutOff = glGetUniformLocation(Program, "sps.cutOff");
-	spsLoc.outerCutOff = glGetUniformLocation(Program, "sps.outerCutOff");
-	spsLoc.ambient = glGetUniformLocation(Program, "sps.ambient");
-	spsLoc.diffuse = glGetUniformLocation(Program, "sps.diffuse");
-	spsLoc.specular = glGetUniformLocation(Program, "sps.specular");
-	spsLoc.attenuation = glGetUniformLocation(Program, "sps.attenuation");
-	spsLoc.intensity = glGetUniformLocation(Program, "sps.intensity");
+		sprintf(buffer, "hl[%i].position", i);
+		hlLoc[i].position = glGetUniformLocation(Program, buffer);
 
-	if (spsLoc.position == -1) printf("\033[0;31mcould not bind attrib sps.position\033[0m\n");
-	if (spsLoc.direction == -1) printf("\033[0;31mcould not bind attrib sps.direction\033[0m\n");
-	if (spsLoc.cutOff == -1) printf("\033[0;31mcould not bind attrib sps.cutOff\033[0m\n");
-	if (spsLoc.outerCutOff == -1) printf("\033[0;31mcould not bind attrib sps.outerCutOff\033[0m\n");
+		sprintf(buffer, "hl[%i].direction", i);
+		hlLoc[i].direction = glGetUniformLocation(Program, buffer);
 
-	if (spsLoc.ambient == -1) printf("\033[0;31mcould not bind attrib sps.ambient\033[0m\n");
-	if (spsLoc.diffuse == -1) printf("\033[0;31mcould not bind attrib sps.diffuse\033[0m\n");
-	if (spsLoc.specular == -1) printf("\033[0;31mcould not bind attrib sps.specular\033[0m\n");
-	if (spsLoc.attenuation == -1) printf("\033[0;31mcould not bind attrib sps.attenuation\033[0m\n");
-	if (spsLoc.intensity == -1) printf("\033[0;31mcould not bind attrib sps.intensity\033[0m\n");
+		sprintf(buffer, "hl[%i].eps", i);
+		hlLoc[i].eps = glGetUniformLocation(Program, buffer);
+
+		sprintf(buffer, "hl[%i].outerCutOff", i);
+		hlLoc[i].outerCutOff = glGetUniformLocation(Program, buffer);
+
+		sprintf(buffer, "hl[%i].ambient", i);
+		hlLoc[i].ambient = glGetUniformLocation(Program, buffer);
+
+		sprintf(buffer, "hl[%i].diffuse", i);
+		hlLoc[i].diffuse = glGetUniformLocation(Program, buffer);
+
+		sprintf(buffer, "hl[%i].specular", i);
+		hlLoc[i].specular = glGetUniformLocation(Program, buffer);
+
+		sprintf(buffer, "hl[%i].attenuation", i);
+		hlLoc[i].attenuation = glGetUniformLocation(Program, buffer);
+
+		sprintf(buffer, "hl[%i].intensity", i);
+		hlLoc[i].intensity = glGetUniformLocation(Program, buffer);
+
+		if (hlLoc[i].position == -1) printf("\033[0;31mcould not bind attrib sps.position\033[0m\n");
+		if (hlLoc[i].direction == -1) printf("\033[0;31mcould not bind attrib sps.direction\033[0m\n");
+		if (hlLoc[i].eps == -1) printf("\033[0;31mcould not bind attrib sps.eps\033[0m\n");
+		if (hlLoc[i].outerCutOff == -1) printf("\033[0;31mcould not bind attrib sps.outerCutOff\033[0m\n");
+		if (hlLoc[i].ambient == -1) printf("\033[0;31mcould not bind attrib sps.ambient\033[0m\n");
+		if (hlLoc[i].diffuse == -1) printf("\033[0;31mcould not bind attrib sps.diffuse\033[0m\n");
+		if (hlLoc[i].specular == -1) printf("\033[0;31mcould not bind attrib sps.specular\033[0m\n");
+		if (hlLoc[i].attenuation == -1) printf("\033[0;31mcould not bind attrib sps.attenuation\033[0m\n");
+		if (hlLoc[i].intensity == -1) printf("\033[0;31mcould not bind attrib sps.intensity\033[0m\n");
+	}
+
+
 
 #ifdef DEBUG 
 	// ретурны бы дописать
@@ -154,19 +175,17 @@ void IllumiMesh::UpdateUniforms(const glm::mat4& model, Camera& cam)
 		glUniform1f(dlsLoc.intensity, dirLight->intensity);
 	}
 
-	if (spotLight != nullptr) {
-		glUniform3fv(spsLoc.position, 1, glm::value_ptr(spotLight->position));
-		glUniform3fv(spsLoc.direction, 1, glm::value_ptr(spotLight->direction));
-		glUniform3fv(spsLoc.attenuation, 1, glm::value_ptr(spotLight->attenuation));
-
-		glUniform1f(spsLoc.cutOff, spotLight->cutOff);
-		glUniform1f(spsLoc.outerCutOff, spotLight->outerCutOff);
-
-		glUniform4fv(spsLoc.ambient, 1, glm::value_ptr(spotLight->ambient));
-		glUniform4fv(spsLoc.diffuse, 1, glm::value_ptr(spotLight->diffuse));
-		glUniform4fv(spsLoc.specular, 1, glm::value_ptr(spotLight->specular));
-
-		glUniform1f(spsLoc.intensity, spotLight->intensity);
+	for (size_t i = 0; i < HEADLIGHTS_SZ; i++) {
+		if (!hl[i]) continue;
+		glUniform3fv(hlLoc[i].position, 1, glm::value_ptr(hl[i]->position));
+		glUniform3fv(hlLoc[i].direction, 1, glm::value_ptr(hl[i]->direction));
+		glUniform3fv(hlLoc[i].attenuation, 1, glm::value_ptr(hl[i]->attenuation));
+		glUniform1f(hlLoc[i].eps, 1.f / (hl[i]->cutOff - hl[i]->outerCutOff));
+		glUniform1f(hlLoc[i].outerCutOff, hl[i]->outerCutOff);
+		glUniform4fv(hlLoc[i].ambient, 1, glm::value_ptr(hl[i]->ambient));
+		glUniform4fv(hlLoc[i].diffuse, 1, glm::value_ptr(hl[i]->diffuse));
+		glUniform4fv(hlLoc[i].specular, 1, glm::value_ptr(hl[i]->specular));
+		glUniform1f(hlLoc[i].intensity, hl[i]->intensity);
 	}
 }
 
@@ -175,9 +194,10 @@ void IllumiMesh::SetPLS(const PLS* const _pls)
 	pls = _pls;
 }
 
-void IllumiMesh::SetSpotLight(const SpotLight* const _spotLight)
+void IllumiMesh::SetSpotLight(const size_t ind, const SpotLight* const _spotLight)
 {
-	spotLight = _spotLight;
+	if (ind > 1) return;
+	hl[ind] = _spotLight;
 }
 
 void IllumiMesh::SetDirLight(const DirLight* const _dirLight)

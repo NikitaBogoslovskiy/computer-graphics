@@ -96,9 +96,12 @@ void App::PollEvents(sf::Window& window)
 				is_playing = true;
 				break;
 
+			case sf::Keyboard::R:
+				player.ResetVelocity();
+				break;
+
 			case sf::Keyboard::F: {
-				if (!le) break;
-				le->SwitchFlashlight();
+				player.SwitchHeadlights();
 			} break;
 
 			case sf::Keyboard::G: {

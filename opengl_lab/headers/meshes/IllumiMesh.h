@@ -1,16 +1,18 @@
 #pragma once
 #ifndef ILLUMI_MESH_H
 #define ILLUMI_MESH_H
-
+#define _CRT_SECURE_NO_WARNINGS
 #include "Mesh.h"
 #include "../lights/LightCasters.h"
+
+#define HEADLIGHTS_SZ 2
 
 class IllumiMesh : public Mesh {
 	Material material;
 protected:
 	const PLS* pls;
 	const DirLight* dirLight;
-	const SpotLight* spotLight;
+	const SpotLight* hl[HEADLIGHTS_SZ];
 
 	struct TransformLoc {
 		GLuint model;
@@ -49,20 +51,31 @@ protected:
 		GLuint intensity;
 	} dlsLoc;
 
-	struct SPLoc {
+	/*struct SPLoc {
 		GLuint position;
 		GLuint direction;
-
-		GLuint cutOff;
+		GLuint eps;
 		GLuint outerCutOff;
-
 		GLuint ambient;
 		GLuint diffuse;
 		GLuint specular;
 		GLuint attenuation;
-
 		GLuint intensity;
-	} spsLoc;
+	} h1, h2;*/
+	struct SPLoc {
+		GLuint position;
+		GLuint direction;
+		GLuint eps;
+		GLuint outerCutOff;
+		GLuint ambient;
+		GLuint diffuse;
+		GLuint specular;
+		GLuint attenuation;
+		GLuint intensity;
+	};
+
+	SPLoc hlLoc[HEADLIGHTS_SZ];
+
 public:
 	IllumiMesh();
 	IllumiMesh(const char* obj_path);
@@ -70,7 +83,7 @@ public:
 	virtual void InitShader() override;
 	virtual void ChangeShaders(const char* vertex_path, const char* fragment_path) override;
 	void SetPLS(const PLS* const pls);
-	void SetSpotLight(const SpotLight* const _spotLight);
+	void SetSpotLight(const size_t ind, const SpotLight* const _spotLight);
 	void SetDirLight(const DirLight* const _dirLight);
 };
 

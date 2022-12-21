@@ -18,7 +18,6 @@ class LightExhibition : public Scene {
 	PLS pls;		// *point light source
 	LightCube lc;
 	DirLight dls;
-	SpotLight sps;
 
 	Player* _player;
 
@@ -28,7 +27,6 @@ public:
 	void PrepareData();
 	void Draw(float time_coefficient, Camera& cam) final;
 	void SetPlayer(Player* player);
-	void SwitchFlashlight();
 	void SwitchLamp();
 	void SwitchSun();
 };

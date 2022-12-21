@@ -15,11 +15,17 @@ in PointParams {
     vec3 lvBisector;
 } pointParams;
 
-in SpotParams {
+in SpotParams0 {
 	vec3 lightDir;
 	float dist;
     vec3 lvBisector;
-} spotParams;
+} spotParams0;
+
+in SpotParams1 {
+	vec3 lightDir;
+	float dist;
+    vec3 lvBisector;
+} spotParams1;
 
 // OUT ===============
 
@@ -61,10 +67,10 @@ uniform struct DirLight {
     float intensity;
 } dls;
 
-uniform struct SpotLight {
+struct SpotLight {
     vec3 position;
     vec3 direction;
-    float cutOff;       // COSINE OF INNER CONE
+    float eps;
     float outerCutOff;  // OUTER CONE
 						// FOR PENUMBRA BETWEEN INNER AND OUTER CONES
     vec4 ambient;
@@ -73,11 +79,14 @@ uniform struct SpotLight {
 	vec3 attenuation;
 
     float intensity;
-} sps;
+};
 
-vec4 CookTorrancePointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n);
-vec4 CookTorranceDirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n);
-vec4 CookTorranceSpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n);
+#define HEADLIGHTS_SZ 2
+uniform SpotLight hl[HEADLIGHTS_SZ];
+
+vec4 CookTorrancePoint(PointLight pls, vec3 normal_n, vec3 viewDir_n);
+vec4 CookTorranceDir(DirLight dls, vec3 normal_n, vec3 viewDir_n);
+vec4 CookTorranceSpot(SpotLight sps, vec3 normal_n, vec3 viewDir_n, vec3 lightDir_n, vec3 h_n, float dist);
 
 void main() 
 {
@@ -85,18 +94,17 @@ void main()
 	vec3 viewDir_n = normalize(vert.viewDir);
 
     FragColor = (mtl.emission
-      + pls.intensity * CookTorrancePointIllumination(pls, normal_n,viewDir_n)
-      + dls.intensity * CookTorranceDirIllumination(dls, normal_n, viewDir_n)
-      + sps.intensity * CookTorranceSpotIllumination(sps, normal_n, viewDir_n)
+      + pls.intensity * CookTorrancePoint(pls, normal_n,viewDir_n)
+      + dls.intensity * CookTorranceDir(dls, normal_n, viewDir_n)
+      + hl[0].intensity * CookTorranceSpot(hl[0], normal_n, viewDir_n, spotParams0.lightDir, spotParams0.lvBisector, spotParams0.dist)
+      + hl[1].intensity * CookTorranceSpot(hl[1], normal_n, viewDir_n, spotParams1.lightDir, spotParams1.lvBisector, spotParams1.dist)
       ) * texture(texture0, vert.TexCoord)
     ;
 }
 
-float _spotLightIntensity(float cutOff, float outerCutOff, vec3 lightDir_n, vec3 spotDir) {
-    // that thing needs remake with spotExponent and stuff.
-    float eps = cutOff - outerCutOff; // lower angle - bigger cos
-    float theta = dot(lightDir_n, normalize(-spotDir)); 
-    return clamp((theta - outerCutOff) / eps, 0.0, 1.0);
+float _spotLightIntensity(float eps, float outerCutOff, vec3 lightDir_n, vec3 spotDir) {
+    float theta = dot(normalize(lightDir_n), normalize(-spotDir)); 
+    return clamp((theta - outerCutOff) * eps, 0.0, 1.0);
 }
 
 vec4 _cookTorranceIllum(vec4 lightAmbient, vec4 lightDiffuse, vec4 lightSpecular,
@@ -123,7 +131,7 @@ vec4 _cookTorranceIllum(vec4 lightAmbient, vec4 lightDiffuse, vec4 lightSpecular
 	return (amb + diff + spec);
 }
 
-vec4 CookTorrancePointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n)
+vec4 CookTorrancePoint(PointLight pls, vec3 normal_n, vec3 viewDir_n)
 {
 	vec3 lightDir_n = normalize(pointParams.lightDir);
     float att = 1.0 / (pls.attenuation[0] 
@@ -134,22 +142,22 @@ vec4 CookTorrancePointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n
 	return att * _cookTorranceIllum(pls.ambient, pls.diffuse, pls.specular, normal_n, viewDir_n, lightDir_n, h_n);
 }
 
-vec4 CookTorranceDirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n)
+vec4 CookTorranceDir(DirLight dls, vec3 normal_n, vec3 viewDir_n)
 {
     vec3 lightDir_n = normalize(-dls.direction);
     vec3 h_n = normalize(viewDir_n + lightDir_n);
     return _cookTorranceIllum(dls.ambient, dls.diffuse, dls.specular, normal_n, viewDir_n, lightDir_n, h_n);
 }
 
-vec4 CookTorranceSpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n) {
+vec4 CookTorranceSpot(SpotLight sps, vec3 normal_n, vec3 viewDir_n, vec3 lightDir_n, vec3 h_n, float dist) {
 
-    vec3 lightDir_n = normalize(spotParams.lightDir);
-    vec3 h_n = normalize(pointParams.lvBisector);
     float att = 1.0 / (sps.attenuation[0] 
-    + sps.attenuation[1] * spotParams.dist 
-    + sps.attenuation[2] * spotParams.dist * spotParams.dist);
+    + sps.attenuation[1] * dist 
+    + sps.attenuation[2] * dist * dist);
 
-    float intensity = _spotLightIntensity(sps.cutOff,  sps.outerCutOff, lightDir_n, sps.direction);
+    vec3 l_n = normalize(lightDir_n);
 
-    return att * intensity * _cookTorranceIllum(sps.ambient, sps.diffuse, sps.specular, normal_n, viewDir_n, lightDir_n, h_n);
+    float intensity = _spotLightIntensity(sps.eps,  sps.outerCutOff, l_n, sps.direction);
+
+    return att * intensity * _cookTorranceIllum(sps.ambient, sps.diffuse, sps.specular, normal_n, viewDir_n, l_n, normalize(h_n));
 }

@@ -36,6 +36,6 @@ struct SpotLight {
 	glm::vec4 specular = glm::vec4(1.f);
 	glm::vec3 attenuation = glm::vec3(0.6f, 0.00007f, 0.0000014f);
 
-	float intensity = 0.f;
+	float intensity = 1.f;
 };
 #endif // !LIGHT_CASTERS_H

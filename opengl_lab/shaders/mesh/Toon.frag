@@ -15,11 +15,17 @@ in PointParams {
     vec3 lvBisector;
 } pointParams;
 
-in SpotParams {
+in SpotParams0 {
 	vec3 lightDir;
 	float dist;
     vec3 lvBisector;
-} spotParams;
+} spotParams0;
+
+in SpotParams1 {
+	vec3 lightDir;
+	float dist;
+    vec3 lvBisector;
+} spotParams1;
 
 // OUT ===============
 
@@ -61,10 +67,10 @@ uniform struct DirLight {
     float intensity;
 } dls;
 
-uniform struct SpotLight {
+struct SpotLight {
     vec3 position;
     vec3 direction;
-    float cutOff;       // COSINE OF INNER CONE
+    float eps;
     float outerCutOff;  // OUTER CONE
 						// FOR PENUMBRA BETWEEN INNER AND OUTER CONES
     vec4 ambient;
@@ -73,13 +79,14 @@ uniform struct SpotLight {
 	vec3 attenuation;
 
     float intensity;
-} sps;
+};
 
+#define HEADLIGHTS_SZ 2
+uniform SpotLight hl[HEADLIGHTS_SZ];
 
-vec4 ToonPointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n);
-vec4 ToonDirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n);
-vec4 ToonSpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n);
-float ToonCoeff(vec3 normal_n, vec3 lightDir_n);
+vec4 ToonPoint(PointLight pls, vec3 normal_n, vec3 viewDir_n);
+vec4 ToonDir(DirLight dls, vec3 normal_n, vec3 viewDir_n);
+vec4 ToonSpot(SpotLight sps, vec3 normal_n, vec3 viewDir_n, vec3 lightDir_n, float dist);
 
 void main() 
 {
@@ -87,18 +94,17 @@ void main()
 	vec3 viewDir_n = normalize(vert.viewDir);
 
     FragColor = (mtl.emission
-        + pls.intensity * ToonPointIllumination(pls, normal_n, viewDir_n)
-        + dls.intensity * ToonDirIllumination(dls, normal_n, viewDir_n)
-        + sps.intensity * ToonSpotIllumination(sps, normal_n, viewDir_n)
+        + pls.intensity * ToonPoint(pls, normal_n, viewDir_n)
+        + dls.intensity * ToonDir(dls, normal_n, viewDir_n)
+        + hl[0].intensity * ToonSpot(hl[0], normal_n, viewDir_n, spotParams0.lightDir, spotParams0.dist)
+        + hl[1].intensity * ToonSpot(hl[1], normal_n, viewDir_n, spotParams1.lightDir, spotParams1.dist)
         ) * texture(texture0, vert.TexCoord)
     ;
 }
 
-float _spotLightIntensity(float cutOff, float outerCutOff, vec3 lightDir_n, vec3 spotDir) {
-    // that thing needs remake with spotExponent and stuff.
-    float eps = cutOff - outerCutOff; // lower angle - bigger cos
-    float theta = dot(lightDir_n, normalize(-spotDir)); 
-    return clamp((theta - outerCutOff) / eps, 0.0, 1.0);
+float _spotLightIntensity(float eps, float outerCutOff, vec3 lightDir_n, vec3 spotDir) {
+    float theta = dot(normalize(lightDir_n), normalize(-spotDir)); 
+    return clamp((theta - outerCutOff) * eps, 0.0, 1.0);
 }
 
 float ToonCoeff(vec3 normal_n, vec3 lightDir_n) {
@@ -106,28 +112,27 @@ float ToonCoeff(vec3 normal_n, vec3 lightDir_n) {
     return  0.3 + 0.7 * float(diff >= 0.4) + 0.3 * float(diff >= 0.7);
 }
 
-vec4 ToonPointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n)
+vec4 ToonPoint(PointLight pls, vec3 normal_n, vec3 viewDir_n)
 {
 	vec3 lightDir_n = normalize(pointParams.lightDir);
     return  mtl.diffuse * pls.diffuse * ToonCoeff(normal_n, lightDir_n);
 }
 
-vec4 ToonDirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n)
+vec4 ToonDir(DirLight dls, vec3 normal_n, vec3 viewDir_n)
 {
     vec3 lightDir_n = normalize(-dls.direction);
     return  mtl.diffuse * dls.diffuse * ToonCoeff(normal_n, lightDir_n);
 }
 
-vec4 ToonSpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n)
+vec4 ToonSpot(SpotLight sps, vec3 normal_n, vec3 viewDir_n, vec3 lightDir_n, float dist)
 {
-    vec3 lightDir_n = normalize(spotParams.lightDir);
+    float att = 1.0 / (sps.attenuation[0] 
+    + sps.attenuation[1] * dist 
+    + sps.attenuation[2] * dist * dist);
 
-    // that thing needs remake with spotExponent and stuff.
-    float eps = sps.cutOff - sps.outerCutOff; // lower angle - bigger cos
-    float theta = dot(lightDir_n, normalize(-sps.direction));
-    float intensity = float(theta >= sps.cutOff);
+    vec3 l_n = normalize(lightDir_n);
 
-    //float intensity = _spotLightIntensity(sps.cutOff,  sps.outerCutOff, lightDir_n, sps.direction);
+    float intensity = _spotLightIntensity(sps.eps,  sps.outerCutOff, l_n, sps.direction);
 
-    return  mtl.diffuse * sps.diffuse * intensity * ToonCoeff(normal_n, lightDir_n);
+    return  att * intensity * mtl.diffuse * sps.diffuse * ToonCoeff(normal_n, l_n);
 }

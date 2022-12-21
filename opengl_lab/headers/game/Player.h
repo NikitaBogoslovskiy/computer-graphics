@@ -13,6 +13,7 @@ class Player
 	glm::vec3 Up;
 	glm::vec3 WorldUp;
 
+	// I LIKE TO CONTAINT IT BY NAMES.
 	float Yaw;
 	const float Pitch = 0.0; // just in case
 	const float Roll = 0.0;
@@ -24,6 +25,8 @@ class Player
 			sin(glm::radians(Pitch)), // 0.0
 			sin(glm::radians(Yaw))
 		));
+		Right = glm::normalize(glm::cross(Front, WorldUp));
+		Up = glm::normalize(glm::cross(Right, Front));
 
 		//printf("%lf %lf %lf\n", Front.x, Front.y, Front.z);
 	}
@@ -33,23 +36,52 @@ class Player
 
 	PartedIllumiMesh* _mesh;
 
-	void UpdateMeshPosition() {
+	void updateMeshPosition() {
+		if (!_mesh) return;
 		_mesh->position = Position;
+		auto bumper = Position + 0.008f * Front + glm::vec3(0.0, 0.13, 0.0);
+		hl[0].position = bumper + 0.2f * Right;
+		hl[1].position = bumper - 0.2f * Right;
+
 	}
-	void UpdateMeshRotation() {
+	void updateMeshRotation() {
+		if (!_mesh) return;
 		_mesh->rotation = glm::vec3(Pitch, Yaw, Roll);
+		hl[0].direction = Front;
+		hl[1].direction = Front;
 	}
 
 public:
 
+	SpotLight hl[2];
+
 	enum Direction { FORWARD, BACKWARD, LEFT, RIGHT };
 
+	inline void SwitchHeadlights() {
+		hl[0].intensity = !hl[0].intensity;
+		hl[1].intensity = !hl[1].intensity;
+	}
+
 	inline void SetMesh(PartedIllumiMesh* mesh) { _mesh = mesh; }
-	inline void IncVelocity() { VELOCITY += 1.f; }
+
+	inline void ResetVelocity() {
+		VELOCITY = 1.F;
+		TURN_VELOCITY = 100.F;
+	}
+
+	inline void IncVelocity() {
+		VELOCITY += 1.f;
+		TURN_VELOCITY += 50.f;
+	}
 
 	inline void DecVelocity() {
 		auto newVel = VELOCITY - 1.f;
-		VELOCITY = std::max(newVel, 0.f);
+		if (newVel <= 0.f) return;
+		VELOCITY = newVel;
+
+		auto newTurnVel = TURN_VELOCITY - 50.f;
+		if (newTurnVel <= 0.f) return;
+		TURN_VELOCITY = newTurnVel;
 	}
 
 	Player(const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f),
@@ -58,6 +90,8 @@ public:
 		Position = position;
 		WorldUp = worldUp;
 		updateVectors();
+		updateMeshPosition();
+		updateMeshRotation();
 	}
 
 	const inline glm::vec3& GetPosition() const { return Position; }
@@ -94,7 +128,7 @@ public:
 			break;
 		}
 
-		UpdateMeshPosition();
-		UpdateMeshRotation();
+		updateMeshPosition();
+		updateMeshRotation();
 	}
 };
