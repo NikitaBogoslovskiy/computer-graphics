@@ -85,6 +85,7 @@ public:
 	void SetPLS(const PLS* const pls);
 	void SetSpotLight(const size_t ind, const SpotLight* const _spotLight);
 	void SetDirLight(const DirLight* const _dirLight);
+	void SetMaterial(const Material& mtl);
 };
 
 #endif //!ILLUMI_MESH_H

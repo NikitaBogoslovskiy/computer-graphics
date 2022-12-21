@@ -181,6 +181,7 @@
     <ClInclude Include="headers\game\Camera3P.h" />
     <ClInclude Include="headers\game\Player.h" />
     <ClInclude Include="headers\lights\LightCasters.h" />
+    <ClInclude Include="headers\meshes\Bullet.h" />
     <ClInclude Include="headers\meshes\IllumiMesh.h" />
     <ClInclude Include="headers\meshes\Meshes.h" />
     <ClInclude Include="headers\meshes\PartedIllumiMesh.h" />

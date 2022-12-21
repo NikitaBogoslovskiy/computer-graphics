@@ -204,3 +204,8 @@ void IllumiMesh::SetDirLight(const DirLight* const _dirLight)
 {
 	dirLight = _dirLight;
 }
+
+void IllumiMesh::SetMaterial(const Material& mtl)
+{
+	material = mtl;
+}

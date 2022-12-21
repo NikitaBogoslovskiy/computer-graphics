@@ -3,19 +3,24 @@
 #include "../headers/entities/Skybox.h"
 #include <ctime>
 #include <random>
+#include "../headers/meshes/Bullet.h"
+
 LightExhibition::LightExhibition()
 {
 	skybox = new Skybox();
 }
 
-void LightExhibition::LoadModels(const std::vector<inModelData>& inParams)
+void LightExhibition::LoadModels(const std::vector<inModelData>& inParams,
+	const std::vector<inModelData>& inEnemies,
+	const std::vector<inModelData>& inMag)
 {
+	lc.SetColor(pls.specular);
 	for (auto& imd : inParams) {
 		mesh_type* m = new mesh_type();
 		m->InitShader();
 		m->Load(imd.obj_file);
 
-		m->SetPLS(&pls); lc.SetColor(pls.specular);
+		m->SetPLS(&pls);
 		m->SetDirLight(&dls);
 		m->SetSpotLight(0, &(_player->hl[0])); m->SetSpotLight(1, &(_player->hl[1]));
 
@@ -31,24 +36,72 @@ void LightExhibition::LoadModels(const std::vector<inModelData>& inParams)
 	}
 
 	if (_player) _player->SetMesh(objects[0]);
+
+	for (auto& imd : inEnemies) {
+		mesh_type* m = new mesh_type();
+		m->InitShader();
+		m->Load(imd.obj_file);
+
+		m->SetPLS(&pls);
+		m->SetDirLight(&dls);
+		m->SetSpotLight(0, &(_player->hl[0])); m->SetSpotLight(1, &(_player->hl[1]));
+
+		if (imd.vShader_path && *imd.vShader_path) {
+			m->ChangeShaders(imd.vShader_path, imd.fShader_path);
+		}
+		m->InitTextures((char*)imd.texture_path);
+		m->InitVO();
+
+		enemies.push_back(std::move(m));
+	}
+
+	for (auto& imd : inMag) {
+		Bullet* m = new Bullet();
+		m->InitShader();
+		m->Load(imd.obj_file);
+
+		m->SetPLS(&pls);
+		m->SetDirLight(&dls);
+		m->SetSpotLight(0, &(_player->hl[0])); m->SetSpotLight(1, &(_player->hl[1]));
+
+		if (imd.vShader_path && *imd.vShader_path) {
+			m->ChangeShaders(imd.vShader_path, imd.fShader_path);
+		}
+		m->InitTextures((char*)imd.texture_path);
+		m->InitVO();
+
+		_player->mag.push_back(std::move(m));
+	}
 }
 
 void LightExhibition::PrepareData()
 {
+	std::random_device rd;  // Will be used to obtain a seed for the random number engine
+	std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+	std::uniform_real_distribution<> dis(-4.0, 4.0);
+
 	if (objects.size() >= 2) {
 		//objects[0]->position = { 0.0,0.0,0.0 }; // field
 		//objects[1]->position = { 0.0,0.0,0.0 }; // christmas tree
 		//float r = 2.f;
 		//float dPhi = DPI / (objects.size() - 2);
-		std::random_device rd;  // Will be used to obtain a seed for the random number engine
-		std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
-		std::uniform_real_distribution<> dis(-4.0, 4.0);
 
 		for (size_t i = 2; i < objects.size(); i++)
 		{
 			objects[i]->position = { dis(gen) , 0.f, dis(gen) };
 			//objects[i]->position = { r * sinf(i * dPhi), 0.0, r * cosf(i * dPhi) };
 		}
+	}
+	for (auto& enemy : enemies) {
+		enemy->position = { dis(gen) , 0.f, dis(gen) };
+		enemy->rotation = { 0.f, dis(gen), 0.f };
+	}
+
+	Material bulletMtl;
+	bulletMtl.emission = glm::vec4{ 0.8f, 0.8f, 0.8f, 1.f };
+	bulletMtl.specular = glm::vec4{ 1.f, 1.f, 1.f, 1.f };
+	for (auto& bullet : _player->mag) {
+		bullet->SetMaterial(bulletMtl);
 	}
 }
 void LightExhibition::Draw(float time_coefficient, Camera& cam)
@@ -74,6 +127,22 @@ void LightExhibition::Draw(float time_coefficient, Camera& cam)
 		auto _model = glm::translate(glm::mat4(1.0f), o->position);
 		_model = glm::rotate(_model, glm::radians(o->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
 		_model = glm::scale(_model, glm::vec3(0.25f));
+		o->Draw(_model, cam);
+	}
+
+	for (mesh_type* o : enemies) {
+		auto _model = glm::translate(glm::mat4(1.0f), o->position);
+		_model = glm::rotate(_model, glm::radians(o->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+		_model = glm::scale(_model, glm::vec3(0.005f));
+		o->Draw(_model, cam);
+	}
+
+	for (Bullet* o : _player->mag) {
+		if (o->inMag) continue;
+
+		auto _model = glm::translate(glm::mat4(1.0f), o->position);
+		_model = glm::rotate(_model, glm::radians(o->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));
+		_model = glm::scale(_model, glm::vec3(0.15f));
 		o->Draw(_model, cam);
 	}
 

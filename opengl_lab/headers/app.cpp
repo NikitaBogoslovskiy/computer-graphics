@@ -35,6 +35,23 @@ void App::Init()
 			{"MirTanka/Barrel.obj", 0, 0, "MirTanka/Barrel.png"},
 			{"MirTanka/Tree.obj", 0, 0, "MirTanka/Tree.png"},
 			{"MirTanka/Stone-2.obj", 0, 0, "MirTanka/Stone-1.png"},
+		},
+		{
+			{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "dummy_wood.jpg"},
+			{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "dummy_wood.jpg"},
+		},
+
+		{
+			{"MirTanka/Stone-1.obj", 0, 0, "vodica.jpg"},
+			{"MirTanka/Stone-1.obj", 0, 0, "vodica.jpg"},
+			{"MirTanka/Stone-1.obj", 0, 0, "vodica.jpg"},
+			{"MirTanka/Stone-1.obj", 0, 0, "vodica.jpg"},
+			{"MirTanka/Stone-1.obj", 0, 0, "vodica.jpg"},
+			{"MirTanka/Stone-1.obj", 0, 0, "vodica.jpg"},
+			{"MirTanka/Stone-1.obj", 0, 0, "vodica.jpg"},
+			{"MirTanka/Stone-1.obj", 0, 0, "vodica.jpg"},
+			{"MirTanka/Stone-1.obj", 0, 0, "vodica.jpg"},
+			{"MirTanka/Stone-1.obj", 0, 0, "vodica.jpg"},
 		});
 	le->PrepareData();
 	scenes.push_back(le);
@@ -93,7 +110,7 @@ void App::PollEvents(sf::Window& window)
 				break;
 
 			case sf::Keyboard::Q:
-				is_playing = true;
+				player.MakeShot();
 				break;
 
 			case sf::Keyboard::R:
@@ -186,6 +203,7 @@ void App::PollEvents(sf::Window& window)
 	if (settings.is_arrow_up)    player.IncVelocity();
 	if (settings.is_arrow_down)  player.DecVelocity();
 	if (settings.is_cam_active) camera->ProcessMouseMovement(mouseDelta);
+	player.UpdateBullets(deltaTime);
 }
 
 void App::ProcessUserInput()

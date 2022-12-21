@@ -1,7 +1,7 @@
 #pragma once
 
 #include "../pch.h"
-#include "../meshes/PartedIllumiMesh.h"
+#include "../meshes/Bullet.h"
 
 class Player
 {
@@ -53,6 +53,27 @@ class Player
 
 public:
 
+	std::vector<Bullet*> mag;
+
+	inline void UpdateBullets(const float& deltaTime) {
+		for (auto& b : mag) {
+			b->Move(deltaTime);
+		}
+	}
+
+	inline void MakeShot() {
+		printf("searching for bullet\n");
+		int ind = -1;
+		for (size_t i = 0; i < mag.size(); i++) {
+			if (!mag[i]->inMag) continue;
+			ind = i; break;
+		}
+		if (ind == -1) return;
+		printf("found bullet: %d\n", ind);
+		mag[ind]->position = Position + glm::vec3{ 0.f, 0.1f, 0.f };
+		mag[ind]->Direction = Front;
+		mag[ind]->inMag = false;
+	}
 	SpotLight hl[2];
 
 	enum Direction { FORWARD, BACKWARD, LEFT, RIGHT };
