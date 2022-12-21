@@ -77,10 +77,10 @@ void Tetrahedron::Draw(const glm::mat4& model, Camera& cam) {
 
 	//glm::mat4 model = glm::mat4(1.0f); // make sure to initialize matrix to identity matrix first
 	//glm::mat4 view = glm::mat4(1.0f);
-	
+
 	//model = glm::rotate(model, glm::radians(time), glm::vec3(0.5f, 1.0f, 0.0f));
 	//view = glm::translate(view, glm::vec3(offset.x, offset.y, offset.z));
-	
+
 	// retrieve the matrix uniform locations
 	unsigned int modelLoc = glGetUniformLocation(Program, "model");
 	unsigned int viewLoc = glGetUniformLocation(Program, "view");
@@ -95,6 +95,6 @@ void Tetrahedron::Draw(const glm::mat4& model, Camera& cam) {
 	glDrawElements(GL_TRIANGLES, 12, GL_UNSIGNED_INT, 0);
 	glBindVertexArray(0);
 	glUseProgram(0);
-	
+
 	//checkOpenGLerror();
 }

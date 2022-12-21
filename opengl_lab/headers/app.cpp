@@ -39,6 +39,12 @@ void App::Init()
 		{
 			{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "dummy_wood.jpg"},
 			{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "dummy_wood.jpg"},
+			{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "dummy_wood.jpg"},
+			{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "dummy_wood.jpg"},
+			{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "dummy_wood.jpg"},
+			{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "dummy_wood.jpg"},
+			{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "dummy_wood.jpg"},
+			{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "dummy_wood.jpg"},
 		},
 
 		{
@@ -77,14 +83,14 @@ void App::PollEvents(sf::Window& window)
 	sf::Event event;
 	mouseDelta.x = 0;
 	mouseDelta.y = 0;
-
+	LightExhibition* le = dynamic_cast<LightExhibition*>(currScene());
 	while (window.pollEvent(event)) {
 
 		if (event.type == sf::Event::Closed) {
 			window.close();
 		}
 		else if (event.type == sf::Event::KeyPressed) {
-			LightExhibition* le = dynamic_cast<LightExhibition*>(currScene());
+
 			switch (event.key.code)
 			{
 			case sf::Keyboard::W:
@@ -204,6 +210,8 @@ void App::PollEvents(sf::Window& window)
 	if (settings.is_arrow_down)  player.DecVelocity();
 	if (settings.is_cam_active) camera->ProcessMouseMovement(mouseDelta);
 	player.UpdateBullets(deltaTime);
+	if (!le) return;
+	player.TryKill(le->enemies);
 }
 
 void App::ProcessUserInput()

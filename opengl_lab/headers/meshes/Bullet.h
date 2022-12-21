@@ -7,7 +7,7 @@ class Bullet : public PartedIllumiMesh
 {
 
 protected:
-	float collisionR = 0.1f;
+	float collisionR = 0.5f;
 	float ACCELERATION = 10.F;
 public:
 
@@ -21,7 +21,7 @@ public:
 	}
 
 	inline bool CheckCollision(PartedIllumiMesh* pim) {
-		return glm::length(pim->position - position) <= collisionR;
+		return glm::length(pim->position - this->position) <= collisionR;
 	}
 
 	Bullet() {

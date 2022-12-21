@@ -122,7 +122,7 @@ void LightExhibition::Draw(float time_coefficient, Camera& cam)
 		),
 			cam);
 	}
-
+	
 	for (mesh_type* o : objects) {
 		auto _model = glm::translate(glm::mat4(1.0f), o->position);
 		_model = glm::rotate(_model, glm::radians(o->rotation.y), glm::vec3(0.0f, 1.0f, 0.0f));

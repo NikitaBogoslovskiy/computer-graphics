@@ -1,5 +1,5 @@
 #pragma once
-
+#include <algorithm>
 #include "../pch.h"
 #include "../meshes/Bullet.h"
 
@@ -54,6 +54,28 @@ class Player
 public:
 
 	std::vector<Bullet*> mag;
+
+	inline void TryKill(std::vector<PartedIllumiMesh*>& enemies) {
+		for (auto& b : mag) {
+			if (b->inMag) continue;
+			int enemy_ind = -1;
+			for (size_t i = 0; i < enemies.size(); i++) {
+				auto collided = b->CheckCollision(enemies[i]);
+				if (!collided) continue;
+				enemy_ind = i; break;
+			}
+			if (enemy_ind == -1) continue;
+			b->inMag = true;
+
+			//enemies.clear();
+			//using std::swap;
+			//swap(enemies[enemy_ind], enemies.back());
+			//enemies.pop_back();
+			//printf("collision: %lf %lf %lf; %d\n", enemies[enemy_ind]->position.x, enemies[enemy_ind]->position.y, enemies[enemy_ind]->position.z, enemies.size());
+			enemies.erase(enemies.begin() + enemy_ind);
+			//
+		}
+	}
 
 	inline void UpdateBullets(const float& deltaTime) {
 		for (auto& b : mag) {
