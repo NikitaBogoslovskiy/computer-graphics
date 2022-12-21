@@ -21,17 +21,17 @@ void App::Init()
 
 	auto le = new LightExhibition();
 	le->LoadModels({
-			{"MirTanka/Field.obj", 0, 0, "MirTanka/Field.png"},
-			{"MirTanka/ChristmasTree.obj", 0, 0, "MirTanka/ChristmasTree.png"},
-			{"MirTanka/Stone-1.obj", 0, 0, "MirTanka/Stone-1.png"},
+			{"MirTanka/Field.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Field.png"},
+			{"MirTanka/ChristmasTree.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/ChristmasTree.png"},
+			{"MirTanka/Stone-1.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Stone-1.png"},
 			{"MirTanka/Tanks.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Tank.png"},
 
 			{"MirTanka/Barrel.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Barrel.png"},
 			{"MirTanka/Barrel.obj", "shaders/mesh/default_l.vert", "shaders/mesh/Toon.frag", "MirTanka/Barrel.png"},
 
-			{"MirTanka/Barrel.obj", 0, 0, "MirTanka/Barrel.png"},
-			{"MirTanka/Tree.obj", 0, 0, "MirTanka/Tree.png"},
-			{"MirTanka/Stone-2.obj", 0, 0, "MirTanka/Stone-1.png"},
+			{"MirTanka/Barrel.obj","shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Barrel.png"},
+			{"MirTanka/Tree.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Tree.png"},
+			{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "dummy_wood.jpg"},
 		});
 	le->PrepareData();
 	scenes.push_back(le);
