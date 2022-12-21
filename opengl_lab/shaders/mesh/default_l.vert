@@ -50,7 +50,7 @@ uniform struct PointLight {
 uniform struct SpotLight {
     vec3 position;
     vec3 direction;
-    float cutOff;       // COSINE OF INNER CONE
+    float eps;
     float outerCutOff;  // OUTER CONE
 						// FOR PENUMBRA BETWEEN INNER AND OUTER CONES
     vec4 ambient;

@@ -53,7 +53,7 @@ protected:
 		GLuint position;
 		GLuint direction;
 
-		GLuint cutOff;
+		GLuint eps;
 		GLuint outerCutOff;
 
 		GLuint ambient;

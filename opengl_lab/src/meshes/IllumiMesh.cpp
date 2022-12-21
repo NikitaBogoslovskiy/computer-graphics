@@ -87,7 +87,7 @@ void IllumiMesh::ChangeShaders(const char* vertex_path, const char* fragment_pat
 
 	spsLoc.position = glGetUniformLocation(Program, "sps.position");
 	spsLoc.direction = glGetUniformLocation(Program, "sps.direction");
-	spsLoc.cutOff = glGetUniformLocation(Program, "sps.cutOff");
+	spsLoc.eps = glGetUniformLocation(Program, "sps.eps");
 	spsLoc.outerCutOff = glGetUniformLocation(Program, "sps.outerCutOff");
 	spsLoc.ambient = glGetUniformLocation(Program, "sps.ambient");
 	spsLoc.diffuse = glGetUniformLocation(Program, "sps.diffuse");
@@ -97,7 +97,7 @@ void IllumiMesh::ChangeShaders(const char* vertex_path, const char* fragment_pat
 
 	if (spsLoc.position == -1) printf("\033[0;31mcould not bind attrib sps.position\033[0m\n");
 	if (spsLoc.direction == -1) printf("\033[0;31mcould not bind attrib sps.direction\033[0m\n");
-	if (spsLoc.cutOff == -1) printf("\033[0;31mcould not bind attrib sps.cutOff\033[0m\n");
+	if (spsLoc.eps == -1) printf("\033[0;31mcould not bind attrib sps.eps\033[0m\n");
 	if (spsLoc.outerCutOff == -1) printf("\033[0;31mcould not bind attrib sps.outerCutOff\033[0m\n");
 
 	if (spsLoc.ambient == -1) printf("\033[0;31mcould not bind attrib sps.ambient\033[0m\n");
@@ -159,7 +159,7 @@ void IllumiMesh::UpdateUniforms(const glm::mat4& model, Camera& cam)
 		glUniform3fv(spsLoc.direction, 1, glm::value_ptr(spotLight->direction));
 		glUniform3fv(spsLoc.attenuation, 1, glm::value_ptr(spotLight->attenuation));
 
-		glUniform1f(spsLoc.cutOff, spotLight->cutOff);
+		glUniform1f(spsLoc.eps, 1.f / (spotLight->cutOff - spotLight->outerCutOff));
 		glUniform1f(spsLoc.outerCutOff, spotLight->outerCutOff);
 
 		glUniform4fv(spsLoc.ambient, 1, glm::value_ptr(spotLight->ambient));

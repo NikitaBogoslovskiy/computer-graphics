@@ -64,7 +64,7 @@ uniform struct DirLight {
 uniform struct SpotLight {
     vec3 position;
     vec3 direction;
-    float cutOff;       // COSINE OF INNER CONE
+    float eps;
     float outerCutOff;  // OUTER CONE
 						// FOR PENUMBRA BETWEEN INNER AND OUTER CONES
     vec4 ambient;
@@ -75,9 +75,9 @@ uniform struct SpotLight {
     float intensity;
 } sps;
 
-vec4 PhongPointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n);
-vec4 PhongDirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n);
-vec4 PhongSpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n);
+vec4 PhongPoint(PointLight pls, vec3 normal_n, vec3 viewDir_n);
+vec4 PhongDir(DirLight dls, vec3 normal_n, vec3 viewDir_n);
+vec4 PhongSpot(SpotLight sps, vec3 normal_n, vec3 viewDir_n);
 
 void main() 
 {
@@ -85,18 +85,16 @@ void main()
 	vec3 viewDir_n = normalize(vert.viewDir);
 
     FragColor = (mtl.emission
-        + pls.intensity * PhongPointIllumination(pls, normal_n, viewDir_n)
-        + dls.intensity * PhongDirIllumination(dls, normal_n, viewDir_n)
-        + sps.intensity * PhongSpotIllumination(sps, normal_n, viewDir_n)
+        + pls.intensity * PhongPoint(pls, normal_n, viewDir_n)
+        + dls.intensity * PhongDir(dls, normal_n, viewDir_n)
+        + sps.intensity * PhongSpot(sps, normal_n, viewDir_n)
         ) * texture(texture0, vert.TexCoord)
     ;
 }
 
-float _spotLightIntensity(float cutOff, float outerCutOff, vec3 lightDir_n, vec3 spotDir) {
-    // that thing needs remake with spotExponent and stuff.
-    float eps = cutOff - outerCutOff; // lower angle - bigger cos
-    float theta = dot(lightDir_n, normalize(-spotDir)); 
-    return clamp((theta - outerCutOff) / eps, 0.0, 1.0);
+float _spotLightIntensity(float eps, float outerCutOff, vec3 lightDir_n, vec3 spotDir) {
+    float theta = dot(normalize(lightDir_n), normalize(-spotDir)); 
+    return clamp((theta - outerCutOff) * eps, 0.0, 1.0);
 }
 
 vec4 _phongIllum( vec4 lightAmbient, vec4 lightDiffuse, vec4 lightSpecular,
@@ -116,7 +114,7 @@ vec4 _phongIllum( vec4 lightAmbient, vec4 lightDiffuse, vec4 lightSpecular,
 
 	return result;
 }
-vec4 PhongPointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n)
+vec4 PhongPoint(PointLight pls, vec3 normal_n, vec3 viewDir_n)
 {
 	vec3 lightDir_n = normalize(pointParams.lightDir);
 	float att = 1.0 / (pls.attenuation[0] 
@@ -126,15 +124,13 @@ vec4 PhongPointIllumination(PointLight pls, vec3 normal_n, vec3 viewDir_n)
     return att * _phongIllum(pls.ambient, pls.diffuse, pls.specular, normal_n, viewDir_n, lightDir_n);
 }
 
-vec4 PhongDirIllumination(DirLight dls, vec3 normal_n, vec3 viewDir_n)
+vec4 PhongDir(DirLight dls, vec3 normal_n, vec3 viewDir_n)
 {
     vec3 lightDir_n = normalize(-dls.direction);
     return _phongIllum(dls.ambient, dls.diffuse, dls.specular, normal_n, viewDir_n, lightDir_n);
 }
 
-
-
-vec4 PhongSpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n)
+vec4 PhongSpot(SpotLight sps, vec3 normal_n, vec3 viewDir_n)
 {
     vec3 lightDir_n = normalize(spotParams.lightDir);
 
@@ -142,7 +138,7 @@ vec4 PhongSpotIllumination(SpotLight sps, vec3 normal_n, vec3 viewDir_n)
     + sps.attenuation[1] * spotParams.dist 
     + sps.attenuation[2] * spotParams.dist * spotParams.dist);
 
-    float intensity = _spotLightIntensity(sps.cutOff,  sps.outerCutOff, lightDir_n, sps.direction);
+    float intensity = _spotLightIntensity(sps.eps,  sps.outerCutOff, lightDir_n, sps.direction);
 
     return att * intensity * _phongIllum(sps.ambient, sps.diffuse, sps.specular, normal_n, viewDir_n, lightDir_n);
 } 
