@@ -42,7 +42,7 @@ class Player
 		auto bumper = Position + 0.008f * Front + glm::vec3(0.0, 0.13, 0.0);
 		hl[0].position = bumper + 0.2f * Right;
 		hl[1].position = bumper - 0.2f * Right;
-
+		//printf("%lf %lf %lf\n", Position.x, Position.y, Position.z);
 	}
 	void updateMeshRotation() {
 		if (!_mesh) return;

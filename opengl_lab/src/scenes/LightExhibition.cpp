@@ -2,7 +2,7 @@
 #include "../headers/pch.h"
 #include "../headers/entities/Skybox.h"
 #include <ctime>
-
+#include <random>
 LightExhibition::LightExhibition()
 {
 	skybox = new Skybox();
@@ -29,6 +29,7 @@ void LightExhibition::LoadModels(const std::vector<inModelData>& inParams)
 		//objects.push_back(m);
 		objects.push_back(std::move(m));
 	}
+
 	if (_player) _player->SetMesh(objects[0]);
 }
 
@@ -37,11 +38,16 @@ void LightExhibition::PrepareData()
 	if (objects.size() >= 2) {
 		//objects[0]->position = { 0.0,0.0,0.0 }; // field
 		//objects[1]->position = { 0.0,0.0,0.0 }; // christmas tree
-		float r = 2.f;
-		float dPhi = DPI / (objects.size() - 2);
+		//float r = 2.f;
+		//float dPhi = DPI / (objects.size() - 2);
+		std::random_device rd;  // Will be used to obtain a seed for the random number engine
+		std::mt19937 gen(rd()); // Standard mersenne_twister_engine seeded with rd()
+		std::uniform_real_distribution<> dis(-4.0, 4.0);
+
 		for (size_t i = 2; i < objects.size(); i++)
 		{
-			objects[i]->position = { r * sinf(i * dPhi), 0.0, r * cosf(i * dPhi) };
+			objects[i]->position = { dis(gen) , 0.f, dis(gen) };
+			//objects[i]->position = { r * sinf(i * dPhi), 0.0, r * cosf(i * dPhi) };
 		}
 	}
 }
