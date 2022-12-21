@@ -5,7 +5,7 @@
 
 class Player
 {
-	glm::vec3 Position; //in world coordinates
+
 
 	glm::vec3 Front;
 	glm::vec3 Right;
@@ -31,7 +31,7 @@ class Player
 		//printf("%lf %lf %lf\n", Front.x, Front.y, Front.z);
 	}
 
-	float VELOCITY = 1.F;
+
 	float TURN_VELOCITY = 100.F;
 
 	PartedIllumiMesh* _mesh;
@@ -39,19 +39,37 @@ class Player
 	void updateMeshPosition() {
 		if (!_mesh) return;
 		_mesh->position = Position;
-		auto bumper = Position + 0.008f * Front + glm::vec3(0.0, 0.13, 0.0);
-		hl[0].position = bumper + 0.2f * Right;
-		hl[1].position = bumper - 0.2f * Right;
-		//printf("%lf %lf %lf\n", Position.x, Position.y, Position.z);
+		UpdateHeadlightsPosition();
 	}
+
 	void updateMeshRotation() {
 		if (!_mesh) return;
 		_mesh->rotation = glm::vec3(Pitch, Yaw, Roll);
+		UpdateHeadlightsRotation();
+	}
+
+	void UpdateHeadlightsPosition() {
+		auto bumper = Position + 0.008f * Front + glm::vec3(0.0, 0.13, 0.0);
+		hl[0].position = bumper + 0.2f * Right;
+		hl[1].position = bumper - 0.2f * Right;
+	}
+
+	void UpdateHeadlightsRotation() {
 		hl[0].direction = Front;
 		hl[1].direction = Front;
 	}
 
+	float VELOCITY = 1.F;
+	glm::vec3 Position; //in world coordinates
+
 public:
+
+	void Move(const glm::vec3& v) {
+		Position += v;
+		updateVectors();
+		updateMeshPosition();
+		updateMeshRotation();
+	}
 
 	std::vector<Bullet*> mag;
 
@@ -59,6 +77,7 @@ public:
 		for (auto& b : mag) {
 			if (b->inMag) continue;
 			int enemy_ind = -1;
+			// i know find_if suits here better but dont care
 			for (size_t i = 0; i < enemies.size(); i++) {
 				auto collided = b->CheckCollision(enemies[i]);
 				if (!collided) continue;
@@ -67,13 +86,8 @@ public:
 			if (enemy_ind == -1) continue;
 			b->inMag = true;
 
-			//enemies.clear();
-			//using std::swap;
-			//swap(enemies[enemy_ind], enemies.back());
-			//enemies.pop_back();
-			//printf("collision: %lf %lf %lf; %d\n", enemies[enemy_ind]->position.x, enemies[enemy_ind]->position.y, enemies[enemy_ind]->position.z, enemies.size());
 			enemies.erase(enemies.begin() + enemy_ind);
-			//
+
 		}
 	}
 
@@ -133,12 +147,15 @@ public:
 		Position = position;
 		WorldUp = worldUp;
 		updateVectors();
-		updateMeshPosition();
-		updateMeshRotation();
+		UpdateHeadlightsPosition();
+		UpdateHeadlightsRotation();
+		//updateMeshPosition();
+		//updateMeshRotation();
 	}
 
-	const inline glm::vec3& GetPosition() const { return Position; }
-	const inline glm::vec3& GetDirection() const { return Front; }
+	inline const glm::vec3& GetPosition() const { return Position; }
+	inline const glm::vec3& GetDirection() const { return Front; }
+	inline const float& GetVelocity() const { return VELOCITY; }
 
 	// ================================================================== interface api
 

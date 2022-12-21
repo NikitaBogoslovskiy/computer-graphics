@@ -212,6 +212,9 @@ void App::PollEvents(sf::Window& window)
 	player.UpdateBullets(deltaTime);
 	if (!le) return;
 	player.TryKill(le->enemies);
+	if ((std::abs(player.GetPosition().x) >= 4.8) || (std::abs(player.GetPosition().z) >= 4.8)) {
+		player.Move({ 0.f, -player.GetVelocity() * deltaTime, 0.f });
+	}
 }
 
 void App::ProcessUserInput()
