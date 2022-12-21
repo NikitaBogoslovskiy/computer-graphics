@@ -3,7 +3,7 @@
 #include "pch.h"
 
 class Camera {
-
+protected:
 	glm::vec3 Position; //in world coordinates
 
 	glm::vec3 Front;

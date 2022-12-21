@@ -129,4 +129,8 @@ static GLfloat&& randf() {
 	return rand() / 32'767.f;
 }
 
+static inline float length(const glm::vec3& a, const glm::vec3& b) {
+	return sqrtf(powf(a.x - b.x, 2.f) + powf(a.y - b.y, 2.f) + powf(a.z - b.z, 2.f));
+}
+
 #endif // !STUFF_H

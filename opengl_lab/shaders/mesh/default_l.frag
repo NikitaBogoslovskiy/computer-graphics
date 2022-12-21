@@ -95,7 +95,7 @@ void main()
 float _spotLightIntensity(float cutOff, float outerCutOff, vec3 lightDir_n, vec3 spotDir) {
     // that thing needs remake with spotExponent and stuff.
     float eps = cutOff - outerCutOff; // lower angle - bigger cos
-    float theta = dot(lightDir_n, normalize(-spotDir)); 
+    float theta = dot(lightDir_n, normalize(-spotDir));     
     return clamp((theta - outerCutOff) / eps, 0.0, 1.0);
 }
 

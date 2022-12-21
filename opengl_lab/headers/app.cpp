@@ -19,6 +19,7 @@ void App::Init()
 	cur_scene = 0;
 	*/
 
+	/*
 	auto le = new LightExhibition();
 	le->LoadModels({
 			{"MirTanka/Field.obj", 0, 0, "MirTanka/Field.png"},
@@ -35,6 +36,30 @@ void App::Init()
 		});
 	le->PrepareData();
 	scenes.push_back(le);
+	cur_scene = 0;
+	*/
+
+	auto wot = new WorldOfTank();
+	wot->LoadModels(
+		{ "MirTanka/Tanks.obj", 0, 0, "MirTanka/Tank.png" },
+		{ "MirTanka/ChristmasTree.obj", 0, 0, "MirTanka/ChristmasTree.png" },
+		{ "MirTanka/Field.obj", 0, 0, "MirTanka/Field.png" },
+		{
+			{"MirTanka/Stone-1.obj", 0, 0, "MirTanka/Stone-1.png"},
+			{"MirTanka/Barrel.obj", 0, 0, "MirTanka/Barrel.png"},
+			{"MirTanka/Barrel.obj", 0, 0, "MirTanka/Barrel.png"},
+			{"MirTanka/Barrel.obj", 0, 0, "MirTanka/Barrel.png"},
+			{"MirTanka/Tree.obj", 0, 0, "MirTanka/Tree.png"},
+			{"MirTanka/Stone-2.obj", 0, 0, "MirTanka/Stone-1.png"},
+		},
+		{
+			{ "MirTanka/Tanks.obj", 0, 0, "MirTanka/EnTank.png" },
+			{ "MirTanka/Tanks.obj", 0, 0, "MirTanka/EnTank.png" },
+			{ "MirTanka/Tanks.obj", 0, 0, "MirTanka/EnTank.png" },
+			{ "MirTanka/Tanks.obj", 0, 0, "MirTanka/EnTank.png" }
+		});
+	wot->GeneratePositions();
+	scenes.push_back(wot);
 	cur_scene = 0;
 	/*
 	*/
@@ -59,6 +84,13 @@ void App::Release()
 
 void App::PollEvents(sf::Window& window)
 {
+	auto wot = dynamic_cast<WorldOfTank*>(currScene());
+	if (wot) {
+		wot->PollEvents(window);
+		return;
+	}
+	
+
 	sf::Event event;
 	mouseDelta.x = 0;
 	mouseDelta.y = 0;

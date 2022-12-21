@@ -151,6 +151,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="headers\app.cpp" />
+    <ClCompile Include="headers\scenes\WorldOfTank.cpp" />
     <ClCompile Include="src\entities\LightCube.cpp" />
     <ClCompile Include="src\meshes\IllumiMesh.cpp" />
     <ClCompile Include="src\entities\Cube2Tex.cpp" />
@@ -171,6 +172,7 @@
   <ItemGroup>
     <ClInclude Include="headers\app.h" />
     <ClInclude Include="headers\Camera.h" />
+    <ClInclude Include="headers\Commander.h" />
     <ClInclude Include="headers\entities\Cube2Tex.h" />
     <ClInclude Include="headers\entities\Cube3Tex.h" />
     <ClInclude Include="headers\entities\ColoredEllipse.h" />
@@ -189,6 +191,7 @@
     <ClInclude Include="headers\meshes\Mesh.h" />
     <ClInclude Include="headers\pch.h" />
     <ClInclude Include="headers\scenes\Scene.h" />
+    <ClInclude Include="headers\scenes\WorldOfTank.h" />
     <ClInclude Include="headers\shader_loader.h" />
     <ClInclude Include="headers\entities\Tetrahedron.h" />
     <ClInclude Include="headers\stuff.h" />

@@ -15,12 +15,12 @@ void LightExhibition::LoadModels(const std::vector<inModelData>& inParams)
 		m->InitShader();
 		m->Load(imd.obj_file);
 
-		m->SetPLS(&pls);
+		//m->SetPLS(&pls);
 		lc.SetColor(pls.specular);
 		m->SetDirLight(&dls);
 		m->SetSpotLight(&sps);
 
-		if (imd.vShader_path && *imd.vShader_path) {
+		if (imd.vShader_path) {
 			m->ChangeShaders(imd.vShader_path, imd.fShader_path);
 		}
 		m->InitTextures((char*)imd.texture_path);

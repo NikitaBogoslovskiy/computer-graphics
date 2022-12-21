@@ -69,6 +69,9 @@
     <ClCompile Include="src\meshes\PartedIllumiMesh.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
+    <ClCompile Include="headers\scenes\WorldOfTank.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="headers\entities\Entity.h">
@@ -144,6 +147,12 @@
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
     <ClInclude Include="headers\meshes\PartedIllumiMesh.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\scenes\WorldOfTank.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\Commander.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>

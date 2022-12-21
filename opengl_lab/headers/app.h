@@ -8,6 +8,7 @@
 #include "../headers/entities/Skybox.h"
 #include "../headers/scenes/LightExhibition.h"
 #include "../headers/scenes/SolarSystem.h"
+#include "../headers/scenes/WorldOfTank.h"
 #include "Camera.h"
 
 class App {
