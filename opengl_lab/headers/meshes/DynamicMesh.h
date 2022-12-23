@@ -8,5 +8,5 @@ protected:
 public:
 	DynamicMesh();
 	DynamicMesh(const char* obj_path);
-	virtual void UpdateUniforms(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) override;
+	virtual void UpdateUniforms(const glm::mat4& model, Camera& cam) override;
 };

@@ -150,42 +150,62 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="headers\app.cpp" />
+    <ClCompile Include="src\entities\LightCube.cpp" />
+    <ClCompile Include="src\meshes\IllumiMesh.cpp" />
     <ClCompile Include="src\entities\Cube2Tex.cpp" />
     <ClCompile Include="src\entities\Cube3Tex.cpp" />
     <ClCompile Include="src\entities\ColoredEllipse.cpp" />
     <ClCompile Include="src\entities\Entity.cpp" />
     <ClCompile Include="src\entities\Skybox.cpp" />
-    <ClCompile Include="src\entities\SolarSystem.cpp" />
+    <ClCompile Include="src\meshes\PartedIllumiMesh.cpp" />
+    <ClCompile Include="src\scenes\LightExhibition.cpp" />
+    <ClCompile Include="src\scenes\SolarSystem.cpp" />
     <ClCompile Include="src\meshes\DynamicMesh.cpp" />
     <ClCompile Include="src\meshes\Mesh.cpp" />
-    <ClCompile Include="src\scenes\Scene.cpp" />
     <ClCompile Include="src\stb_image_impl.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\shader_loader.cpp" />
     <ClCompile Include="src\entities\Tetrahedron.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="headers\app.h" />
     <ClInclude Include="headers\Camera.h" />
     <ClInclude Include="headers\entities\Cube2Tex.h" />
     <ClInclude Include="headers\entities\Cube3Tex.h" />
     <ClInclude Include="headers\entities\ColoredEllipse.h" />
     <ClInclude Include="headers\entities\Entity.h" />
+    <ClInclude Include="headers\entities\LightCube.h" />
     <ClInclude Include="headers\entities\MixedCube.h" />
     <ClInclude Include="headers\entities\Skybox.h" />
-    <ClInclude Include="headers\entities\SolarSystem.h" />
+    <ClInclude Include="headers\lights\LightCasters.h" />
+    <ClInclude Include="headers\meshes\IllumiMesh.h" />
+    <ClInclude Include="headers\meshes\Meshes.h" />
+    <ClInclude Include="headers\meshes\PartedIllumiMesh.h" />
+    <ClInclude Include="headers\scenes\LightExhibition.h" />
+    <ClInclude Include="headers\scenes\SolarSystem.h" />
     <ClInclude Include="headers\main.h" />
     <ClInclude Include="headers\meshes\DynamicMesh.h" />
     <ClInclude Include="headers\meshes\Mesh.h" />
+    <ClInclude Include="headers\pch.h" />
     <ClInclude Include="headers\scenes\Scene.h" />
     <ClInclude Include="headers\shader_loader.h" />
     <ClInclude Include="headers\entities\Tetrahedron.h" />
     <ClInclude Include="headers\stuff.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="shaders\lights\LightCube.frag" />
+    <None Include="shaders\lights\LightCube.vert" />
+    <None Include="shaders\mesh\CookTorrance.frag" />
+    <None Include="shaders\mesh\default_d.frag" />
+    <None Include="shaders\mesh\default_d.vert" />
+    <None Include="shaders\mesh\default_l.frag" />
+    <None Include="shaders\mesh\default_l.vert" />
     <None Include="shaders\mesh\default_s.frag" />
     <None Include="shaders\mesh\default_s.vert" />
     <None Include="shaders\cubemap\cubemap.frag" />
     <None Include="shaders\cubemap\cubemap.vert" />
+    <None Include="shaders\mesh\Toon.frag" />
     <None Include="shaders\task3\tt_cube.frag" />
     <None Include="shaders\task3\tt_cube.vert" />
     <None Include="shaders\task4\ellipse.frag" />

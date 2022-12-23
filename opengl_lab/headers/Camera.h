@@ -40,8 +40,15 @@ public:
 		RIGHT
 	};
 
+	void IncVelocity() {
+		Velocity += 1.0;
+	}
+	void DecVelocity() {
+		auto newVel = Velocity - 1.0;
+		if (newVel > 0.0) Velocity = newVel;
+	}
 	Camera(const glm::vec3& position = glm::vec3(0.0f, 0.0f, 0.0f), const glm::vec3& worldUp = glm::vec3(0.0f, 1.0f, 0.0f), const glm::vec3& front = glm::vec3(0.0f, 0.0f, -1.0f))
-		: Velocity(3.f), MouseSensitivity(0.1f), FOV_Angle(45.f), Yaw(-90.f), Pitch(0.f)
+		: Velocity(5.f), MouseSensitivity(0.1f), FOV_Angle(45.f), Yaw(-90.f), Pitch(0.f)
 	{
 		Position = position;
 		WorldUp = worldUp;
@@ -49,7 +56,7 @@ public:
 		updateCameraVectors();
 	}
 
-	const glm::mat4& GetViewMatrix()
+	const inline glm::mat4& GetViewMatrix()
 	{
 		if (needsUpdateView) {
 			view = glm::lookAt(Position, Position + Front, Up);
@@ -58,13 +65,21 @@ public:
 		return view;
 	}
 
-	const glm::mat4& GetProjectionMatrix()
+	const inline glm::mat4& GetProjectionMatrix()
 	{
 		if (needsUpdateProjection) {
 			projection = glm::perspective(glm::radians(FOV_Angle), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 1000.0f);
 			needsUpdateProjection = false;
 		}
 		return projection;
+	}
+
+	const inline glm::vec3& GetPosition() const {
+		return Position;
+	}
+
+	const inline glm::vec3& GetDirection() const {
+		return Front;
 	}
 
 	// ================================================================== interface api

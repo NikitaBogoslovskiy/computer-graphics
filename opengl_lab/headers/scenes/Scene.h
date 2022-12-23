@@ -1,16 +1,13 @@
 #ifndef SCENE_H
 #define SCENE_H
 
-#include <vector>
-
-template<class T>
+#include "../pch.h"
+#include "../Camera.h"
+#include "../entities/Skybox.h"
 class Scene {
-	std::vector<T&> objects;
-
 public:
-	Scene(const std::initializer_list<T&>& drawables);
-
-	void Draw();
+	Entity* skybox;
+	virtual inline void Draw(float time_coefficient, Camera& cam) {};
 };
 
 #endif // !SCENE_H

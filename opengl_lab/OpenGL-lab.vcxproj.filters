@@ -42,16 +42,31 @@
     <ClCompile Include="src\meshes\mesh.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\scenes\Scene.cpp">
-      <Filter>Исходные файлы</Filter>
-    </ClCompile>
     <ClCompile Include="src\meshes\DynamicMesh.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
     <ClCompile Include="src\entities\Skybox.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
-    <ClCompile Include="src\entities\SolarSystem.cpp">
+    <ClCompile Include="src\scenes\SolarSystem.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="headers\app.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="headers\app.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meshes\IllumiMesh.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\scenes\LightExhibition.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\entities\LightCube.cpp">
+      <Filter>Исходные файлы</Filter>
+    </ClCompile>
+    <ClCompile Include="src\meshes\PartedIllumiMesh.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
@@ -98,7 +113,37 @@
     <ClInclude Include="headers\entities\Skybox.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
-    <ClInclude Include="headers\entities\SolarSystem.h">
+    <ClInclude Include="headers\scenes\SolarSystem.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\app.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\pch.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\app.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\pch.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\meshes\IllumiMesh.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\scenes\LightExhibition.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\entities\LightCube.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\lights\LightCasters.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\meshes\Meshes.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
+    <ClInclude Include="headers\meshes\PartedIllumiMesh.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
   </ItemGroup>
@@ -111,5 +156,13 @@
     <None Include="shaders\mesh\default_s.vert" />
     <None Include="shaders\cubemap\cubemap.frag" />
     <None Include="shaders\cubemap\cubemap.vert" />
+    <None Include="shaders\mesh\default_l.frag" />
+    <None Include="shaders\mesh\default_l.vert" />
+    <None Include="shaders\mesh\default_d.frag" />
+    <None Include="shaders\mesh\default_d.vert" />
+    <None Include="shaders\lights\LightCube.vert" />
+    <None Include="shaders\lights\LightCube.frag" />
+    <None Include="shaders\mesh\CookTorrance.frag" />
+    <None Include="shaders\mesh\Toon.frag" />
   </ItemGroup>
 </Project>

@@ -1,7 +1,8 @@
 #pragma once
-#include "gl/glew.h"
+
 #include "../../headers/pch.h"
 #include "../stuff.h"
+#include "../Camera.h"
 
 struct Vertex {
 	coord coord;
@@ -29,9 +30,10 @@ public:
 	Entity() {}
 
 	float velocity = 0.1f;
-	coord offset = { 0.0f, 0.0f, -3.f };
+	coord offset = { 0.0f, 0.0f, 0.f };
+	glm::vec3 position;
 
-	virtual void Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection) = 0;
+	virtual void Draw(const glm::mat4& model, Camera& cam) = 0;
 
 	void Release();
 };

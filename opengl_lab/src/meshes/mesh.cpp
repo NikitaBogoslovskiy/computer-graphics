@@ -4,7 +4,7 @@ void Mesh::InitVBO()
 {
 	glGenBuffers(1, &VBO);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(mVertex) * mVs.size(), mVs.data(), GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, sizeof(vertexData) * mVs.size(), mVs.data(), GL_STATIC_DRAW);
 
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
@@ -15,30 +15,9 @@ void Mesh::InitVBO()
 
 void Mesh::InitShader()
 {
-	Program = ShaderLoader::initProgram("shaders/mesh/default_s.vert", "shaders/mesh/default_s.frag");
-
-	const char* attr_name = "coord"; //имя в шейдере
-	Attrib_vertex = glGetAttribLocation(Program, attr_name);
-	if (Attrib_vertex == -1) {
-		printf("could not bind attrib %s\n", attr_name);
-		return;
-	}
-
-	const char* attr_name2 = "texCoord"; //имя в шейдере
-	Attrib_texture = glGetAttribLocation(Program, attr_name2);
-	if (Attrib_texture == -1) {
-		printf("could not bind attrib %s\n", attr_name2);
-		return;
-	}
-	/*
-	const char* attr_name3 = "normal";
-	Attrib_normal = glGetAttribLocation(Program, attr_name3);
-	if (Attrib_normal == -1) {
-		printf("could not bind attrib %s\n", attr_name3);
-		return;
-	}
-	*/
-	//checkOpenGLerror();
+	printf("== Mesh::InitShader ==\n");
+	ChangeShaders("shaders/mesh/default_s.vert", "shaders/mesh/default_s.frag");
+	printf("== Mesh::InitShader end ==\n\n");
 }
 
 #include "../headers/pch.h"
@@ -54,8 +33,8 @@ void Mesh::InitVO()
 	glEnableVertexAttribArray(Attrib_vertex);
 	glVertexAttribPointer(Attrib_texture, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(3 * sizeof(GLfloat)));
 	glEnableVertexAttribArray(Attrib_texture);
-	//glVertexAttribPointer(Attrib_normal, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(5 * sizeof(GLfloat)));
-	//glEnableVertexAttribArray(Attrib_normal);
+	glVertexAttribPointer(Attrib_normal, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(GLfloat), (GLvoid*)(5 * sizeof(GLfloat)));
+	glEnableVertexAttribArray(Attrib_normal);
 
 	glUniform1i(glGetUniformLocation(Program, "texture0"), 0);
 
@@ -74,6 +53,10 @@ void Mesh::ReleaseVO()
 
 void Mesh::InitTextures(char* path)
 {
+#ifdef DEBUG 
+	printf("Mesh::InitTextures %s\n", path);
+#endif
+
 	textures.push_back(0);
 
 	glGenTextures(1, &textures.back());
@@ -86,11 +69,11 @@ void Mesh::InitTextures(char* path)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	// load image, create texture and generate mipmaps
 	int width, height, nrChannels;
-	//stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis. but ive 
+	stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis. but ive 
 	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
-	if (*data)
+	if (data)
 	{
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+		glTexImage2D(GL_TEXTURE_2D, 0, nrChannels == 3 ? GL_RGB : GL_RGBA, width, height, 0, nrChannels == 3 ? GL_RGB : GL_RGBA, GL_UNSIGNED_BYTE, data);
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	else
@@ -102,7 +85,7 @@ void Mesh::InitTextures(char* path)
 
 Mesh::Mesh()
 {
-	InitShader();
+	//InitShader(); NO MORE INIT SHADERS IN CONSTRUCTORS USING 1000000000000000000 WRAPPER CLASSES
 }
 
 Mesh::Mesh(const char* path)
@@ -115,36 +98,42 @@ Mesh::Mesh(const char* path)
 
 void Mesh::ChangeShaders(const char* vertex_path, const char* fragment_path)
 {
+#ifdef DEBUG 
+	printf("\033[0;33m===  Mesh::ChangeShaders ===\033[0m\n");
+#endif
+
+	printf("loading %s, %s...\n", vertex_path, fragment_path);
 	Program = ShaderLoader::initProgram(vertex_path, fragment_path);
 
 	const char* attr_name = "coord"; //имя в шейдере
 	Attrib_vertex = glGetAttribLocation(Program, attr_name);
 	if (Attrib_vertex == -1) {
-		printf("could not bind attrib %s\n", attr_name);
+		printf("\033[0;31mcould not bind attrib %s\033[0m\n", attr_name);
 		return;
 	}
 
 	const char* attr_name2 = "texCoord"; //имя в шейдере
 	Attrib_texture = glGetAttribLocation(Program, attr_name2);
 	if (Attrib_texture == -1) {
-		printf("could not bind attrib %s\n", attr_name2);
+		printf("\033[0;31mcould not bind attrib %s\033[0m\n", attr_name2);
 		return;
 	}
-	/*
 	const char* attr_name3 = "normal";
 	Attrib_normal = glGetAttribLocation(Program, attr_name3);
 	if (Attrib_normal == -1) {
-		printf("could not bind attrib %s\n", attr_name3);
+		printf("\033[0;31mcould not bind attrib %s\033[0m\n", attr_name3);
 		return;
 	}
-	*/
+#ifdef DEBUG 
+	printf("\033[0;32m===  Mesh::ChangeShaders success ===\033[0m\n");
+#endif
+
 }
 
-void Mesh::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection)
+void Mesh::Draw(const glm::mat4& model, Camera& cam)
 {
 	glUseProgram(Program);
-
-	this->UpdateUniforms(model, view, projection);
+	this->UpdateUniforms(model, cam);
 
 	glBindVertexArray(VAO);
 	glMultiDrawElements(GL_TRIANGLE_FAN, count.data(), GL_UNSIGNED_INT, void_indices.data(), count.size());
@@ -160,7 +149,7 @@ void Mesh::Draw(const glm::mat4& model, const glm::mat4& view, const glm::mat4& 
 	glUseProgram(0);
 }
 
-void Mesh::UpdateUniforms(const glm::mat4& model, const glm::mat4& view, const glm::mat4& projection)
+void Mesh::UpdateUniforms(const glm::mat4& model, Camera& cam)
 {
 	uint i = 0;
 	for (auto t : textures) {
@@ -214,7 +203,7 @@ void Mesh::Load(const char* path)
 			vt.push_back(_vt);
 		}
 		else if (type == "vn") {
-			coord _vn;
+			normal _vn;
 			if (!(iss >> _vn.x >> _vn.y >> _vn.z)) {
 				printf("File can't be read by our simple parser\n");
 				return;
@@ -230,27 +219,35 @@ void Mesh::Load(const char* path)
 				iss2 >> inds.v() >> slash >> inds.vt() >> slash >> inds.vn();
 				bool do_create_new = false;
 				if (v[inds.v() - 1].second.empty()) do_create_new = true;
+				do_create_new = true;
+				/*
 				for (auto _mv : v[inds.v() - 1].second) {
 					// check vt
 					// if not equal create new mV
+
 					if (vt[inds.vt() - 1] != mVs[_mv].vt) {
 						do_create_new = true;
 						break;
 					}
+
 					// check vn
 					// if not equal create new mV
+
 					if (vn[inds.vn() - 1] != mVs[_mv].vn) {
 						do_create_new = true;
 						break;
 					}
+
 					indices.push_back(_mv);
 					break;
 				}
+				*/
 				if (do_create_new) {
 					mVs.push_back({
 						v[inds.v() - 1].first,
-						vt[inds.vt() - 1],
-						vn[inds.vn() - 1] });
+						(inds.vt() ? vt[inds.vt() - 1] : vertex_texture{randf(), randf()}),
+						(inds.vn() ? vn[inds.vn() - 1] : normal(randf(), randf(), randf()).normilize())
+						});
 					v[inds.v() - 1].second.push_back(mVs.size() - 1);
 					indices.push_back(mVs.size() - 1);
 				}
@@ -275,14 +272,18 @@ void Mesh::Load(const char* path)
 
 void Mesh::LoadTexture(const char* path, uint texturei)
 {
+	printf("Mesh::LoadTexture %s\n", path);
+
 	if (textures.size() <= texturei) {
 		printf("undefined texture number\n");
 		return;
 	}
 	int width, height, nrChannels;
+
 	//stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis. but ive 
 	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
-	if (*data)
+	//if (*data)
+	if (data)
 	{
 		glBindTexture(GL_TEXTURE_2D, textures[texturei]);
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
@@ -297,6 +298,7 @@ void Mesh::LoadTexture(const char* path, uint texturei)
 
 void Mesh::AddTexture(const char* path)
 {
+	printf("Mesh::AddTexture %s\n", path);
 	if (textures.size() == 32) {
 		printf("Textures are full\n");
 		return;
@@ -308,7 +310,8 @@ void Mesh::AddTexture(const char* path)
 	int width, height, nrChannels;
 	//stbi_set_flip_vertically_on_load(true); // tell stb_image.h to flip loaded texture's on the y-axis. but ive 
 	unsigned char* data = stbi_load(path, &width, &height, &nrChannels, 0);
-	if (*data)
+	//if (data && *data)
+	if (data)
 	{
 		glBindTexture(GL_TEXTURE_2D, textures.back());
 		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
