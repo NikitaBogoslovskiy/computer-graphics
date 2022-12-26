@@ -14,7 +14,7 @@ public:
 	float refraction = 0.9f;
 	float ior = 1.560f;
 	Material() {}
-	Material(ImVec4& _ambient, ImVec4& _diffuse, ImVec4& _specular, float _shininess, float _reflection, float _refraction, float _ior)
+	Material(const ImVec4& _ambient, const ImVec4& _diffuse, const ImVec4& _specular, float _shininess, float _reflection, float _refraction, float _ior)
 	{
 		ambient = _ambient;
 		diffuse = _diffuse;
@@ -36,9 +36,7 @@ class RTObject : public RTEntity
 {
 public:
 	Material* material;
-	RTObject() {
-		material = new Material();
-	}
+	RTObject() {}
 
 	//float& getDiffuse() { return diffuse; }
 	//float& getTrasparency() { return transparency; }

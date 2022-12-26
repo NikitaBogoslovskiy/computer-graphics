@@ -11,14 +11,16 @@ public:
 	float attenuation;
 	ImVec4 color;
 	float max_distance;
+	float attenuation_coefficient;
 	RTPointLight(const ImVec3& _center, float _radius)
 	{
 		center = _center;
 		radius = _radius;
-		intensity = 1.0f;
+		intensity = 0.5f;
 		attenuation = 0.0f;
 		color = ImVec4(1, 1, 1, 1);
-		max_distance = 800;
+		max_distance = 1000;
+		attenuation_coefficient = 0.0f;
 	}
 
 	RTPointLight(const ImVec3& _center, float _radius, float _intensity, const ImVec4& _color)
@@ -33,7 +35,7 @@ public:
 	//float& getIntensity() { return intensity; }
 	//ImVec3& getCenter() { return center; }
 	//ImVec4& getColor() { return color; }
-	void computeAttenuation(float distance_to_object) { attenuation = std::min(1.f, distance_to_object / max_distance); }
+	void computeAttenuation(float distance_to_object) { attenuation = std::min(1.f, distance_to_object / (max_distance * (1 - attenuation_coefficient))); }
 
 	//void setRadius(float& _radius) { radius = _radius; }
 	//void setIntensity(float& _intensity) { intensity = _intensity; }

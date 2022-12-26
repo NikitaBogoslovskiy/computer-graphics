@@ -9,7 +9,7 @@ public:
 	ImVec4 color;
 	RTAmbientLight()
 	{
-		intensity = 0.1f;
+		intensity = 0.05f;
 		color = ImVec4(1.f, 1.f, 1.f, 1.f);
 	}
 

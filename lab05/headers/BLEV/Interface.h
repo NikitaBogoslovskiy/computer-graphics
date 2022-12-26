@@ -126,6 +126,7 @@ namespace BLEV {
 			BLEV::Data& _data;
 
 			void ShowPrimTable(Primitive* prim, size_t idx);
+			void ShowEntityTable(RTEntity* entity, size_t idx);
 			void ShowLsysTable(Lsystem* lsys, size_t idx);
 			void ShowMeshTable(Mesh* mesh, size_t idx);
 			void ShowHorizonTable(FloatingHorizon* horizon, size_t idx);

@@ -32,7 +32,19 @@ const std::vector<BLEV::Interface::ready_l_system*> BLEV::Interface::ready_l_sys
 };
 
 std::unordered_map<std::string, Material*> BLEV::Interface::Menu::materials{
-	{"default", new Material()}
+	{"default", new Material()},
+	{"white plastic", new Material(ImVec4 {0.0f, 0.0f, 0.0f, 1.0f}, ImVec4 {0.55f, 0.55f, 0.55f, 1.0f}, ImVec4 {0.7f, 0.7f, 0.7f, 1.0f}, 0.25f * 128.0f, 0.1f, 0.0f, 1.46f)},
+	{"red plastic", new Material(ImVec4 {0.0f, 0.0f, 0.0f, 1.0f}, ImVec4 {0.5f, 0.0f, 0.0f, 1.0f}, ImVec4 {0.7f, 0.6f, 0.6f, 1.0f}, 0.25f * 128.0f, 0.1f, 0.0f, 1.46f)},
+	{"green plastic", new Material(ImVec4 {0.0f, 0.0f, 0.0f, 1.0f}, ImVec4 {0.1f, 0.35f, 0.1f, 1.0f}, ImVec4 {0.45f, 0.55f, 0.45f, 1.0f}, 0.25f * 128.0f, 0.1f, 0.0f, 1.46f)},
+	{"pearl", new Material(ImVec4 {0.25f, 0.20725f, 0.20725f, 1.0f}, ImVec4 {1.0f, 0.829f, 0.829f, 1.0f}, ImVec4 {0.296648f, 0.296648f, 0.296648f, 1.0f}, 11.264f, 0.2f, 0.078f, 1.530f)},
+	{"mirror", new Material(ImVec4 {0.0f, 0.0f, 0.0f, 1.0f}, ImVec4 {0.0f, 0.0f, 0.0f, 1.0f}, ImVec4 {0.0f, 0.0f, 0.0f, 1.0f}, 0.0f, 1.0f, 0.0f, 0.0f)},
+	{"polished silver", new Material(ImVec4 {0.23125f, 0.23125f, 0.23125f, 1.0f}, ImVec4 {0.50754f, 0.50754f, 0.50754f, 1.0f}, ImVec4 {0.508273f, 0.508273f, 0.508273f, 1.0f}, 89.6f, 0.2f, 0.0f, 0.0f)},
+	{"lightBlueReflective", new Material(ImVec4 {0.25f, 0.3f, 0.8f, 1.0f}, ImVec4 {0.25f, 0.3f, 0.8f, 1.0f}, ImVec4 {0.25f, 0.3f, 0.8f, 1.0f}, 10.0f, 0.8f, 0.0f, 0.0f)},
+	{"ruby", new Material(ImVec4 {0.1745f, 0.01175f, 0.01175f, 1.0f}, ImVec4 {0.61424f, 0.04136f, 0.04136f, 1.0f}, ImVec4 {0.727811f, 0.626959f, 0.626959f, 1.0f}, 76.8f, 0.3f, 0.45f, 1.757f)},
+	{"glass", new Material(ImVec4 {0.1f, 0.1f, 0.1f, 1.0f}, ImVec4 {1.0f, 1.0f, 1.0f, 1.0f}, ImVec4 {0.992157f, 0.941176f, 0.807843f, 1.0f}, 32.0f, 0.25f, 1.0f, 1.6f)},
+	{"emerald", new Material(ImVec4 {0.0215f, 0.1745f, 0.0215f, 1.0f}, ImVec4 {0.07568f, 0.61424f, 0.07568f, 1.0f}, ImVec4 {0.633f, 0.727811f, 0.633f, 1.0f}, 76.8f, 0.5f, 0.65f, 1.560f)},
+	{"water2", new Material(ImVec4 {0.1f, 0.3f, 0.2f, 1.0f}, ImVec4 {0.25f, 0.3f, 0.8f, 1.0f}, ImVec4 {0.792157f, 0.741176f, 0.807843f, 1.0f}, 10.0f, 0.8f, 1.0f, 1.333f)},
+	{"water", new Material(ImVec4 {0.1f, 0.1f, 0.1f, 1.0f}, ImVec4 {0.1f, 0.1f, 0.1f, 1.0f}, ImVec4 {0.2f, 0.2f, 0.2f, 1.0f}, 10.0f, 0.0f, 1.0f, 1.333f)},
 };
 
 static void HelpMarker(const char* desc)
@@ -1138,32 +1150,78 @@ void BLEV::Interface::Menu::ShowAddingMenu()
 			_data.meshes.push_back(_data.torch);
 		}
 		if (ImGui::MenuItem("SceneBox (RT)")) {
-			auto s = new RTSceneBox(materials["default"]);
-			//s->setReflection(0.0f);
-			//s->setSurfaceColor(ImVec4(0, 255, 0, 255));
+			std::vector<Material*> ms;
+			ms.push_back(new Material(*materials["lightBlueReflective"]));
+			ms.push_back(new Material(*materials["lightBlueReflective"]));
+			ms.push_back(new Material(*materials["red plastic"]));
+			ms.push_back(new Material(*materials["red plastic"]));
+			ms.push_back(new Material(*materials["green plastic"]));
+			ms.push_back(new Material(*materials["green plastic"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			auto s = new RTSceneBox(ms);
 			_data.rt_entities.push_back(s);
 		}
 		if (ImGui::MenuItem("Ambient Light (RT)")) {
 			_data.rt_entities.push_back(new RTAmbientLight());
 		}
 		if (ImGui::MenuItem("Point Light (RT)")) {
-			_data.rt_entities.push_back(new RTPointLight(ImVec3(0, 30, 100), 5));
-			//_data.rt_entities.push_back(new RTPointLight(ImVec3(-50, 30, 100), 5));
-			//_data.rt_entities.push_back(new RTPointLight(ImVec3(50, 30, 100), 5));
+			_data.rt_entities.push_back(new RTPointLight(ImVec3(0, 50, 100), 5));
 		}
 		if (ImGui::MenuItem("Sphere (RT)")) {
-			auto s = new RTSphere(materials["default"], ImVec3(-80, -88, 0), 60);
-			//s->setSurfaceColor(ImVec4(0, 249, 161, 255));
-			//s->setTrasparency(0.7f);
-			//s->setReflection(0.5f);
+			auto s = new RTSphere(materials["lightBlueReflective"], ImVec3(-80, -88, 0), 60);
 			_data.rt_entities.push_back(s);
 		}
 		if (ImGui::MenuItem("Cube (RT)")) {
-			auto s = new RTCube(materials["default"], ImVec3(70, -98, 0), 100);
-			//s->setSurfaceColor(ImVec4(251, 228, 7, 255));
-			//s->setTrasparency(0.6f);
-			//s->setReflection(0.5f);
+			auto s = new RTCube(materials["default"], ImVec3(90, -48, 0), 100, 100, 300);
 			_data.rt_entities.push_back(s);
+		}
+		if (ImGui::MenuItem("Cornish Room (RT)")) {
+			_data.rt_entities.push_back(new RTAmbientLight());
+			_data.rt_entities.push_back(new RTPointLight(ImVec3(-150, 140, -230), 5));
+			_data.rt_entities.push_back(new RTPointLight(ImVec3(150, 140, -230), 5));
+			_data.rt_entities.push_back(new RTPointLight(ImVec3(0, 0, 500), 10));
+			//_data.rt_entities.push_back(new RTPointLight(ImVec3(150, 140, 300), 10));
+
+			std::vector<Material*> ms;
+			ms.push_back(new Material(*materials["pearl"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			ms.push_back(new Material(*materials["red plastic"]));
+			ms.push_back(new Material(*materials["red plastic"]));
+			ms.push_back(new Material(*materials["green plastic"]));
+			ms.push_back(new Material(*materials["green plastic"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			ms.push_back(new Material(*materials["pearl"]));
+			auto box = new RTSceneBox(ms);
+			_data.rt_entities.push_back(box);
+
+			auto cube1 = new RTCube(materials["ruby"], ImVec3(90, -138, -70), 100, 100, 150);
+			_data.rt_entities.push_back(cube1);
+
+			auto sphere1 = new RTSphere(materials["emerald"], ImVec3(90, 10, -70), 60);
+			_data.rt_entities.push_back(sphere1);
+
+			auto sphere2 = new RTSphere(materials["mirror"], ImVec3(-70, -120, -70), 80);
+			_data.rt_entities.push_back(sphere2);
+
+			auto cube2 = new RTCube(materials["lightBlueReflective"], ImVec3(-70, 20, -70), 90, 90, 90);
+			_data.rt_entities.push_back(cube2);
+
+			auto cube3 = new RTCube(materials["water"], ImVec3(30, -150, 70), 15, 100, 75);
+			_data.rt_entities.push_back(cube3);
+
+			//auto s = new RTCube(materials["default"], ImVec3(90, -48, 0), 100, 100, 300);
+			//_data.rt_entities.push_back(s);
 		}
 		ImGui::EndMenu();
 	}
@@ -1436,6 +1494,370 @@ void BLEV::Interface::ObjectTable::ShowMeshTable(Mesh* mesh, size_t idx)
 	ImGui::PopID();
 }
 
+void BLEV::Interface::ObjectTable::ShowEntityTable(RTEntity* entity, size_t idx)
+{
+	ImGui::PushID(entity);
+	ImGui::TableNextRow();
+	ImGui::TableSetColumnIndex(0);
+	ImGui::AlignTextToFramePadding();
+	bool node_open = ImGui::TreeNode("Entity", "object%d", idx);
+	ImGui::TableSetColumnIndex(1);
+
+	auto ambient = dynamic_cast<RTAmbientLight*>(entity);
+	auto point = dynamic_cast<RTPointLight*>(entity);
+	auto box = dynamic_cast<RTSceneBox*>(entity);
+	auto sphere = dynamic_cast<RTSphere*>(entity);
+	auto cube = dynamic_cast<RTCube*>(entity);
+	char entityName[32];
+	if (ambient != nullptr) strcpy(entityName, "Ambient Light");
+	else if (point != nullptr) strcpy(entityName, "Point Light");
+	else if (box != nullptr) strcpy(entityName, "Scene Box");
+	else if (sphere != nullptr) strcpy(entityName, "Sphere");
+	else if (cube != nullptr) strcpy(entityName, "Cube");
+	ImGui::Text(entityName);
+	ImGui::SameLine();
+
+	if (node_open)
+	{
+		ImGui::TableNextRow();
+		ImGui::TableSetColumnIndex(0);
+		if (ambient != nullptr)
+		{
+			ImGui::Text("Intensity");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::DragFloat("##", &(ambient->intensity), 0.005f, 0.f, 1.f, "%.3f"))
+				needRefresh = true;
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Color");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::ColorEdit4("", (float*)&ambient->color, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs))
+				needRefresh = true;
+		}
+		else if (point != nullptr)
+		{
+			ImGui::PushID(&point->intensity);
+			ImGui::Text("Intensity");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::DragFloat("##", &(point->intensity), 0.005f, 0.f, 1.f, "%.3f"))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&point->attenuation);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Attenuation");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::DragFloat("##", &(point->attenuation_coefficient), 0.005f, 0.f, 1.f, "%.3f"))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&point->radius);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Radius");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::DragFloat("##", &(point->radius), 1.f, 1.f, 1000.f, "%.0f"))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&point->center);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::AlignTextToFramePadding();
+			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
+			ImGui::Text("Center");
+			ImGui::TableSetColumnIndex(1);
+			bool x_dragged = ImGui::DragFloat("x", &(point->center.x), 1.f, -1000.f, 1000.f, "%.0f");
+			bool y_dragged = ImGui::DragFloat("y", &(point->center.y), 1.f, -1000.f, 1000.f, "%.0f");
+			bool z_dragged = ImGui::DragFloat("z", &(point->center.z), 1.f, -1000.f, 1000.f, "%.0f");
+			ImGui::PopID();
+			if (x_dragged || y_dragged || z_dragged)
+				needRefresh = true;
+
+			ImGui::PushID(&point->color);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Color");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::ColorEdit4("", (float*)&point->color, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs))
+				needRefresh = true;
+			ImGui::PopID();
+		}
+		else if (sphere != nullptr)
+		{
+			ImGui::PushID(&sphere->radius);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Radius");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::DragFloat("##", &(sphere->radius), 1.f, 1.f, 1000.f, "%.0f"))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&sphere->center);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::AlignTextToFramePadding();
+			ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
+			ImGui::Text("Center");
+			ImGui::TableSetColumnIndex(1);
+			bool x_dragged = ImGui::DragFloat("x", &(sphere->center.x), 1.f, -1000.f, 1000.f, "%.0f");
+			bool y_dragged = ImGui::DragFloat("y", &(sphere->center.y), 1.f, -1000.f, 1000.f, "%.0f");
+			bool z_dragged = ImGui::DragFloat("z", &(sphere->center.z), 1.f, -1000.f, 1000.f, "%.0f");
+			ImGui::PopID();
+			if (x_dragged || y_dragged || z_dragged)
+				needRefresh = true;
+			
+			ImGui::PushID(&sphere->material->ambient);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Ambient");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::ColorEdit4("", (float*)&sphere->material->ambient, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&sphere->material->diffuse);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Diffuse");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::ColorEdit4("", (float*)&sphere->material->diffuse, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&sphere->material->specular);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Specular");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::ColorEdit4("", (float*)&sphere->material->specular, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&sphere->material->shininess);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Shininess");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::DragFloat("##", &sphere->material->shininess, 1.f, 1.f, 1000.f, "%.0f"))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&sphere->material->reflection);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Reflection");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::DragFloat("##", &sphere->material->reflection, 0.005f, 0.f, 1.f, "%.3f"))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&sphere->material->refraction);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Refraction");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::DragFloat("##", &sphere->material->refraction, 0.005f, 0.f, 1.f, "%.3f"))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&sphere->material->ior);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("IOR");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::DragFloat("##", &sphere->material->ior, 0.005f, 1.f, 10.f, "%.3f"))
+				needRefresh = true;
+			ImGui::PopID();
+		}
+		else if (cube != nullptr)
+		{
+			//ImGui::PushID(&cube->center);
+			//ImGui::TableNextRow();
+			//ImGui::TableSetColumnIndex(0);
+			//ImGui::AlignTextToFramePadding();
+			//ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_Leaf | ImGuiTreeNodeFlags_NoTreePushOnOpen | ImGuiTreeNodeFlags_Bullet;
+			//ImGui::Text("Center");
+			//ImGui::TableSetColumnIndex(1);
+			//bool x_dragged = ImGui::DragFloat("x", &(cube->center.x), 1.f, -1000.f, 1000.f, "%.0f");
+			//bool y_dragged = ImGui::DragFloat("y", &(cube->center.y), 1.f, -1000.f, 1000.f, "%.0f");
+			//bool z_dragged = ImGui::DragFloat("z", &(cube->center.z), 1.f, -1000.f, 1000.f, "%.0f");
+			//ImGui::PopID();
+			//if (x_dragged || y_dragged || z_dragged)
+			//	needRefresh = true;
+
+			ImGui::PushID(&cube->material->ambient);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Ambient");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::ColorEdit4("", (float*)&cube->material->ambient, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&cube->material->diffuse);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Diffuse");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::ColorEdit4("", (float*)&cube->material->diffuse, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&cube->material->specular);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Specular");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::ColorEdit4("", (float*)&cube->material->specular, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&cube->material->shininess);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Shininess");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::DragFloat("##", &cube->material->shininess, 1.f, 1.f, 1000.f, "%.0f"))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&cube->material->reflection);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Reflection");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::DragFloat("##", &cube->material->reflection, 0.005f, 0.f, 1.f, "%.3f"))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&cube->material->refraction);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("Refraction");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::DragFloat("##", &cube->material->refraction, 0.005f, 0.f, 1.f, "%.3f"))
+				needRefresh = true;
+			ImGui::PopID();
+
+			ImGui::PushID(&cube->material->ior);
+			ImGui::TableNextRow();
+			ImGui::TableSetColumnIndex(0);
+			ImGui::Text("IOR");
+			ImGui::TableSetColumnIndex(1);
+			if (ImGui::DragFloat("##", &cube->material->ior, 0.005f, 1.f, 10.f, "%.3f"))
+				needRefresh = true;
+			ImGui::PopID();
+		}
+		else if (box != nullptr)
+		{
+			const char* names[] = { "Front", "Left", "Right", "Back", "Floor", "Ceiling" };
+			bool open[6];
+			for (int i = 0; i < 6; ++i)
+			{
+				ImGui::PushID(box->all_materials[2 * i]);
+				ImGui::TableNextRow();
+				ImGui::TableSetColumnIndex(0);
+				ImGui::AlignTextToFramePadding();
+				open[i] = ImGui::TreeNode(names[i], names[i]);
+				ImGui::TableSetColumnIndex(1);
+				if (open[i])
+				{
+					ImGui::PushID(&box->all_materials[2 * i]->ambient);
+					ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text("Ambient");
+					ImGui::TableSetColumnIndex(1);
+					if (ImGui::ColorEdit4("", (float*)&box->all_materials[2 * i]->ambient, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs))
+					{
+						box->all_materials[2 * i + 1]->ambient = box->all_materials[2 * i]->ambient;
+						needRefresh = true;
+					}
+					ImGui::PopID();
+
+					ImGui::PushID(&box->all_materials[2 * i]->diffuse);
+					ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text("Diffuse");
+					ImGui::TableSetColumnIndex(1);
+					if (ImGui::ColorEdit4("", (float*)&box->all_materials[2 * i]->diffuse, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs))
+					{
+						box->all_materials[2 * i + 1]->diffuse = box->all_materials[2 * i]->diffuse;
+						needRefresh = true;
+					}
+					ImGui::PopID();
+
+					ImGui::PushID(&box->all_materials[2 * i]->specular);
+					ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text("Specular");
+					ImGui::TableSetColumnIndex(1);
+					if (ImGui::ColorEdit4("", (float*)&box->all_materials[2 * i]->specular, ImGuiColorEditFlags_DisplayRGB | ImGuiColorEditFlags_NoInputs))
+					{
+						box->all_materials[2 * i + 1]->specular = box->all_materials[2 * i]->specular;
+						needRefresh = true;
+					}
+					ImGui::PopID();
+
+					ImGui::PushID(&box->all_materials[2 * i]->shininess);
+					ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text("Shininess");
+					ImGui::TableSetColumnIndex(1);
+					if (ImGui::DragFloat("##", &box->all_materials[2 * i]->shininess, 1.f, 1.f, 1000.f, "%.0f"))
+					{
+						box->all_materials[2 * i + 1]->shininess = box->all_materials[2 * i]->shininess;
+						needRefresh = true;
+					}
+					ImGui::PopID();
+
+					ImGui::PushID(&box->all_materials[2 * i]->reflection);
+					ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text("Reflection");
+					ImGui::TableSetColumnIndex(1);
+					if (ImGui::DragFloat("##", &box->all_materials[2 * i]->reflection, 0.005f, 0.f, 1.f, "%.3f"))
+					{
+						box->all_materials[2 * i + 1]->reflection = box->all_materials[2 * i]->reflection;
+						needRefresh = true;
+					}
+					ImGui::PopID();
+
+					ImGui::PushID(&box->all_materials[2 * i]->refraction);
+					ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text("Refraction");
+					ImGui::TableSetColumnIndex(1);
+					if (ImGui::DragFloat("##", &box->all_materials[2 * i]->refraction, 0.005f, 0.f, 1.f, "%.3f"))
+					{
+						box->all_materials[2 * i + 1]->refraction = box->all_materials[2 * i]->refraction;
+						needRefresh = true;
+					}
+					ImGui::PopID();
+
+					ImGui::PushID(&box->all_materials[2 * i]->ior);
+					ImGui::TableNextRow();
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text("IOR");
+					ImGui::TableSetColumnIndex(1);
+					if (ImGui::DragFloat("##", &box->all_materials[2 * i]->ior, 0.005f, 1.f, 10.f, "%.3f"))
+					{
+						box->all_materials[2 * i + 1]->ior = box->all_materials[2 * i]->ior;
+						needRefresh = true;
+					}
+					ImGui::TreePop();
+				}
+				ImGui::PopID();
+			}
+		}
+		ImGui::TreePop();
+	}
+
+	ImGui::PopID();
+}
+
 void BLEV::Interface::ObjectTable::ShowHorizonTable(FloatingHorizon* horizon, size_t idx)
 {
 	ImGui::PushID(horizon);
@@ -1513,6 +1935,12 @@ void BLEV::Interface::ObjectTable::Show()
 		for (size_t i = 0; i < _data.primitives.size(); i++)
 		{
 			ShowPrimTable(_data.primitives[i], i);
+			//ImGui::Separator();
+		}
+
+		for (size_t i = 0; i < _data.rt_entities.size(); i++)
+		{
+			ShowEntityTable(_data.rt_entities[i], i);
 			//ImGui::Separator();
 		}
 

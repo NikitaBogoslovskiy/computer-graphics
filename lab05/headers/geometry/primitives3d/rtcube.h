@@ -5,24 +5,26 @@
 
 class RTCube : public RTObject
 {
-	float edge_length;
+public:
+	float length, width, height;
 	ImVec3 center;
 	std::vector<ImVec3> vertices;
 	std::vector<Polygon> polygons;
-public:
-	RTCube(Material* m, const ImVec3 _center, float _edge_length)
+	RTCube(Material* m, const ImVec3 _center, float _length, float _width, float _height)
 	{
 		center = _center;
-		edge_length = _edge_length;
-		float half = edge_length / 2;
-		vertices.push_back(ImVec3{ center.x - half, center.y - half, center.z - half });
-		vertices.push_back(ImVec3{ center.x + half, center.y - half, center.z - half });
-		vertices.push_back(ImVec3{ center.x - half, center.y - half, center.z + half });
-		vertices.push_back(ImVec3{ center.x + half, center.y - half, center.z + half });
-		vertices.push_back(ImVec3{ center.x - half, center.y + half, center.z - half });
-		vertices.push_back(ImVec3{ center.x + half, center.y + half, center.z - half });
-		vertices.push_back(ImVec3{ center.x - half, center.y + half, center.z + half });
-		vertices.push_back(ImVec3{ center.x + half, center.y + half, center.z + half });
+		//edge_length = _edge_length;
+		float length_half = _length / 2;
+		float width_half = _width / 2;
+		float height_half = _height / 2;
+		vertices.push_back(ImVec3{ center.x - width_half, center.y - height_half, center.z - length_half });
+		vertices.push_back(ImVec3{ center.x + width_half, center.y - height_half, center.z - length_half });
+		vertices.push_back(ImVec3{ center.x - width_half, center.y - height_half, center.z + length_half });
+		vertices.push_back(ImVec3{ center.x + width_half, center.y - height_half, center.z + length_half });
+		vertices.push_back(ImVec3{ center.x - width_half, center.y + height_half, center.z - length_half });
+		vertices.push_back(ImVec3{ center.x + width_half, center.y + height_half, center.z - length_half });
+		vertices.push_back(ImVec3{ center.x - width_half, center.y + height_half, center.z + length_half });
+		vertices.push_back(ImVec3{ center.x + width_half, center.y + height_half, center.z + length_half });
 
 		polygons.push_back(Polygon{ 2, 0, 1 });
 		polygons.push_back(Polygon{ 1, 3, 2 });
@@ -37,7 +39,7 @@ public:
 		polygons.push_back(Polygon{ 7, 3, 1 });
 		polygons.push_back(Polygon{ 7, 1, 5 });
 
-		material = m;
+		material = new Material(*m);
 
 		recalculate_normals();
 	}

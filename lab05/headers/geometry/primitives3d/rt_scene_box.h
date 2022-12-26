@@ -16,9 +16,9 @@ public:
 	std::vector<Polygon> polygons;
 	std::vector<Material*> all_materials;
 	Material* chosen_material;
-	RTSceneBox(Material* m, float hwidth = 200, float hheight = 150, float hlength = 800) 
+	RTSceneBox(std::vector<Material*>& ms, float hwidth = 220, float hheight = 200, float hlength = 800) 
 	{
-		float offset = 180;
+		float offset = 250;
 		vertices.push_back(ImVec3{ -hwidth, -hheight, -offset });
 		vertices.push_back(ImVec3{ hwidth, -hheight, -offset });
 		vertices.push_back(ImVec3{ -hwidth, -hheight, 2 * hlength - offset });
@@ -42,7 +42,7 @@ public:
 		polygons.push_back(Polygon{ 5, 7, 6 });
 
 		for (int i = 0; i < 12; ++i)
-			all_materials.push_back(m);
+			all_materials.push_back(new Material(*ms[i]));
 
 		//colors.push_back(ImVec4{ 255, 255, 255, 255 });
 		//colors.push_back(ImVec4{ 255, 255, 255, 255 });

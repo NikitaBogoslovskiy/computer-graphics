@@ -22,7 +22,7 @@ public:
 	void draw(ImDrawList* draw_list, ImVec2& canvasOffset);
 private:
 	ImVec4 trace(Ray& ray, std::vector<RTEntity*>& rt_entities, float min_mu, float max_mu, int depth = 0);
-	bool findClosest(Ray& ray, std::vector<RTEntity*>& rt_entities, float min_mu, float max_mu, ImVec3& point, ImVec3& normal, RTObject*& object);
+	bool findClosest(Ray& ray, std::vector<RTEntity*>& rt_entities, float min_mu, float max_mu, ImVec3& point, ImVec3& normal, RTObject*& object, ImVec4& output_color);
 	ImVec4 computeLocalIllumination(std::vector<RTEntity*>& rt_entities, RTObject* object, Ray& ray, ImVec3& point, ImVec3& normal);
 	ImVec4 computeReflection(std::vector<RTEntity*>& rt_entities, int depth, Ray& ray, ImVec3 point, ImVec3 normal);
 	ImVec4 computeRefraction(std::vector<RTEntity*>& rt_entities, int depth, Ray& ray, RTObject* object, ImVec3 point, ImVec3 normal, float ior);
