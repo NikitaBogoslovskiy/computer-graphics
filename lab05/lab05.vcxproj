@@ -206,7 +206,9 @@
     <ClInclude Include="headers\geometry\primitives3d\rtcube.h" />
     <ClInclude Include="headers\geometry\primitives3d\rtobject.h" />
     <ClInclude Include="headers\geometry\primitives3d\rtsphere.h" />
+    <ClInclude Include="headers\geometry\primitives3d\rt_ambient_light.h" />
     <ClInclude Include="headers\geometry\primitives3d\rt_point_light.h" />
+    <ClInclude Include="headers\geometry\primitives3d\rt_scene_box.h" />
     <ClInclude Include="headers\geometry\primitives3d\torch.h" />
     <ClInclude Include="headers\stuff\NFD\common.h" />
     <ClInclude Include="headers\stuff\NFD\nfd.h" />

@@ -31,6 +31,10 @@ const std::vector<BLEV::Interface::ready_l_system*> BLEV::Interface::ready_l_sys
 	new ready_l_system("\"Random\" tree", "X", PI / 4.f, std::deque<std::pair<char, std::string>>{ std::make_pair('X', "F[@[-X]+X]") }, "F"),
 };
 
+std::unordered_map<std::string, Material*> BLEV::Interface::Menu::materials{
+	{"default", new Material()}
+};
+
 static void HelpMarker(const char* desc)
 {
 	ImGui::TextDisabled("(?)");
@@ -1133,20 +1137,32 @@ void BLEV::Interface::Menu::ShowAddingMenu()
 			_data.torch = new Torch();
 			_data.meshes.push_back(_data.torch);
 		}
-		if (ImGui::MenuItem("PointLight (RT)")) {
-			_data.rt_entities.push_back(new RTPointLight(ImVec3(0, 150, 0), 20));
-			//_data.rt_entities.push_back(new RTPointLight(ImVec3(0, -100, 0), 40));
-			//_data.rt_entities.push_back(new RTPointLight(ImVec3(-100, 0, 0), 40));
-			//_data.rt_entities.push_back(new RTPointLight(ImVec3(100, 0, 0), 40));
+		if (ImGui::MenuItem("SceneBox (RT)")) {
+			auto s = new RTSceneBox(materials["default"]);
+			//s->setReflection(0.0f);
+			//s->setSurfaceColor(ImVec4(0, 255, 0, 255));
+			_data.rt_entities.push_back(s);
+		}
+		if (ImGui::MenuItem("Ambient Light (RT)")) {
+			_data.rt_entities.push_back(new RTAmbientLight());
+		}
+		if (ImGui::MenuItem("Point Light (RT)")) {
+			_data.rt_entities.push_back(new RTPointLight(ImVec3(0, 30, 100), 5));
+			//_data.rt_entities.push_back(new RTPointLight(ImVec3(-50, 30, 100), 5));
+			//_data.rt_entities.push_back(new RTPointLight(ImVec3(50, 30, 100), 5));
 		}
 		if (ImGui::MenuItem("Sphere (RT)")) {
-			auto s = new RTSphere(ImVec3(0, 50, 0), 50);
-			s->setSurfaceColor(ImVec4(0, 255, 0, 255));
+			auto s = new RTSphere(materials["default"], ImVec3(-80, -88, 0), 60);
+			//s->setSurfaceColor(ImVec4(0, 249, 161, 255));
+			//s->setTrasparency(0.7f);
+			//s->setReflection(0.5f);
 			_data.rt_entities.push_back(s);
 		}
 		if (ImGui::MenuItem("Cube (RT)")) {
-			auto s = new RTCube(ImVec3(0, 40, 0), 80);
-			s->setSurfaceColor(ImVec4(0, 255, 0, 255));
+			auto s = new RTCube(materials["default"], ImVec3(70, -98, 0), 100);
+			//s->setSurfaceColor(ImVec4(251, 228, 7, 255));
+			//s->setTrasparency(0.6f);
+			//s->setReflection(0.5f);
 			_data.rt_entities.push_back(s);
 		}
 		ImGui::EndMenu();

@@ -1,8 +1,30 @@
 #pragma once
 
-#include "pch.h"
+//#include "pch.h"
 #include "structers.h"
 
+class Material
+{
+public:
+	ImVec4 ambient = { 0.0215f, 0.1745f, 0.0215f, 1.0f };
+	ImVec4 diffuse = { 0.07568f, 0.61424f, 0.07568f, 1.0f };
+	ImVec4 specular = { 0.633f, 0.727811f, 0.633f, 1.0f };
+	float shininess = 76.8f;
+	float reflection = 0.5f;
+	float refraction = 0.9f;
+	float ior = 1.560f;
+	Material() {}
+	Material(ImVec4& _ambient, ImVec4& _diffuse, ImVec4& _specular, float _shininess, float _reflection, float _refraction, float _ior)
+	{
+		ambient = _ambient;
+		diffuse = _diffuse;
+		specular = _specular;
+		shininess = _shininess;
+		reflection = _reflection;
+		refraction = _refraction;
+		ior = _ior;
+	}
+};
 
 class RTEntity 
 { 
@@ -12,26 +34,25 @@ public:
 
 class RTObject : public RTEntity
 {
-	float diffuse = 1.0;
-	float transparency = 0.0;
-	float reflection = 0.0;
-	//float emission = 0.0;
-	ImVec4 surfaceColor;
-	//ImVec4 emissionColor;
 public:
-	RTObject() {}
+	Material* material;
+	RTObject() {
+		material = new Material();
+	}
 
-	float& getDiffuse() { return diffuse; }
-	float& getTrasparency() { return transparency; }
-	float& getReflection() { return reflection; }
-	//float& getEmission() { return emission; }
-	ImVec4& getSurfaceColor() { return surfaceColor; }
-	//ImVec4& getEmissionColor() { return emissionColor; }
+	//float& getDiffuse() { return diffuse; }
+	//float& getTrasparency() { return transparency; }
+	//float& getReflection() { return reflection; }
+	//float& getShininess() { return shininess; }
+	////float& getEmission() { return emission; }
+	//ImVec4& getSurfaceColor() { return surfaceColor; }
+	////ImVec4& getEmissionColor() { return emissionColor; }
 
-	void setDiffuse(float& _diffuse) { diffuse = _diffuse; }
-	void setTrasparency(float& _transparency) { transparency =_transparency; }
-	void setReflection(float& _reflection) { reflection = _reflection; }
-	//void setEmission(float& _emission) { emission = _emission; }
-	void setSurfaceColor(const ImVec4& _color) { surfaceColor = _color; }
-	//void setEmissionColor(ImVec4& _color) { emissionColor = _color; }
+	//void setDiffuse(const float& _diffuse) { diffuse = _diffuse; }
+	//void setTrasparency(const float& _transparency) { transparency =_transparency; }
+	//void setReflection(const float& _reflection) { reflection = _reflection; }
+	//void setShininess(const float& _shininess) { shininess = _shininess; }
+	////void setEmission(float& _emission) { emission = _emission; }
+	//void setSurfaceColor(const ImVec4& _color) { surfaceColor = _color; }
+	////void setEmissionColor(ImVec4& _color) { emissionColor = _color; }
 };

@@ -4,17 +4,21 @@
 
 class RTPointLight : public RTEntity
 {
+public:
 	ImVec3 center;
 	float radius;
 	float intensity;
+	float attenuation;
 	ImVec4 color;
-public:
+	float max_distance;
 	RTPointLight(const ImVec3& _center, float _radius)
 	{
 		center = _center;
 		radius = _radius;
 		intensity = 1.0f;
-		color = ImVec4(255, 255, 255, 255);
+		attenuation = 0.0f;
+		color = ImVec4(1, 1, 1, 1);
+		max_distance = 800;
 	}
 
 	RTPointLight(const ImVec3& _center, float _radius, float _intensity, const ImVec4& _color)
@@ -25,15 +29,16 @@ public:
 		color = _color;
 	}
 
-	float& getRadius() { return radius; }
-	float& getIntensity() { return intensity; }
-	ImVec3& getCenter() { return center; }
-	ImVec4& getColor() { return color; }
+	//float& getRadius() { return radius; }
+	//float& getIntensity() { return intensity; }
+	//ImVec3& getCenter() { return center; }
+	//ImVec4& getColor() { return color; }
+	void computeAttenuation(float distance_to_object) { attenuation = std::min(1.f, distance_to_object / max_distance); }
 
-	void getRadius(float& _radius) { radius = _radius; }
-	void getIntensity(float& _intensity) { intensity = _intensity; }
-	void getCenter(const ImVec3& _center) { center = _center; }
-	void getColor(const ImVec4& _color) { color = _color; }
+	//void setRadius(float& _radius) { radius = _radius; }
+	//void setIntensity(float& _intensity) { intensity = _intensity; }
+	//void setCenter(const ImVec3& _center) { center = _center; }
+	//void setColor(const ImVec4& _color) { color = _color; }
 
 	virtual bool getNearestIntersection(Ray& ray, float& mu, ImVec3& intersection_point, ImVec3& intersection_normal) override
 	{

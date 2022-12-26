@@ -6,11 +6,13 @@ class RTSphere : public RTObject
 {
 	ImVec3 center;
 	float radius;
+	Material* material;
 public:
-	RTSphere(const ImVec3& _center, float _radius)
+	RTSphere(Material* m, const ImVec3& _center, float _radius)
 	{
 		center = _center;
 		radius = _radius;
+		material = m;
 	}
 	virtual bool getNearestIntersection(Ray& ray, float& mu, ImVec3& intersection_point, ImVec3& intersection_normal) override
 	{

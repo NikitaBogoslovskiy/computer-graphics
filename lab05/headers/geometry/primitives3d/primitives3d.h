@@ -12,5 +12,6 @@
 #include "rtsphere.h"
 #include "rt_point_light.h"
 #include "rtcube.h"
+#include "rt_scene_box.h"
 
 #endif // !__PRIMITIVES_3D_H__

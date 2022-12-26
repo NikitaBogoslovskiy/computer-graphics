@@ -10,7 +10,7 @@ class RTCube : public RTObject
 	std::vector<ImVec3> vertices;
 	std::vector<Polygon> polygons;
 public:
-	RTCube(const ImVec3 _center, float _edge_length)
+	RTCube(Material* m, const ImVec3 _center, float _edge_length)
 	{
 		center = _center;
 		edge_length = _edge_length;
@@ -37,12 +37,14 @@ public:
 		polygons.push_back(Polygon{ 7, 3, 1 });
 		polygons.push_back(Polygon{ 7, 1, 5 });
 
+		material = m;
+
 		recalculate_normals();
 	}
 
 	void recalculate_normals() {
 		for (int i = 0; i < polygons.size(); ++i) {
-			polygons[i].normal = normilize(cross_product(vertices[polygons[i][2]] - vertices[polygons[i][1]], vertices[polygons[i][0]] - vertices[polygons[i][1]]));
+			polygons[i].normal = normilize(cross_product(vertices[polygons[i][1]] - vertices[polygons[i][0]], vertices[polygons[i][2]] - vertices[polygons[i][0]]));
 		}
 	}
 
@@ -53,23 +55,19 @@ public:
 		ImVec3 min_normal;
 		for (int i = 0; i < polygons.size(); ++i)
 		{
-			ImVec3 center = { 0, 0, 0 };
-			for (int j = 0; j < polygons[i].size(); ++j)
-				center += vertices[polygons[i][j]];
-			center /= polygons[i].size();
-			float curr_mu = -1 * ((ray.origin - center) * polygons[i].normal) / (ray.direction * polygons[i].normal);
-			if (curr_mu < 0) continue;
-			ImVec3 q = ray.origin + curr_mu * ray.direction; //intersection point
-			ImVec3 a = vertices[polygons[i][2]] - vertices[polygons[i][1]];
-			ImVec3 b = vertices[polygons[i][0]] - vertices[polygons[i][1]];
-			float alpha = ((b * b) * (q * a) - (a * b) * (q * b)) / ((a * a) * (b * b) - pow((a * b), 2));
-			float beta = ((q * b) - alpha * (a * b)) / (b * b);
-			if (alpha > 1 || alpha < 0 || beta > 1 || beta < 0 || (alpha + beta) > 1)
-				continue;
-			if (curr_mu < min_mu)
+			float normalDotRay = dot_product(polygons[i].normal, ray.direction);
+			if (abs(normalDotRay) < 0.0001) continue;	//ray and triangle are parallel
+			float d = -dot_product(polygons[i].normal, vertices[polygons[i][0]]);
+			float t = -(dot_product(polygons[i].normal, ray.origin) + d) / normalDotRay;
+			if (t < -1) continue; //triangle is behind us
+			ImVec3 p = ray.origin + t * ray.direction;
+			if (dot_product(polygons[i].normal, cross_product(vertices[polygons[i][1]] - vertices[polygons[i][0]], p - vertices[polygons[i][0]])) < 0) continue;
+			if (dot_product(polygons[i].normal, cross_product(vertices[polygons[i][2]] - vertices[polygons[i][1]], p - vertices[polygons[i][1]])) < 0) continue;
+			if (dot_product(polygons[i].normal, cross_product(vertices[polygons[i][0]] - vertices[polygons[i][2]], p - vertices[polygons[i][2]])) < 0) continue;
+			if (t < min_mu)
 			{
-				min_mu = curr_mu;
-				min_point = q;
+				min_mu = t;
+				min_point = p;
 				min_normal = polygons[i].normal;
 			}
 		}

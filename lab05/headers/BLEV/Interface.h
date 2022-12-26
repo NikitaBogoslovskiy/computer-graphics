@@ -33,7 +33,6 @@ namespace BLEV {
 			}
 		};
 		static const std::vector<ready_l_system*> ready_l_systems;
-
 		struct ConsoleFields {
 			char pseudo_console[100] = { '\0' };
 			std::string feedback;
@@ -113,7 +112,7 @@ namespace BLEV {
 
 		struct Menu {
 			BLEV::Data& _data;
-
+			static std::unordered_map<std::string, Material*> materials;
 			void ShowFileManagerMenu();
 			void ShowModesMenu();
 			void ShowMethodsMenu(B_method_open&);
