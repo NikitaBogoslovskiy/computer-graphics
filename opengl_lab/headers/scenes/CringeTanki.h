@@ -24,7 +24,10 @@ public:
 	float unit_angle = 100.f;
 	PLS pls;
 	DirLight dls;
-	SpotLight sps;
+	SpotLight sps1, sps2;
+	float sps_offset_x;
+	float sps_offset_y;
+	float sps_height;
 
 	enum Movement {
 		FORWARD,
@@ -37,8 +40,10 @@ public:
 	void LoadModels(const std::vector<inModelData>& inParams);
 	void PrepareData();
 	void ConfigureCamera(Camera& cam);
+	void ConfigureTank();
+	void ConfigureHeadlights();
 	void Draw(float time_coefficient, Camera& cam) final;
 	void SwitchSun() { dls.intensity = !dls.intensity; }
-	void SwitchFlashlight() { sps.intensity = !sps.intensity; }
+	void SwitchFlashlight() { sps1.intensity = !sps1.intensity; sps2.intensity = !sps2.intensity; }
 	void ProcessKeyboard(Movement direction, const float& deltaTime);
 };

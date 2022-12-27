@@ -15,11 +15,17 @@ in PointParams {
     vec3 lvBisector;
 } pointParams;
 
-in SpotParams {
+in SpotParams1 {
 	vec3 lightDir;
 	float dist;
     vec3 lvBisector;
-} spotParams;
+} spotParams1;
+
+in SpotParams2 {
+	vec3 lightDir;
+	float dist;
+    vec3 lvBisector;
+} spotParams2;
 
 // OUT ===============
 
@@ -61,7 +67,7 @@ uniform struct DirLight {
     float intensity;
 } dls;
 
-uniform struct SpotLight {
+struct SpotLight {
     vec3 position;
     vec3 direction;
     float eps;
@@ -73,11 +79,14 @@ uniform struct SpotLight {
 	vec3 attenuation;
 
     float intensity;
-} sps;
+};
+
+uniform SpotLight sps1;
+uniform SpotLight sps2;
 
 vec4 PhongPoint(PointLight pls, vec3 normal_n, vec3 viewDir_n);
 vec4 PhongDir(DirLight dls, vec3 normal_n, vec3 viewDir_n);
-vec4 PhongSpot(SpotLight sps, vec3 normal_n, vec3 viewDir_n);
+vec4 PhongSpot(SpotLight sps, vec3 normal_n, vec3 viewDir_n, float dist, vec3 light_dir);
 
 void main() 
 {
@@ -87,7 +96,8 @@ void main()
     FragColor = (mtl.emission
         + pls.intensity * PhongPoint(pls, normal_n, viewDir_n)
         + dls.intensity * PhongDir(dls, normal_n, viewDir_n)
-        + sps.intensity * PhongSpot(sps, normal_n, viewDir_n)
+        + sps1.intensity * PhongSpot(sps1, normal_n, viewDir_n, spotParams1.dist, spotParams1.lightDir)
+		+ sps2.intensity * PhongSpot(sps2, normal_n, viewDir_n, spotParams2.dist, spotParams2.lightDir)
         ) * texture(texture0, vert.TexCoord)
     ;
 }
@@ -130,13 +140,13 @@ vec4 PhongDir(DirLight dls, vec3 normal_n, vec3 viewDir_n)
     return _phongIllum(dls.ambient, dls.diffuse, dls.specular, normal_n, viewDir_n, lightDir_n);
 }
 
-vec4 PhongSpot(SpotLight sps, vec3 normal_n, vec3 viewDir_n)
+vec4 PhongSpot(SpotLight sps, vec3 normal_n, vec3 viewDir_n, float dist, vec3 light_dir)
 {
-    vec3 lightDir_n = normalize(spotParams.lightDir);
+    vec3 lightDir_n = normalize(light_dir);
 
     float att = 1.0 / (sps.attenuation[0] 
-    + sps.attenuation[1] * spotParams.dist 
-    + sps.attenuation[2] * spotParams.dist * spotParams.dist);
+    + sps.attenuation[1] * dist 
+    + sps.attenuation[2] * dist * dist);
 
     float intensity = _spotLightIntensity(sps.eps,  sps.outerCutOff, lightDir_n, sps.direction);
 

@@ -18,7 +18,7 @@ void LightExhibition::LoadModels(const std::vector<inModelData>& inParams)
 		m->SetPLS(&pls);
 		lc.SetColor(pls.specular);
 		m->SetDirLight(&dls);
-		m->SetSpotLight(&sps);
+		m->SetSpotLights(&sps, nullptr);
 
 		if (imd.vShader_path && *imd.vShader_path) {
 			m->ChangeShaders(imd.vShader_path, imd.fShader_path);

@@ -13,6 +13,8 @@ class PartedIllumiMesh : public IllumiMesh {
 	int current_material = 0;
 	void LoadMaterials(const char* mtllib_path, std::map<const char*, int>* mat_table);
 public:
+	float angle;
+	glm::vec3 scale;
 	PartedIllumiMesh();
 	PartedIllumiMesh(const char* obj_path);
 	virtual void Load(const char* path) override;

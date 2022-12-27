@@ -41,15 +41,16 @@ void App::Init()
 		{"MirTanka/Tanks.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/Tank.png"},
 		{"MirTanka/Field.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/Field.png"},
 		{"MirTanka/ChristmasTree.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/ChristmasTree.png"},
+		{"MirTanka/ORIGAMI_Chat_Free.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/metal.jpg"},
 		{"MirTanka/Stone-1.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/Stone-1.png"},
 		{"MirTanka/Barrel.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/Barrel.png"},
-		{"MirTanka/Barrel.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/Barrel.png"},
-		{"MirTanka/Barrel.obj","shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/Barrel.png"},
 		{"MirTanka/Tree.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/Tree.png"},
 		//{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "dummy_wood.jpg"},
 		});
 	tanks->PrepareData();
+	tanks->ConfigureTank();
 	tanks->ConfigureCamera(camera);
+	tanks->ConfigureHeadlights();
 	scenes.push_back(tanks);
 
 	cur_scene = 0;

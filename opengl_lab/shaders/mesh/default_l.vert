@@ -20,11 +20,17 @@ out PointParams {
 	vec3 lvBisector;
 } pointParams;
 
-out SpotParams {
+out SpotParams1 {
 	vec3 lightDir;
 	float dist;
 	vec3 lvBisector;
-} spotParams;
+} spotParams1;
+
+out SpotParams2 {
+	vec3 lightDir;
+	float dist;
+	vec3 lvBisector;
+} spotParams2;
 
 // UNIFORMS ===============
 
@@ -47,7 +53,7 @@ uniform struct PointLight {
 	float intensity;
 } pls;
 
-uniform struct SpotLight {
+struct SpotLight {
     vec3 position;
     vec3 direction;
     float eps;
@@ -59,7 +65,10 @@ uniform struct SpotLight {
 	vec3 attenuation;
 
 	float intensity;
-} sps;
+};
+
+uniform SpotLight sps1;
+uniform SpotLight sps2;
 
 // actually should pull here lightDirs for the lights but now whatever
 void main()
@@ -75,9 +84,13 @@ void main()
 	pointParams.dist = length(pointParams.lightDir);
 	pointParams.lvBisector = normalize(pointParams.lightDir) + vert.viewDir;
 
-	spotParams.lightDir = vec3(sps.position) - vPos3;
-	spotParams.dist = length(spotParams.lightDir);
-	spotParams.lvBisector = normalize(spotParams.lightDir) + vert.viewDir;
+	spotParams1.lightDir = vec3(sps1.position) - vPos3;
+	spotParams1.dist = length(spotParams1.lightDir);
+	spotParams1.lvBisector = normalize(spotParams1.lightDir) + vert.viewDir;
+	
+	spotParams2.lightDir = vec3(sps2.position) - vPos3;
+	spotParams2.dist = length(spotParams2.lightDir);
+	spotParams2.lvBisector = normalize(spotParams2.lightDir) + vert.viewDir;
 
 	gl_Position = transform.projection * transform.view * vPos4;
 }

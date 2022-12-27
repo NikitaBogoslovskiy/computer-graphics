@@ -10,7 +10,7 @@ class IllumiMesh : public Mesh {
 protected:
 	const PLS* pls;
 	const DirLight* dirLight;
-	const SpotLight* spotLight;
+	const SpotLight* spotLight1, *spotLight2;
 
 	struct TransformLoc {
 		GLuint model;
@@ -62,7 +62,7 @@ protected:
 		GLuint attenuation;
 
 		GLuint intensity;
-	} spsLoc;
+	} spsLoc1, spsLoc2;
 public:
 	IllumiMesh();
 	IllumiMesh(const char* obj_path);
@@ -70,7 +70,7 @@ public:
 	virtual void InitShader() override;
 	virtual void ChangeShaders(const char* vertex_path, const char* fragment_path) override;
 	void SetPLS(const PLS* const pls);
-	void SetSpotLight(const SpotLight* const _spotLight);
+	void SetSpotLights(const SpotLight* const _spotLight1, const SpotLight* const _spotLight2);
 	void SetDirLight(const DirLight* const _dirLight);
 };
 
