@@ -8,6 +8,7 @@
 #include "../headers/entities/Skybox.h"
 #include "../headers/scenes/LightExhibition.h"
 #include "../headers/scenes/SolarSystem.h"
+#include "../headers/scenes/CringeTanki.h"
 #include "Camera.h"
 
 class App {
@@ -15,6 +16,7 @@ class App {
 
 	sf::Clock clock;
 	Camera camera;
+	CringeTanki* tanks;
 
 	float elapsedTime;
 	float deltaTime;

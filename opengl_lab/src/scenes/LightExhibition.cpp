@@ -63,6 +63,7 @@ void LightExhibition::Draw(float time_coefficient, Camera& cam)
 		),
 			cam);
 	}
+
 	if (sps.intensity > 0.0) {
 		sps.position = cam.GetPosition();
 		sps.direction = cam.GetDirection();

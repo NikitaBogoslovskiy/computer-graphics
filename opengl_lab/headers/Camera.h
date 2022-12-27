@@ -3,7 +3,7 @@
 #include "pch.h"
 
 class Camera {
-
+public:
 	glm::vec3 Position; //in world coordinates
 
 	glm::vec3 Front;
@@ -32,7 +32,6 @@ class Camera {
 	bool needsUpdateView = true;
 	bool needsUpdateProjection = true;
 
-public:
 	enum Direction {
 		FORWARD,
 		BACKWARD,

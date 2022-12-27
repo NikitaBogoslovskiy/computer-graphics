@@ -159,6 +159,7 @@
     <ClCompile Include="src\entities\Entity.cpp" />
     <ClCompile Include="src\entities\Skybox.cpp" />
     <ClCompile Include="src\meshes\PartedIllumiMesh.cpp" />
+    <ClCompile Include="src\scenes\CringeTanki.cpp" />
     <ClCompile Include="src\scenes\LightExhibition.cpp" />
     <ClCompile Include="src\scenes\SolarSystem.cpp" />
     <ClCompile Include="src\meshes\DynamicMesh.cpp" />
@@ -182,6 +183,7 @@
     <ClInclude Include="headers\meshes\IllumiMesh.h" />
     <ClInclude Include="headers\meshes\Meshes.h" />
     <ClInclude Include="headers\meshes\PartedIllumiMesh.h" />
+    <ClInclude Include="headers\scenes\CringeTanki.h" />
     <ClInclude Include="headers\scenes\LightExhibition.h" />
     <ClInclude Include="headers\scenes\SolarSystem.h" />
     <ClInclude Include="headers\main.h" />

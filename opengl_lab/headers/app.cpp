@@ -19,22 +19,39 @@ void App::Init()
 	cur_scene = 0;
 	*/
 
-	auto le = new LightExhibition();
-	le->LoadModels({
-			{"MirTanka/Field.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Field.png"},
-			{"MirTanka/ChristmasTree.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/ChristmasTree.png"},
-			{"MirTanka/Stone-1.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Stone-1.png"},
-			{"MirTanka/Tanks.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Tank.png"},
+	//auto le = new LightExhibition();
+	//le->LoadModels({
+	//		{"MirTanka/Field.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Field.png"},
+	//		{"MirTanka/ChristmasTree.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/ChristmasTree.png"},
+	//		{"MirTanka/Stone-1.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Stone-1.png"},
+	//		{"MirTanka/Tanks.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Tank.png"},
 
-			{"MirTanka/Barrel.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Barrel.png"},
-			{"MirTanka/Barrel.obj", "shaders/mesh/default_l.vert", "shaders/mesh/Toon.frag", "MirTanka/Barrel.png"},
+	//		{"MirTanka/Barrel.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Barrel.png"},
+	//		{"MirTanka/Barrel.obj", "shaders/mesh/default_l.vert", "shaders/mesh/Toon.frag", "MirTanka/Barrel.png"},
 
-			{"MirTanka/Barrel.obj","shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Barrel.png"},
-			{"MirTanka/Tree.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Tree.png"},
-			{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "dummy_wood.jpg"},
+	//		{"MirTanka/Barrel.obj","shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Barrel.png"},
+	//		{"MirTanka/Tree.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "MirTanka/Tree.png"},
+	//		{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/CookTorrance.frag", "dummy_wood.jpg"},
+	//	});
+	//le->PrepareData();
+	//scenes.push_back(le);
+
+	tanks = new CringeTanki();
+	tanks->LoadModels({
+		{"MirTanka/Tanks.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/Tank.png"},
+		{"MirTanka/Field.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/Field.png"},
+		{"MirTanka/ChristmasTree.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/ChristmasTree.png"},
+		{"MirTanka/Stone-1.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/Stone-1.png"},
+		{"MirTanka/Barrel.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/Barrel.png"},
+		{"MirTanka/Barrel.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/Barrel.png"},
+		{"MirTanka/Barrel.obj","shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/Barrel.png"},
+		{"MirTanka/Tree.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "MirTanka/Tree.png"},
+		//{"dummy_obj.obj", "shaders/mesh/default_l.vert", "shaders/mesh/default_l.frag", "dummy_wood.jpg"},
 		});
-	le->PrepareData();
-	scenes.push_back(le);
+	tanks->PrepareData();
+	tanks->ConfigureCamera(camera);
+	scenes.push_back(tanks);
+
 	cur_scene = 0;
 	/*
 	*/
@@ -69,7 +86,7 @@ void App::PollEvents(sf::Window& window)
 			window.close();
 		}
 		else if (event.type == sf::Event::KeyPressed) {
-			LightExhibition* le = dynamic_cast<LightExhibition*>(currScene());
+			CringeTanki* scene = dynamic_cast<CringeTanki*>(currScene());
 			switch (event.key.code)
 			{
 			case sf::Keyboard::W:
@@ -99,19 +116,19 @@ void App::PollEvents(sf::Window& window)
 				break;
 
 			case sf::Keyboard::F: {
-				if (!le) break;
-				le->SwitchFlashlight();
+				if (!scene) break;
+				scene->SwitchFlashlight();
 			} break;
 
 			case sf::Keyboard::G: {
-				if (!le) break;
-				le->SwitchSun();
+				if (!scene) break;
+				scene->SwitchSun();
 			} break;
 
-			case sf::Keyboard::H: {
-				if (!le) break;
-				le->SwitchLamp();
-			} break;
+			//case sf::Keyboard::H: {
+			//	if (!le) break;
+			//	le->SwitchLamp();
+			//} break;
 
 			case sf::Keyboard::Up:
 				settings.is_arrow_up = true;
@@ -181,11 +198,11 @@ void App::PollEvents(sf::Window& window)
 			glViewport(0, 0, event.size.width, event.size.height);
 		}
 	}
-
-	if (settings.is_left)  camera.ProcessKeyboard(Camera::LEFT, deltaTime);
-	if (settings.is_right) camera.ProcessKeyboard(Camera::RIGHT, deltaTime);
-	if (settings.is_up)    camera.ProcessKeyboard(Camera::FORWARD, deltaTime);
-	if (settings.is_down)  camera.ProcessKeyboard(Camera::BACKWARD, deltaTime);
+	
+	if (settings.is_left)  tanks->ProcessKeyboard(CringeTanki::LEFT_ROTATION, deltaTime); //camera.ProcessKeyboard(Camera::LEFT, deltaTime);
+	if (settings.is_right) tanks->ProcessKeyboard(CringeTanki::RIGHT_ROTATION, deltaTime); //camera.ProcessKeyboard(Camera::RIGHT, deltaTime);
+	if (settings.is_up)    tanks->ProcessKeyboard(CringeTanki::FORWARD, deltaTime); // camera.ProcessKeyboard(Camera::FORWARD, deltaTime);
+	if (settings.is_down)  tanks->ProcessKeyboard(CringeTanki::BACKWARD, deltaTime); //camera.ProcessKeyboard(Camera::BACKWARD, deltaTime);
 	if (settings.is_arrow_up)    camera.IncVelocity();
 	if (settings.is_arrow_down)  camera.DecVelocity();
 
