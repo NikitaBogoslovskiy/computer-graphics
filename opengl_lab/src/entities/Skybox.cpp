@@ -75,12 +75,12 @@ void Skybox::InitVO() {
 	// well should pass the skybox num as param but dont care at the moment
 	std::vector<std::string> faces
 	{
-		"shaders/skyboxes/3/right.jpg",
-		"shaders/skyboxes/3/left.jpg",
-		"shaders/skyboxes/3/top.jpg",
-		"shaders/skyboxes/3/bottom.jpg",
-		"shaders/skyboxes/3/front.jpg",
-		"shaders/skyboxes/3/back.jpg"
+		"shaders/skyboxes/2/right.jpg",
+		"shaders/skyboxes/2/left.jpg",
+		"shaders/skyboxes/2/top.jpg",
+		"shaders/skyboxes/2/bottom.jpg",
+		"shaders/skyboxes/2/front.jpg",
+		"shaders/skyboxes/2/back.jpg"
 	};
 	cubemapTexture = loadCubemap(faces);
 

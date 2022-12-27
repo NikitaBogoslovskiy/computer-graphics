@@ -36,7 +36,8 @@ float distance(float x1, float y1, float x2, float y2) { return sqrt(pow(x1 - x2
 
 void CringeTanki::PrepareData()
 {
-	float min_radius = 3.f;
+	srand(time(NULL));
+	float min_radius = 2.f;
 	float max_abs = 9.f;
 	objects[0]->position = { -2, 0, -2 };
 	std::vector<std::pair<float, float>> added = { std::make_pair(0, 0), std::make_pair(-2, -2) };
@@ -75,7 +76,7 @@ void CringeTanki::ConfigureCamera(Camera& cam)
 {
 	camera_height = 0.8f;
 	camera_distance = 1.8f;
-	camera_pitch = -15.f;
+	camera_pitch = -10.f;
 	camera_yaw = -180.f;
 	camera = &cam;
 	camera->Position = tank->position - tank_direction * camera_distance;

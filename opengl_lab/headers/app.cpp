@@ -139,6 +139,22 @@ void App::PollEvents(sf::Window& window)
 				settings.is_arrow_down = true;
 				break;
 
+			//case sf::Keyboard::Left:
+			//	settings.is_arrow_left = true;
+			//	break;
+
+			//case sf::Keyboard::Right:
+			//	settings.is_arrow_right = true;
+			//	break;
+
+			//case sf::Keyboard::O:
+			//	settings.is_o = true;
+			//	break;
+
+			//case sf::Keyboard::P:
+			//	settings.is_p = true;
+			//	break;
+
 			default:
 				break;
 			}
