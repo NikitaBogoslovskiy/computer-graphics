@@ -21,7 +21,7 @@ public:
 	float camera_pitch;
 	float camera_yaw;
 	float velocity = 2.f;
-	float unit_angle = 100.f;
+	float unit_angle = 50.f;
 	PLS pls;
 	DirLight dls;
 	SpotLight sps1, sps2;
