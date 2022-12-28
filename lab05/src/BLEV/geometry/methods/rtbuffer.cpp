@@ -1,4 +1,5 @@
 #include "../headers/geometry/methods/rtbuffer.h"
+#include <iostream>
 
 RTBuffer::RTBuffer(size_t width, size_t height, ImVec2& _offset)
 {
@@ -114,11 +115,10 @@ ImVec4 RTBuffer::computeLocalIllumination(std::vector<RTEntity*>& rt_entities, R
 			}
 			if (is_illuminated)
 			{
-				float diffuse_coefficient = (1 - pl->attenuation) * pl->intensity * std::max(0.0f, dot_product(normal, light_direction));
+				float diffuse_coefficient = transmission * (1 - pl->attenuation) * pl->intensity * std::max(0.0f, dot_product(normal, light_direction));
 				float shininess = object->material->shininess;
 				float specular_coefficient = shininess > 0 ? (1 - pl->attenuation) * pl->intensity * pow(std::max(0.0f, dot_product(specular_dir, -1 * ray.direction)), shininess) : 0;
 				local_color = sum_colors(local_color, sum_colors(diffuse_coefficient * mix_colors(object->material->diffuse, pl->color), specular_coefficient * mix_colors(object->material->specular, pl->color)));
-				local_color = local_color * transmission;
 				local_color.w = 1.0f;
 			}
 		}
@@ -147,7 +147,7 @@ ImVec4 RTBuffer::computeRefraction(std::vector<RTEntity*>& rt_entities, int dept
 	Ray refraction_ray1{ point + 0.5 * refrdir1, refrdir1 };
 	float mu;
 	ImVec3 intersection_point2, intersection_normal2;
-	Ray final_ray;
+	Ray final_ray, refraction_ray2;
 	if (object->getNearestIntersection(refraction_ray1, mu, intersection_point2, intersection_normal2) && mu > 1)
 	{
 		eta = ior;
@@ -155,12 +155,11 @@ ImVec4 RTBuffer::computeRefraction(std::vector<RTEntity*>& rt_entities, int dept
 		if (rayDotNormal < 0)
 		{
 			intersection_normal2 = intersection_normal2 * (-1);
-			//rayDotNormal = -dot_product(refraction_ray1.direction, intersection_normal2);
 		}
 		k = 1 - eta * eta * (1 - rayDotNormal * rayDotNormal);
-		float cos_output = sqrt(k);
+		cos_output = sqrt(k);
 		ImVec3 refrdir2 = normilize(eta * refraction_ray1.direction + (eta * rayDotNormal - cos_output) * intersection_normal2);
-		Ray refraction_ray2{ intersection_point2 + 0.5 * refrdir2, refrdir2 };
+		refraction_ray2 = { intersection_point2 + 0.5 * refrdir2, refrdir2 };
 		final_ray = refraction_ray2;
 	}
 	else
@@ -204,34 +203,6 @@ bool RTBuffer::findClosest(Ray& ray, std::vector<RTEntity*>& rt_entities, float 
 
 ImVec4 RTBuffer::trace(Ray& ray, std::vector<RTEntity*>& rt_entities, float min_mu, float max_mu, int depth)
 {
-	//float closest_mu = FLT_MAX;
-	//ImVec3 nearest_intersection_point;
-	//ImVec3 nearest_intersection_normal;
-	//RTEntity* nearest_entity = nullptr;
-	//Material* nearest_material;
-	//for (auto obj : rt_entities)
-	//{
-	//	float curr_mu;
-	//	ImVec3 intersection_point, intersection_normal;
-	//	if (obj->getNearestIntersection(ray, curr_mu, intersection_point, intersection_normal) && curr_mu > min_mu && curr_mu < max_mu && curr_mu < closest_mu)
-	//	{
-	//		closest_mu = curr_mu;
-	//		nearest_entity = obj;
-	//		nearest_intersection_point = intersection_point;
-	//		nearest_intersection_normal = intersection_normal;
-	//	}
-	//}
-	//if (nearest_entity == nullptr)
-	//	return ImVec4(0, 0, 0, 255);
-	//RTPointLight* pl = dynamic_cast<RTPointLight*>(nearest_entity);
-	//if (pl != nullptr)
-	//	return pl->getColor();
-	//RTObject* nearest_object = dynamic_cast<RTObject*>(nearest_entity);
-	//RTSceneBox* nearest_box = dynamic_cast<RTSceneBox*>(nearest_object);
-	//if (nearest_box != nullptr)
-	//	nearest_color = nearest_box->getChosenColor();
-	//else
-	//	nearest_color = nearest_object->getSurfaceColor();
 	ImVec3 point, normal;
 	RTObject* object = nullptr;
 	ImVec4 output_color;
@@ -240,17 +211,6 @@ ImVec4 RTBuffer::trace(Ray& ray, std::vector<RTEntity*>& rt_entities, float min_
 	ImVec4 local_color = computeLocalIllumination(rt_entities, object, ray, point, normal);
 	if (object->material->reflection == 0 && object->material->refraction == 0 || depth == MAX_DEPTH)
 		return local_color;
-
-	//bool inside = false;
-	//float reflection = nearest_object->getReflection();
-	//float refraction = nearest_object->getTrasparency();
-	//float facingratio = dot_product(-1 * ray.direction, nearest_intersection_normal);
-	//float fresneleffect = mix_floats(pow(1 - facingratio, 3), 1, reflection);
-	//ImVec3 refldir =  2 * nearest_intersection_normal * dot_product(nearest_intersection_normal, -1 * ray.direction) + ray.direction;
-	//Ray reflection_ray{ nearest_intersection_point, refldir };
-	//ImVec4 reflected_color = trace(reflection_ray, rt_entities, 1, FLT_MAX, depth + 1);
-	//result_color = sum_colors((1 - reflection) * result_color, reflection * reflected_color);
-	//if (nearest_object->getTrasparency() > 0) {
 	ImVec4 reflected_color, refracted_color;
 	reflected_color.w = 1.0;
 	refracted_color.w = 1.0;
@@ -258,48 +218,6 @@ ImVec4 RTBuffer::trace(Ray& ray, std::vector<RTEntity*>& rt_entities, float min_
 		reflected_color = computeReflection(rt_entities, depth + 1, ray, point, normal);
 	if (object->material->refraction > 0)
 		refracted_color = computeRefraction(rt_entities, depth + 1, ray, object, point, normal, object->material->ior);
-	//float ior = 1.0, eta = 1 / ior;
-	//float rayDotNormal = -dot_product(ray.direction, nearest_intersection_normal);
-	//if (rayDotNormal < 0)
-	//{
-	//	//inside = true;
-	//	nearest_intersection_normal = nearest_intersection_normal * (-1);
-	//	rayDotNormal = -dot_product(ray.direction, nearest_intersection_normal);
-	//}
-	//float k = 1 - eta * eta * (1 - rayDotNormal * rayDotNormal);
-	//float cos_output = sqrt(k);
-	//ImVec3 refrdir1 = normilize(eta * ray.direction + (eta * rayDotNormal - cos_output) * nearest_intersection_normal);
-	//Ray refraction_ray1{ nearest_intersection_point + 0.5 * refrdir1, refrdir1 };
-	//float mu;
-	//ImVec3 intersection_point2, intersection_normal2;
-	//Ray final_ray;
-	//if (nearest_object->getNearestIntersection(refraction_ray1, mu, intersection_point2, intersection_normal2) && mu > 1)
-	//{
-	//	eta = ior;
-	//	rayDotNormal = -dot_product(refraction_ray1.direction, intersection_normal2);
-	//	if (rayDotNormal < 0)
-	//	{
-	//		//inside = true;
-	//		intersection_normal2 = intersection_normal2 * (-1);
-	//		rayDotNormal = -dot_product(refraction_ray1.direction, intersection_normal2);
-	//	}
-	//	k = 1 - eta * eta * (1 - rayDotNormal * rayDotNormal);
-	//	float cos_output = sqrt(k);
-	//	ImVec3 refrdir2 = normilize(eta * refraction_ray1.direction + (eta * rayDotNormal - cos_output) * intersection_normal2);
-	//	Ray refraction_ray2{ intersection_point2 + 0.5 * refrdir2, refrdir2 };
-	//	final_ray = refraction_ray2;
-	//}
-	//else
-	//	final_ray = refraction_ray1;
-	//ImVec4 refracted_color = trace(final_ray, rt_entities, 1, FLT_MAX, depth + 1);
 	ImVec4 result_color = sum_colors(local_color, sum_colors(object->material->refraction * refracted_color, object->material->reflection * reflected_color));
-	//ImVec4 result_color = sum_colors(local_color, object->material->reflection * reflected_color);
-	//float cosi = dot_product(ray.direction, -1 * nearest_intersection_normal);
-	//float k = 1 - eta * eta * (1 - cosi * cosi);
-	//ImVec3 refrdir = normilize(ray.direction * eta + nearest_intersection_normal * (eta * cosi - sqrt(k)));
-
-	//}
-	//result_color = mix_colors(sum_colors(reflection * fresneleffect, refraction * (1 - fresneleffect) * nearest_object->getTrasparency()), nearest_color);
-	//result_color = mix_colors(reflection * fresneleffect, nearest_color);
 	return result_color;
 }

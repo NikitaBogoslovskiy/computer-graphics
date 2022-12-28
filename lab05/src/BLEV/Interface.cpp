@@ -39,12 +39,12 @@ std::unordered_map<std::string, Material*> BLEV::Interface::Menu::materials{
 	{"pearl", new Material(ImVec4 {0.25f, 0.20725f, 0.20725f, 1.0f}, ImVec4 {1.0f, 0.829f, 0.829f, 1.0f}, ImVec4 {0.296648f, 0.296648f, 0.296648f, 1.0f}, 11.264f, 0.2f, 0.078f, 1.530f)},
 	{"mirror", new Material(ImVec4 {0.0f, 0.0f, 0.0f, 1.0f}, ImVec4 {0.0f, 0.0f, 0.0f, 1.0f}, ImVec4 {0.0f, 0.0f, 0.0f, 1.0f}, 0.0f, 1.0f, 0.0f, 0.0f)},
 	{"polished silver", new Material(ImVec4 {0.23125f, 0.23125f, 0.23125f, 1.0f}, ImVec4 {0.50754f, 0.50754f, 0.50754f, 1.0f}, ImVec4 {0.508273f, 0.508273f, 0.508273f, 1.0f}, 89.6f, 0.2f, 0.0f, 0.0f)},
-	{"lightBlueReflective", new Material(ImVec4 {0.25f, 0.3f, 0.8f, 1.0f}, ImVec4 {0.25f, 0.3f, 0.8f, 1.0f}, ImVec4 {0.25f, 0.3f, 0.8f, 1.0f}, 10.0f, 0.8f, 0.0f, 0.0f)},
+	{"blue_glass", new Material(ImVec4 {0.25f, 0.3f, 0.8f, 1.0f}, ImVec4 {0.25f, 0.3f, 0.8f, 1.0f}, ImVec4 {0.25f, 0.3f, 0.8f, 1.0f}, 10.0f, 0.8f, 0.0f, 0.0f)},
 	{"ruby", new Material(ImVec4 {0.1745f, 0.01175f, 0.01175f, 1.0f}, ImVec4 {0.61424f, 0.04136f, 0.04136f, 1.0f}, ImVec4 {0.727811f, 0.626959f, 0.626959f, 1.0f}, 76.8f, 0.3f, 0.45f, 1.757f)},
 	{"glass", new Material(ImVec4 {0.1f, 0.1f, 0.1f, 1.0f}, ImVec4 {1.0f, 1.0f, 1.0f, 1.0f}, ImVec4 {0.992157f, 0.941176f, 0.807843f, 1.0f}, 32.0f, 0.25f, 1.0f, 1.6f)},
-	{"emerald", new Material(ImVec4 {0.0215f, 0.1745f, 0.0215f, 1.0f}, ImVec4 {0.07568f, 0.61424f, 0.07568f, 1.0f}, ImVec4 {0.633f, 0.727811f, 0.633f, 1.0f}, 76.8f, 0.5f, 0.65f, 1.560f)},
-	{"water2", new Material(ImVec4 {0.1f, 0.3f, 0.2f, 1.0f}, ImVec4 {0.25f, 0.3f, 0.8f, 1.0f}, ImVec4 {0.792157f, 0.741176f, 0.807843f, 1.0f}, 10.0f, 0.8f, 1.0f, 1.333f)},
-	{"water", new Material(ImVec4 {0.1f, 0.1f, 0.1f, 1.0f}, ImVec4 {0.1f, 0.1f, 0.1f, 1.0f}, ImVec4 {0.2f, 0.2f, 0.2f, 1.0f}, 10.0f, 0.0f, 1.0f, 1.333f)},
+	{"emerald", new Material(ImVec4 {0.0215f, 0.1745f, 0.0215f, 1.0f}, ImVec4 {0.07568f, 0.61424f, 0.07568f, 1.0f}, ImVec4 {0.633f, 0.727811f, 0.633f, 1.0f}, 76.8f, 0.5f, 0.55f, 1.560f)},
+	{"water", new Material(ImVec4 {0.1f, 0.3f, 0.2f, 1.0f}, ImVec4 {0.25f, 0.3f, 0.8f, 1.0f}, ImVec4 {0.792157f, 0.741176f, 0.807843f, 1.0f}, 10.0f, 0.8f, 1.0f, 1.333f)},
+	{"transparent_glass", new Material(ImVec4 {0.1f, 0.1f, 0.1f, 1.0f}, ImVec4 {0.1f, 0.1f, 0.1f, 1.0f}, ImVec4 {0.2f, 0.2f, 0.2f, 1.0f}, 10.0f, 0.0f, 1.0f, 1.333f)},
 };
 
 static void HelpMarker(const char* desc)
@@ -1214,10 +1214,10 @@ void BLEV::Interface::Menu::ShowAddingMenu()
 			auto sphere2 = new RTSphere(materials["mirror"], ImVec3(-70, -120, -70), 80);
 			_data.rt_entities.push_back(sphere2);
 
-			auto cube2 = new RTCube(materials["lightBlueReflective"], ImVec3(-70, 20, -70), 90, 90, 90);
+			auto cube2 = new RTCube(materials["blue_glass"], ImVec3(-70, 20, -70), 90, 90, 90);
 			_data.rt_entities.push_back(cube2);
 
-			auto cube3 = new RTCube(materials["water"], ImVec3(30, -150, 70), 15, 100, 75);
+			auto cube3 = new RTCube(materials["transparent_glass"], ImVec3(30, -150, 70), 15, 100, 75);
 			_data.rt_entities.push_back(cube3);
 
 			//auto s = new RTCube(materials["default"], ImVec3(90, -48, 0), 100, 100, 300);
